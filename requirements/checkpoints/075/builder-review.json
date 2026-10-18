@@ -1,0 +1,1 @@
+{"checkpoint":75,"reviewer":"requirements_builder agent","disposition":"Accepted after six planning corrections verified","scope":"Source-informed implementation planning; no runtime verification","corrections":["bounded worker reservation","independent internal UDP","timer accounting boundary","suspended stack sampling","shell-independent recovery","network tickless deadlines"]}

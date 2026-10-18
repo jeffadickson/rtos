@@ -1,0 +1,7 @@
+if(RTOS_ETHERNET)
+  add_library(rtos_ethernet STATIC src/ethernet.cpp)
+  target_link_libraries(rtos_ethernet PUBLIC rtos_options)
+endif()
+if(TARGET rtos_ethernet)
+  add_library(nexrt::ethernet ALIAS rtos_ethernet)
+endif()

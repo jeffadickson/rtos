@@ -1,0 +1,77 @@
+{
+  "iteration": 25,
+  "result": "passed",
+  "scope": "Host/cross-build evidence only; no board execution",
+  "gates": [
+    {
+      "command": "cmake",
+      "arguments": [
+        "--build",
+        "--preset",
+        "host"
+      ],
+      "exitCode": 0,
+      "log": "integration/checkpoints/025/20261018-230012/01.log",
+      "sha256": "2fd67506e217826afa14de31d76046b85aa4fcad365867060dd6e31df3b0441c"
+    },
+    {
+      "command": "ctest",
+      "arguments": [
+        "--preset",
+        "host"
+      ],
+      "exitCode": 0,
+      "log": "integration/checkpoints/025/20261018-230012/02.log",
+      "sha256": "5918bef65effb5dc7ac448b1332e6753a34470508e21d5d00c3d74bf7907fde1"
+    },
+    {
+      "command": "cmake",
+      "arguments": [
+        "--build",
+        "--preset",
+        "nano"
+      ],
+      "exitCode": 0,
+      "log": "integration/checkpoints/025/20261018-230012/03.log",
+      "sha256": "d1c82b8ae14f7ecf031cc5778f07e64f7b41254876b595de5847802297cd393b"
+    },
+    {
+      "command": "cmake",
+      "arguments": [
+        "--build",
+        "--preset",
+        "riscue"
+      ],
+      "exitCode": 0,
+      "log": "integration/checkpoints/025/20261018-230012/04.log",
+      "sha256": "f74be82d951bbf16e8ac90f745c8abf4a2e6999dea6a16cbf4dff8837d12342b"
+    },
+    {
+      "command": "cmake",
+      "arguments": [
+        "--build",
+        "--preset",
+        "riscue",
+        "--target",
+        "static_contract_check"
+      ],
+      "exitCode": 0,
+      "log": "integration/checkpoints/025/20261018-230012/05.log",
+      "sha256": "2e234e216c52752d01cd003c298a384c7590bb9cb698997301e90357ac14a1d3"
+    },
+    {
+      "command": "cmake",
+      "arguments": [
+        "--build",
+        "--preset",
+        "host",
+        "--target",
+        "static_analysis",
+        "docs"
+      ],
+      "exitCode": 0,
+      "log": "integration/checkpoints/025/20261018-230012/06.log",
+      "sha256": "5522f11fda61de7368a761c067258a6f2fc7f434d88efad17b585db73b45d83e"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+[0/2] Re-checking globbed directories...
+[1/2] Linking CXX executable demo.elf
+/mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/../../../riscv64-unknown-elf/bin/ld: warning: demo.elf has a LOAD segment with RWX permissions
+Static-only ELF audit passed: no allocator or dynamic C++ initializer symbols
+   text	   data	    bss	    dec	    hex	filename
+   4664	     84	   4000	   8748	   222c	/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/riscue/demo.elf
+[2/2] cd /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/riscue && /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/native-tools/NexRT.Requirements/NexRT.Requirements check /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos
+Tracker check passed: 112 substantive review iterations; 80 planned; no runtime verification claims.

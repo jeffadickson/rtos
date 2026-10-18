@@ -1,0 +1,44 @@
+[0/2] Re-checking globbed directories...
+[1/3] cd /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host && /usr/bin/clang++ --target=riscv32-unknown-elf -march=rv32im_zicsr -mabi=ilp32 -std=c++17 -ffreestanding -fno-exceptions -fno-rtti -I/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/include -I/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src -I/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/ports/riscue -DRTOS_MAX_THREADS=16 -DRTOS_TICK_HZ=1000 -DRTOS_IDLE_STACK_BYTES=1024 -DRTOS_ROUND_ROBIN=1 -DRTOS_METRICS=1 -DRTOS_STACK_GUARD=1 -DRTOS_MTIME_ADDRESS=0x0200bff8 -DRTOS_MTIMECMP_ADDRESS=0x02004000 --analyze -Xanalyzer -analyzer-output=text /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/kernel.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/ethernet.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/memory.cpp
+[2/3] cd /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host && /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/native-tools/NexRT.Requirements/NexRT.Requirements check /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos
+Tracker check passed: 112 substantive review iterations; 80 planned; no runtime verification claims.
+[3/3] cd /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host && /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/docs-venv/bin/sphinx-build -n -W --keep-going -b html /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/docs /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/docs/html
+Running Sphinx v8.2.3
+loading translations [en]... done
+loading pickled environment... done
+building [mo]: targets for 0 po files that are out of date
+writing output... 
+building [html]: targets for 2 source files that are out of date
+updating environment: 2 added, 2 changed, 0 removed
+reading sources... [ 25%] footprint
+reading sources... [ 50%] index
+reading sources... [ 75%] integration-history
+reading sources... [100%] requirements-tracker
+
+looking for now-outdated files... 1 found
+pickling environment... done
+checking consistency... done
+preparing documents... done
+copying assets... 
+copying static files... 
+Writing evaluated template result to /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/docs/html/_static/basic.css
+Writing evaluated template result to /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/docs/html/_static/documentation_options.js
+Writing evaluated template result to /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/docs/html/_static/language_data.js
+Writing evaluated template result to /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/docs/html/_static/alabaster.css
+copying static files: done
+copying extra files... 
+copying extra files: done
+copying assets: done
+writing output... [ 20%] footprint
+writing output... [ 40%] index
+writing output... [ 60%] integration-history
+writing output... [ 80%] requirements-process
+writing output... [100%] requirements-tracker
+
+generating indices... genindex done
+writing additional pages... search done
+dumping search index in English (code: en)... done
+dumping object inventory... done
+build succeeded.
+
+The HTML pages are in docs/html.

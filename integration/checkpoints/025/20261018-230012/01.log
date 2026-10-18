@@ -1,0 +1,5 @@
+[0/2] Re-checking globbed directories...
+[1/3] Building CXX object CMakeFiles/static_test.dir/tests/static.cpp.o
+[2/3] Linking CXX executable static_test
+[3/3] cd /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host && /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/native-tools/NexRT.Requirements/NexRT.Requirements check /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos
+Tracker check passed: 112 substantive review iterations; 80 planned; no runtime verification claims.

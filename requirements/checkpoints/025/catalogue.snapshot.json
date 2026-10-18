@@ -1,0 +1,689 @@
+[
+  {
+    "id": "NXR-001",
+    "title": "Boot registry seal",
+    "category": "Allocation",
+    "statement": "The kernel shall register application threads only before start, within a configured finite capacity, using permanent caller-provided control blocks and stacks.",
+    "rationale": "Prevent runtime acquisition and ambiguous lifetime.",
+    "acceptance": "Exactly RTOS_MAX_THREADS unique registrations succeed; duplicate, excess and post-start calls fail unchanged; zero application threads starts idle.",
+    "verification": "Host capacity/duplicate tests and target registration API/seal tests.",
+    "dependencies": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "src/scheduler.hpp"
+    ],
+    "verification_files": [
+      "tests/scheduler.cpp"
+    ],
+    "planned_test": "REGISTRY-CAPACITY-SEAL",
+    "configuration": "RTOS_MAX_THREADS 1..255.",
+    "resource_budget": "Configured application pointer table plus one private idle thread.",
+    "review_iteration": 1,
+    "inspected_files": [
+      "src/kernel.cpp",
+      "src/scheduler.hpp",
+      "tests/scheduler.cpp"
+    ],
+    "finding": "create checks running state and add checks capacity/duplicates; existing tests cover helpers, not target boot sealing."
+  },
+  {
+    "id": "NXR-002",
+    "title": "Static resource lifetimes",
+    "category": "Allocation",
+    "statement": "The kernel shall retain boot resource ownership metadata through shutdown and neither allocate nor free general heap storage during initialization or execution.",
+    "rationale": "Completion must not leak or silently recycle resources.",
+    "acceptance": "Firmware passes no-heap audit; repeated completion, IPC, timer and network operations preserve capacities and storage addresses; finished storage stays reserved.",
+    "verification": "ELF audit, ownership review and target resource-inventory stress.",
+    "dependencies": [
+      "NXR-001"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp"
+    ],
+    "verification_files": [],
+    "planned_test": "STATIC-LIFETIME",
+    "configuration": "All enabled features.",
+    "resource_budget": "Zero general heap bytes; boot-fixed capacities.",
+    "review_iteration": 2,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "docs/api.rst"
+    ],
+    "finding": "Thread retains caller storage metadata and exit marks finished; runtime lifecycle stress evidence is absent."
+  },
+  {
+    "id": "NXR-003",
+    "title": "Stack registration bounds",
+    "category": "Memory",
+    "statement": "Registration shall reject invalid stack alignment, insufficient size, address overflow and stack/control-block overlap before changing state.",
+    "rationale": "Prevent corruption during boot.",
+    "acceptance": "Reject size below 512, size/alignment not divisible by 16, overflowing ranges and overlap; accept touching ranges; failures preserve registry/control contents.",
+    "verification": "Host boundary tests and target registration failure atomicity.",
+    "dependencies": [
+      "NXR-001"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "src/kernel.cpp",
+      "src/scheduler.hpp"
+    ],
+    "verification_files": [
+      "tests/scheduler.cpp"
+    ],
+    "planned_test": "STACK-REGISTRATION",
+    "configuration": "Minimum 512 bytes; alignment 16.",
+    "resource_budget": "One scan of configured registered ranges.",
+    "review_iteration": 3,
+    "inspected_files": [
+      "src/kernel.cpp",
+      "src/scheduler.hpp",
+      "tests/scheduler.cpp"
+    ],
+    "finding": "create checks ranges before registration; existing helper tests cover only selected boundary cases."
+  },
+  {
+    "id": "NXR-004",
+    "title": "Strict priority dispatch",
+    "category": "Scheduling",
+    "statement": "At each dispatch the scheduler shall select the ready application thread with greatest effective priority and use idle only when no application is ready.",
+    "rationale": "Predictable priority semantics.",
+    "acceptance": "Finite reference-model comparison never selects a lower ready priority; priority-zero work precedes idle; higher-priority wakeup wins next dispatch.",
+    "verification": "Host small-state model and target wakeup/idle tests.",
+    "dependencies": [
+      "NXR-001"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "src/scheduler.hpp",
+      "src/kernel.cpp"
+    ],
+    "verification_files": [
+      "tests/scheduler.cpp"
+    ],
+    "planned_test": "SCHED-PRIORITY",
+    "configuration": "Priorities 0..255; larger first.",
+    "resource_budget": "At most RTOS_MAX_THREADS candidates per selection.",
+    "review_iteration": 4,
+    "inspected_files": [
+      "src/scheduler.hpp",
+      "src/kernel.cpp",
+      "tests/scheduler.cpp"
+    ],
+    "finding": "pick compares one priority field and trap provides separate idle; effective/base separation is not implemented."
+  },
+  {
+    "id": "NXR-005",
+    "title": "Equal-priority fairness",
+    "category": "Scheduling",
+    "statement": "Timer round robin shall rotate equal-priority ready peers when enabled; explicit yield shall rotate peers in either configuration.",
+    "rationale": "Sharing without mandatory time slicing.",
+    "acceptance": "N ready peers each run once in N rotations; slicing disabled retains current peer unless higher priority ready; yield rotates in both modes.",
+    "verification": "Peer counts, cursor wrap, blocked peers and target timer slicing tests.",
+    "dependencies": [
+      "NXR-004"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_config.hpp",
+      "src/scheduler.hpp",
+      "src/kernel.cpp"
+    ],
+    "verification_files": [
+      "tests/scheduler.cpp"
+    ],
+    "planned_test": "SCHED-ROTATION",
+    "configuration": "RTOS_ROUND_ROBIN = 0 or 1.",
+    "resource_budget": "Existing registry and one cursor; no extra allocations.",
+    "review_iteration": 5,
+    "inspected_files": [
+      "include/rtos_config.hpp",
+      "src/scheduler.hpp",
+      "tests/scheduler.cpp"
+    ],
+    "finding": "pick supports retention and cursor rotation; trap forces ECALL rotation independently of timer slicing."
+  },
+  {
+    "id": "NXR-006",
+    "title": "Priority changes",
+    "category": "Scheduling",
+    "statement": "The priority API shall atomically update a registered live thread base priority and reconsider scheduling before returning when running while preserving active inheritance.",
+    "rationale": "Separate selected and donated priority.",
+    "acceptance": "Unregistered/finished fail unchanged; boot/sleeping changes succeed; lowering current permits higher-priority peer before return; preserve donations.",
+    "verification": "Target priority changes, invalid IDs, sleeping and donated-priority cases.",
+    "dependencies": [
+      "NXR-004"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp"
+    ],
+    "verification_files": [],
+    "planned_test": "PRIORITY-CHANGE",
+    "configuration": "Base/effective priorities 0..255.",
+    "resource_budget": "Recomputation bounded by thread/mutex capacities.",
+    "review_iteration": 6,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp"
+    ],
+    "finding": "set_priority checks membership and finished state then yields; Thread has only one priority field."
+  },
+  {
+    "id": "NXR-007",
+    "title": "Integer context preservation",
+    "category": "Port",
+    "statement": "The RISCue trap boundary shall preserve interrupted integer registers, continuation PC, stack pointer and machine status across preemption and yields with 16-byte C\u002B\u002B call alignment.",
+    "rationale": "Asynchronous state requires assembly capture.",
+    "acceptance": "Distinct register patterns survive 100000 timer preemptions and yields with zero PC, stack, register or interrupt-state mismatches.",
+    "verification": "Assembly-assisted target register stress with nested C\u002B\u002B calls and canaries.",
+    "dependencies": [
+      "NXR-004"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "ports/riscue/context.S",
+      "src/kernel.cpp"
+    ],
+    "verification_files": [],
+    "planned_test": "PORT-REGISTER-STRESS",
+    "configuration": "Single-hart RV32 integer machine mode; no FP/vector.",
+    "resource_budget": "144-byte frame plus analyzed kernel call depth.",
+    "review_iteration": 7,
+    "inspected_files": [
+      "ports/riscue/context.S",
+      "src/kernel.cpp"
+    ],
+    "finding": "Save/restore offsets match initial 36-word frame by inspection; no executable target stress test exists."
+  },
+  {
+    "id": "NXR-008",
+    "title": "Inline assembly compiler contracts",
+    "category": "Port",
+    "statement": "CSR and critical-section inline assembly shall declare correct operands and ordering; standalone assembly shall be limited to startup and asynchronous entry/restore.",
+    "rationale": "Optimization-safe register allocation.",
+    "acceptance": "Every supported optimized configuration preserves context/API results; disassembly retains approved CSR operands and ordering.",
+    "verification": "Compiler/disassembly review and target optimization/LTO matrix when supported.",
+    "dependencies": [
+      "NXR-007"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "src/kernel.cpp",
+      "ports/riscue/context.S"
+    ],
+    "verification_files": [],
+    "planned_test": "PORT-OPTIMIZATION",
+    "configuration": "Documented optimization/compiler configurations.",
+    "resource_budget": "No new runtime storage; fixed assembly boundaries.",
+    "review_iteration": 8,
+    "inspected_files": [
+      "src/kernel.cpp",
+      "ports/riscue/context.S",
+      "docs/architecture.rst"
+    ],
+    "finding": "Inline CSR operands/clobbers exist; optimization-matrix runtime evidence is absent."
+  },
+  {
+    "id": "NXR-009",
+    "title": "Relative sleep wrap semantics",
+    "category": "Time",
+    "statement": "Relative sleep shall accept 0..INT32_MAX ticks, treat zero as yield, reject larger delays and use wrap-safe deadlines.",
+    "rationale": "Avoid ambiguous modular comparisons.",
+    "acceptance": "Cover 0, 1, INT32_MAX, INT32_MAX\u002B1 and wrap across UINT32_MAX; rejected calls do not block or mutate state.",
+    "verification": "Host modular arithmetic and target sleep API boundary tests.",
+    "dependencies": [
+      "NXR-004"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "src/kernel.cpp",
+      "src/scheduler.hpp"
+    ],
+    "verification_files": [
+      "tests/scheduler.cpp"
+    ],
+    "planned_test": "TIME-RELATIVE-BOUNDARIES",
+    "configuration": "32-bit ticks; relative delay at most INT32_MAX.",
+    "resource_budget": "One deadline/thread; one bounded wake scan.",
+    "review_iteration": 9,
+    "inspected_files": [
+      "src/kernel.cpp",
+      "src/scheduler.hpp",
+      "tests/scheduler.cpp"
+    ],
+    "finding": "sleep_for enforces half-range and advance compares modularly; tests cover helper wrap cases only."
+  },
+  {
+    "id": "NXR-010",
+    "title": "Delayed timer catch-up",
+    "category": "Time",
+    "statement": "Timer handling shall compute missed periods arithmetically, scan sleepers once per delivered interrupt and reject catch-up beyond the modular horizon.",
+    "rationale": "Interrupt work must not scale with missed periods.",
+    "acceptance": "1, 10, 1000000 missed periods require one scan with model-equivalent wakes; greater than INT32_MAX invokes fault policy.",
+    "verification": "Scan-count instrumentation and masked-interrupt/exact-boundary/horizon target tests.",
+    "dependencies": [
+      "NXR-009"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "src/scheduler.hpp",
+      "src/kernel.cpp"
+    ],
+    "verification_files": [
+      "tests/scheduler.cpp"
+    ],
+    "planned_test": "TIME-CATCHUP",
+    "configuration": "Nonzero integer timer period; half-range horizon.",
+    "resource_budget": "One arithmetic catch-up and one thread scan.",
+    "review_iteration": 10,
+    "inspected_files": [
+      "src/scheduler.hpp",
+      "src/kernel.cpp",
+      "tests/scheduler.cpp"
+    ],
+    "finding": "elapsed_ticks uses division and trap advances once, halting above INT32_MAX; target evidence absent."
+  },
+  {
+    "id": "NXR-011",
+    "title": "Timer MMIO integrity",
+    "category": "Port",
+    "statement": "The timer port shall read a coherent 64-bit monotonic clock and update compare without exposing a transient earlier deadline.",
+    "rationale": "RV32 split-word MMIO is non-atomic.",
+    "acceptance": "Rollover reads are coherent; compare writes high-max, low, final-high; diagnostics report actual integer period.",
+    "verification": "Instrumented MMIO and target rollover/write-order tests.",
+    "dependencies": [
+      "NXR-010"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "src/kernel.cpp"
+    ],
+    "verification_files": [],
+    "planned_test": "TIMER-MMIO",
+    "configuration": "Timer/compare addresses and supplied clock/tick rates.",
+    "resource_budget": "Three compare writes; read retry assumptions documented for hardware.",
+    "review_iteration": 11,
+    "inspected_files": [
+      "src/kernel.cpp",
+      "docs/architecture.rst"
+    ],
+    "finding": "time_now retries high/low/high and arm uses safe write order; no MMIO execution test exists."
+  },
+  {
+    "id": "NXR-012",
+    "title": "Absolute periodic release",
+    "category": "Time",
+    "statement": "The kernel shall provide absolute sleep and a static periodic helper advancing from prior intended deadlines with missed-release reporting.",
+    "rationale": "Relative sleeps accumulate execution drift.",
+    "acceptance": "Variable work preserves original release grid; overdue activity skips to next future release and counts misses; reject zero/half-range-invalid periods; support wrap.",
+    "verification": "On-time, missed-release, wrap and invalid-period tests.",
+    "dependencies": [
+      "NXR-009"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TIME-PERIODIC",
+    "configuration": "Optional helper; period 1..INT32_MAX; saturating miss counter.",
+    "resource_budget": "Fixed state per boot-created periodic activity.",
+    "review_iteration": 12,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "docs/api.rst",
+      "docs/architecture.rst"
+    ],
+    "finding": "Only relative sleep exists; tick-boundary rounding does not supply a drift-free release grid."
+  },
+  {
+    "id": "NXR-013",
+    "title": "Interrupt-state restoration",
+    "category": "Critical sections",
+    "statement": "Kernel-private critical sections shall preserve prior interrupt state across internal scheduler transitions; while scheduling is active, public blocking or scheduling calls shall reject application-disabled interrupt context before changing thread state.",
+    "rationale": "Blocking/nesting must not enable MIE accidentally.",
+    "acceptance": "Nested private locks restore prior MIE without enabling early. Internal sleep/resume preserves its private lock state. Application-held interrupt masking followed by sleep, yield, exit or a rescheduling priority change is rejected through a documented error or fault without a partial state transition; pre-start boot configuration remains legal.",
+    "verification": "Target nested-lock/blocking/preemption MIE observation.",
+    "dependencies": [
+      "NXR-007"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "src/kernel.cpp"
+    ],
+    "verification_files": [],
+    "planned_test": "IRQ-LOCK-STATE",
+    "configuration": "Single hart; no implicit interrupt nesting.",
+    "resource_budget": "One saved status word per lock; nesting bounded by reviewed call depth.",
+    "review_iteration": 13,
+    "inspected_files": [
+      "src/kernel.cpp",
+      "docs/architecture.rst"
+    ],
+    "finding": "Lock restores only prior enabled MIE; saved sleeping context can remain disabled until destructor resumes. Builder 25 distinguished internal transition locks from application-held masking; current public APIs do not enforce this context policy."
+  },
+  {
+    "id": "NXR-014",
+    "title": "Interrupt dispatcher boundary",
+    "category": "Interrupts",
+    "statement": "The port shall dispatch registered supported sources, acknowledge through a board contract and route unsupported sources/exceptions to bounded fault handling.",
+    "rationale": "Verify external IRQ boundary before drivers enable it.",
+    "acceptance": "One handler/source; invalid/spurious IDs cannot call arbitrary memory or loop indefinitely; acknowledgment permits subsequent interrupts.",
+    "verification": "External, invalid, spurious, disabled and repeated acknowledgment tests.",
+    "dependencies": [
+      "NXR-007"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "IRQ-DISPATCH",
+    "configuration": "Fixed boot source capacity and board acknowledgment operations.",
+    "resource_budget": "Fixed source table and bounded handling/acknowledgment.",
+    "review_iteration": 14,
+    "inspected_files": [
+      "src/kernel.cpp",
+      "docs/architecture.rst"
+    ],
+    "finding": "rtos_trap handles ECALL/timer only and halts other causes; external dispatcher is absent."
+  },
+  {
+    "id": "NXR-015",
+    "title": "Deferred interrupt work",
+    "category": "Interrupts",
+    "statement": "Drivers shall signal boot-created deferred workers through explicit ISR APIs with fixed storage and bounded nonblocking operations.",
+    "rationale": "Keep top-half interrupt work analyzable.",
+    "acceptance": "No ISR allocation/wait; full capacity returns result and increments overflow; accepted work wakes worker without lost signals.",
+    "verification": "Burst, full, coalescing, wakeup and forbidden blocking-context tests.",
+    "dependencies": [
+      "NXR-014",
+      "NXR-020"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "IRQ-DEFERRED",
+    "configuration": "Optional worker count, queue capacity and coalescing policy.",
+    "resource_budget": "Boot worker stacks and fixed pending-work slots.",
+    "review_iteration": 15,
+    "inspected_files": [
+      "docs/architecture.rst",
+      "include/rtos.hpp"
+    ],
+    "finding": "Current APIs explicitly disallow ISR calls and offer no deferred worker/wakeup facility."
+  },
+  {
+    "id": "NXR-016",
+    "title": "Static mutex ownership",
+    "category": "Synchronization",
+    "statement": "Boot-initialized mutexes shall enforce a single owner, reject non-owner unlock and provide nonrecursive try, timed and blocking acquisition.",
+    "rationale": "Establish ownership before inheritance.",
+    "acceptance": "One owner maximum; recursive acquisition reports error; timeout/unlock races preserve ownership; invalid/ISR/pre-start calls leave state consistent.",
+    "verification": "Contention, recursion, wrong-owner, timeout-race and context-misuse tests.",
+    "dependencies": [
+      "NXR-001",
+      "NXR-009",
+      "NXR-020"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "MUTEX-OWNERSHIP",
+    "configuration": "Optional fixed mutex capacity; nonrecursive initially.",
+    "resource_budget": "One owner/control record per mutex; bounded thread waiters.",
+    "review_iteration": 16,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "docs/architecture.rst"
+    ],
+    "finding": "No mutex API exists; synchronization remains explicitly a future extension."
+  },
+  {
+    "id": "NXR-017",
+    "title": "Transitive priority inheritance",
+    "category": "Synchronization",
+    "statement": "Mutex contention shall raise effective priorities to active donation maxima, propagate through bounded chains and recompute when donations end.",
+    "rationale": "Bound medium-priority interference during inversion.",
+    "acceptance": "H/L contention preempts M; H/L/X propagation works; timeout, unlock and base-priority changes recompute every held mutex without stale donations.",
+    "verification": "H/M/L, chained, multiple-owner, withdrawal and base-priority change tests.",
+    "dependencies": [
+      "NXR-004",
+      "NXR-016"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "MUTEX-INHERITANCE",
+    "configuration": "Mutex inheritance with priorities 0..255.",
+    "resource_budget": "Traversal bounded by thread/mutex capacities; static graph storage.",
+    "review_iteration": 17,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/scheduler.hpp",
+      "src/kernel.cpp"
+    ],
+    "finding": "Thread has one priority and no donation/ownership graph; transitive inheritance is absent."
+  },
+  {
+    "id": "NXR-018",
+    "title": "Mutex deadlock and owner termination",
+    "category": "Synchronization",
+    "statement": "Mutex acquisition shall detect wait-for cycles before blocking, and owner exit shall fault deterministically without silently releasing ownership.",
+    "rationale": "Inheritance cannot repair deadlock/protected data.",
+    "acceptance": "Two/three-thread cycles return deadlock; maximum-depth search terminates; owner return/exit records fault without ownership transfer.",
+    "verification": "Cycle, maximum-chain and owner-return/exit fault tests.",
+    "dependencies": [
+      "NXR-016",
+      "NXR-017"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "MUTEX-LIFECYCLE",
+    "configuration": "Documented deadlock error and owner-exit fault policy.",
+    "resource_budget": "At most RTOS_MAX_THREADS search nodes; fixed fault storage.",
+    "review_iteration": 18,
+    "inspected_files": [
+      "src/kernel.cpp",
+      "docs/api.rst"
+    ],
+    "finding": "exit unconditionally marks finished without owned-object validation; mutex owner termination needs an explicit policy."
+  },
+  {
+    "id": "NXR-019",
+    "title": "Counting and binary semaphores",
+    "category": "Synchronization",
+    "statement": "Static semaphores shall enforce maximum count and offer try, timed, blocking take and bounded thread/ISR release with overflow results.",
+    "rationale": "Ownership-free finite synchronization.",
+    "acceptance": "Count within 0..max; overflow fails; timeout/release resolves exactly once; priority waiters and ISR rescheduling follow policy.",
+    "verification": "Zero/max/overflow, waiter ordering, timeout-race and ISR tests.",
+    "dependencies": [
+      "NXR-009",
+      "NXR-014",
+      "NXR-020"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "SEMAPHORE-BOUNDARIES",
+    "configuration": "Optional boot counts/max; binary maximum 1.",
+    "resource_budget": "Fixed records and one wait membership/thread.",
+    "review_iteration": 19,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/scheduler.hpp",
+      "docs/architecture.rst"
+    ],
+    "finding": "Existing wake logic handles sleeping only; no counting object or ISR release exists."
+  },
+  {
+    "id": "NXR-020",
+    "title": "Atomic bounded wait lifecycle",
+    "category": "Synchronization",
+    "statement": "Blocking primitives shall atomically register waiters, transition state and resolve wakeup, timeout or cancellation exactly once in fixed waiter storage.",
+    "rationale": "Prevent lost wakeups and duplicate readiness.",
+    "acceptance": "Signal-before/after-enqueue and timeout ties resolve once; no duplicate memberships; capacity never exceeds thread count.",
+    "verification": "Deterministic scheduling/reference interleavings and repeated reuse.",
+    "dependencies": [
+      "NXR-001",
+      "NXR-004",
+      "NXR-009"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "WAIT-RACES",
+    "configuration": "Shared substrate for all blocking features.",
+    "resource_budget": "One active wait record/thread; bounded object wait queues.",
+    "review_iteration": 20,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/scheduler.hpp",
+      "src/kernel.cpp"
+    ],
+    "finding": "State lacks generic blocked/wait-reason fields and signal/timeout arbitration."
+  },
+  {
+    "id": "NXR-021",
+    "title": "Event flags semantics",
+    "category": "Synchronization",
+    "statement": "Enabled event groups shall support a configured width of 1..32 bits, a boot-declared reserved-bit mask, any/all waits, and optional clear-on-exit evaluated in descending effective priority with FIFO ordering among equal-priority waiters.",
+    "rationale": "Avoid ambiguous flag consumption.",
+    "acceptance": "Reject masks outside the configured width or containing reserved bits. Process waiters in priority/FIFO order against the remaining flags. For a satisfied clear-on-exit waiter, consume requested bits currently set (any) or all requested bits (all) before evaluating the next waiter; nonclearing waiters leave flags unchanged. Exhaustive 3-bit models cover consumption, simultaneous waiters and timeout/ISR-set races.",
+    "verification": "Small-width exhaustive combinations, multiwaiter, timeout and ISR-set tests.",
+    "dependencies": [
+      "NXR-014",
+      "NXR-020"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "EVENT-FLAGS",
+    "configuration": "RTOS_EVENT_BITS = 1..32; boot reserved mask; priority/FIFO waiter order; explicit clear-on-exit.",
+    "resource_budget": "Fixed flag/control record per group; bounded thread waiters.",
+    "review_iteration": 21,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "docs/architecture.rst"
+    ],
+    "finding": "No event group API exists; sleep arithmetic alone does not specify consumption semantics. Builder 25 resolved previously unspecified consumption and waiter ordering policies."
+  },
+  {
+    "id": "NXR-022",
+    "title": "Typed fixed-capacity queues",
+    "category": "IPC",
+    "statement": "Queues shall hold a compile-time bounded number of trivially copyable messages in caller storage with FIFO send/receive and full, empty, timeout results.",
+    "rationale": "Avoid allocation and payload destructors.",
+    "acceptance": "Capacity N accepts exactly N pending messages; FIFO survives wrap/multiple producers/consumers; rejected sends preserve data; invalid types/sizes/alignment fail compilation.",
+    "verification": "Capacity 1/N, wrap, full/empty, concurrency, payload and compile-fail tests.",
+    "dependencies": [
+      "NXR-001",
+      "NXR-020"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "QUEUE-FIFO",
+    "configuration": "Optional payload type and positive static capacity.",
+    "resource_budget": "N times payload bytes plus fixed metadata and bounded waiters.",
+    "review_iteration": 22,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/memory.cpp",
+      "docs/memory.rst"
+    ],
+    "finding": "Byte copy support exists but queues and payload-lifetime contracts do not."
+  },
+  {
+    "id": "NXR-023",
+    "title": "ISR-safe queue subset",
+    "category": "IPC",
+    "statement": "ISR queues shall use explicit nonblocking APIs, bounded copies, immediate capacity errors and interrupt-return higher-priority rescheduling.",
+    "rationale": "Do not reuse blocking APIs from ISR.",
+    "acceptance": "Maximum copy bounded; failed full/empty leaves state intact; accepted messages survive IRQ/consumer races; highest-ready worker runs next legal return.",
+    "verification": "Maximum-payload, full/empty, interleaving, scheduling and misuse tests.",
+    "dependencies": [
+      "NXR-014",
+      "NXR-022"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "QUEUE-ISR",
+    "configuration": "Explicit ISR subset and maximum payload bytes.",
+    "resource_budget": "One configured bounded payload copy and fixed metadata changes.",
+    "review_iteration": 23,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "docs/api.rst",
+      "docs/architecture.rst"
+    ],
+    "finding": "Current APIs are thread-only; no distinct ISR queue API exists."
+  },
+  {
+    "id": "NXR-024",
+    "title": "Static software timers",
+    "category": "Time",
+    "statement": "Software timers shall use boot-reserved records, one-shot/periodic modes, bounded expiration processing and boot-created callback workers outside ISR.",
+    "rationale": "Callbacks must not extend timer interrupt latency unpredictably.",
+    "acceptance": "Capacity exhaustion returns an error. Periodic timers retain the intended release grid and allow at most one pending invocation per timer; excess expirations coalesce and increment a saturating uint 32 missed-expiration counter. Cancellation of a queued but not executing callback prevents its start and returns Cancelled. Cancellation during execution returns Busy without changing its schedule; caller may retry. Cancel/restart/expire races produce exactly one documented result; callbacks run only in worker context.",
+    "verification": "Capacity, cancel/expire, restart, wrap, long-callback, backlog and context tests.",
+    "dependencies": [
+      "NXR-012",
+      "NXR-015",
+      "NXR-020"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "SOFT-TIMER",
+    "configuration": "Optional timer count and worker priority/stack; one pending callback per timer; uint 32 saturating miss counter; explicit Cancelled/Busy results.",
+    "resource_budget": "Fixed records/callback queue; scan bounded by configured timer count.",
+    "review_iteration": 24,
+    "inspected_files": [
+      "src/kernel.cpp",
+      "include/rtos.hpp",
+      "docs/architecture.rst"
+    ],
+    "finding": "Timer trap handles ticks/sleepers only; software timer registry and callback worker are absent. Builder 25 selected one-invocation coalescing and explicit cancellation results."
+  },
+  {
+    "id": "NXR-025",
+    "title": "Bounded work and timing evidence",
+    "category": "Real time",
+    "statement": "Every kernel API and IRQ path shall document work bounds, forbid unbounded callbacks under interrupt masking and expose measured dispatch/interrupt-disabled latency per supported release profile.",
+    "rationale": "Small code is not a latency guarantee.",
+    "acceptance": "Every operation has a finite count-based bound; max-capacity reports pin compiler, configuration, workload and observed durations; explicit application thresholds gate release without a formal WCET claim.",
+    "verification": "Instrument worst capacities, wait chains, snapshot sizes and timer backlog on target; archive logs.",
+    "dependencies": [
+      "NXR-004",
+      "NXR-010",
+      "NXR-013",
+      "NXR-017",
+      "NXR-020",
+      "NXR-024"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "src/scheduler.hpp",
+      "src/kernel.cpp",
+      "docs/architecture.rst",
+      "docs/verification.rst"
+    ],
+    "verification_files": [],
+    "planned_test": "KERNEL-LATENCY",
+    "configuration": "All supported profiles; application-defined latency thresholds.",
+    "resource_budget": "Bounds use fixed thread, mutex, timer, queue and snapshot capacities; fixed instrumentation storage.",
+    "review_iteration": 25,
+    "inspected_files": [
+      "src/scheduler.hpp",
+      "src/kernel.cpp",
+      "docs/architecture.rst",
+      "docs/verification.rst"
+    ],
+    "finding": "Docs identify linear scans and pending timing gates; measured target latency evidence is absent."
+  }
+]

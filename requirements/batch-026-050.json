@@ -1,0 +1,658 @@
+[
+  {
+    "id": "NXR-026",
+    "title": "Boot device registry",
+    "category": "Devices",
+    "statement": "The device registry shall accept unique boot-defined names and static driver objects before sealing at scheduler start.",
+    "rationale": "Drivers currently require single-owner integration without a common registry.",
+    "acceptance": "Duplicate names, null operation tables, capacity overflow and post-start registration fail unchanged; lookup returns the exact registered instance or not-found.",
+    "verification": "Registry capacity, duplicate, seal and lookup tests.",
+    "dependencies": [
+      "NXR-001"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-026",
+    "configuration": "Optional devices; positive maximum device count; names at most 31 bytes.",
+    "resource_budget": "Fixed registry entries and copied bounded names; zero runtime allocation.",
+    "review_iteration": 26,
+    "inspected_files": [
+      "docs/drivers.rst",
+      "include/rtos.hpp",
+      "src/kernel.cpp"
+    ],
+    "finding": "Driver guidance reserves objects statically but no device registry API exists."
+  },
+  {
+    "id": "NXR-027",
+    "title": "Unified device operations",
+    "category": "Devices",
+    "statement": "Devices shall expose bounded read, write and typed control operations returning status and transferred byte count, with explicit nonblocking or absolute-deadline modes.",
+    "rationale": "A consistent contract avoids per-driver ambiguity and indefinite calls.",
+    "acceptance": "Unsupported operations return not-supported; zero-length operations transfer zero; short transfers report exact progress; expired deadlines never wait; control rejects unknown commands and incorrect payload sizes unchanged.",
+    "verification": "Mock-driver short transfer, unsupported, deadline and control validation tests.",
+    "dependencies": [
+      "NXR-009",
+      "NXR-026"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-027",
+    "configuration": "Fixed operation table per device; finite control command set.",
+    "resource_budget": "Caller buffers only; request state bounded by configured concurrent operations.",
+    "review_iteration": 27,
+    "inspected_files": [
+      "docs/drivers.rst",
+      "include/rtos_ethernet.hpp",
+      "src/ethernet.cpp"
+    ],
+    "finding": "Ethernet has explicit busy/error callback contracts but no general read/write/control interface exists."
+  },
+  {
+    "id": "NXR-028",
+    "title": "Bounded descriptor handles",
+    "category": "Descriptors",
+    "statement": "Opening a device or file shall acquire a slot from a boot-reserved descriptor table and return an index-plus-generation handle.",
+    "rationale": "Unix-style handles need finite capacity and stale-reference protection.",
+    "acceptance": "Exactly configured slot count opens succeed; excess returns resource-exhausted; close/reopen invalidates old handles; generations never wrap into reuse because exhausted-generation slots retire until reboot.",
+    "verification": "Exhaustion, stale handle, invalid index and near-generation-limit tests.",
+    "dependencies": [
+      "NXR-026",
+      "NXR-027"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-028",
+    "configuration": "Optional descriptors; configured slot count; 32-bit generation.",
+    "resource_budget": "Fixed descriptor records; no heap; retired slots remain counted unavailable.",
+    "review_iteration": 28,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "docs/memory.rst"
+    ],
+    "finding": "Current API exposes Thread pointers only; no descriptor table or generation management exists."
+  },
+  {
+    "id": "NXR-029",
+    "title": "Descriptor close lifecycle",
+    "category": "Descriptors",
+    "statement": "Close shall mark a valid descriptor closing, reject new operations, wait only until its supplied deadline for in-flight operations and release the slot exactly once after quiescence.",
+    "rationale": "Freeing slots during active driver access would corrupt ownership.",
+    "acceptance": "Double close returns invalid-handle; timed close returns timeout while retaining closing state; resumed close completes after drain; driver-close failure preserves a diagnosable unavailable slot.",
+    "verification": "Close versus read/write races, timeout retry and injected close-failure tests.",
+    "dependencies": [
+      "NXR-028",
+      "NXR-020"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-029",
+    "configuration": "Finite per-slot active-operation counter; close uses absolute deadline.",
+    "resource_budget": "Fixed closing state and active count per descriptor; no detached cleanup allocation.",
+    "review_iteration": 29,
+    "inspected_files": [
+      "docs/memory.rst",
+      "docs/drivers.rst",
+      "include/rtos.hpp"
+    ],
+    "finding": "Existing ownership guidance does not define descriptor teardown or concurrent close."
+  },
+  {
+    "id": "NXR-030",
+    "title": "Bounded pathname resolution",
+    "category": "VFS",
+    "statement": "The VFS shall resolve absolute bounded paths with collapsed repeated separators and dot components, rejecting parent traversal above root and all symbolic links.",
+    "rationale": "A small namespace must avoid recursive and unbounded resolution.",
+    "acceptance": "Overlong paths/components fail before provider calls; /a/../b resolves /b; /../b fails invalid-path; relative paths and embedded null payloads are rejected; no symlink following occurs.",
+    "verification": "Path normalization model and malformed/boundary input tests.",
+    "dependencies": [
+      "NXR-026"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-030",
+    "configuration": "Optional VFS; positive maximum path bytes, component bytes and component count.",
+    "resource_budget": "Fixed normalization workspace per configured concurrent resolver; traversal bounded by component count.",
+    "review_iteration": 30,
+    "inspected_files": [
+      "docs/configuration.rst",
+      "docs/memory.rst",
+      "include/rtos.hpp"
+    ],
+    "finding": "No pathname API or VFS configuration exists; static memory rules require bounded resolver workspace."
+  },
+  {
+    "id": "NXR-031",
+    "title": "Static device filesystem",
+    "category": "VFS",
+    "statement": "A devfs provider shall expose sealed device-registry entries under /dev and route opens through descriptor ownership rules.",
+    "rationale": "The accepted Unix-style device namespace should reuse registry identity.",
+    "acceptance": "Every registered exported device appears once; unknown names return not-found; directory iteration is bounded and stable; create, unlink and rename return read-only.",
+    "verification": "Registry-to-devfs mapping, stable enumeration and forbidden mutation tests.",
+    "dependencies": [
+      "NXR-026",
+      "NXR-028",
+      "NXR-030"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-031",
+    "configuration": "Optional devfs; boot export flag per device.",
+    "resource_budget": "No duplicated driver objects; at most one fixed directory record per exported device.",
+    "review_iteration": 31,
+    "inspected_files": [
+      "docs/drivers.rst",
+      "docs/memory.rst"
+    ],
+    "finding": "Drivers are listed in documentation but /dev has no implementation."
+  },
+  {
+    "id": "NXR-032",
+    "title": "Read-only ROM filesystem",
+    "category": "VFS",
+    "statement": "A ROM filesystem shall expose a boot-linked immutable file table with bounded offset reads and no executable loading.",
+    "rationale": "Static assets and help text need file access without writable storage complexity.",
+    "acceptance": "Reads at EOF return zero; short tail reads are exact; overflowing offsets and invalid table ranges fail; all writes and namespace mutations return read-only; content bytes match linked assets.",
+    "verification": "ROM image table validation, offset boundaries and content checksum tests.",
+    "dependencies": [
+      "NXR-028",
+      "NXR-030"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-032",
+    "configuration": "Optional ROMFS; fixed file count and linked asset byte budget.",
+    "resource_budget": "Immutable table and linked bytes; per-open offset stored in descriptor slot.",
+    "review_iteration": 32,
+    "inspected_files": [
+      "docs/memory.rst",
+      "ports/riscue/link.ld",
+      "CMakeLists.txt"
+    ],
+    "finding": "The linker builds one static firmware image; no filesystem or executable loader exists."
+  },
+  {
+    "id": "NXR-033",
+    "title": "Bounded RAM filesystem",
+    "category": "VFS",
+    "statement": "Optional RAMFS shall use boot-reserved inode and data-block pools, permit only regular files and directories and return explicit exhaustion without growing storage.",
+    "rationale": "Writable temporary files must preserve the no-heap contract.",
+    "acceptance": "Inode/block exhaustion leaves existing contents intact; writes may return documented exact short counts; unlink of open files reclaims blocks only after last close; truncate zeroes newly visible bytes; reboot discards contents.",
+    "verification": "Pool exhaustion, short write, open-unlink, truncate and repeated create/delete conservation tests.",
+    "dependencies": [
+      "NXR-028",
+      "NXR-029",
+      "NXR-030"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-033",
+    "configuration": "Optional RAMFS; fixed inode count, block size, block count and directory-entry capacity.",
+    "resource_budget": "Exactly configured inode, directory and block pools; ownership counters conserve every slot.",
+    "review_iteration": 33,
+    "inspected_files": [
+      "docs/memory.rst",
+      "src/memory.cpp"
+    ],
+    "finding": "Memory helpers exist but no writable filesystem or fixed block ownership manager exists."
+  },
+  {
+    "id": "NXR-034",
+    "title": "Boot mount table",
+    "category": "VFS",
+    "statement": "Mounts shall be registered only at boot with unique absolute normalized prefixes, then remain immutable; resolution shall select the longest component-boundary prefix.",
+    "rationale": "Immutable mounting keeps lookup and provider lifetime bounded.",
+    "acceptance": "Duplicate prefixes and mount-table overflow fail; /rom does not match /romance; nested mount chooses longest match; runtime mount/unmount returns sealed.",
+    "verification": "Prefix boundary, nested mount, duplicate, capacity and boot seal tests.",
+    "dependencies": [
+      "NXR-030",
+      "NXR-031",
+      "NXR-032"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-034",
+    "configuration": "Fixed mount count; optional devfs, ROMFS and RAMFS providers.",
+    "resource_budget": "Fixed mount table and bounded copied prefixes; lookup scans at most configured mounts.",
+    "review_iteration": 34,
+    "inspected_files": [
+      "docs/configuration.rst",
+      "docs/memory.rst"
+    ],
+    "finding": "There are no current mount options; configuration guidance requires lifecycle and budgets before exposure."
+  },
+  {
+    "id": "NXR-035",
+    "title": "Static byte pipes",
+    "category": "IPC",
+    "statement": "A pipe shall use a boot-reserved byte ring and bounded endpoint slots, provide partial FIFO transfers and resolve endpoint closure without dynamic allocation.",
+    "rationale": "Pipes provide useful Unix-style composition without processes.",
+    "acceptance": "Empty pipe with writers returns would-block or waits to deadline; empty pipe without writers returns EOF; write without readers returns broken-pipe; close wakes affected waiters; byte order survives ring wrap.",
+    "verification": "Ring wrap, full/empty, deadline, endpoint-close races and endpoint exhaustion tests.",
+    "dependencies": [
+      "NXR-020",
+      "NXR-028",
+      "NXR-029"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-035",
+    "configuration": "Optional pipes; fixed pipe count, bytes per pipe and reader/writer endpoint limits.",
+    "resource_budget": "Fixed rings and endpoint records; total queued bytes never exceeds configured storage.",
+    "review_iteration": 35,
+    "inspected_files": [
+      "docs/memory.rst",
+      "include/rtos.hpp",
+      "src/memory.cpp"
+    ],
+    "finding": "No pipe API exists; static byte storage and exact endpoint teardown must be added."
+  },
+  {
+    "id": "NXR-036",
+    "title": "Built-in command registry",
+    "category": "Shell",
+    "statement": "The shell shall dispatch only a sealed boot-defined table of built-in C\u002B\u002B command functions with unique bounded names.",
+    "rationale": "A Unix-like console need not load programs or create processes.",
+    "acceptance": "Duplicate/overlong names fail at boot; unknown commands return command-not-found; dispatch invokes only registered pointers; registry overflow fails unchanged.",
+    "verification": "Registry validation, unknown command and dispatch identity tests.",
+    "dependencies": [
+      "NXR-026"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-036",
+    "configuration": "Optional shell; fixed command count and maximum command-name bytes.",
+    "resource_budget": "Fixed command table; all command code linked into firmware.",
+    "review_iteration": 36,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "docs/configuration.rst",
+      "CMakeLists.txt"
+    ],
+    "finding": "Firmware is statically linked and no shell registry or process loader exists."
+  },
+  {
+    "id": "NXR-037",
+    "title": "Bounded shell parser",
+    "category": "Shell",
+    "statement": "The shell shall parse bounded lines with whitespace separation, single/double quoted arguments and backslash escapes, rejecting unsupported expansion, redirection and pipeline syntax initially.",
+    "rationale": "Explicit small grammar avoids accidental unbounded Unix-shell expectations.",
+    "acceptance": "Overlong line, too many arguments, unmatched quotes, trailing escape and unsupported syntax return parse errors without command execution; quoted spaces and empty arguments preserve exact bytes.",
+    "verification": "Grammar corpus, boundary tests and deterministic fuzzing against reference parser.",
+    "dependencies": [
+      "NXR-036"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-037",
+    "configuration": "Fixed maximum line bytes and argument count; no environment expansion or command substitution.",
+    "resource_budget": "One fixed line buffer and argument-index array per shell session.",
+    "review_iteration": 37,
+    "inspected_files": [
+      "docs/memory.rst",
+      "include/rtos.hpp"
+    ],
+    "finding": "No parser exists; caller-owned storage policy rules out dynamically growing argument vectors."
+  },
+  {
+    "id": "NXR-038",
+    "title": "Static shell sessions",
+    "category": "Shell",
+    "statement": "Each enabled shell session shall own boot-reserved input/output buffers and a boot-created worker, with bounded editing and output backpressure.",
+    "rationale": "Console convenience must not consume unbounded kernel memory or stall unrelated threads.",
+    "acceptance": "Session capacity is fixed; line overflow discards until newline and reports one error; output waits only to deadline and reports truncation; disconnected sessions release no borrowed buffer prematurely.",
+    "verification": "Maximum sessions, oversized line recovery, slow output and disconnect tests.",
+    "dependencies": [
+      "NXR-027",
+      "NXR-036",
+      "NXR-037"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-038",
+    "configuration": "Fixed session count, worker priority/stack and input/output ring bytes.",
+    "resource_budget": "Exactly configured session buffers and stacks; no runtime worker creation.",
+    "review_iteration": 38,
+    "inspected_files": [
+      "docs/drivers.rst",
+      "docs/memory.rst",
+      "include/rtos.hpp"
+    ],
+    "finding": "Current kernel seals thread creation at start, so interactive sessions require boot-created workers."
+  },
+  {
+    "id": "NXR-039",
+    "title": "Jobs on boot workers",
+    "category": "Shell",
+    "statement": "Background commands shall run only on a fixed boot-created worker pool with generation-tagged job slots and cooperative cancellation.",
+    "rationale": "Provide limited jobs without fork, executable loading or runtime stacks.",
+    "acceptance": "Pool exhaustion returns busy; completed slots invalidate stale job IDs; cancellation requests never forcibly unwind stacks; noncooperating jobs remain occupied and are reported stuck after configured deadline.",
+    "verification": "Pool exhaustion, stale IDs, completion/cancel races and noncooperating-job tests.",
+    "dependencies": [
+      "NXR-001",
+      "NXR-020",
+      "NXR-036",
+      "NXR-038"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-039",
+    "configuration": "Optional jobs; fixed worker/job count, stacks and cancellation grace ticks.",
+    "resource_budget": "One permanent stack/control block per worker plus fixed job records and bounded copied arguments.",
+    "review_iteration": 39,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "docs/api.rst"
+    ],
+    "finding": "create is boot-only and exit does not unwind active objects; background work cannot safely imply dynamic tasks or forced cancellation."
+  },
+  {
+    "id": "NXR-040",
+    "title": "Bounded diagnostic commands",
+    "category": "Shell",
+    "statement": "Built-in ps, top, uptime and devices commands shall consume coherent bounded snapshots and print explicit truncation indicators without holding kernel locks during formatting or output.",
+    "rationale": "Existing thread metrics should become usable from the console without long masked I/O.",
+    "acceptance": "ps reports name/state/base/effective priority; top handles zero elapsed time and disabled metrics explicitly; rows never exceed caller capacity; slow console output occurs after snapshot lock release.",
+    "verification": "Snapshot-to-command golden outputs, truncation, disabled metrics and slow-console instrumentation.",
+    "dependencies": [
+      "NXR-006",
+      "NXR-026",
+      "NXR-036",
+      "NXR-038"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-040",
+    "configuration": "Optional diagnostics; fixed maximum rows and output bytes per command invocation.",
+    "resource_budget": "Fixed snapshot rows and formatting buffer per session; one snapshot per refresh.",
+    "review_iteration": 40,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "docs/metrics.rst"
+    ],
+    "finding": "snapshot already returns bounded rows and priority/runtime fields; no shell commands or base/effective split exists."
+  },
+  {
+    "id": "NXR-041",
+    "title": "UART bounded transport",
+    "category": "Drivers",
+    "statement": "The UART driver shall use fixed RX/TX rings, expose nonblocking/deadline transfers and defer interrupt processing through approved bounded paths.",
+    "rationale": "UART is the documented first board addition and console prerequisite.",
+    "acceptance": "RX overflow drops newest byte and increments a saturating counter; TX full returns short count or waits only to deadline; framing/parity/overrun errors are counted; loopback preserves accepted byte order.",
+    "verification": "Hardware/model loopback, ring saturation, error injection and deadline tests.",
+    "dependencies": [
+      "NXR-014",
+      "NXR-015",
+      "NXR-027"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-041",
+    "configuration": "Optional UART instances; fixed ring bytes, baud and framing selected at boot.",
+    "resource_budget": "Fixed per-instance rings/control state; ISR work capped at configured bytes per interrupt.",
+    "review_iteration": 41,
+    "inspected_files": [
+      "docs/drivers.rst",
+      "docs/configuration.rst"
+    ],
+    "finding": "Driver inventory proposes UART rings and loopback tests; no UART implementation exists."
+  },
+  {
+    "id": "NXR-042",
+    "title": "Console routing and fault output",
+    "category": "Console",
+    "statement": "Console input/output shall route to one boot-selected device; panic output shall use a bounded polling path with a fixed byte/time limit and no descriptor locks.",
+    "rationale": "Diagnostics must remain bounded when scheduler or locks fail.",
+    "acceptance": "Normal output follows device backpressure; panic writes at most configured bytes and stops at deadline or unavailable device; recursive panic terminates immediately without lock acquisition.",
+    "verification": "Slow/stuck UART, recursive panic and scheduler-disabled output tests.",
+    "dependencies": [
+      "NXR-027",
+      "NXR-041"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-042",
+    "configuration": "One boot console; optional panic output with positive byte and tick/cycle limits.",
+    "resource_budget": "Fixed panic buffer and recursion flag; no worker or memory acquisition in panic.",
+    "review_iteration": 42,
+    "inspected_files": [
+      "docs/drivers.rst",
+      "src/kernel.cpp"
+    ],
+    "finding": "stop currently disables interrupts and loops; no console routing or bounded emergency output exists."
+  },
+  {
+    "id": "NXR-043",
+    "title": "GPIO ownership and safe state",
+    "category": "Drivers",
+    "statement": "GPIO shall enforce boot-declared pin ownership, validated direction/functions and board-defined safe output values on failed initialization or explicit shutdown.",
+    "rationale": "Uncoordinated register access can affect unrelated pins and unsafe outputs.",
+    "acceptance": "Conflicting claims and unsupported pin/function fail before hardware changes; writes affect only owned pins; output values are established before enabling drive; failure restores declared safe state.",
+    "verification": "Mock-register ownership/mask tests and board safe-state measurements.",
+    "dependencies": [
+      "NXR-026",
+      "NXR-027"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-043",
+    "configuration": "Optional fixed pin table and owner map; board safe values required for outputs.",
+    "resource_budget": "One fixed record per declared pin; no runtime pin claims.",
+    "review_iteration": 43,
+    "inspected_files": [
+      "docs/drivers.rst",
+      "docs/memory.rst"
+    ],
+    "finding": "Inventory requests pin ownership and atomic register semantics but no GPIO contract is implemented."
+  },
+  {
+    "id": "NXR-044",
+    "title": "SPI bounded transactions",
+    "category": "Drivers",
+    "statement": "SPI shall accept transactions from fixed boot request slots, serialize each bus and hold chip select only for one bounded transaction with an absolute completion deadline.",
+    "rationale": "Bus sharing and chip-select lifetime require explicit ownership.",
+    "acceptance": "Validate mode/rate/length before assertion; preserve segment order; queue full returns busy; timeout deasserts chip select and returns transferred count; subsequent requests recover or receive unavailable.",
+    "verification": "Mode validation, contention, full queue, timeout and chip-select waveform tests.",
+    "dependencies": [
+      "NXR-009",
+      "NXR-016",
+      "NXR-026",
+      "NXR-027"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-044",
+    "configuration": "Optional buses; fixed request count, maximum segments/bytes and supported rates/modes.",
+    "resource_budget": "Fixed request/control slots and configured DMA buffers; no retained stack buffer beyond synchronous call.",
+    "review_iteration": 44,
+    "inspected_files": [
+      "docs/drivers.rst",
+      "docs/memory.rst"
+    ],
+    "finding": "SPI inventory lists slots, chip-select ownership and timeouts without an implemented driver."
+  },
+  {
+    "id": "NXR-045",
+    "title": "I2C error and recovery bounds",
+    "category": "Drivers",
+    "statement": "I2C shall serialize bounded address transactions, report NACK/arbitration/timeout distinctly and attempt at most nine recovery clocks followed by STOP before marking a stuck bus unavailable.",
+    "rationale": "A stuck peripheral must not block a worker indefinitely.",
+    "acceptance": "Invalid addresses/lengths fail before START; repeated-start sequences preserve atomic ownership; NACK returns exact progress; recovery is attempted once per failed transaction and never exceeds deadline; unavailable buses reject requests until explicit bounded reinitialize.",
+    "verification": "NACK, arbitration loss, clock stretch, stuck SDA and recovery waveform tests.",
+    "dependencies": [
+      "NXR-009",
+      "NXR-016",
+      "NXR-026",
+      "NXR-027"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-045",
+    "configuration": "Optional buses; fixed request count/bytes; standard 7-bit addressing initially.",
+    "resource_budget": "Fixed transaction slots and one bus recovery state per instance.",
+    "review_iteration": 45,
+    "inspected_files": [
+      "docs/drivers.rst",
+      "docs/configuration.rst"
+    ],
+    "finding": "I2C inventory identifies NACK/stuck-bus concerns but defines no recovery bound or implementation."
+  },
+  {
+    "id": "NXR-046",
+    "title": "Progress-based watchdog supervision",
+    "category": "Drivers",
+    "statement": "A boot-created supervisor shall feed the hardware watchdog only when every enabled critical thread advances its registered progress token within its configured monotonic interval.",
+    "rationale": "Timer interrupts alone do not demonstrate application progress.",
+    "acceptance": "A stuck critical worker prevents feeding by its deadline; token wrap is handled; noncritical workers do not inhibit feeding; first missed participant is recorded before reset; watchdog setup is validated against supervisor period.",
+    "verification": "Stalled worker, interrupt-only activity, token wrap, false-positive margin and actual reset tests.",
+    "dependencies": [
+      "NXR-001",
+      "NXR-009",
+      "NXR-012",
+      "NXR-026"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-046",
+    "configuration": "Optional supervisor; fixed critical participant list and positive per-participant deadlines.",
+    "resource_budget": "Fixed token/deadline records plus one boot supervisor stack; one scan per supervision period.",
+    "review_iteration": 46,
+    "inspected_files": [
+      "docs/drivers.rst",
+      "docs/configuration.rst",
+      "include/rtos.hpp"
+    ],
+    "finding": "Documentation recommends progress-based feeding and reset records; no supervisor or watchdog driver exists."
+  },
+  {
+    "id": "NXR-047",
+    "title": "Ordered driver boot failure",
+    "category": "Boot",
+    "statement": "Drivers shall initialize from a fixed dependency-ordered boot table; failure shall disable transitive dependents and unwind successfully initialized affected devices in reverse order to safe state.",
+    "rationale": "Partial initialization must not leave workers using unavailable hardware.",
+    "acceptance": "Cycle/unknown dependency fails before hardware access; init order follows dependencies; injected failure prevents dependent initialization; reverse shutdown is called once; critical failure prevents scheduler start while optional failure is exposed diagnostically.",
+    "verification": "Dependency graph validation and failure injection at every boot-table position.",
+    "dependencies": [
+      "NXR-026",
+      "NXR-043"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-047",
+    "configuration": "Fixed init entry count; critical/optional classification and bounded init/shutdown deadlines.",
+    "resource_budget": "Fixed table and visited/state arrays; traversal bounded by configured entries/edges.",
+    "review_iteration": 47,
+    "inspected_files": [
+      "docs/configuration.rst",
+      "docs/drivers.rst",
+      "src/kernel.cpp"
+    ],
+    "finding": "Boot/recovery backlog proposes ordered init and partial-start tests but start has no driver dependency orchestration."
+  },
+  {
+    "id": "NXR-048",
+    "title": "Device request cancellation",
+    "category": "Devices",
+    "statement": "Timed device operations shall transfer buffer ownership back only after hardware/DMA access has stopped; unsuccessful abort shall quarantine the fixed request slot and return a distinct fault result.",
+    "rationale": "Timeout alone cannot make asynchronous buffer reuse safe.",
+    "acceptance": "Successful timeout/abort proves device ownership revoked before return; failed abort retains driver-owned fixed buffers and quarantines slot; late completions cannot target reused generation; repeated abort is idempotent.",
+    "verification": "Delayed DMA completion, abort success/failure, stale completion and slot quarantine tests.",
+    "dependencies": [
+      "NXR-027",
+      "NXR-029"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-048",
+    "configuration": "Fixed abort deadline and request-generation width; asynchronous drivers use driver-owned buffers.",
+    "resource_budget": "Fixed request slots and staging buffers; quarantined capacity never silently reused.",
+    "review_iteration": 48,
+    "inspected_files": [
+      "docs/memory.rst",
+      "docs/drivers.rst",
+      "include/rtos_ethernet.hpp"
+    ],
+    "finding": "Ethernet explicitly forbids retaining caller TX pointers; broader timed/DMA operation cancellation is unspecified."
+  },
+  {
+    "id": "NXR-049",
+    "title": "Bounded readiness polling",
+    "category": "Devices",
+    "statement": "A readiness API shall inspect a bounded caller-supplied descriptor set for read/write/error readiness and wait atomically to a deadline without consuming data.",
+    "rationale": "Shell and worker loops need multiplexing without polling every device indefinitely.",
+    "acceptance": "Oversized sets fail before driver calls; already-ready returns immediately; readiness transition between registration and sleep is not lost; closed/stale handles report per-entry error; timeout returns zero ready entries.",
+    "verification": "Ready-before-wait, transition race, close race, invalid handle and maximum-set tests.",
+    "dependencies": [
+      "NXR-020",
+      "NXR-027",
+      "NXR-028",
+      "NXR-029"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-049",
+    "configuration": "Optional readiness; configured maximum descriptors per wait.",
+    "resource_budget": "One boot-reserved readiness record per waiting thread and bounded descriptor indices.",
+    "review_iteration": 49,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "docs/drivers.rst",
+      "docs/memory.rst"
+    ],
+    "finding": "Current yield/sleep APIs provide no multi-device readiness mechanism or atomic readiness wait."
+  },
+  {
+    "id": "NXR-050",
+    "title": "Coherent device diagnostics",
+    "category": "Devices",
+    "statement": "Each driver shall expose a bounded typed health snapshot containing availability, fault reason, capacity/occupancy, overflow/error counts and reset generation without clearing counters on read.",
+    "rationale": "Operators need to distinguish absent hardware, resource exhaustion and driver faults.",
+    "acceptance": "Snapshots are internally coherent; counters saturate at maximum rather than wrap; repeated reads have no reset side effect; disabled features return not-supported; fixed output truncation reports required/written rows.",
+    "verification": "Concurrent update/snapshot, saturation, disabled driver and bounded enumeration tests.",
+    "dependencies": [
+      "NXR-026",
+      "NXR-027",
+      "NXR-047"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-050",
+    "configuration": "Optional device metrics with fixed per-driver schema and maximum snapshot rows.",
+    "resource_budget": "Fixed per-device counters/state and caller-owned snapshot rows; no formatting under driver locks.",
+    "review_iteration": 50,
+    "inspected_files": [
+      "docs/drivers.rst",
+      "include/rtos_ethernet.hpp",
+      "src/ethernet.cpp",
+      "include/rtos.hpp"
+    ],
+    "finding": "Ethernet exposes unsynchronized owner-thread counters while thread snapshot reports required/written rows; no unified device health snapshot exists."
+  }
+]

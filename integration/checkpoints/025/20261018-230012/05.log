@@ -1,0 +1,5 @@
+[0/2] Re-checking globbed directories...
+[1/1] cd /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/riscue && /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/native-tools/Rtos.Tools/Rtos.Tools static-contract --cxx /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/riscv64-unknown-elf-g++ --nm /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/riscv64-unknown-elf-nm --source-root /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos --build-dir /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/riscue/static-contract
+PASS: constant initialization accepted
+PASS: runtime constructor rejected by linker, even with section GC
+PASS: reachable allocator rejected by ELF audit

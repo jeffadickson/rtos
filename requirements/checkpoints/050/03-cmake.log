@@ -1,0 +1,12 @@
+[1/2] Generating requirements-tool/NexRT.Requirements.dll
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  NexRT.Requirements -> /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/riscue/requirements-tool/NexRT.Requirements.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:34.76
+[2/2] cd /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/riscue && /usr/local/share/dotnet/dotnet /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/riscue/requirements-tool/NexRT.Requirements.dll check /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos
+Tracker check passed: 50 substantive review iterations; 37 planned; no runtime verification claims.

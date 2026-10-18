@@ -1,0 +1,202 @@
+[
+  {
+    "iteration": 1,
+    "title": "Native integration workbench",
+    "path": "tools/NexRT.Workbench/Program.cs",
+    "anchor": "public static async Task\u003Cint\u003E Main",
+    "summary": "Added a native-safe C# command surface for integration, content and local history.",
+    "sha256": "ce798d8a11d733ce3c37bed2eb87a3b352d4041eea8601840b4b538dca632a01"
+  },
+  {
+    "iteration": 2,
+    "title": "Detached commit launch",
+    "path": "tools/NexRT.Workbench/Program.cs",
+    "anchor": "private static void StartWorker",
+    "summary": "Starts a detached worker and returns its PID without waiting for Git commits.",
+    "sha256": "ce798d8a11d733ce3c37bed2eb87a3b352d4041eea8601840b4b538dca632a01"
+  },
+  {
+    "iteration": 3,
+    "title": "Immutable commit snapshots",
+    "path": "tools/NexRT.Workbench/Program.cs",
+    "anchor": "private static async Task Queue",
+    "summary": "Copies source bytes before queuing so later edits cannot enter earlier commits.",
+    "sha256": "ce798d8a11d733ce3c37bed2eb87a3b352d4041eea8601840b4b538dca632a01"
+  },
+  {
+    "iteration": 4,
+    "title": "Serialized private-index commits",
+    "path": "tools/NexRT.Workbench/Program.cs",
+    "anchor": "private static async Task Worker",
+    "summary": "Builds local Git trees from saved bytes with a private index and serialized HEAD updates.",
+    "sha256": "ce798d8a11d733ce3c37bed2eb87a3b352d4041eea8601840b4b538dca632a01"
+  },
+  {
+    "iteration": 5,
+    "title": "Exclusive commit worker",
+    "path": "tools/NexRT.Workbench/Program.cs",
+    "anchor": "using var workerLock",
+    "summary": "Prevents concurrent workers from racing on the local branch and queue.",
+    "sha256": "ce798d8a11d733ce3c37bed2eb87a3b352d4041eea8601840b4b538dca632a01"
+  },
+  {
+    "iteration": 6,
+    "title": "Bounded process execution",
+    "path": "tools/NexRT.Workbench/Program.cs",
+    "anchor": "private static async Task\u003Cstring\u003E Run",
+    "summary": "Uses argument lists, child timeouts and captured diagnostics without shell interpolation.",
+    "sha256": "ce798d8a11d733ce3c37bed2eb87a3b352d4041eea8601840b4b538dca632a01"
+  },
+  {
+    "iteration": 7,
+    "title": "Source-backed integration ledger",
+    "path": "tools/NexRT.Workbench/Program.cs",
+    "anchor": "private static void Record",
+    "summary": "Requires25 distinct changes with existing source anchors and content hashes.",
+    "sha256": "ce798d8a11d733ce3c37bed2eb87a3b352d4041eea8601840b4b538dca632a01"
+  },
+  {
+    "iteration": 8,
+    "title": "Checkpoint attempt retention",
+    "path": "tools/NexRT.Workbench/Program.cs",
+    "anchor": "private static async Task CheckpointRun",
+    "summary": "Executes requested25-step gates and retains failed and successful timestamped attempts.",
+    "sha256": "ce798d8a11d733ce3c37bed2eb87a3b352d4041eea8601840b4b538dca632a01"
+  },
+  {
+    "iteration": 9,
+    "title": "ELF section accounting",
+    "path": "tools/NexRT.Workbench/Program.cs",
+    "anchor": "private static void Measure",
+    "summary": "Reads bounded ELF32 section tables and excludes container/debug bytes from image size.",
+    "sha256": "ce798d8a11d733ce3c37bed2eb87a3b352d4041eea8601840b4b538dca632a01"
+  },
+  {
+    "iteration": 10,
+    "title": "RAM-resident code budgeting",
+    "path": "tools/NexRT.Workbench/Program.cs",
+    "anchor": "Total committed RISCue RAM",
+    "summary": "Counts code, data, BSS, alignment and the separate4096-byte boot reserve.",
+    "sha256": "ce798d8a11d733ce3c37bed2eb87a3b352d4041eea8601840b4b538dca632a01"
+  },
+  {
+    "iteration": 11,
+    "title": "Measured HTML generation",
+    "path": "tools/NexRT.Workbench/Program.cs",
+    "anchor": "private static void Site",
+    "summary": "Builds the introduction using measured byte counts and the exact firmware digest.",
+    "sha256": "ce798d8a11d733ce3c37bed2eb87a3b352d4041eea8601840b4b538dca632a01"
+  },
+  {
+    "iteration": 12,
+    "title": "Immutable content compiler",
+    "path": "tools/NexRT.Workbench/Program.cs",
+    "anchor": "private static void Assets",
+    "summary": "Compiles bounded HTML into static C\u002B\u002B byte arrays and records the source digest.",
+    "sha256": "ce798d8a11d733ce3c37bed2eb87a3b352d4041eea8601840b4b538dca632a01"
+  },
+  {
+    "iteration": 13,
+    "title": "Loopback page preview",
+    "path": "tools/NexRT.Workbench/Program.cs",
+    "anchor": "private static async Task Serve",
+    "summary": "Provides a local host preview independent of an unimplemented board Ethernet stack.",
+    "sha256": "ce798d8a11d733ce3c37bed2eb87a3b352d4041eea8601840b4b538dca632a01"
+  },
+  {
+    "iteration": 14,
+    "title": "One-thread nano application",
+    "path": "examples/nano.cpp",
+    "anchor": "extern \u0022C\u0022 int main",
+    "summary": "Introduces a real minimal application with one512-byte worker stack and no diagnostics buffers.",
+    "sha256": "51e1dd00214b3215e345832c8f61e5a7f0160b454302aa10287b582a87088cf2"
+  },
+  {
+    "iteration": 15,
+    "title": "Independent nano build profile",
+    "path": "CMakePresets.json",
+    "anchor": "\u0022name\u0022:\u0022nano\u0022",
+    "summary": "Disables optional services and sets a512-byte idle stack and one application slot.",
+    "sha256": "6f54d016be6a91ed24e7725729b948a20b8ce805860038afd75f289d0db0732e"
+  },
+  {
+    "iteration": 16,
+    "title": "Selectable firmware application",
+    "path": "CMakeLists.txt",
+    "anchor": "set(RTOS_APPLICATION",
+    "summary": "Allows independent example images without editing the firmware target source list.",
+    "sha256": "1a76c2f7e75970eb0bd9fc501f5d51a12f75d05033ed7b64966731d6c455d358"
+  },
+  {
+    "iteration": 17,
+    "title": "Validated native host bundle",
+    "path": "cmake/host-tools.cmake",
+    "anchor": "Stale or wrong-host native tool",
+    "summary": "Rejects prebuilt tools whose host identity or source digest differs from current inputs.",
+    "sha256": "761027c8e1c519ce274ef5d62487f24d173f772505c84c179ab3e1e4fc29da49"
+  },
+  {
+    "iteration": 18,
+    "title": "Read-only byte views",
+    "path": "include/rtos_static.hpp",
+    "anchor": "struct Bytes",
+    "summary": "Adds explicit pointer-length views with null/nonempty validation for transport and asset input.",
+    "sha256": "92c68056511af166973417a7f18ec91e83d06ee3178ef918e17742c449bf5925"
+  },
+  {
+    "iteration": 19,
+    "title": "Writable byte views",
+    "path": "include/rtos_static.hpp",
+    "anchor": "struct MutableBytes",
+    "summary": "Separates destination capacity from immutable source buffers without allocating.",
+    "sha256": "92c68056511af166973417a7f18ec91e83d06ee3178ef918e17742c449bf5925"
+  },
+  {
+    "iteration": 20,
+    "title": "Checked size arithmetic",
+    "path": "include/rtos_static.hpp",
+    "anchor": "inline bool checked_add",
+    "summary": "Rejects overflowing lengths while preserving the caller\u0027s result on failure.",
+    "sha256": "92c68056511af166973417a7f18ec91e83d06ee3178ef918e17742c449bf5925"
+  },
+  {
+    "iteration": 21,
+    "title": "Saturating health counters",
+    "path": "include/rtos_static.hpp",
+    "anchor": "inline void saturate",
+    "summary": "Keeps resource-pressure counters from wrapping silently.",
+    "sha256": "92c68056511af166973417a7f18ec91e83d06ee3178ef918e17742c449bf5925"
+  },
+  {
+    "iteration": 22,
+    "title": "Bounded ring insertion",
+    "path": "include/rtos_static.hpp",
+    "anchor": "Result push",
+    "summary": "Adds drop-newest backpressure and a saturating exhaustion count to fixed storage.",
+    "sha256": "92c68056511af166973417a7f18ec91e83d06ee3178ef918e17742c449bf5925"
+  },
+  {
+    "iteration": 23,
+    "title": "FIFO ring consumption",
+    "path": "include/rtos_static.hpp",
+    "anchor": "Result pop",
+    "summary": "Consumes fixed ring slots in FIFO order across wrap without changing output on empty.",
+    "sha256": "92c68056511af166973417a7f18ec91e83d06ee3178ef918e17742c449bf5925"
+  },
+  {
+    "iteration": 24,
+    "title": "Generation-tagged static loans",
+    "path": "include/rtos_static.hpp",
+    "anchor": "Result acquire",
+    "summary": "Prevents stale release and retires exhausted generations without heap fallback.",
+    "sha256": "92c68056511af166973417a7f18ec91e83d06ee3178ef918e17742c449bf5925"
+  },
+  {
+    "iteration": 25,
+    "title": "Quarantined pool ownership",
+    "path": "include/rtos_static.hpp",
+    "anchor": "Result quarantine",
+    "summary": "Removes unsafe loans from reuse and exposes conservation checks.",
+    "sha256": "92c68056511af166973417a7f18ec91e83d06ee3178ef918e17742c449bf5925"
+  }
+]
