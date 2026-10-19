@@ -3153,19 +3153,32 @@
       "NXR-114",
       "NXR-116"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_mutex.hpp",
+      "src/mutex.cpp",
+      "src/kernel.cpp"
+    ],
+    "verification_files": [
+      "tests/sync.cpp",
+      "tests/queue.cpp",
+      "tests/mutex.cpp",
+      "tests/log.cpp",
+      "tests/sync_edges.cpp"
+    ],
     "planned_test": "TEST-NXR-115",
     "configuration": "Direct locked access default when device sharing is enabled.",
     "resource_budget": "One static mutex per serialization domain; no mandatory request queue.",
     "review_iteration": 115,
     "inspected_files": [
       "include/rtos.hpp",
-      "src/scheduler.hpp",
-      "docs/device-ipc-review.rst"
+      "src/sync.cpp",
+      "src/mutex.cpp",
+      "include/rtos_queue.hpp",
+      "include/rtos_log.hpp",
+      "docs/synchronization.rst"
     ],
-    "finding": "Reviews 011-015 require transaction scope rather than per-register locking; mutex wait state is not currently implemented."
+    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
   },
   {
     "id": "NXR-116",
@@ -3178,19 +3191,32 @@
     "dependencies": [
       "NXR-001"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_mutex.hpp",
+      "src/mutex.cpp",
+      "src/kernel.cpp"
+    ],
+    "verification_files": [
+      "tests/sync.cpp",
+      "tests/queue.cpp",
+      "tests/mutex.cpp",
+      "tests/log.cpp",
+      "tests/sync_edges.cpp"
+    ],
     "planned_test": "TEST-NXR-116",
     "configuration": "RTOS_MUTEX_PI proposed; dependency required by shared-device locking.",
     "resource_budget": "Static mutex objects and thread wait metadata; traversal bounded by thread count.",
     "review_iteration": 116,
     "inspected_files": [
       "include/rtos.hpp",
-      "src/scheduler.hpp",
-      "docs/device-ipc-review.rst"
+      "src/sync.cpp",
+      "src/mutex.cpp",
+      "include/rtos_queue.hpp",
+      "include/rtos_log.hpp",
+      "docs/synchronization.rst"
     ],
-    "finding": "Reviews 016-020 identify missing separate effective priority and lock ownership in the current public Thread."
+    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
   },
   {
     "id": "NXR-117",
@@ -3329,18 +3355,31 @@
     "dependencies": [
       "NXR-002"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_queue.hpp",
+      "src/sync.cpp"
+    ],
+    "verification_files": [
+      "tests/sync.cpp",
+      "tests/queue.cpp",
+      "tests/mutex.cpp",
+      "tests/log.cpp",
+      "tests/sync_edges.cpp"
+    ],
     "planned_test": "TEST-NXR-122",
     "configuration": "RTOS_QUEUE proposed; capacity and message type fixed at boot.",
     "resource_budget": "N times sizeof(T) plus exact control/alignment and static wait metadata.",
     "review_iteration": 122,
     "inspected_files": [
-      "include/rtos_static.hpp",
-      "docs/device-ipc-review.rst"
+      "include/rtos.hpp",
+      "src/sync.cpp",
+      "src/mutex.cpp",
+      "include/rtos_queue.hpp",
+      "include/rtos_log.hpp",
+      "docs/synchronization.rst"
     ],
-    "finding": "Reviews 046-050 explicitly distinguish the existing unsynchronized Ring from the proposed scheduler-integrated queue."
+    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
   },
   {
     "id": "NXR-123",
@@ -3354,19 +3393,31 @@
       "NXR-122",
       "NXR-128"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_queue.hpp",
+      "src/sync.cpp"
+    ],
+    "verification_files": [
+      "tests/sync.cpp",
+      "tests/queue.cpp",
+      "tests/mutex.cpp",
+      "tests/log.cpp",
+      "tests/sync_edges.cpp"
+    ],
     "planned_test": "TEST-NXR-123",
     "configuration": "NoWait, bounded timeout and documented indefinite-wait option.",
     "resource_budget": "Wait state lives in permanent thread metadata; no per-wait allocation.",
     "review_iteration": 123,
     "inspected_files": [
-      "src/scheduler.hpp",
-      "include/rtos_static.hpp",
-      "docs/device-ipc-review.rst"
+      "include/rtos.hpp",
+      "src/sync.cpp",
+      "src/mutex.cpp",
+      "include/rtos_queue.hpp",
+      "include/rtos_log.hpp",
+      "docs/synchronization.rst"
     ],
-    "finding": "Reviews 051-055 define queue blocking behavior absent from the current scheduler state model."
+    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
   },
   {
     "id": "NXR-124",
@@ -3380,19 +3431,31 @@
       "NXR-119",
       "NXR-122"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_queue.hpp",
+      "src/sync.cpp"
+    ],
+    "verification_files": [
+      "tests/sync.cpp",
+      "tests/queue.cpp",
+      "tests/mutex.cpp",
+      "tests/log.cpp",
+      "tests/sync_edges.cpp"
+    ],
     "planned_test": "TEST-NXR-124",
     "configuration": "Explicit ISR transfer methods and maximum ISR message bytes.",
     "resource_budget": "Same fixed queue storage plus port critical-section state.",
     "review_iteration": 124,
     "inspected_files": [
-      "include/rtos_static.hpp",
-      "docs/drivers.rst",
-      "docs/device-ipc-review.rst"
+      "include/rtos.hpp",
+      "src/sync.cpp",
+      "src/mutex.cpp",
+      "include/rtos_queue.hpp",
+      "include/rtos_log.hpp",
+      "docs/synchronization.rst"
     ],
-    "finding": "Reviews 056-060 reject using the current single-owner Ring directly from concurrent threads and interrupts."
+    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
   },
   {
     "id": "NXR-125",
@@ -3405,18 +3468,32 @@
     "dependencies": [
       "NXR-128"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_sync.hpp",
+      "src/sync.cpp",
+      "src/scheduler.hpp"
+    ],
+    "verification_files": [
+      "tests/sync.cpp",
+      "tests/queue.cpp",
+      "tests/mutex.cpp",
+      "tests/log.cpp",
+      "tests/sync_edges.cpp"
+    ],
     "planned_test": "TEST-NXR-125",
     "configuration": "RTOS_EVENTS proposed; documented usable mask and clear mode.",
     "resource_budget": "One static flag word and bounded waiter metadata per event object.",
     "review_iteration": 125,
     "inspected_files": [
       "include/rtos.hpp",
-      "docs/device-ipc-review.rst"
+      "src/sync.cpp",
+      "src/mutex.cpp",
+      "include/rtos_queue.hpp",
+      "include/rtos_log.hpp",
+      "docs/synchronization.rst"
     ],
-    "finding": "Reviews 061-065 define event conditions rather than counted signals; no event primitive is currently implemented."
+    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
   },
   {
     "id": "NXR-126",
@@ -3430,18 +3507,32 @@
       "NXR-125",
       "NXR-119"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_sync.hpp",
+      "src/sync.cpp",
+      "src/scheduler.hpp"
+    ],
+    "verification_files": [
+      "tests/sync.cpp",
+      "tests/queue.cpp",
+      "tests/mutex.cpp",
+      "tests/log.cpp",
+      "tests/sync_edges.cpp"
+    ],
     "planned_test": "TEST-NXR-126",
     "configuration": "Explicit broadcast versus consuming wait policy.",
     "resource_budget": "Fixed event state and existing thread wait metadata.",
     "review_iteration": 126,
     "inspected_files": [
-      "src/scheduler.hpp",
-      "docs/device-ipc-review.rst"
+      "include/rtos.hpp",
+      "src/sync.cpp",
+      "src/mutex.cpp",
+      "include/rtos_queue.hpp",
+      "include/rtos_log.hpp",
+      "docs/synchronization.rst"
     ],
-    "finding": "Reviews 066-070 resolve multi-waiter semantics and avoid implying that event flags transfer payload ownership."
+    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
   },
   {
     "id": "NXR-127",
@@ -3455,19 +3546,32 @@
       "NXR-128",
       "NXR-119"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_sync.hpp",
+      "src/sync.cpp",
+      "src/scheduler.hpp"
+    ],
+    "verification_files": [
+      "tests/sync.cpp",
+      "tests/queue.cpp",
+      "tests/mutex.cpp",
+      "tests/log.cpp",
+      "tests/sync_edges.cpp"
+    ],
     "planned_test": "TEST-NXR-127",
     "configuration": "RTOS_SEMAPHORE proposed; boot-fixed initial and maximum counts.",
     "resource_budget": "Fixed count, maximum and waiter metadata; zero heap.",
     "review_iteration": 127,
     "inspected_files": [
       "include/rtos.hpp",
-      "src/scheduler.hpp",
-      "docs/device-ipc-review.rst"
+      "src/sync.cpp",
+      "src/mutex.cpp",
+      "include/rtos_queue.hpp",
+      "include/rtos_log.hpp",
+      "docs/synchronization.rst"
     ],
-    "finding": "Reviews 071-075 separate counted notifications from owner-aware mutexes and require token conservation."
+    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
   },
   {
     "id": "NXR-128",
@@ -3480,19 +3584,32 @@
     "dependencies": [
       "NXR-001"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_sync.hpp",
+      "src/sync.cpp",
+      "src/scheduler.hpp"
+    ],
+    "verification_files": [
+      "tests/sync.cpp",
+      "tests/queue.cpp",
+      "tests/mutex.cpp",
+      "tests/log.cpp",
+      "tests/sync_edges.cpp"
+    ],
     "planned_test": "TEST-NXR-128",
     "configuration": "One active wait per thread; supported finite tick range documented.",
     "resource_budget": "Permanent thread wait metadata with bounded object lookup.",
     "review_iteration": 128,
     "inspected_files": [
       "include/rtos.hpp",
-      "src/scheduler.hpp",
-      "docs/device-ipc-review.rst"
+      "src/sync.cpp",
+      "src/mutex.cpp",
+      "include/rtos_queue.hpp",
+      "include/rtos_log.hpp",
+      "docs/synchronization.rst"
     ],
-    "finding": "Reviews 076-080 identify required scheduler changes; current State only represents unused, ready, sleeping and finished."
+    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
   },
   {
     "id": "NXR-129",
@@ -3508,18 +3625,32 @@
       "NXR-120",
       "NXR-128"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_mutex.hpp",
+      "src/mutex.cpp",
+      "src/kernel.cpp"
+    ],
+    "verification_files": [
+      "tests/sync.cpp",
+      "tests/queue.cpp",
+      "tests/mutex.cpp",
+      "tests/log.cpp",
+      "tests/sync_edges.cpp"
+    ],
     "planned_test": "TEST-NXR-129",
     "configuration": "Explicit owner-dead recovery policy; no dynamic thread reclamation.",
     "resource_budget": "Static abandonment and recovery state; no reallocation.",
     "review_iteration": 129,
     "inspected_files": [
       "include/rtos.hpp",
-      "docs/device-ipc-review.rst"
+      "src/sync.cpp",
+      "src/mutex.cpp",
+      "include/rtos_queue.hpp",
+      "include/rtos_log.hpp",
+      "docs/synchronization.rst"
     ],
-    "finding": "Reviews 081-085 reject silently releasing hardware ownership on thread exit without device-state recovery."
+    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
   },
   {
     "id": "NXR-130",
@@ -3534,18 +3665,33 @@
       "NXR-122",
       "NXR-128"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_queue.hpp",
+      "include/rtos_mutex.hpp",
+      "include/rtos_log.hpp",
+      "src/kernel.cpp"
+    ],
+    "verification_files": [
+      "tests/sync.cpp",
+      "tests/queue.cpp",
+      "tests/mutex.cpp",
+      "tests/log.cpp",
+      "tests/sync_edges.cpp"
+    ],
     "planned_test": "TEST-NXR-130",
     "configuration": "Metrics independently configurable; costs reported when enabled.",
     "resource_budget": "Fixed per-object counters and caller-owned output arrays.",
     "review_iteration": 130,
     "inspected_files": [
       "include/rtos.hpp",
-      "docs/device-ipc-review.rst"
+      "src/sync.cpp",
+      "src/mutex.cpp",
+      "include/rtos_queue.hpp",
+      "include/rtos_log.hpp",
+      "docs/synchronization.rst"
     ],
-    "finding": "Reviews 086-090 extend existing thread snapshot principles without claiming implemented device or IPC metrics."
+    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
   },
   {
     "id": "NXR-131",
@@ -3558,19 +3704,31 @@
     "dependencies": [
       "NXR-002"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "cmake/configuration.cmake",
+      "include/rtos_config.hpp"
+    ],
+    "verification_files": [
+      "tests/sync.cpp",
+      "tests/queue.cpp",
+      "tests/mutex.cpp",
+      "tests/log.cpp",
+      "tests/sync_edges.cpp"
+    ],
     "planned_test": "TEST-NXR-131",
     "configuration": "Proposed RTOS_DEVICE, RTOS_QUEUE, RTOS_EVENTS, RTOS_SEMAPHORE and RTOS_MUTEX_PI.",
     "resource_budget": "Disabled features contribute zero module storage; enabled sizes measured per target.",
     "review_iteration": 131,
     "inspected_files": [
-      "docs/drivers.rst",
-      "src/scheduler.hpp",
-      "docs/device-ipc-review.rst"
+      "include/rtos.hpp",
+      "src/sync.cpp",
+      "src/mutex.cpp",
+      "include/rtos_queue.hpp",
+      "include/rtos_log.hpp",
+      "docs/synchronization.rst"
     ],
-    "finding": "Reviews 091-095 specify future switches and portability boundaries rather than claiming existing configurable IPC modules."
+    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
   },
   {
     "id": "NXR-132",
@@ -3584,19 +3742,31 @@
       "NXR-002",
       "NXR-131"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_log.hpp",
+      "src/log.cpp"
+    ],
+    "verification_files": [
+      "tests/sync.cpp",
+      "tests/queue.cpp",
+      "tests/mutex.cpp",
+      "tests/log.cpp",
+      "tests/sync_edges.cpp"
+    ],
     "planned_test": "TEST-NXR-132",
     "configuration": "Logging off in nano; explicit fixed depth and message bytes.",
     "resource_budget": "Depth times actual slot size plus formatting and synchronization metadata reported separately.",
     "review_iteration": 132,
     "inspected_files": [
-      "include/rtos_static.hpp",
-      "docs/drivers.rst",
-      "docs/device-ipc-review.rst"
+      "include/rtos.hpp",
+      "src/sync.cpp",
+      "src/mutex.cpp",
+      "include/rtos_queue.hpp",
+      "include/rtos_log.hpp",
+      "docs/synchronization.rst"
     ],
-    "finding": "Reviews 096-100 preserve a small optional logger and explicitly label the 100 decisions as design review without build or runtime proof."
+    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
   },
   {
     "id": "NXR-133",
@@ -3749,5 +3919,68 @@
       "docs/device-ipc-review.rst"
     ],
     "finding": "PCIe reset and link loss require a selected hardware contract; software timeouts and address checks alone do not establish isolation."
+  },
+  {
+    "id": "NXR-139",
+    "title": "Single-hart atomic RAM words",
+    "category": "Synchronization",
+    "statement": "The kernel shall provide interrupt-serialized 32-bit RAM load, store, exchange, compare-exchange, fetch-add and bitwise fetch operations without libatomic or heap dependencies.",
+    "rationale": "Support small shared counters and flags on RV32 without the A extension.",
+    "acceptance": "All access uses the object; compare mismatch updates expected; unsigned addition wraps; nested critical state restores correctly; documentation excludes MMIO, DMA and SMP semantics; native target allocator audit remains clean.",
+    "verification": "Host operation fixtures, RV32 cross-link and future target interrupt-interleaving qualification.",
+    "dependencies": [
+      "NXR-002",
+      "NXR-128"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_atomic.hpp"
+    ],
+    "verification_files": [
+      "tests/queue.cpp"
+    ],
+    "planned_test": "TEST-NXR-139",
+    "configuration": "RTOS_SYNC; current single-hart port only.",
+    "resource_budget": "One 32-bit word plus alignment; bounded interrupt masking and no runtime allocation.",
+    "review_iteration": 139,
+    "inspected_files": [
+      "include/rtos_atomic.hpp",
+      "tests/queue.cpp",
+      "docs/synchronization.rst"
+    ],
+    "finding": "AtomicU32 source and host fixtures exist; this is a single-hart interrupt protocol rather than standard C\u002B\u002B or SMP atomics; hardware timing qualification remains pending."
+  },
+  {
+    "id": "NXR-140",
+    "title": "Bounded queued printf formatting",
+    "category": "Diagnostics",
+    "statement": "The logger shall format a documented integer/string subset into private bounded storage and publish complete copied records without holding a formatting lock or waiting for UART output.",
+    "rationale": "Provide useful concurrent diagnostics with explicit memory and latency limits.",
+    "acceptance": "Support documented conversions with matched varargs; reject unsupported format without enqueue; cap format and string scans; report truncation/full; retain pending bytes across partial writes; ISR path accepts preformatted bytes only; physical UART integration remains separate.",
+    "verification": "Host format/queue/backpressure fixtures, RV32 static-only link and future target stack/latency/UART qualification.",
+    "dependencies": [
+      "NXR-122",
+      "NXR-123",
+      "NXR-132"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_log.hpp",
+      "src/log.cpp"
+    ],
+    "verification_files": [
+      "tests/log.cpp"
+    ],
+    "planned_test": "TEST-NXR-140",
+    "configuration": "RTOS_LOGGING requires RTOS_SYNC; fixed logger depth and record size.",
+    "resource_budget": "RV32 Logger of 8 records with 64 message bytes occupies 720 bytes in the measured example; private formatter consumes reserved thread stack space.",
+    "review_iteration": 140,
+    "inspected_files": [
+      "include/rtos_log.hpp",
+      "src/log.cpp",
+      "tests/log.cpp",
+      "docs/synchronization.rst"
+    ],
+    "finding": "Bounded queued formatting and synchronous writer handling have source and host fixtures; no libc override, external UART IRQ integration or board execution claim is made."
   }
 ]

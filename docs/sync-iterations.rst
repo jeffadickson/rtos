@@ -91,3 +91,32 @@ Checkpoint 75: transaction mutexes and priority inheritance
 073. Release normal transaction ownership on callback error returns.
 074. Add chained donation, cycle, timeout and owner-exit host scenarios.
 075. Exercise mutex transactions in the cross-linked RISCue example.
+
+Checkpoint 100: bounded queued printf and integration
+--------------------------------------------------------------------------------
+
+076. Add an optional logger with configurable static depth and record bytes.
+077. Format into a private per-call stack record without a global formatting lock.
+078. Publish completed records with a bounded interrupt-masked queue copy.
+079. Report queue-full drop-new without blocking a producer on the UART.
+080. Report accepted bytes and record truncation explicitly.
+081. Implement bounded signed decimal formatting including the minimum 64-bit integer.
+082. Implement unsigned decimal and hexadecimal integer conversions with l/ll support.
+083. Implement bounded string, character, pointer and literal-percent conversions.
+084. Reject unsupported format conversions without enqueueing partial output.
+085. Bound format scanning and string scanning independently of buffer capacity.
+086. Provide preformatted ISR logging with context validation and no varargs formatter.
+087. Serialize concurrent drains through a nonblocking owned mutex.
+088. Preserve a pending record and byte cursor across partial UART writes.
+089. Retain pending bytes across synchronous backpressure and writer failures.
+090. Reject a writer's invalid over-consumption result.
+091. Bound each drain by bytes and loop iterations.
+092. Expose coherent logger counters and pending/queue state.
+093. Preserve non-clearing event broadcast even when a higher-priority consumer clears bits.
+094. Exercise equal-priority semaphore handoff and changing inherited priority.
+095. Validate feature dependencies and configurable critical-section copy limits.
+096. Add native configurator profiles for synchronization and logging.
+097. Update implemented-source requirement traceability without claiming hardware verification.
+098. Document API lifetime, printf subset, ISR limits and static memory costs in Sphinx.
+099. Cross-link the complete logging example and verify no heap/static runtime initializers.
+100. Run final host, firmware, analyzer and documentation gates before the final local commit and push.

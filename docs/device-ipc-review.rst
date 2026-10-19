@@ -1,7 +1,7 @@
 Device sharing and IPC: requirements review
 ===========================================
 
-Status: planned design, not an implemented API. This pass adds requirements
+Historical design review; see synchronization for the current implemented API. This pass adds requirements
 NXR-113 through NXR-132 and records 100 distinct design decisions below.
 No builds, tests, firmware measurements or commits were requested or performed
 for this pass. Acceptance checks below are future verification obligations.
@@ -230,7 +230,9 @@ Inspected include/rtos.hpp, src/scheduler.hpp, include/rtos_static.hpp,
 docs/drivers.rst and the canonical requirements catalogue. The current public
 Thread state has no IPC-blocked state; static Ring explicitly requires external
 synchronization; external peripheral interrupt dispatch remains unfinished.
-All new requirements therefore remain Planned. Existing related requirements
+At the time of this design review, all new requirements were Planned.
+Source status has since been updated for implemented synchronization and logging;
+refer to the canonical tracker and synchronization chapter for current evidence. Existing related requirements
 remain in force; this batch refines their contracts rather than proving them.
 These are 100 focused decisions in one design-review pass, not 100 independent
 expert reviews or executed implementation cycles.

@@ -14,3 +14,14 @@ else()
   add_custom_target(static_analysis COMMAND ${CMAKE_COMMAND} -E echo "Install Clang with RV32 support for static analysis."
     COMMAND ${CMAKE_COMMAND} -E false VERBATIM)
 endif()
+
+if(NXR_CLANG_EXECUTABLE)
+  add_custom_target(sync_static_analysis
+    COMMAND ${NXR_CLANG_EXECUTABLE} --target=riscv32-unknown-elf -march=rv32im_zicsr -mabi=ilp32
+      -std=c++17 -ffreestanding -fno-exceptions -fno-rtti -DRTOS_SYNC=1 -DRTOS_LOGGING=1
+      -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/src -I${CMAKE_SOURCE_DIR}/ports/riscue
+      --analyze -Xanalyzer -analyzer-output=text
+      ${CMAKE_SOURCE_DIR}/src/kernel.cpp ${CMAKE_SOURCE_DIR}/src/sync.cpp
+      ${CMAKE_SOURCE_DIR}/src/mutex.cpp ${CMAKE_SOURCE_DIR}/src/log.cpp
+    VERBATIM)
+endif()

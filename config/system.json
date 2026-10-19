@@ -140,6 +140,34 @@
       "web": true,
       "storage": false,
       "sync": false
+    },
+    {
+      "id": "sync",
+      "maxThreads": 8,
+      "tickHz": 1000,
+      "idleStackBytes": 1024,
+      "metrics": true,
+      "stackGuard": true,
+      "roundRobin": true,
+      "ethernet": false,
+      "web": false,
+      "storage": false,
+      "sync": true,
+      "logging": false
+    },
+    {
+      "id": "logging",
+      "maxThreads": 8,
+      "tickHz": 1000,
+      "idleStackBytes": 1024,
+      "metrics": true,
+      "stackGuard": true,
+      "roundRobin": true,
+      "ethernet": false,
+      "web": false,
+      "storage": false,
+      "sync": true,
+      "logging": true
     }
   ]
 }

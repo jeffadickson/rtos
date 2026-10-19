@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **138**. Catalogue SHA-256: ``64585055411ef8c6b4603d0b8e6d621766946c0b825ab43521252c1000dac854``.
+Reviewed requirements: **140**. Catalogue SHA-256: ``573cc66e5089883395e4424bb7021311e2a3f817c68f2ba7e268b62f1becc890``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -4002,7 +4002,7 @@ NXR-114 Minimal driver operations
 NXR-115 Whole device transaction lock
 -------------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** Synchronization
@@ -4032,12 +4032,12 @@ NXR-115 Whole device transaction lock
 **Static resource budget:** One static mutex per serialization domain; no mandatory request queue.
 
 
-**Review finding:** Reviews 011-015 require transaction scope rather than per-register locking; mutex wait state is not currently implemented.
+**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
 
 NXR-116 Bounded priority inheritance
 ------------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** Synchronization
@@ -4067,7 +4067,7 @@ NXR-116 Bounded priority inheritance
 **Static resource budget:** Static mutex objects and thread wait metadata; traversal bounded by thread count.
 
 
-**Review finding:** Reviews 016-020 identify missing separate effective priority and lock ownership in the current public Thread.
+**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
 
 NXR-117 Typed MMIO access contracts
 -----------------------------------
@@ -4247,7 +4247,7 @@ NXR-121 Optional queued device service
 NXR-122 Typed static message queue
 ----------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** IPC
@@ -4277,12 +4277,12 @@ NXR-122 Typed static message queue
 **Static resource budget:** N times sizeof(T) plus exact control/alignment and static wait metadata.
 
 
-**Review finding:** Reviews 046-050 explicitly distinguish the existing unsynchronized Ring from the proposed scheduler-integrated queue.
+**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
 
 NXR-123 Timed queue transfer semantics
 --------------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** IPC
@@ -4312,12 +4312,12 @@ NXR-123 Timed queue transfer semantics
 **Static resource budget:** Wait state lives in permanent thread metadata; no per-wait allocation.
 
 
-**Review finding:** Reviews 051-055 define queue blocking behavior absent from the current scheduler state model.
+**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
 
 NXR-124 ISR-safe queue transfer
 -------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** IPC
@@ -4347,12 +4347,12 @@ NXR-124 ISR-safe queue transfer
 **Static resource budget:** Same fixed queue storage plus port critical-section state.
 
 
-**Review finding:** Reviews 056-060 reject using the current single-owner Ring directly from concurrent threads and interrupts.
+**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
 
 NXR-125 Event flag wait semantics
 ---------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** IPC
@@ -4382,12 +4382,12 @@ NXR-125 Event flag wait semantics
 **Static resource budget:** One static flag word and bounded waiter metadata per event object.
 
 
-**Review finding:** Reviews 061-065 define event conditions rather than counted signals; no event primitive is currently implemented.
+**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
 
 NXR-126 Event wake and payload ordering
 ---------------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** IPC
@@ -4417,12 +4417,12 @@ NXR-126 Event wake and payload ordering
 **Static resource budget:** Fixed event state and existing thread wait metadata.
 
 
-**Review finding:** Reviews 066-070 resolve multi-waiter semantics and avoid implying that event flags transfer payload ownership.
+**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
 
 NXR-127 Bounded counting semaphore
 ----------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** IPC
@@ -4452,12 +4452,12 @@ NXR-127 Bounded counting semaphore
 **Static resource budget:** Fixed count, maximum and waiter metadata; zero heap.
 
 
-**Review finding:** Reviews 071-075 separate counted notifications from owner-aware mutexes and require token conservation.
+**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
 
 NXR-128 Bounded thread wait lifecycle
 -------------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** Synchronization
@@ -4487,12 +4487,12 @@ NXR-128 Bounded thread wait lifecycle
 **Static resource budget:** Permanent thread wait metadata with bounded object lookup.
 
 
-**Review finding:** Reviews 076-080 identify required scheduler changes; current State only represents unused, ready, sleeping and finished.
+**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
 
 NXR-129 Abandoned device ownership
 ----------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** Synchronization
@@ -4522,12 +4522,12 @@ NXR-129 Abandoned device ownership
 **Static resource budget:** Static abandonment and recovery state; no reallocation.
 
 
-**Review finding:** Reviews 081-085 reject silently releasing hardware ownership on thread exit without device-state recovery.
+**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
 
 NXR-130 Device and IPC metrics
 ------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** Diagnostics
@@ -4557,12 +4557,12 @@ NXR-130 Device and IPC metrics
 **Static resource budget:** Fixed per-object counters and caller-owned output arrays.
 
 
-**Review finding:** Reviews 086-090 extend existing thread snapshot principles without claiming implemented device or IPC metrics.
+**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
 
 NXR-131 Modular synchronization configuration
 ---------------------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** Configuration
@@ -4592,12 +4592,12 @@ NXR-131 Modular synchronization configuration
 **Static resource budget:** Disabled features contribute zero module storage; enabled sizes measured per target.
 
 
-**Review finding:** Reviews 091-095 specify future switches and portability boundaries rather than claiming existing configurable IPC modules.
+**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
 
 NXR-132 Small bounded logging and documentation
 -----------------------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** Diagnostics
@@ -4627,7 +4627,7 @@ NXR-132 Small bounded logging and documentation
 **Static resource budget:** Depth times actual slot size plus formatting and synchronization metadata reported separately.
 
 
-**Review finding:** Reviews 096-100 preserve a small optional logger and explicitly label the 100 decisions as design review without build or runtime proof.
+**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
 
 NXR-133 Optional simple FPGA DMA driver
 ---------------------------------------
@@ -4838,4 +4838,74 @@ NXR-138 PCIe fault and DMA window isolation
 
 
 **Review finding:** PCIe reset and link loss require a selected hardware contract; software timeouts and address checks alone do not establish isolation.
+
+NXR-139 Single-hart atomic RAM words
+------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** Synchronization
+
+
+**Requirement:** The kernel shall provide interrupt-serialized 32-bit RAM load, store, exchange, compare-exchange, fetch-add and bitwise fetch operations without libatomic or heap dependencies.
+
+
+**Rationale:** Support small shared counters and flags on RV32 without the A extension.
+
+
+**Acceptance:** All access uses the object; compare mismatch updates expected; unsigned addition wraps; nested critical state restores correctly; documentation excludes MMIO, DMA and SMP semantics; native target allocator audit remains clean.
+
+
+**Verification:** Host operation fixtures, RV32 cross-link and future target interrupt-interleaving qualification.
+
+
+**Planned test:** TEST-NXR-139
+
+
+**Dependencies:** NXR-002, NXR-128
+
+
+**Configuration:** RTOS_SYNC; current single-hart port only.
+
+
+**Static resource budget:** One 32-bit word plus alignment; bounded interrupt masking and no runtime allocation.
+
+
+**Review finding:** AtomicU32 source and host fixtures exist; this is a single-hart interrupt protocol rather than standard C++ or SMP atomics; hardware timing qualification remains pending.
+
+NXR-140 Bounded queued printf formatting
+----------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** Diagnostics
+
+
+**Requirement:** The logger shall format a documented integer/string subset into private bounded storage and publish complete copied records without holding a formatting lock or waiting for UART output.
+
+
+**Rationale:** Provide useful concurrent diagnostics with explicit memory and latency limits.
+
+
+**Acceptance:** Support documented conversions with matched varargs; reject unsupported format without enqueue; cap format and string scans; report truncation/full; retain pending bytes across partial writes; ISR path accepts preformatted bytes only; physical UART integration remains separate.
+
+
+**Verification:** Host format/queue/backpressure fixtures, RV32 static-only link and future target stack/latency/UART qualification.
+
+
+**Planned test:** TEST-NXR-140
+
+
+**Dependencies:** NXR-122, NXR-123, NXR-132
+
+
+**Configuration:** RTOS_LOGGING requires RTOS_SYNC; fixed logger depth and record size.
+
+
+**Static resource budget:** RV32 Logger of 8 records with 64 message bytes occupies 720 bytes in the measured example; private formatter consumes reserved thread stack space.
+
+
+**Review finding:** Bounded queued formatting and synchronous writer handling have source and host fixtures; no libc override, external UART IRQ integration or board execution claim is made.
 

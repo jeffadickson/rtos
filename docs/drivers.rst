@@ -170,5 +170,7 @@ Planned shared-device and IPC contracts
 
    device-ipc-review
 
-DMA driver support is deferred. The shared-device and IPC requirements are
-planned; the existing Ethernet adapter does not implement those primitives.
+DMA driver support remains deferred to its optional BSP roadmap. Static IPC,
+transaction mutexes and queued logging now have source implementations; see
+synchronization for APIs and verification limits. A general driver registry,
+external interrupt dispatch and board MMIO drivers remain integration work.

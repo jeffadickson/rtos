@@ -1487,7 +1487,7 @@ Dependencies: NXR-113
 
 [REQUIREMENT]
 UID: NXR-115
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Whole device transaction lock
 STATEMENT: >>>
 The driver framework shall serialize each complete logical device transaction across all thread entry points using the same priority-inheriting mutex.
@@ -1500,7 +1500,7 @@ Dependencies: NXR-114, NXR-116
 
 [REQUIREMENT]
 UID: NXR-116
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Bounded priority inheritance
 STATEMENT: >>>
 The kernel shall implement owner-aware nonrecursive mutexes with separate base and effective priorities and bounded transitive priority donation.
@@ -1578,7 +1578,7 @@ Dependencies: NXR-114, NXR-122, NXR-128
 
 [REQUIREMENT]
 UID: NXR-122
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Typed static message queue
 STATEMENT: >>>
 The kernel shall provide fixed-capacity Queue<T,N> objects for positive N and initially trivially copyable messages with copied ownership and FIFO message order.
@@ -1591,7 +1591,7 @@ Dependencies: NXR-002
 
 [REQUIREMENT]
 UID: NXR-123
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Timed queue transfer semantics
 STATEMENT: >>>
 The kernel shall provide immediate and timed queue send and receive with priority-ordered waiters, FIFO ties and exactly one transfer-or-timeout outcome.
@@ -1604,7 +1604,7 @@ Dependencies: NXR-122, NXR-128
 
 [REQUIREMENT]
 UID: NXR-124
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: ISR-safe queue transfer
 STATEMENT: >>>
 The kernel shall provide bounded nonblocking queue operations for supported interrupt contexts using a verified port synchronization protocol.
@@ -1617,7 +1617,7 @@ Dependencies: NXR-119, NXR-122
 
 [REQUIREMENT]
 UID: NXR-125
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Event flag wait semantics
 STATEMENT: >>>
 The kernel shall provide fixed-width event flags with validated masks, wait-any, wait-all, returned observed bits and atomic optional clear-on-success.
@@ -1630,7 +1630,7 @@ Dependencies: NXR-128
 
 [REQUIREMENT]
 UID: NXR-126
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Event wake and payload ordering
 STATEMENT: >>>
 The kernel shall serialize event updates and wait enrollment and define priority consumption and broadcast behavior separately.
@@ -1643,7 +1643,7 @@ Dependencies: NXR-125, NXR-119
 
 [REQUIREMENT]
 UID: NXR-127
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Bounded counting semaphore
 STATEMENT: >>>
 The kernel shall provide statically allocated counting semaphores with validated initial and maximum counts, bounded waits and direct priority waiter handoff.
@@ -1656,7 +1656,7 @@ Dependencies: NXR-128, NXR-119
 
 [REQUIREMENT]
 UID: NXR-128
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Bounded thread wait lifecycle
 STATEMENT: >>>
 The kernel shall track at most one active blocking operation per thread initially and remove wait membership exactly once on grant, timeout or supported termination.
@@ -1669,7 +1669,7 @@ Dependencies: NXR-001
 
 [REQUIREMENT]
 UID: NXR-129
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Abandoned device ownership
 STATEMENT: >>>
 The kernel shall report owner-dead and fault a device when its mutex owner exits during an uncertain transaction until explicit recovery restores a safe state.
@@ -1682,7 +1682,7 @@ Dependencies: NXR-115, NXR-116, NXR-120, NXR-128
 
 [REQUIREMENT]
 UID: NXR-130
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Device and IPC metrics
 STATEMENT: >>>
 The kernel shall copy coherent bounded device and IPC snapshots into caller-provided storage with separate contention, capacity, timeout and fault statistics.
@@ -1695,7 +1695,7 @@ Dependencies: NXR-116, NXR-122, NXR-128
 
 [REQUIREMENT]
 UID: NXR-131
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Modular synchronization configuration
 STATEMENT: >>>
 The build configuration shall independently enable device, queue, event, semaphore and mutex modules with validated dependencies and explicit single-hart support limits.
@@ -1708,7 +1708,7 @@ Dependencies: NXR-002
 
 [REQUIREMENT]
 UID: NXR-132
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Small bounded logging and documentation
 STATEMENT: >>>
 The kernel shall keep optional static logging capacity configurable, use drop-new initially, bound synchronous drain work and document all proposed APIs and deferred DMA scope honestly.
@@ -1795,5 +1795,31 @@ Verification: Future link-drop, reset, range-validation and late-write qualifica
 Configuration: Board-specific windows, interrupt mechanism and reset/quiescence policy.
 Static budget: Static window, request-generation and health records; quarantine budget explicit.
 Dependencies: NXR-134, NXR-135, NXR-136, NXR-137
+<<<
+
+[REQUIREMENT]
+UID: NXR-139
+STATUS: PartialSourceUnverified
+TITLE: Single-hart atomic RAM words
+STATEMENT: >>>
+The kernel shall provide interrupt-serialized 32-bit RAM load, store, exchange, compare-exchange, fetch-add and bitwise fetch operations without libatomic or heap dependencies.
+Acceptance: All access uses the object; compare mismatch updates expected; unsigned addition wraps; nested critical state restores correctly; documentation excludes MMIO, DMA and SMP semantics; native target allocator audit remains clean.
+Verification: Host operation fixtures, RV32 cross-link and future target interrupt-interleaving qualification.
+Configuration: RTOS_SYNC; current single-hart port only.
+Static budget: One 32-bit word plus alignment; bounded interrupt masking and no runtime allocation.
+Dependencies: NXR-002, NXR-128
+<<<
+
+[REQUIREMENT]
+UID: NXR-140
+STATUS: PartialSourceUnverified
+TITLE: Bounded queued printf formatting
+STATEMENT: >>>
+The logger shall format a documented integer/string subset into private bounded storage and publish complete copied records without holding a formatting lock or waiting for UART output.
+Acceptance: Support documented conversions with matched varargs; reject unsupported format without enqueue; cap format and string scans; report truncation/full; retain pending bytes across partial writes; ISR path accepts preformatted bytes only; physical UART integration remains separate.
+Verification: Host format/queue/backpressure fixtures, RV32 static-only link and future target stack/latency/UART qualification.
+Configuration: RTOS_LOGGING requires RTOS_SYNC; fixed logger depth and record size.
+Static budget: RV32 Logger of 8 records with 64 message bytes occupies 720 bytes in the measured example; private formatter consumes reserved thread stack space.
+Dependencies: NXR-122, NXR-123, NXR-132
 <<<
 

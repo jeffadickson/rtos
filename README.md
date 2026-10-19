@@ -60,3 +60,23 @@ only cross-built firmware port. VORAGO, AMD/Xilinx ARM, MicroBlaze and Tang Nano
 9K entries are researched planned/provisional profiles; firmware generation
 fails explicitly until each port and BSP exists. AMP/SMP are designed for but
 currently rejected.
+
+## Static communication and queued printf
+
+Enable `RTOS_SYNC` for typed queues, events, counting semaphores,
+priority-inheriting mutexes and single-hart atomic words. Add `RTOS_LOGGING`
+for a bounded `console.printf` interface and serialized, budgeted output.
+Both are off in nano. The RV32 `Logger<8,64>` object occupies 720 bytes,
+including its queue, pending record and controls; producer formatting uses
+existing thread stack space. It does not override libc `printf`.
+
+```sh
+cmake --preset logging -DRISCV_TOOLCHAIN_PREFIX=/path/to/riscv64-unknown-elf-
+cmake --build --preset logging
+```
+
+The logging example uses a counting sink, not a physical UART driver.
+See [the synchronization manual](docs/synchronization.rst) and
+[100 implementation steps](docs/sync-iterations.rst). Host checks and RV32
+cross-links pass; external peripheral interrupts and board qualification remain
+outstanding. These APIs are single-hart, not SMP synchronization.

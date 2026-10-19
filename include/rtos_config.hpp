@@ -31,6 +31,9 @@ static_assert(RTOS_IPC_MAX_MESSAGE_BYTES>0 && RTOS_IPC_MAX_MESSAGE_BYTES<=512);
 #define RTOS_MAX_HELD_MUTEXES 8
 #endif
 static_assert(RTOS_MAX_HELD_MUTEXES>0 && RTOS_MAX_HELD_MUTEXES<=255);
+#ifndef RTOS_LOGGING
+#define RTOS_LOGGING 0
+#endif
 #ifndef RTOS_SYNC
 #define RTOS_SYNC 0
 #endif
@@ -42,3 +45,5 @@ static_assert(RTOS_ROUND_ROBIN == 0 || RTOS_ROUND_ROBIN == 1);
 static_assert(RTOS_METRICS == 0 || RTOS_METRICS == 1);
 static_assert(RTOS_STACK_GUARD == 0 || RTOS_STACK_GUARD == 1);
 static_assert(RTOS_MTIME_ADDRESS % 4 == 0 && RTOS_MTIMECMP_ADDRESS % 4 == 0);
+
+static_assert(!RTOS_LOGGING || RTOS_SYNC);

@@ -1,12 +1,122 @@
 {
   "version": 3,
-  "cmakeMinimumRequired": {"major": 3, "minor": 22, "patch": 0},
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 22,
+    "patch": 0
+  },
   "configurePresets": [
-    {"name":"nano","inherits":"riscue","binaryDir":"${sourceDir}/build/nano","cacheVariables":{"RTOS_APPLICATION":"examples/nano.cpp","RTOS_MAX_THREADS":"1","RTOS_IDLE_STACK_BYTES":"512","RTOS_METRICS":"OFF","RTOS_STACK_GUARD":"OFF","RTOS_ROUND_ROBIN":"OFF","RTOS_ETHERNET":"OFF","RTOS_WEB":"OFF","RTOS_STORAGE":"OFF","RTOS_SYNC":"OFF"}},
-    {"name": "host", "generator": "Ninja", "binaryDir": "${sourceDir}/build/host", "cacheVariables": {"CMAKE_BUILD_TYPE": "Debug"}},
-    {"name": "minimal", "inherits": "host", "binaryDir": "${sourceDir}/build/minimal", "cacheVariables": {"RTOS_METRICS": "OFF", "RTOS_STACK_GUARD": "OFF", "RTOS_ROUND_ROBIN": "OFF", "RTOS_ETHERNET": "OFF"}},
-    {"name": "riscue", "generator": "Ninja", "binaryDir": "${sourceDir}/build/riscue", "toolchainFile": "${sourceDir}/cmake/riscue-toolchain.cmake", "cacheVariables": {"CMAKE_BUILD_TYPE": "MinSizeRel", "RTOS_BUILD_FIRMWARE": "ON"}}
+    {
+      "name": "nano",
+      "inherits": "riscue",
+      "binaryDir": "${sourceDir}/build/nano",
+      "cacheVariables": {
+        "RTOS_APPLICATION": "examples/nano.cpp",
+        "RTOS_MAX_THREADS": "1",
+        "RTOS_IDLE_STACK_BYTES": "512",
+        "RTOS_METRICS": "OFF",
+        "RTOS_STACK_GUARD": "OFF",
+        "RTOS_ROUND_ROBIN": "OFF",
+        "RTOS_ETHERNET": "OFF",
+        "RTOS_WEB": "OFF",
+        "RTOS_STORAGE": "OFF",
+        "RTOS_SYNC": "OFF"
+      }
+    },
+    {
+      "name": "host",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/host",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "minimal",
+      "inherits": "host",
+      "binaryDir": "${sourceDir}/build/minimal",
+      "cacheVariables": {
+        "RTOS_METRICS": "OFF",
+        "RTOS_STACK_GUARD": "OFF",
+        "RTOS_ROUND_ROBIN": "OFF",
+        "RTOS_ETHERNET": "OFF"
+      }
+    },
+    {
+      "name": "riscue",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/riscue",
+      "toolchainFile": "${sourceDir}/cmake/riscue-toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel",
+        "RTOS_BUILD_FIRMWARE": "ON"
+      }
+    },
+    {
+      "name": "sync",
+      "inherits": "riscue",
+      "binaryDir": "${sourceDir}/build/sync",
+      "cacheVariables": {
+        "RTOS_APPLICATION": "examples/sync.cpp",
+        "RTOS_SYNC": "ON",
+        "RTOS_LOGGING": "OFF",
+        "RTOS_WEB": "OFF",
+        "RTOS_ETHERNET": "OFF"
+      }
+    },
+    {
+      "name": "logging",
+      "inherits": "riscue",
+      "binaryDir": "${sourceDir}/build/logging",
+      "cacheVariables": {
+        "RTOS_APPLICATION": "examples/sync.cpp",
+        "RTOS_SYNC": "ON",
+        "RTOS_LOGGING": "ON",
+        "RTOS_WEB": "OFF",
+        "RTOS_ETHERNET": "OFF"
+      }
+    }
   ],
-  "buildPresets": [{"name":"nano","configurePreset":"nano"},{"name": "host", "configurePreset": "host"}, {"name": "minimal", "configurePreset": "minimal"}, {"name": "riscue", "configurePreset": "riscue"}],
-  "testPresets": [{"name": "host", "configurePreset": "host", "output": {"outputOnFailure": true}}, {"name": "minimal", "configurePreset": "minimal", "output": {"outputOnFailure": true}}]
+  "buildPresets": [
+    {
+      "name": "nano",
+      "configurePreset": "nano"
+    },
+    {
+      "name": "host",
+      "configurePreset": "host"
+    },
+    {
+      "name": "minimal",
+      "configurePreset": "minimal"
+    },
+    {
+      "name": "riscue",
+      "configurePreset": "riscue"
+    },
+    {
+      "name": "sync",
+      "configurePreset": "sync"
+    },
+    {
+      "name": "logging",
+      "configurePreset": "logging"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "host",
+      "configurePreset": "host",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "minimal",
+      "configurePreset": "minimal",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
 }

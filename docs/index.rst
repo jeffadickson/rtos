@@ -23,6 +23,7 @@ worst-case execution time, or hardware validation.
    drivers
    web
    sync-iterations
+   synchronization
    verification
    reviews
    validation
@@ -38,7 +39,8 @@ Scope and status
 The target is one RISCue RV32 machine-mode hart. Implemented services are
 preemptive fixed-priority threads, optional equal-priority time slicing,
 relative sleep, yield, thread completion, runtime priority updates, diagnostics,
-and an optional polling Ethernet integration adapter. Hardware-specific MAC,
+an optional polling Ethernet integration adapter, and optional static IPC,
+priority-inheriting mutexes and bounded queued logging. Hardware-specific MAC,
 PHY, UART, and other peripheral drivers are integration work.
 
 All kernel storage is reserved statically before scheduling begins. Thread

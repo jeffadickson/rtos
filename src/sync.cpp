@@ -68,13 +68,13 @@ Result EventFlags::wait(uint32_t mask,uint32_t& observed,Tick timeout,bool all,b
 }
 Result EventFlags::set_locked(uint32_t bits,detail::Critical& lock){
     if(!bits)return Result::invalid;
-    bits_|=bits;
+    bits_|=bits;const auto broadcast=bits_;
     // Select only eligible waiters, by effective priority then enrollment order.
     for(;;){Thread* chosen=nullptr;
-        for(auto* t=waiters_.first();t;t=t->wait.next){auto found=bits_&t->wait.mask;bool eligible=(t->wait.flags&1)?found==t->wait.mask:found!=0;
+        for(auto* t=waiters_.first();t;t=t->wait.next){auto found=((t->wait.flags&2)?bits_:broadcast)&t->wait.mask;bool eligible=(t->wait.flags&1)?found==t->wait.mask:found!=0;
             if(eligible&&(!chosen||t->effective_priority>chosen->effective_priority))chosen=t;}
         if(!chosen)break;
-        auto found=bits_&chosen->wait.mask;chosen->wait.observed=found;
+        auto found=((chosen->wait.flags&2)?bits_:broadcast)&chosen->wait.mask;chosen->wait.observed=found;
         if(chosen->wait.flags&2)bits_&=~found;
         waiters_.complete(*chosen,Result::ok);lock.changed();
     }
