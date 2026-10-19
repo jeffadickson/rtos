@@ -1,4 +1,4 @@
-#include "rtos_sync.hpp"
+#include "rtos_ipc.hpp"
 #include "rtos_queue.hpp"
 #include "rtos_atomic.hpp"
 #include "rtos_mutex.hpp"
@@ -24,5 +24,5 @@ void consume(void*){for(;;){
 #if RTOS_LOGGING
 console.drain(sink,nullptr,32);
 #endif
-uint32_t observed;uint32_t message;if(messages.receive(message,10)==rtos::Result::ok)device.transact(5,[&](){processed.fetch_add(message);return rtos::Result::ok;});ready.acquire(10);events.wait(1,observed,10,false,true);}}
+uint32_t observed;uint32_t message;if(messages.receive(message,10)==rtos::Result::ok)device.transact(5,[&](){processed.fetch_add(message);return rtos::Result::ok;});ready.acquire(10);events.wait_any(1,observed,10,rtos::EventClear::yes);}}
 int main(){rtos::create(producer,produce,nullptr,1,producer_stack,"producer");rtos::create(consumer,consume,nullptr,2,consumer_stack,"consumer");rtos::start(10000000);}

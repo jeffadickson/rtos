@@ -11,7 +11,7 @@ Result WaitQueue::wait(Tick timeout,void* data,uint32_t mask,uint8_t flags){
     if(!t||t->state!=State::ready||t->wait.queue)return Result::context;
     if(timeout==0||timeout>MaxWait)return Result::invalid;
     t->wait.queue=this;t->wait.next=nullptr;t->wait.data=data;t->wait.mask=mask;
-    t->wait.flags=flags;t->wait.observed=0;t->wait.timed=true;t->wait.result=Result::busy;
+    t->wait.flags=flags;t->wait.observed=0;t->wait.result=Result::busy;
     t->wake=synchronization_now()+timeout;t->state=State::blocked;
     if(last_)last_->wait.next=t;else first_=t;
     last_=t;++count_;
@@ -28,11 +28,11 @@ void WaitQueue::complete(Thread& t,Result result){
     if(last_==&t)last_=previous;
     t.waiting_mutex=nullptr;
     --count_;t.wait.queue=nullptr;t.wait.next=nullptr;t.wait.data=nullptr;
-    t.wait.timed=false;t.wait.result=result;t.state=State::ready;
+    t.wait.result=result;t.state=State::ready;
     if(on_change)on_change(observer);
 }
 void expire_wait(Thread& t,Tick now){
-    if(t.state==State::blocked&&t.wait.queue&&t.wait.timed&&Tick(now-t.wake)<0x80000000u)
+    if(t.state==State::blocked&&t.wait.queue&&Tick(now-t.wake)<0x80000000u)
         t.wait.queue->complete(t,Result::timeout);
 }
 void abandon_wait(Thread& t){if(t.wait.queue)t.wait.queue->complete(t,Result::owner_dead);}
@@ -62,7 +62,7 @@ Result EventFlags::wait(uint32_t mask,uint32_t& observed,Tick timeout,bool all,b
     if(all?found==mask:found!=0){observed=found;if(clear_on_success)bits_&=~found;return Result::ok;}
     if(!timeout)return Result::empty;
     auto* t=detail::calling_thread();
-    auto result=waiters_.wait(timeout,nullptr,mask,uint8_t((all?1:0)|(clear_on_success?2:0)));
+    auto result=waiters_.wait(timeout,nullptr,mask,uint8_t((all?detail::wait_all_bits:0)|(clear_on_success?detail::consume_bits:0)));
     if(result==Result::ok)observed=t->wait.observed;
     return result;
 }
@@ -71,11 +71,11 @@ Result EventFlags::set_locked(uint32_t bits,detail::Critical& lock){
     bits_|=bits;const auto broadcast=bits_;
     // Select only eligible waiters, by effective priority then enrollment order.
     for(;;){Thread* chosen=nullptr;
-        for(auto* t=waiters_.first();t;t=t->wait.next){auto found=((t->wait.flags&2)?bits_:broadcast)&t->wait.mask;bool eligible=(t->wait.flags&1)?found==t->wait.mask:found!=0;
+        for(auto* t=waiters_.first();t;t=t->wait.next){auto found=((t->wait.flags&detail::consume_bits)?bits_:broadcast)&t->wait.mask;bool eligible=(t->wait.flags&detail::wait_all_bits)?found==t->wait.mask:found!=0;
             if(eligible&&(!chosen||t->effective_priority>chosen->effective_priority))chosen=t;}
         if(!chosen)break;
-        auto found=((chosen->wait.flags&2)?bits_:broadcast)&chosen->wait.mask;chosen->wait.observed=found;
-        if(chosen->wait.flags&2)bits_&=~found;
+        auto found=((chosen->wait.flags&detail::consume_bits)?bits_:broadcast)&chosen->wait.mask;chosen->wait.observed=found;
+        if(chosen->wait.flags&detail::consume_bits)bits_&=~found;
         waiters_.complete(*chosen,Result::ok);lock.changed();
     }
     return Result::ok;

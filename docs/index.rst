@@ -24,6 +24,7 @@ worst-case execution time, or hardware validation.
    web
    sync-iterations
    synchronization
+   simplicity-iterations
    verification
    reviews
    validation
