@@ -18,6 +18,9 @@ struct Thread {
 #if RTOS_SYNC
     uint8_t effective_priority{};
     detail::WaitNode wait{};
+    Mutex* owned_mutexes{};
+    Mutex* waiting_mutex{};
+    uint8_t held_mutexes{};
 #endif
     State state{State::unused};
     const char* name{}; // Borrowed immutable string; must outlive the kernel.
@@ -51,11 +54,7 @@ struct ThreadInfo {
     const Thread* id{};
     const char* name{};
     State state{};
-    uint8_t priority{};
-#if RTOS_SYNC
-    uint8_t effective_priority{};
-    detail::WaitNode wait{};
-#endif
+    uint8_t priority{}, effective_priority{};
     bool current{}, idle{}, guard_ok{};
     size_t stack_bytes{};
     uint64_t runtime_cycles{}, dispatches{};

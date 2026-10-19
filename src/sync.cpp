@@ -26,6 +26,7 @@ void WaitQueue::complete(Thread& t,Result result){
     if(!p)return;
     if(previous)previous->wait.next=t.wait.next;else first_=t.wait.next;
     if(last_==&t)last_=previous;
+    t.waiting_mutex=nullptr;
     --count_;t.wait.queue=nullptr;t.wait.next=nullptr;t.wait.data=nullptr;
     t.wait.timed=false;t.wait.result=result;t.state=State::ready;
     if(on_change)on_change(observer);

@@ -2,6 +2,7 @@
 #include "rtos_port.hpp"
 #if RTOS_SYNC
 #include "rtos_sync.hpp"
+#include "rtos_mutex.hpp"
 #endif
 namespace {
 rtos::detail::Scheduler scheduler;
@@ -99,7 +100,7 @@ Tick ticks() { Lock lock; return scheduler.now; }
     Lock lock;
     if (!current || current == &idle_thread) stop();
 #if RTOS_SYNC
-    detail::abandon_wait(*current);
+    Mutex::owner_exit(*current);
 #endif
     current->state=State::finished;
     yield(); stop();
@@ -109,7 +110,7 @@ bool set_priority(Thread& t, uint8_t priority) {
     if (!scheduler.contains(t) || t.state == State::finished) return false;
     t.priority=priority;
 #if RTOS_SYNC
-    t.effective_priority=priority;
+    Mutex::priority_changed(t);
 #endif
     yield();
     return true;
@@ -128,6 +129,7 @@ SystemInfo snapshot(ThreadInfo* output, size_t capacity) {
         auto& t = i<scheduler.count ? *scheduler.threads[i] : idle_thread;
         auto& row=output[i];
         row.id=&t; row.name=t.name; row.state=t.state; row.priority=t.priority;
+        row.effective_priority=detail::Scheduler::priority(t);
         row.current=(&t==current); row.idle=(&t==&idle_thread); row.guard_ok=guard_ok(t);
         row.stack_bytes=t.stack_bytes;
 #if RTOS_METRICS

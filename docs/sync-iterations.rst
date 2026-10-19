@@ -62,3 +62,32 @@ Checkpoint 50: typed queues and atomic words
 048. Explicitly restrict atomic words to single-hart RAM access through the API.
 049. Exercise direct handoff, priority selection, timeout and ISR-context queue paths.
 050. Cross-link queue and atomic services in the enabled RISCue example.
+
+Checkpoint 75: transaction mutexes and priority inheritance
+--------------------------------------------------------------------------------
+
+051. Add nonrecursive, noncopyable static mutex objects.
+052. Track permanent owner identity in each mutex.
+053. Bound the number of simultaneously held mutexes per thread.
+054. Maintain an owner list without a global dynamically allocated mutex registry.
+055. Separate base and effective thread priorities.
+056. Donate highest waiter priority to the owner when enrollment completes.
+057. Propagate donation through bounded acyclic mutex dependency chains.
+058. Recompute effective priority from all held mutexes on release.
+059. Remove donation when a waiter times out.
+060. Recompute chained donation after application base-priority changes.
+061. Reject recursive locking explicitly as deadlock.
+062. Detect wait-for cycles before blocking a new mutex waiter.
+063. Grant ownership to the selected waiter before waking it.
+064. Preserve FIFO order among equal-priority mutex waiters.
+065. Reject unlock by nonowners and interrupt contexts.
+066. Abandon owned mutexes explicitly when a thread exits.
+067. Return owner-dead to waiters without granting unsafe protected state.
+068. Require explicit recovery after the caller establishes hardware/state quiescence.
+069. Remove waiting-mutex links before timeout and wake priority recomputation.
+070. Expose coherent mutex owner, waiter count and fault-state snapshots.
+071. Add a noncopyable scoped LockGuard with ownership result reporting.
+072. Add DeviceTransactions to protect a complete callback transaction.
+073. Release normal transaction ownership on callback error returns.
+074. Add chained donation, cycle, timeout and owner-exit host scenarios.
+075. Exercise mutex transactions in the cross-linked RISCue example.

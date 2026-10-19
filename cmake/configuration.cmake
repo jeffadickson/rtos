@@ -20,3 +20,5 @@ if(RTOS_SYNC AND NOT EXISTS "${CMAKE_SOURCE_DIR}/include/rtos_sync.hpp")
 endif()
 
 set(RTOS_IPC_MAX_MESSAGE_BYTES 128 CACHE STRING "Maximum copied IPC payload in bytes")
+
+set(RTOS_MAX_HELD_MUTEXES 8 CACHE STRING "Maximum simultaneously held mutexes per thread")
