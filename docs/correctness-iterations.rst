@@ -35,3 +35,32 @@ Checkpoint 25: boot storage and scheduler boundaries
 023. Recheck modular sleep wakeup and constant-time missed-tick calculation fixtures.
 024. Update the registration contract with both control-block comparisons.
 025. Gate the checkpoint on host models, firmware allocation audit and Sphinx.
+
+Checkpoint 50: bounded formatting and console ownership
+--------------------------------------------------------------------------------
+
+026. Review empty formatting as a successful zero-byte record.
+027. Exercise null destination rejection in the internal formatter.
+028. Exercise zero destination capacity without writes.
+029. Exercise null format rejection.
+030. Place canaries around an exact-capacity destination.
+031. Check exact capacity does not report truncation.
+032. Reduce capacity by one and check truncation without overwriting the next byte.
+033. Exercise embedded NUL character output using the returned byte count.
+034. Exercise uppercase hexadecimal conversion.
+035. Exercise unsigned-long maximum conversion on the host ABI.
+036. Exercise signed-long minimum magnitude conversion on the host ABI.
+037. Exercise null pointer rendering without dereferencing the pointer.
+038. Verify unsupported percent-n does not modify its argument.
+039. Verify unsupported width, floating point and length-modified float rejection.
+040. Verify dangling percent and excessive length modifiers are invalid.
+041. Verify scanning still rejects an unsupported conversion after output fills.
+042. Exercise a terminated 95-byte string without truncation.
+043. Exercise the conservative 96-byte string scanning limit.
+044. Exercise null string rendering as six explicit bytes.
+045. Exercise terminators immediately inside and outside the 256-byte format bound.
+046. Fill a logger with empty records and check the 16-iteration drain limit.
+047. Verify empty records never invoke the transport writer.
+048. Enqueue from a second modeled producer during an unlocked transport callback.
+049. Check coherent pending metrics, busy drain ownership and whole-record ordering.
+050. Validate zero-budget rejection and run both host suites and strict Sphinx.
