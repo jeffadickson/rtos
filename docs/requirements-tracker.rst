@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **140**. Catalogue SHA-256: ``573cc66e5089883395e4424bb7021311e2a3f817c68f2ba7e268b62f1becc890``.
+Reviewed requirements: **141**. Catalogue SHA-256: ``3cc457913d37af6eafc15d8975285614950248086a27691af68b57d6af3182a7``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -4032,7 +4032,7 @@ NXR-115 Whole device transaction lock
 **Static resource budget:** One static mutex per serialization domain; no mandatory request queue.
 
 
-**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
+**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
 
 NXR-116 Bounded priority inheritance
 ------------------------------------
@@ -4067,7 +4067,7 @@ NXR-116 Bounded priority inheritance
 **Static resource budget:** Static mutex objects and thread wait metadata; traversal bounded by thread count.
 
 
-**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
+**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
 
 NXR-117 Typed MMIO access contracts
 -----------------------------------
@@ -4277,7 +4277,7 @@ NXR-122 Typed static message queue
 **Static resource budget:** N times sizeof(T) plus exact control/alignment and static wait metadata.
 
 
-**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
+**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
 
 NXR-123 Timed queue transfer semantics
 --------------------------------------
@@ -4312,7 +4312,7 @@ NXR-123 Timed queue transfer semantics
 **Static resource budget:** Wait state lives in permanent thread metadata; no per-wait allocation.
 
 
-**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
+**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
 
 NXR-124 ISR-safe queue transfer
 -------------------------------
@@ -4347,7 +4347,7 @@ NXR-124 ISR-safe queue transfer
 **Static resource budget:** Same fixed queue storage plus port critical-section state.
 
 
-**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
+**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
 
 NXR-125 Event flag wait semantics
 ---------------------------------
@@ -4382,7 +4382,7 @@ NXR-125 Event flag wait semantics
 **Static resource budget:** One static flag word and bounded waiter metadata per event object.
 
 
-**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
+**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
 
 NXR-126 Event wake and payload ordering
 ---------------------------------------
@@ -4417,7 +4417,7 @@ NXR-126 Event wake and payload ordering
 **Static resource budget:** Fixed event state and existing thread wait metadata.
 
 
-**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
+**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
 
 NXR-127 Bounded counting semaphore
 ----------------------------------
@@ -4452,7 +4452,7 @@ NXR-127 Bounded counting semaphore
 **Static resource budget:** Fixed count, maximum and waiter metadata; zero heap.
 
 
-**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
+**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
 
 NXR-128 Bounded thread wait lifecycle
 -------------------------------------
@@ -4487,7 +4487,7 @@ NXR-128 Bounded thread wait lifecycle
 **Static resource budget:** Permanent thread wait metadata with bounded object lookup.
 
 
-**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
+**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
 
 NXR-129 Abandoned device ownership
 ----------------------------------
@@ -4557,7 +4557,7 @@ NXR-130 Device and IPC metrics
 **Static resource budget:** Fixed per-object counters and caller-owned output arrays.
 
 
-**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
+**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
 
 NXR-131 Modular synchronization configuration
 ---------------------------------------------
@@ -4627,7 +4627,7 @@ NXR-132 Small bounded logging and documentation
 **Static resource budget:** Depth times actual slot size plus formatting and synchronization metadata reported separately.
 
 
-**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
+**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
 
 NXR-133 Optional simple FPGA DMA driver
 ---------------------------------------
@@ -4872,7 +4872,7 @@ NXR-139 Single-hart atomic RAM words
 **Static resource budget:** One 32-bit word plus alignment; bounded interrupt masking and no runtime allocation.
 
 
-**Review finding:** AtomicU32 source and host fixtures exist; this is a single-hart interrupt protocol rather than standard C++ or SMP atomics; hardware timing qualification remains pending.
+**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
 
 NXR-140 Bounded queued printf formatting
 ----------------------------------------
@@ -4907,5 +4907,40 @@ NXR-140 Bounded queued printf formatting
 **Static resource budget:** RV32 Logger of 8 records with 64 message bytes occupies 720 bytes in the measured example; private formatter consumes reserved thread stack space.
 
 
-**Review finding:** Bounded queued formatting and synchronous writer handling have source and host fixtures; no libc override, external UART IRQ integration or board execution claim is made.
+**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
+
+NXR-141 Simple application starting surface
+-------------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** Usability
+
+
+**Requirement:** The project shall provide a short application guide and optional convenience header showing copied messages, scoped device transactions and queued printf while preserving existing low-level APIs.
+
+
+**Rationale:** Keep the small RTOS approachable without removing useful optional mechanisms.
+
+
+**Acceptance:** One header exposes enabled services without automatic allocation; named event waits avoid positional mode booleans; existing signatures remain valid; a small console example cross-links with a labeled counting sink and explicit board clock replacement; detailed ISR and ownership contracts remain accessible.
+
+
+**Verification:** Public-header host fixtures, console firmware link/audit, documentation build and future board integration.
+
+
+**Planned test:** TEST-NXR-141
+
+
+**Dependencies:** NXR-115, NXR-122, NXR-140
+
+
+**Configuration:** RTOS_SYNC and optional RTOS_LOGGING; existing nano remains feature-off.
+
+
+**Static resource budget:** Convenience includes have no independent runtime storage; example objects and stacks are statically reserved.
+
+
+**Review finding:** Simplicity pass supplies a short starting path and compatible named APIs; hardware UART, IRQ, clock and timing qualification remain outstanding.
 

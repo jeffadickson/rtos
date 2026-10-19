@@ -3176,9 +3176,10 @@
       "src/mutex.cpp",
       "include/rtos_queue.hpp",
       "include/rtos_log.hpp",
-      "docs/synchronization.rst"
+      "docs/synchronization.rst",
+      "include/rtos/detail/wait_queue.hpp"
     ],
-    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
+    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
   },
   {
     "id": "NXR-116",
@@ -3214,9 +3215,10 @@
       "src/mutex.cpp",
       "include/rtos_queue.hpp",
       "include/rtos_log.hpp",
-      "docs/synchronization.rst"
+      "docs/synchronization.rst",
+      "include/rtos/detail/wait_queue.hpp"
     ],
-    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
+    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
   },
   {
     "id": "NXR-117",
@@ -3377,9 +3379,10 @@
       "src/mutex.cpp",
       "include/rtos_queue.hpp",
       "include/rtos_log.hpp",
-      "docs/synchronization.rst"
+      "docs/synchronization.rst",
+      "include/rtos/detail/wait_queue.hpp"
     ],
-    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
+    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
   },
   {
     "id": "NXR-123",
@@ -3415,9 +3418,10 @@
       "src/mutex.cpp",
       "include/rtos_queue.hpp",
       "include/rtos_log.hpp",
-      "docs/synchronization.rst"
+      "docs/synchronization.rst",
+      "include/rtos/detail/wait_queue.hpp"
     ],
-    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
+    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
   },
   {
     "id": "NXR-124",
@@ -3453,9 +3457,10 @@
       "src/mutex.cpp",
       "include/rtos_queue.hpp",
       "include/rtos_log.hpp",
-      "docs/synchronization.rst"
+      "docs/synchronization.rst",
+      "include/rtos/detail/wait_queue.hpp"
     ],
-    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
+    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
   },
   {
     "id": "NXR-125",
@@ -3491,9 +3496,10 @@
       "src/mutex.cpp",
       "include/rtos_queue.hpp",
       "include/rtos_log.hpp",
-      "docs/synchronization.rst"
+      "docs/synchronization.rst",
+      "include/rtos/detail/wait_queue.hpp"
     ],
-    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
+    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
   },
   {
     "id": "NXR-126",
@@ -3530,9 +3536,10 @@
       "src/mutex.cpp",
       "include/rtos_queue.hpp",
       "include/rtos_log.hpp",
-      "docs/synchronization.rst"
+      "docs/synchronization.rst",
+      "include/rtos/detail/wait_queue.hpp"
     ],
-    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
+    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
   },
   {
     "id": "NXR-127",
@@ -3569,9 +3576,10 @@
       "src/mutex.cpp",
       "include/rtos_queue.hpp",
       "include/rtos_log.hpp",
-      "docs/synchronization.rst"
+      "docs/synchronization.rst",
+      "include/rtos/detail/wait_queue.hpp"
     ],
-    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
+    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
   },
   {
     "id": "NXR-128",
@@ -3607,9 +3615,10 @@
       "src/mutex.cpp",
       "include/rtos_queue.hpp",
       "include/rtos_log.hpp",
-      "docs/synchronization.rst"
+      "docs/synchronization.rst",
+      "include/rtos/detail/wait_queue.hpp"
     ],
-    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
+    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
   },
   {
     "id": "NXR-129",
@@ -3689,9 +3698,10 @@
       "src/mutex.cpp",
       "include/rtos_queue.hpp",
       "include/rtos_log.hpp",
-      "docs/synchronization.rst"
+      "docs/synchronization.rst",
+      "include/rtos/detail/wait_queue.hpp"
     ],
-    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
+    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
   },
   {
     "id": "NXR-131",
@@ -3764,9 +3774,10 @@
       "src/mutex.cpp",
       "include/rtos_queue.hpp",
       "include/rtos_log.hpp",
-      "docs/synchronization.rst"
+      "docs/synchronization.rst",
+      "include/rtos/detail/wait_queue.hpp"
     ],
-    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
+    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
   },
   {
     "id": "NXR-133",
@@ -3946,9 +3957,10 @@
     "inspected_files": [
       "include/rtos_atomic.hpp",
       "tests/queue.cpp",
-      "docs/synchronization.rst"
+      "docs/synchronization.rst",
+      "include/rtos/detail/wait_queue.hpp"
     ],
-    "finding": "AtomicU32 source and host fixtures exist; this is a single-hart interrupt protocol rather than standard C\u002B\u002B or SMP atomics; hardware timing qualification remains pending."
+    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
   },
   {
     "id": "NXR-140",
@@ -3979,8 +3991,43 @@
       "include/rtos_log.hpp",
       "src/log.cpp",
       "tests/log.cpp",
-      "docs/synchronization.rst"
+      "docs/synchronization.rst",
+      "include/rtos/detail/wait_queue.hpp"
     ],
-    "finding": "Bounded queued formatting and synchronous writer handling have source and host fixtures; no libc override, external UART IRQ integration or board execution claim is made."
+    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
+  },
+  {
+    "id": "NXR-141",
+    "title": "Simple application starting surface",
+    "category": "Usability",
+    "statement": "The project shall provide a short application guide and optional convenience header showing copied messages, scoped device transactions and queued printf while preserving existing low-level APIs.",
+    "rationale": "Keep the small RTOS approachable without removing useful optional mechanisms.",
+    "acceptance": "One header exposes enabled services without automatic allocation; named event waits avoid positional mode booleans; existing signatures remain valid; a small console example cross-links with a labeled counting sink and explicit board clock replacement; detailed ISR and ownership contracts remain accessible.",
+    "verification": "Public-header host fixtures, console firmware link/audit, documentation build and future board integration.",
+    "dependencies": [
+      "NXR-115",
+      "NXR-122",
+      "NXR-140"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_ipc.hpp",
+      "include/rtos_sync.hpp",
+      "examples/console.cpp"
+    ],
+    "verification_files": [
+      "tests/public_api.cpp"
+    ],
+    "planned_test": "TEST-NXR-141",
+    "configuration": "RTOS_SYNC and optional RTOS_LOGGING; existing nano remains feature-off.",
+    "resource_budget": "Convenience includes have no independent runtime storage; example objects and stacks are statically reserved.",
+    "review_iteration": 141,
+    "inspected_files": [
+      "include/rtos_ipc.hpp",
+      "include/rtos_sync.hpp",
+      "examples/console.cpp",
+      "docs/simple-start.rst"
+    ],
+    "finding": "Simplicity pass supplies a short starting path and compatible named APIs; hardware UART, IRQ, clock and timing qualification remain outstanding."
   }
 ]

@@ -92,3 +92,44 @@ Checkpoint 75: logger implementation and output behavior
 073. Retain rescheduling when a waiter is granted ownership or donation changes.
 074. Exercise forwarding, callback context, recursive drain and coherent completion state.
 075. Recheck host behavior, target code/frame sizes and static analysis before commit.
+
+Checkpoint 100: a short starting path and final verification
+--------------------------------------------------------------------------------
+
+076. Lead the manual with a short application guide rather than the full manager reference.
+077. Teach one convenience include before individual implementation headers.
+078. Start application communication with a copied typed value queue.
+079. Make immediate full/empty results explicit in the first queue example.
+080. Label timeout values as ticks in the first receive example.
+081. Explain pointed-to storage ownership without introducing a buffer-loan API.
+082. Teach whole device transactions as one scoped operation.
+083. Explain that the transaction timeout covers lock waiting, while callbacks need their own operation bounds.
+084. Teach console.printf with one permanent output thread and a synchronous callback.
+085. Keep events, semaphores and atomic words in an optional next-step section.
+086. Add a complete two-thread console example with a four-record static logger.
+087. Mark the counting output sink explicitly rather than inventing UART addresses.
+088. Mark the example timer clock as a board integration input.
+089. Keep a single comprehensive integration example alongside the small starting example.
+090. Remove redundant component includes from the integration example.
+091. Document vprintf forwarding, compiler format checks and drain result meanings.
+092. Preserve the original section-size table as historical measurement evidence.
+093. Record current code and numeric-frame measurements without claiming a safe whole-thread stack bound.
+094. Add the internal wait header to source traceability rather than hiding it from review.
+095. Keep requirements marked source-unverified pending target qualification.
+096. Normalize newly authored text and check the staged diff.
+097. Compile and audit the small console example independently of the integration example.
+098. Recheck all ordinary and synchronization-enabled host fixtures.
+099. Recheck nano, synchronization, logging, baseline firmware, static contracts and Clang analysis.
+100. Build the Sphinx manual, verify the 100-entry review log, commit locally and push only after final gates pass.
+
+Measured refinement results
+--------------------------------------------------------------------------------
+
+Compared with the original synchronization implementation pass, the same full
+logging example changed from 11072 code/read-only + 860 initialized + 3504
+zero-fill bytes to 10192 + 860 + 3520 bytes: 864 fewer allocated section bytes.
+The Logger<8,64> object remains 720 bytes; this reduction is primarily code.
+The compiler-reported Buffer::number frame changed from 112 to 80 bytes, while
+format_log's own frame remains 96 bytes. These reports do not include the entire
+call chain, trap frame or interrupt nesting and do not qualify thread stack size.
+Nano remains 3648 code/read-only + 1152 zero-fill, plus the 4096-byte boot reserve.

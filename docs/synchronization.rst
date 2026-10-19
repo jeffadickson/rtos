@@ -75,7 +75,9 @@ before exposing a count to contenders. A release at maximum returns overflow.
 release_from_isr is the nonblocking interrupt variant. Semaphores have no owner
 or priority inheritance and must not replace mutexes for shared data protection.
 
-EventFlags::wait(mask, observed, timeout, all, clear) supports wait-any/all and
+Prefer EventFlags::wait_any or wait_all, with EventClear::yes when bits should
+be consumed. The original wait(mask, observed, timeout, all, clear) remains
+available for compatibility. Both forms support
 atomic clear-on-success; failure preserves observed. All 32 bits are usable;
 a zero mask is invalid. Repeated set operations coalesce. Non-clearing waiters
 observe the bit snapshot at set; consuming waiters receive bits by priority,
@@ -163,6 +165,14 @@ call consumed no bytes. Retaining the supplied pointer or starting DMA violates
 the contract. Return values larger than offered are errors. A pending record
 and its offset survive partial writes and backpressure, preserving record order.
 
+vprintf(format, va_list) supports application variadic wrappers and preserves
+the caller's va_list using va_copy. GCC/Clang check argument types for printf
+and vprintf calls; runtime still rejects unsupported format features.
+
+A drain returns empty when no record was available, ok when it made progress
+and exhausted available output, busy for pending output/backpressure, or an
+explicit error. Completing a record resets its reported offset to zero.
+
 A drain call has a byte budget and at most 16 loop iterations. Its callback must
 also perform bounded work; no software budget can bound a hung MMIO operation.
 NoWait drain ownership prevents simultaneous drains of one logger. All console
@@ -193,7 +203,7 @@ UART, latency, stack high-water and fault/reset qualification remain outstanding
 See sync-iterations for the 100-step implementation record and future acceptance
 requirements in the canonical tracker.
 
-Measured checkpoint-100 firmware sections
+Original implementation checkpoint-100 firmware sections
 --------------------------------------------------------------------------------
 
 .. list-table:: RV32 MinSizeRel examples, bytes
@@ -221,3 +231,8 @@ These are complete example images with different application stacks and capaciti
 not isolated incremental primitive sizes. The logger's initialized state is
 included in the logging data column. The logging sink counts accepted bytes and
 does not operate a hardware UART.
+
+The table above records the original implementation pass. Later simplicity-pass
+measurements and compiler frame-size comparisons are recorded in
+simplicity-iterations. Compiler frame reports exclude callee and interrupt
+stack use; they do not establish a safe thread stack size.

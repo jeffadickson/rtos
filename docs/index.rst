@@ -13,6 +13,7 @@ worst-case execution time, or hardware validation.
    :maxdepth: 2
    :numbered:
 
+   simple-start
    getting-started
    architecture
    configuration

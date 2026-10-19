@@ -5,6 +5,13 @@ round-robin time slicing, sleep/yield/exit, runtime priority updates, and thread
 snapshots with CPU residency counters. Inline assembly handles CSR operations;
 a small `.S` boundary preserves all registers during preemption.
 
+## Start small
+
+Use [the short application guide](docs/simple-start.rst): one include, a typed
+queue for values, a transaction lock for shared hardware, and queued printf.
+Events, semaphores and atomic words are available when the application needs them.
+No service is added to the nano image by reading or including the guide.
+
 ## Build
 
 ```sh

@@ -1823,3 +1823,16 @@ Static budget: RV32 Logger of 8 records with 64 message bytes occupies 720 bytes
 Dependencies: NXR-122, NXR-123, NXR-132
 <<<
 
+[REQUIREMENT]
+UID: NXR-141
+STATUS: PartialSourceUnverified
+TITLE: Simple application starting surface
+STATEMENT: >>>
+The project shall provide a short application guide and optional convenience header showing copied messages, scoped device transactions and queued printf while preserving existing low-level APIs.
+Acceptance: One header exposes enabled services without automatic allocation; named event waits avoid positional mode booleans; existing signatures remain valid; a small console example cross-links with a labeled counting sink and explicit board clock replacement; detailed ISR and ownership contracts remain accessible.
+Verification: Public-header host fixtures, console firmware link/audit, documentation build and future board integration.
+Configuration: RTOS_SYNC and optional RTOS_LOGGING; existing nano remains feature-off.
+Static budget: Convenience includes have no independent runtime storage; example objects and stacks are statically reserved.
+Dependencies: NXR-115, NXR-122, NXR-140
+<<<
+

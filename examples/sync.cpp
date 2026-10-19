@@ -1,9 +1,5 @@
 #include "rtos_ipc.hpp"
-#include "rtos_queue.hpp"
-#include "rtos_atomic.hpp"
-#include "rtos_mutex.hpp"
 #if RTOS_LOGGING
-#include "rtos_log.hpp"
 static rtos::Logger<8,64> console;
 static rtos::AtomicU32 output_bytes;
 int sink(void*,const char*,size_t n){output_bytes.fetch_add(static_cast<uint32_t>(n));return int(n);}
