@@ -4,6 +4,10 @@
 namespace rtos::detail { void expire_wait(Thread&,Tick); }
 #endif
 namespace rtos::detail {
+// Compare half-open storage ranges without forming a potentially overflowing end.
+inline bool ranges_overlap(uintptr_t a, size_t a_bytes, uintptr_t b, size_t b_bytes) {
+    return a_bytes && b_bytes && (a <= b ? b-a < a_bytes : a-b < b_bytes);
+}
 // Bounded O(thread count) scheduling; no allocation and no intrusive user lists.
 struct Scheduler {
     static constexpr unsigned capacity = RTOS_MAX_THREADS;
@@ -24,16 +28,19 @@ struct Scheduler {
     bool overlaps(uintptr_t begin, size_t bytes) const {
         for (unsigned i=0; i<count; ++i) {
             const auto& t = *threads[i];
-            if (begin < t.stack_begin+t.stack_bytes && t.stack_begin < begin+bytes) return true;
+            if (ranges_overlap(begin,bytes,t.stack_begin,t.stack_bytes)) return true;
         }
         return false;
     }
     bool overlaps_control(uintptr_t begin, size_t bytes) const {
         for (unsigned i=0; i<count; ++i) {
             const auto control = reinterpret_cast<uintptr_t>(threads[i]);
-            if (begin < control+sizeof(Thread) && control < begin+bytes) return true;
+            if (ranges_overlap(begin,bytes,control,sizeof(Thread))) return true;
         }
         return false;
+    }
+    bool conflicts(uintptr_t begin, size_t bytes) const {
+        return overlaps(begin,bytes) || overlaps_control(begin,bytes);
     }
     bool add(Thread& t) {
         if (count == capacity) return false;

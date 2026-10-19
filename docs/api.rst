@@ -40,8 +40,9 @@ member initializers; do not fabricate an unused state in an existing live object
    Register at boot, from main, before start. Returns false for a sealed registry,
    non-unused control block, null entry or stack, insufficient capacity, a size
    below 512, non-16-byte stack alignment/size, address overflow, overlap with
-   another registered stack, or stack overlap with the candidate/registered
-   thread control blocks. Failure leaves the registry and control block unchanged.
+   another registered stack or control block, or a candidate control block
+   overlapping any registered stack or control block. Failure leaves the
+   registry and control block unchanged.
    Pointer validity and actual writable storage size are the caller's responsibility.
    Other application data must not alias a stack. The typed Stack overload
    infers storage size and alignment. Name is an optional borrowed immutable string.
@@ -50,7 +51,7 @@ member initializers; do not fabricate an unused state in an existing live object
 
    Never returns. Seals registration, initializes idle and the timer, then dispatches.
    Invalid zero tick rate, clock lower than tick rate, repeated start, or idle-stack
-   overlap halts. The clock argument must match hardware. Zero application threads
+   or idle-control storage overlap halts. The clock argument must match hardware. Zero application threads
    is valid and runs idle only. Runtime constructors are not invoked by startup.
 
 Thread execution

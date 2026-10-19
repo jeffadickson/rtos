@@ -64,16 +64,17 @@ bool create(Thread& t, Entry e, void* arg, uint8_t priority, void* stack, size_t
     const auto control = reinterpret_cast<uintptr_t>(&t);
     if (running || t.state != State::unused || !e || !stack || bytes < 512 ||
         (begin & 15) || (bytes & 15) || bytes > UINTPTR_MAX-begin ||
-        (begin < control+sizeof(Thread) && control < begin+bytes) ||
-        scheduler.overlaps_control(begin,bytes) || scheduler.overlaps(control,sizeof(Thread)) ||
-        scheduler.overlaps(begin,bytes) || !scheduler.add(t)) return false;
+        detail::ranges_overlap(begin,bytes,control,sizeof(Thread)) ||
+        scheduler.conflicts(begin,bytes) || scheduler.conflicts(control,sizeof(Thread)) ||
+        !scheduler.add(t)) return false;
     initialize(t,e,arg,priority,stack,bytes,name);
     return true;
 }
 [[noreturn]] void start(uint32_t hz, uint32_t tick_hz) {
     (void)port::mask_interrupts();
     if (running || !tick_hz || hz < tick_hz ||
-        scheduler.overlaps(reinterpret_cast<uintptr_t>(idle_stack.words),sizeof(idle_stack))) stop();
+        scheduler.conflicts(reinterpret_cast<uintptr_t>(idle_stack.words),sizeof(idle_stack)) ||
+        scheduler.conflicts(reinterpret_cast<uintptr_t>(&idle_thread),sizeof(idle_thread))) stop();
     initialize(idle_thread,idle,nullptr,0,idle_stack.words,sizeof(idle_stack),"idle");
     period=hz/tick_hz; clock_hz=hz;
     running=true;

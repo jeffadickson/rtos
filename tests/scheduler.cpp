@@ -48,4 +48,16 @@ int main() {
     assert(bounds.overlaps(0x1100,16));
     assert(!bounds.overlaps(0x1400,16));
     assert(bounds.overlaps_control(reinterpret_cast<uintptr_t>(&control),sizeof(control)));
+    assert(bounds.conflicts(0x1100,16));
+    assert(bounds.conflicts(reinterpret_cast<uintptr_t>(&control),sizeof(control)));
+    assert(!bounds.conflicts(0x1400,16));
+    assert(!bounds.overlaps(0x1100,0));
+    // Symmetry, containment, exact adjacency and high-address boundaries.
+    constexpr uintptr_t starts[]{0,1,16,31,32,UINTPTR_MAX-32,UINTPTR_MAX-16};
+    constexpr size_t lengths[]{0,1,16};
+    for(auto left:starts)for(auto right:starts)for(auto ln:lengths)for(auto rn:lengths){
+        const bool expected=ln&&rn&&left<right+rn&&right<left+ln;
+        assert(detail::ranges_overlap(left,ln,right,rn)==expected);
+        assert(detail::ranges_overlap(right,rn,left,ln)==expected);
+    }
 }
