@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **112**. Catalogue SHA-256: ``f65a6589430be452121f2455bfcdad6af9948190818cad890e46a919a2a47e51``.
+Reviewed requirements: **138**. Catalogue SHA-256: ``64585055411ef8c6b4603d0b8e6d621766946c0b825ab43521252c1000dac854``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -3928,4 +3928,914 @@ NXR-112 Native C# host tool targets
 
 
 **Review finding:** Three C# projects have Native AOT targets and generated JSON metadata; host-specific builds require SDK/compiler prerequisites and only tested hosts can claim execution evidence.
+
+NXR-113 Static device registry
+------------------------------
+
+**Status:** Planned
+
+
+**Category:** Drivers
+
+
+**Requirement:** The kernel shall register permanent device objects before scheduling and seal a finite registry against runtime registration.
+
+
+**Rationale:** Stable lifetime without heap.
+
+
+**Acceptance:** Duplicate identities and exclusive MMIO overlaps fail; unavailable devices cannot open; register-only drivers need no worker.
+
+
+**Verification:** Future boot-registry boundary review and tests.
+
+
+**Planned test:** TEST-NXR-113
+
+
+**Dependencies:** NXR-001, NXR-002
+
+
+**Configuration:** RTOS_DEVICE proposed, off in nano.
+
+
+**Static resource budget:** Fixed object table and per-device state; zero runtime allocation.
+
+
+**Review finding:** Reviews 001-005 require a sealed device registry; the current thread registry is not a device registry.
+
+NXR-114 Minimal driver operations
+---------------------------------
+
+**Status:** Planned
+
+
+**Category:** Drivers
+
+
+**Requirement:** The driver framework shall define initialize, read, write and typed control operations with explicit context, ownership and result contracts.
+
+
+**Rationale:** Make small FPGA drivers easy to implement.
+
+
+**Acceptance:** Missing optional operations return unsupported without MMIO; example register driver needs no queue, heap or hidden thread; callback blocking and bounded-work rules are documented.
+
+
+**Verification:** Future API review and example-driver checks.
+
+
+**Planned test:** TEST-NXR-114
+
+
+**Dependencies:** NXR-113
+
+
+**Configuration:** Optional direct-access driver module.
+
+
+**Static resource budget:** One permanent object and operations table per device; target size reported.
+
+
+**Review finding:** Reviews 006-010 define a proposed operations interface; existing Ethernet callbacks do not provide this general framework.
+
+NXR-115 Whole device transaction lock
+-------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Synchronization
+
+
+**Requirement:** The driver framework shall serialize each complete logical device transaction across all thread entry points using the same priority-inheriting mutex.
+
+
+**Rationale:** Prevent interleaved command/data/status sequences.
+
+
+**Acceptance:** Concurrent callers cannot interleave transaction steps; normal errors release ownership; aliases follow the same lock; reserved hardware stays owned across completion waits.
+
+
+**Verification:** Future forced-preemption transaction scenarios.
+
+
+**Planned test:** TEST-NXR-115
+
+
+**Dependencies:** NXR-114, NXR-116
+
+
+**Configuration:** Direct locked access default when device sharing is enabled.
+
+
+**Static resource budget:** One static mutex per serialization domain; no mandatory request queue.
+
+
+**Review finding:** Reviews 011-015 require transaction scope rather than per-register locking; mutex wait state is not currently implemented.
+
+NXR-116 Bounded priority inheritance
+------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Synchronization
+
+
+**Requirement:** The kernel shall implement owner-aware nonrecursive mutexes with separate base and effective priorities and bounded transitive priority donation.
+
+
+**Rationale:** Bound priority inversion under fixed-priority scheduling.
+
+
+**Acceptance:** Donation propagates through valid chains; timeout, unlock and priority change recompute donations; highest effective priority then FIFO selects waiters; self-lock and cycles fail before sleep.
+
+
+**Verification:** Future inversion, chained donation and cycle scenarios.
+
+
+**Planned test:** TEST-NXR-116
+
+
+**Dependencies:** NXR-001
+
+
+**Configuration:** RTOS_MUTEX_PI proposed; dependency required by shared-device locking.
+
+
+**Static resource budget:** Static mutex objects and thread wait metadata; traversal bounded by thread count.
+
+
+**Review finding:** Reviews 016-020 identify missing separate effective priority and lock ownership in the current public Thread.
+
+NXR-117 Typed MMIO access contracts
+-----------------------------------
+
+**Status:** Planned
+
+
+**Category:** Drivers
+
+
+**Requirement:** The port and driver framework shall validate register aperture, width and alignment and define ordering, endian and side-effect semantics for MMIO.
+
+
+**Rationale:** Avoid invalid or destructive register operations.
+
+
+**Acceptance:** Overflowing or out-of-aperture accesses fail before hardware access; read-only and write-one-to-clear registers use appropriate operations; barriers are port-defined; no implicit destructive readback.
+
+
+**Verification:** Future MMIO fake-backend review and target ordering qualification.
+
+
+**Planned test:** TEST-NXR-117
+
+
+**Dependencies:** NXR-114
+
+
+**Configuration:** Per-device register map and per-port ordering hooks.
+
+
+**Static resource budget:** Compile-time register descriptors plus bounded validation; no heap.
+
+
+**Review finding:** Reviews 021-025 distinguish typed volatile register access from verified hardware ordering and register semantics.
+
+NXR-118 Race-free completion wait
+---------------------------------
+
+**Status:** Planned
+
+
+**Category:** Synchronization
+
+
+**Requirement:** The kernel shall atomically enroll device waiters with condition checks and use persistent generation-tagged completion state and one absolute deadline.
+
+
+**Rationale:** Prevent missed interrupts and stale completion reuse.
+
+
+**Acceptance:** Completion before or during wait enrollment is preserved; wake rechecks predicate; old generations cannot complete new commands; retries do not extend deadline.
+
+
+**Verification:** Future interrupt-at-each-boundary and timeout-race scenarios.
+
+
+**Planned test:** TEST-NXR-118
+
+
+**Dependencies:** NXR-115, NXR-128
+
+
+**Configuration:** Per-device completion predicate and finite deadline.
+
+
+**Static resource budget:** Static completion generation, predicate and waiter metadata.
+
+
+**Review finding:** Reviews 026-030 require a new wait protocol; existing relative thread sleep is insufficient for device completion.
+
+NXR-119 Explicit ISR operation boundary
+---------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Interrupts
+
+
+**Requirement:** The kernel shall provide separately named nonblocking ISR-safe operations with bounded work and deferred rescheduling at interrupt exit.
+
+
+**Rationale:** Keep peripheral interrupts responsive and context-safe.
+
+
+**Acceptance:** Blocking APIs reject interrupt context; BSP documents acknowledge and nesting; higher-priority unblocked thread runs at the permitted boundary; peripheral IRQ capability remains unavailable until dispatch exists.
+
+
+**Verification:** Future external-interrupt dispatch and nesting qualification.
+
+
+**Planned test:** TEST-NXR-119
+
+
+**Dependencies:** NXR-118
+
+
+**Configuration:** Per-port external interrupt support explicitly enabled only when qualified.
+
+
+**Static resource budget:** Static handlers and bounded deferred state; no ISR heap.
+
+
+**Review finding:** Reviews 031-035 preserve the current timer-only interrupt limitation and do not claim an implemented ISR IPC API.
+
+NXR-120 AXI timeout and fault isolation
+---------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Drivers
+
+
+**Requirement:** The driver framework shall distinguish lock timeout, device completion timeout and AXI access failure and keep uncertain hardware faulted until owned recovery establishes quiescence.
+
+
+**Rationale:** Software cannot recover every stalled hardware bus access.
+
+
+**Acceptance:** FPGA integration specifies bounded bus error response or independent timeout; partial commands fault device; reset requires ownership and IRQ quiescence; no timeout is treated as proof that hardware stopped.
+
+
+**Verification:** Future stalled-device and interconnect fault qualification.
+
+
+**Planned test:** TEST-NXR-120
+
+
+**Dependencies:** NXR-117, NXR-118
+
+
+**Configuration:** Board-specified AXI error responder, timeout and reset policy.
+
+
+**Static resource budget:** Static fault state and counters; hardware timeout resource declared separately.
+
+
+**Review finding:** Reviews 036-040 require hardware-level progress support; thread deadlines alone cannot bound a CPU-stalling MMIO load.
+
+NXR-121 Optional queued device service
+--------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Drivers
+
+
+**Requirement:** The driver framework shall optionally serialize slow operations through a statically provisioned request queue and worker with explicit data lifetime and cancellation rules.
+
+
+**Rationale:** Support slow devices without penalizing simple register drivers.
+
+
+**Acceptance:** Queue and worker are opt-in; capacity exhaustion returns full; ordering policy is documented; retained data stays valid; queued cancellation differs from cancellation after issuing hardware commands; DMA remains deferred.
+
+
+**Verification:** Future worker ownership and cancellation scenarios.
+
+
+**Planned test:** TEST-NXR-121
+
+
+**Dependencies:** NXR-114, NXR-122, NXR-128
+
+
+**Configuration:** Optional worker, capacity and FIFO or priority policy.
+
+
+**Static resource budget:** Fixed request storage plus explicit worker control block and stack.
+
+
+**Review finding:** Reviews 041-045 define an optional service model with no mandatory per-device thread and no DMA support.
+
+NXR-122 Typed static message queue
+----------------------------------
+
+**Status:** Planned
+
+
+**Category:** IPC
+
+
+**Requirement:** The kernel shall provide fixed-capacity Queue<T,N> objects for positive N and initially trivially copyable messages with copied ownership and FIFO message order.
+
+
+**Rationale:** Simple allocation-free communication between threads.
+
+
+**Acceptance:** Successful send copies payload before return; receive preserves message order; no constructors or allocator calls hide in transfer; target payload, alignment, control and waiter costs are reported.
+
+
+**Verification:** Future queue ownership, boundary and footprint scenarios.
+
+
+**Planned test:** TEST-NXR-122
+
+
+**Dependencies:** NXR-002
+
+
+**Configuration:** RTOS_QUEUE proposed; capacity and message type fixed at boot.
+
+
+**Static resource budget:** N times sizeof(T) plus exact control/alignment and static wait metadata.
+
+
+**Review finding:** Reviews 046-050 explicitly distinguish the existing unsynchronized Ring from the proposed scheduler-integrated queue.
+
+NXR-123 Timed queue transfer semantics
+--------------------------------------
+
+**Status:** Planned
+
+
+**Category:** IPC
+
+
+**Requirement:** The kernel shall provide immediate and timed queue send and receive with priority-ordered waiters, FIFO ties and exactly one transfer-or-timeout outcome.
+
+
+**Rationale:** Predictable blocking with no stolen grants.
+
+
+**Acceptance:** NoWait returns full or empty immediately; receive failure preserves output; transfer and timeout serialize; selected waiter owns the granted slot or message before competitors can steal it.
+
+
+**Verification:** Future queue full, empty, handoff and simultaneous-timeout scenarios.
+
+
+**Planned test:** TEST-NXR-123
+
+
+**Dependencies:** NXR-122, NXR-128
+
+
+**Configuration:** NoWait, bounded timeout and documented indefinite-wait option.
+
+
+**Static resource budget:** Wait state lives in permanent thread metadata; no per-wait allocation.
+
+
+**Review finding:** Reviews 051-055 define queue blocking behavior absent from the current scheduler state model.
+
+NXR-124 ISR-safe queue transfer
+-------------------------------
+
+**Status:** Planned
+
+
+**Category:** IPC
+
+
+**Requirement:** The kernel shall provide bounded nonblocking queue operations for supported interrupt contexts using a verified port synchronization protocol.
+
+
+**Rationale:** Allow IRQ completion messages without sleeping.
+
+
+**Acceptance:** ISR send and receive return full or empty explicitly; nested producers preserve indices and ownership; no overwrite or unbounded retry; configurable payload cap bounds ISR copy work.
+
+
+**Verification:** Future nested-interrupt queue and work-bound qualification.
+
+
+**Planned test:** TEST-NXR-124
+
+
+**Dependencies:** NXR-119, NXR-122
+
+
+**Configuration:** Explicit ISR transfer methods and maximum ISR message bytes.
+
+
+**Static resource budget:** Same fixed queue storage plus port critical-section state.
+
+
+**Review finding:** Reviews 056-060 reject using the current single-owner Ring directly from concurrent threads and interrupts.
+
+NXR-125 Event flag wait semantics
+---------------------------------
+
+**Status:** Planned
+
+
+**Category:** IPC
+
+
+**Requirement:** The kernel shall provide fixed-width event flags with validated masks, wait-any, wait-all, returned observed bits and atomic optional clear-on-success.
+
+
+**Rationale:** Express persistent readiness conditions without payload queues.
+
+
+**Acceptance:** Zero and unsupported masks fail unchanged; timeout consumes no bits; repeated sets coalesce; wait-all requires all requested bits; counting use cases are directed to semaphores.
+
+
+**Verification:** Future mask, any/all and clear-on-success scenarios.
+
+
+**Planned test:** TEST-NXR-125
+
+
+**Dependencies:** NXR-128
+
+
+**Configuration:** RTOS_EVENTS proposed; documented usable mask and clear mode.
+
+
+**Static resource budget:** One static flag word and bounded waiter metadata per event object.
+
+
+**Review finding:** Reviews 061-065 define event conditions rather than counted signals; no event primitive is currently implemented.
+
+NXR-126 Event wake and payload ordering
+---------------------------------------
+
+**Status:** Planned
+
+
+**Category:** IPC
+
+
+**Requirement:** The kernel shall serialize event updates and wait enrollment and define priority consumption and broadcast behavior separately.
+
+
+**Rationale:** Prevent lost updates and ambiguous multi-waiter consumption.
+
+
+**Acceptance:** Non-clearing waits evaluate a documented snapshot; consuming waits evaluate by priority and remaining bits; ISR set never blocks; payload ownership and visibility require an explicit separate contract.
+
+
+**Verification:** Future multi-waiter clear, broadcast and ISR-set scenarios.
+
+
+**Planned test:** TEST-NXR-126
+
+
+**Dependencies:** NXR-125, NXR-119
+
+
+**Configuration:** Explicit broadcast versus consuming wait policy.
+
+
+**Static resource budget:** Fixed event state and existing thread wait metadata.
+
+
+**Review finding:** Reviews 066-070 resolve multi-waiter semantics and avoid implying that event flags transfer payload ownership.
+
+NXR-127 Bounded counting semaphore
+----------------------------------
+
+**Status:** Planned
+
+
+**Category:** IPC
+
+
+**Requirement:** The kernel shall provide statically allocated counting semaphores with validated initial and maximum counts, bounded waits and direct priority waiter handoff.
+
+
+**Rationale:** Count work or resource availability without ownership confusion.
+
+
+**Acceptance:** Overflow fails unchanged; release grants selected waiter before exposing count to contenders; timeout cannot duplicate tokens; ISR release is nonblocking; semaphore has no ownership or priority inheritance.
+
+
+**Verification:** Future count conservation and release-timeout race scenarios.
+
+
+**Planned test:** TEST-NXR-127
+
+
+**Dependencies:** NXR-128, NXR-119
+
+
+**Configuration:** RTOS_SEMAPHORE proposed; boot-fixed initial and maximum counts.
+
+
+**Static resource budget:** Fixed count, maximum and waiter metadata; zero heap.
+
+
+**Review finding:** Reviews 071-075 separate counted notifications from owner-aware mutexes and require token conservation.
+
+NXR-128 Bounded thread wait lifecycle
+-------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Synchronization
+
+
+**Requirement:** The kernel shall track at most one active blocking operation per thread initially and remove wait membership exactly once on grant, timeout or supported termination.
+
+
+**Rationale:** Keep scheduler and IPC object state consistent.
+
+
+**Acceptance:** Blocking before start or from idle fails; timeout range respects modular tick limits; stale wake cannot affect a later wait; internal links are not application-owned; each path removes one wait registration.
+
+
+**Verification:** Future wait-state transition and stale-wakeup scenarios.
+
+
+**Planned test:** TEST-NXR-128
+
+
+**Dependencies:** NXR-001
+
+
+**Configuration:** One active wait per thread; supported finite tick range documented.
+
+
+**Static resource budget:** Permanent thread wait metadata with bounded object lookup.
+
+
+**Review finding:** Reviews 076-080 identify required scheduler changes; current State only represents unused, ready, sleeping and finished.
+
+NXR-129 Abandoned device ownership
+----------------------------------
+
+**Status:** Planned
+
+
+**Category:** Synchronization
+
+
+**Requirement:** The kernel shall report owner-dead and fault a device when its mutex owner exits during an uncertain transaction until explicit recovery restores a safe state.
+
+
+**Rationale:** Avoid exposing partially programmed hardware as ready.
+
+
+**Acceptance:** Waiters receive distinct failure; no implicit successful unlock; donation and wait references are removed; recovery requires ownership; fatal corruption is not promised recoverable.
+
+
+**Verification:** Future owner-exit at each transaction boundary scenarios.
+
+
+**Planned test:** TEST-NXR-129
+
+
+**Dependencies:** NXR-115, NXR-116, NXR-120, NXR-128
+
+
+**Configuration:** Explicit owner-dead recovery policy; no dynamic thread reclamation.
+
+
+**Static resource budget:** Static abandonment and recovery state; no reallocation.
+
+
+**Review finding:** Reviews 081-085 reject silently releasing hardware ownership on thread exit without device-state recovery.
+
+NXR-130 Device and IPC metrics
+------------------------------
+
+**Status:** Planned
+
+
+**Category:** Diagnostics
+
+
+**Requirement:** The kernel shall copy coherent bounded device and IPC snapshots into caller-provided storage with separate contention, capacity, timeout and fault statistics.
+
+
+**Rationale:** Expose contention and resource sizing to applications.
+
+
+**Acceptance:** Snapshots include mutex owner and effective priority, waiter counts, queue capacity/depth/high-water, full results, timeout/error/recovery; counters saturate safely; count-only query allocates nothing.
+
+
+**Verification:** Future snapshot coherence and saturation scenarios.
+
+
+**Planned test:** TEST-NXR-130
+
+
+**Dependencies:** NXR-116, NXR-122, NXR-128
+
+
+**Configuration:** Metrics independently configurable; costs reported when enabled.
+
+
+**Static resource budget:** Fixed per-object counters and caller-owned output arrays.
+
+
+**Review finding:** Reviews 086-090 extend existing thread snapshot principles without claiming implemented device or IPC metrics.
+
+NXR-131 Modular synchronization configuration
+---------------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Configuration
+
+
+**Requirement:** The build configuration shall independently enable device, queue, event, semaphore and mutex modules with validated dependencies and explicit single-hart support limits.
+
+
+**Rationale:** Preserve the minimal footprint and a future multiprocessor seam.
+
+
+**Acceptance:** Nano disables all new modules; invalid dependencies fail configuration; disabled storage disappears; IRQ masking is never advertised as an SMP lock; CMake and C# XDoc policies remain in force.
+
+
+**Verification:** Future configuration matrix and target footprint audits.
+
+
+**Planned test:** TEST-NXR-131
+
+
+**Dependencies:** NXR-002
+
+
+**Configuration:** Proposed RTOS_DEVICE, RTOS_QUEUE, RTOS_EVENTS, RTOS_SEMAPHORE and RTOS_MUTEX_PI.
+
+
+**Static resource budget:** Disabled features contribute zero module storage; enabled sizes measured per target.
+
+
+**Review finding:** Reviews 091-095 specify future switches and portability boundaries rather than claiming existing configurable IPC modules.
+
+NXR-132 Small bounded logging and documentation
+-----------------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Diagnostics
+
+
+**Requirement:** The kernel shall keep optional static logging capacity configurable, use drop-new initially, bound synchronous drain work and document all proposed APIs and deferred DMA scope honestly.
+
+
+**Rationale:** Avoid a mandatory 31 KiB log queue and ambiguous lifetime claims.
+
+
+**Acceptance:** Depth and payload have explicit costs; truncation and full losses differ; buffers remain owned until consumed; ISR formatting is context-safe; no unverified RAM saving or DMA cancellation claim appears in the manual.
+
+
+**Verification:** Future logging capacity, drain budget and ownership scenarios.
+
+
+**Planned test:** TEST-NXR-132
+
+
+**Dependencies:** NXR-002, NXR-131
+
+
+**Configuration:** Logging off in nano; explicit fixed depth and message bytes.
+
+
+**Static resource budget:** Depth times actual slot size plus formatting and synchronization metadata reported separately.
+
+
+**Review finding:** Reviews 096-100 preserve a small optional logger and explicitly label the 100 decisions as design review without build or runtime proof.
+
+NXR-133 Optional simple FPGA DMA driver
+---------------------------------------
+
+**Status:** Planned
+
+
+**Category:** DMA
+
+
+**Requirement:** The BSP shall optionally support one selected FPGA DMA engine after interrupt and IPC prerequisites, with one active transfer per channel and fixed aligned buffers.
+
+
+**Rationale:** Provide bulk transfer without growing the mandatory nano kernel.
+
+
+**Acceptance:** Driver serializes thread callers; interrupt completion signals a waiter; invalid alignment, length or busy channel fails unchanged; scatter/gather, cyclic transfers and automatic exit cancellation remain excluded initially; disabled DMA adds no driver storage.
+
+
+**Verification:** Future selected-engine transfer and configuration qualification.
+
+
+**Planned test:** TEST-NXR-133
+
+
+**Dependencies:** NXR-115, NXR-118, NXR-119, NXR-131
+
+
+**Configuration:** Proposed RTOS_DMA optional, off in nano; actual engine selected by BSP.
+
+
+**Static resource budget:** Static channel state and explicit buffer capacities/alignment; report exact target costs.
+
+
+**Review finding:** Roadmap now includes a later simple DMA BSP driver; earlier deferral still applies to the initial IPC/device phase.
+
+NXR-134 DMA buffer ownership and quiescence
+-------------------------------------------
+
+**Status:** Planned
+
+
+**Category:** DMA
+
+
+**Requirement:** The DMA driver shall retain exclusive hardware buffer ownership until verified completion or proven quiescence and quarantine uncertain transfers after timeout or owner exit.
+
+
+**Rationale:** Prevent memory corruption from late hardware writes.
+
+
+**Acceptance:** Timeout alone never releases a buffer; recovery proves engine stop/reset before reuse; stale completion cannot release a newer transfer; errors and quarantine are observable; no unbounded abort wait is permitted.
+
+
+**Verification:** Future timeout, delayed completion, reset and owner-exit fault scenarios.
+
+
+**Planned test:** TEST-NXR-134
+
+
+**Dependencies:** NXR-133, NXR-120, NXR-129
+
+
+**Configuration:** Per-engine bounded completion/reset policy; no generic cancellation promise.
+
+
+**Static resource budget:** Fixed ownership/generation and quarantine state; retained buffers remain charged to static budget.
+
+
+**Review finding:** Later DMA work must establish a hardware-specific stop contract before any timed-out buffer can be reused.
+
+NXR-135 DMA address and cache contract
+--------------------------------------
+
+**Status:** Planned
+
+
+**Category:** DMA
+
+
+**Requirement:** The BSP shall define DMA-reachable bus address ranges, width, alignment, cache maintenance and ordering independently from CPU virtual or physical pointer representation.
+
+
+**Rationale:** Make DMA portable across FPGA and ARM memory systems.
+
+
+**Acceptance:** Overflowing or unreachable ranges fail before launch; cache operations respect complete owned cache lines; direction and barriers are explicit; unsupported coherency or addressing fails configuration; no IOMMU is assumed.
+
+
+**Verification:** Future BSP mapping review and coherency qualification.
+
+
+**Planned test:** TEST-NXR-135
+
+
+**Dependencies:** NXR-117, NXR-133
+
+
+**Configuration:** Selected engine and memory-region manifest; coherent or maintained buffers explicit.
+
+
+**Static resource budget:** Static aligned regions and mapping metadata; cache-line padding reported.
+
+
+**Review finding:** DMA addresses cannot be inferred from C++ pointers; real BSP memory topology is still unknown.
+
+NXR-136 Conditional SpaceVPX PCIe transport
+-------------------------------------------
+
+**Status:** Planned
+
+
+**Category:** PCIe
+
+
+**Requirement:** The BSP plan shall treat PCIe over SpaceVPX as a conditional optional transport with explicit endpoint or root-port scope and a required hardware integration manifest.
+
+
+**Rationale:** Allow FPGA inter-board communication without assuming topology or compliance.
+
+
+**Acceptance:** Manifest records IP/revision, role, generation, lanes, slot profile, peer, BAR/windows, address width, IRQ, reset and performance budgets; endpoint registers may precede DMA; root-port enumeration is separately scoped; no SpaceVPX qualification is implied.
+
+
+**Verification:** Future hardware selection and interface design review.
+
+
+**Planned test:** TEST-NXR-136
+
+
+**Dependencies:** NXR-114, NXR-117, NXR-131
+
+
+**Configuration:** Proposed RTOS_PCIE off by default; role and IP remain undecided.
+
+
+**Static resource budget:** Declared BAR/control storage only; root-port tables and DMA buffers separately budgeted.
+
+
+**Review finding:** Possible SpaceVPX PCIe communication is recorded as conditional architecture work, not an implemented or selected board target.
+
+NXR-137 Versioned peer communication protocol
+---------------------------------------------
+
+**Status:** Planned
+
+
+**Category:** PCIe
+
+
+**Requirement:** The PCIe transport shall define a versioned fixed-width register/mailbox protocol with explicit endian, bounds, ordering, ownership and backpressure before bulk DMA is enabled.
+
+
+**Rationale:** Keep peer communication independent of compiler layout and local addresses.
+
+
+**Acceptance:** Incompatible versions fail safely; lengths and ranges validate without overflow; native pointers and C++ layouts never cross the link; reset generations reject stale responses; synchronization follows actual bridge semantics.
+
+
+**Verification:** Future peer conformance and malformed-message scenarios.
+
+
+**Planned test:** TEST-NXR-137
+
+
+**Dependencies:** NXR-136, NXR-118
+
+
+**Configuration:** Static mailbox depth and message bounds; register-only mode supported where hardware permits.
+
+
+**Static resource budget:** Fixed mailbox storage and protocol state; no mandatory DMA buffers.
+
+
+**Review finding:** A PCIe bridge does not supply an application messaging protocol; wire layout and peer contracts remain to be designed.
+
+NXR-138 PCIe fault and DMA window isolation
+-------------------------------------------
+
+**Status:** Planned
+
+
+**Category:** PCIe
+
+
+**Requirement:** The PCIe BSP shall bound accessible peer and local windows and preserve ownership through link loss, reset and uncertain outstanding DMA until quiescence is established.
+
+
+**Rationale:** Contain malformed peer requests and late transactions.
+
+
+**Acceptance:** Reject out-of-window access before submission; link loss faults pending work; buffers remain reserved until hardware-specific recovery proves safety; reconnect rejects stale generations; IRQ and posted-write ordering follow selected IP; fault counters are exposed.
+
+
+**Verification:** Future link-drop, reset, range-validation and late-write qualification.
+
+
+**Planned test:** TEST-NXR-138
+
+
+**Dependencies:** NXR-134, NXR-135, NXR-136, NXR-137
+
+
+**Configuration:** Board-specific windows, interrupt mechanism and reset/quiescence policy.
+
+
+**Static resource budget:** Static window, request-generation and health records; quarantine budget explicit.
+
+
+**Review finding:** PCIe reset and link loss require a selected hardware contract; software timeouts and address checks alone do not establish isolation.
 

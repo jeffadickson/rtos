@@ -1,18 +1,145 @@
 {
   "schemaVersion": 1,
   "targets": [
-    {"id":"riscue","architecture":"riscv32","cpu":"RISCue RV32IM Zicsr","status":"cross-built","physicalCpuLimit":1,"firmwareReady":true,"sources":[]},
-    {"id":"vorago-va108xx","architecture":"armv6-m","cpu":"Cortex-M0","status":"provisional","physicalCpuLimit":1,"firmwareReady":false,"sources":["https://www.voragotech.com/products/development-tools"]},
-    {"id":"vorago-va416xx","architecture":"armv7e-m","cpu":"Cortex-M4","status":"provisional","physicalCpuLimit":1,"firmwareReady":false,"sources":["https://www.voragotech.com/products/microcontrollers/arm-cortex-m4-family/va41630"]},
-    {"id":"zynq7000-a9","architecture":"armv7-a","cpu":"Cortex-A9","status":"planned","physicalCpuLimit":2,"firmwareReady":false,"sources":["https://www.amd.com/en/products/adaptive-socs-and-fpgas/soc/zynq-7000.html"]},
-    {"id":"zynqmp-r5","architecture":"armv7-r","cpu":"Cortex-R5F","status":"planned","physicalCpuLimit":2,"firmwareReady":false,"sources":["https://www.amd.com/en/products/adaptive-socs-and-fpgas/soc/zynq-ultrascale-plus-mpsoc.html"]},
-    {"id":"zynqmp-a53","architecture":"armv8-a","cpu":"Cortex-A53 AArch64","status":"planned","physicalCpuLimit":4,"firmwareReady":false,"sources":["https://www.amd.com/en/products/adaptive-socs-and-fpgas/soc/zynq-ultrascale-plus-mpsoc.html"]},
-    {"id":"microblaze","architecture":"microblaze32","cpu":"MicroBlaze 32-bit","status":"planned","physicalCpuLimit":1,"firmwareReady":false,"sources":["https://www.amd.com/en/products/software/adaptive-socs-and-fpgas/microblaze.html"]},
-    {"id":"tang-nano-9k-riscue","architecture":"riscv32","cpu":"RISCue soft core (assumed)","status":"provisional","physicalCpuLimit":1,"firmwareReady":false,"sources":["https://wiki.sipeed.com/hardware/en/tang/Tang-Nano-9K/Nano-9K"]}
+    {
+      "id": "riscue",
+      "architecture": "riscv32",
+      "cpu": "RISCue RV32IM Zicsr",
+      "status": "cross-built",
+      "physicalCpuLimit": 1,
+      "firmwareReady": true,
+      "sources": []
+    },
+    {
+      "id": "vorago-va108xx",
+      "architecture": "armv6-m",
+      "cpu": "Cortex-M0",
+      "status": "provisional",
+      "physicalCpuLimit": 1,
+      "firmwareReady": false,
+      "sources": [
+        "https://www.voragotech.com/products/development-tools"
+      ]
+    },
+    {
+      "id": "vorago-va416xx",
+      "architecture": "armv7e-m",
+      "cpu": "Cortex-M4",
+      "status": "provisional",
+      "physicalCpuLimit": 1,
+      "firmwareReady": false,
+      "sources": [
+        "https://www.voragotech.com/products/microcontrollers/arm-cortex-m4-family/va41630"
+      ]
+    },
+    {
+      "id": "zynq7000-a9",
+      "architecture": "armv7-a",
+      "cpu": "Cortex-A9",
+      "status": "planned",
+      "physicalCpuLimit": 2,
+      "firmwareReady": false,
+      "sources": [
+        "https://www.amd.com/en/products/adaptive-socs-and-fpgas/soc/zynq-7000.html"
+      ]
+    },
+    {
+      "id": "zynqmp-r5",
+      "architecture": "armv7-r",
+      "cpu": "Cortex-R5F",
+      "status": "planned",
+      "physicalCpuLimit": 2,
+      "firmwareReady": false,
+      "sources": [
+        "https://www.amd.com/en/products/adaptive-socs-and-fpgas/soc/zynq-ultrascale-plus-mpsoc.html"
+      ]
+    },
+    {
+      "id": "zynqmp-a53",
+      "architecture": "armv8-a",
+      "cpu": "Cortex-A53 AArch64",
+      "status": "planned",
+      "physicalCpuLimit": 4,
+      "firmwareReady": false,
+      "sources": [
+        "https://www.amd.com/en/products/adaptive-socs-and-fpgas/soc/zynq-ultrascale-plus-mpsoc.html"
+      ]
+    },
+    {
+      "id": "microblaze",
+      "architecture": "microblaze32",
+      "cpu": "MicroBlaze 32-bit",
+      "status": "planned",
+      "physicalCpuLimit": 1,
+      "firmwareReady": false,
+      "sources": [
+        "https://www.amd.com/en/products/software/adaptive-socs-and-fpgas/microblaze.html"
+      ]
+    },
+    {
+      "id": "tang-nano-9k-riscue",
+      "architecture": "riscv32",
+      "cpu": "RISCue soft core (assumed)",
+      "status": "provisional",
+      "physicalCpuLimit": 1,
+      "firmwareReady": false,
+      "sources": [
+        "https://wiki.sipeed.com/hardware/en/tang/Tang-Nano-9K/Nano-9K"
+      ]
+    }
   ],
   "profiles": [
-    {"id":"minimal","maxThreads":8,"tickHz":1000,"idleStackBytes":1024,"metrics":false,"stackGuard":false,"roundRobin":false,"ethernet":false},
-    {"id":"default","maxThreads":16,"tickHz":1000,"idleStackBytes":1024,"metrics":true,"stackGuard":true,"roundRobin":true,"ethernet":true},
-    {"id":"diagnostic","maxThreads":16,"tickHz":1000,"idleStackBytes":1024,"metrics":true,"stackGuard":true,"roundRobin":true,"ethernet":false}
+    {
+      "id": "minimal",
+      "maxThreads": 8,
+      "tickHz": 1000,
+      "idleStackBytes": 1024,
+      "metrics": false,
+      "stackGuard": false,
+      "roundRobin": false,
+      "ethernet": false,
+      "web": false,
+      "storage": false,
+      "sync": false
+    },
+    {
+      "id": "default",
+      "maxThreads": 16,
+      "tickHz": 1000,
+      "idleStackBytes": 1024,
+      "metrics": true,
+      "stackGuard": true,
+      "roundRobin": true,
+      "ethernet": true,
+      "web": false,
+      "storage": false,
+      "sync": false
+    },
+    {
+      "id": "diagnostic",
+      "maxThreads": 16,
+      "tickHz": 1000,
+      "idleStackBytes": 1024,
+      "metrics": true,
+      "stackGuard": true,
+      "roundRobin": true,
+      "ethernet": false,
+      "web": false,
+      "storage": false,
+      "sync": false
+    },
+    {
+      "id": "web",
+      "maxThreads": 8,
+      "tickHz": 1000,
+      "idleStackBytes": 1024,
+      "metrics": true,
+      "stackGuard": true,
+      "roundRobin": true,
+      "ethernet": true,
+      "web": true,
+      "storage": false,
+      "sync": false
+    }
   ]
 }

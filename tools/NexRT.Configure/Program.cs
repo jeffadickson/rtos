@@ -5,7 +5,7 @@ namespace NexRT.Configure;
 /// <summary>A researched CPU/board profile; physical CPU capacity does not imply RTOS SMP support.</summary>
 internal sealed record Target(string Id,string Architecture,string Cpu,string Status,int PhysicalCpuLimit,bool FirmwareReady,string[] Sources);
 /// <summary>A bounded static feature set, shared by every target.</summary>
-internal sealed record Profile(string Id,int MaxThreads,int TickHz,int IdleStackBytes,bool Metrics,bool StackGuard,bool RoundRobin,bool Ethernet);
+internal sealed record Profile(string Id,int MaxThreads,int TickHz,int IdleStackBytes,bool Metrics,bool StackGuard,bool RoundRobin,bool Ethernet,bool Web=false,bool Storage=false,bool Sync=false);
 /// <summary>Explicit target and profile catalogue.</summary>
 internal sealed record Catalogue(int SchemaVersion,Target[] Targets,Profile[] Profiles);
 /// <summary>Generates deterministic CMake initial caches without running external commands or installing software.</summary>
@@ -63,7 +63,8 @@ internal static class Program
             $"set(RTOS_TARGET_ID {t.Id} CACHE STRING \"Target\" FORCE)\nset(RTOS_BUILD_FIRMWARE ON CACHE BOOL \"Firmware\" FORCE)\n"+
             $"set(RTOS_CPU_COUNT {cpus} CACHE STRING \"CPUs\" FORCE)\nset(RTOS_MULTIPROCESSING {mode} CACHE STRING \"Mode\" FORCE)\n"+
             $"set(RTOS_MAX_THREADS {p.MaxThreads} CACHE STRING \"Thread capacity\" FORCE)\nset(RTOS_TICK_HZ {p.TickHz} CACHE STRING \"Tick rate\" FORCE)\nset(RTOS_IDLE_STACK_BYTES {p.IdleStackBytes} CACHE STRING \"Idle stack\" FORCE)\n"+
-            $"set(RTOS_METRICS {On(p.Metrics)} CACHE BOOL \"Metrics\" FORCE)\nset(RTOS_STACK_GUARD {On(p.StackGuard)} CACHE BOOL \"Guards\" FORCE)\nset(RTOS_ROUND_ROBIN {On(p.RoundRobin)} CACHE BOOL \"Slicing\" FORCE)\nset(RTOS_ETHERNET {On(p.Ethernet)} CACHE BOOL \"Ethernet adapter\" FORCE)\n";
+            $"set(RTOS_METRICS {On(p.Metrics)} CACHE BOOL \"Metrics\" FORCE)\nset(RTOS_STACK_GUARD {On(p.StackGuard)} CACHE BOOL \"Guards\" FORCE)\nset(RTOS_ROUND_ROBIN {On(p.RoundRobin)} CACHE BOOL \"Slicing\" FORCE)\nset(RTOS_ETHERNET {On(p.Ethernet)} CACHE BOOL \"Ethernet adapter\" FORCE)\n"+
+            $"set(RTOS_WEB {On(p.Web)} CACHE BOOL \"HTTP component\" FORCE)\nset(RTOS_STORAGE {On(p.Storage)} CACHE BOOL \"Flash storage\" FORCE)\nset(RTOS_SYNC {On(p.Sync)} CACHE BOOL \"Synchronization\" FORCE)\n";
     }
     /// <summary>Exercises invalid topology, capacities and readiness, plus deterministic rendering and feature-off configuration.</summary>
     private static void SelfTest(Catalogue c)

@@ -161,3 +161,14 @@ backing heap alone does not prove leak freedom. Audit stack-internal allocation,
 fragmentation, and lost-buffer behavior separately; the kernel's allocator-symbol
 check does not certify a third-party stack. Existing vendor stack code may be
 reused after these storage and single-thread ownership contracts are established.
+
+Planned shared-device and IPC contracts
+---------------------------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   device-ipc-review
+
+DMA driver support is deferred. The shared-device and IPC requirements are
+planned; the existing Ethernet adapter does not implement those primitives.

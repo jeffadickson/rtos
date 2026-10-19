@@ -3090,5 +3090,664 @@
       "docs/tooling.rst"
     ],
     "finding": "Three C# projects have Native AOT targets and generated JSON metadata; host-specific builds require SDK/compiler prerequisites and only tested hosts can claim execution evidence."
+  },
+  {
+    "id": "NXR-113",
+    "title": "Static device registry",
+    "category": "Drivers",
+    "statement": "The kernel shall register permanent device objects before scheduling and seal a finite registry against runtime registration.",
+    "rationale": "Stable lifetime without heap.",
+    "acceptance": "Duplicate identities and exclusive MMIO overlaps fail; unavailable devices cannot open; register-only drivers need no worker.",
+    "verification": "Future boot-registry boundary review and tests.",
+    "dependencies": [
+      "NXR-001",
+      "NXR-002"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-113",
+    "configuration": "RTOS_DEVICE proposed, off in nano.",
+    "resource_budget": "Fixed object table and per-device state; zero runtime allocation.",
+    "review_iteration": 113,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "docs/drivers.rst",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 001-005 require a sealed device registry; the current thread registry is not a device registry."
+  },
+  {
+    "id": "NXR-114",
+    "title": "Minimal driver operations",
+    "category": "Drivers",
+    "statement": "The driver framework shall define initialize, read, write and typed control operations with explicit context, ownership and result contracts.",
+    "rationale": "Make small FPGA drivers easy to implement.",
+    "acceptance": "Missing optional operations return unsupported without MMIO; example register driver needs no queue, heap or hidden thread; callback blocking and bounded-work rules are documented.",
+    "verification": "Future API review and example-driver checks.",
+    "dependencies": [
+      "NXR-113"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-114",
+    "configuration": "Optional direct-access driver module.",
+    "resource_budget": "One permanent object and operations table per device; target size reported.",
+    "review_iteration": 114,
+    "inspected_files": [
+      "docs/drivers.rst",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 006-010 define a proposed operations interface; existing Ethernet callbacks do not provide this general framework."
+  },
+  {
+    "id": "NXR-115",
+    "title": "Whole device transaction lock",
+    "category": "Synchronization",
+    "statement": "The driver framework shall serialize each complete logical device transaction across all thread entry points using the same priority-inheriting mutex.",
+    "rationale": "Prevent interleaved command/data/status sequences.",
+    "acceptance": "Concurrent callers cannot interleave transaction steps; normal errors release ownership; aliases follow the same lock; reserved hardware stays owned across completion waits.",
+    "verification": "Future forced-preemption transaction scenarios.",
+    "dependencies": [
+      "NXR-114",
+      "NXR-116"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-115",
+    "configuration": "Direct locked access default when device sharing is enabled.",
+    "resource_budget": "One static mutex per serialization domain; no mandatory request queue.",
+    "review_iteration": 115,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/scheduler.hpp",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 011-015 require transaction scope rather than per-register locking; mutex wait state is not currently implemented."
+  },
+  {
+    "id": "NXR-116",
+    "title": "Bounded priority inheritance",
+    "category": "Synchronization",
+    "statement": "The kernel shall implement owner-aware nonrecursive mutexes with separate base and effective priorities and bounded transitive priority donation.",
+    "rationale": "Bound priority inversion under fixed-priority scheduling.",
+    "acceptance": "Donation propagates through valid chains; timeout, unlock and priority change recompute donations; highest effective priority then FIFO selects waiters; self-lock and cycles fail before sleep.",
+    "verification": "Future inversion, chained donation and cycle scenarios.",
+    "dependencies": [
+      "NXR-001"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-116",
+    "configuration": "RTOS_MUTEX_PI proposed; dependency required by shared-device locking.",
+    "resource_budget": "Static mutex objects and thread wait metadata; traversal bounded by thread count.",
+    "review_iteration": 116,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/scheduler.hpp",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 016-020 identify missing separate effective priority and lock ownership in the current public Thread."
+  },
+  {
+    "id": "NXR-117",
+    "title": "Typed MMIO access contracts",
+    "category": "Drivers",
+    "statement": "The port and driver framework shall validate register aperture, width and alignment and define ordering, endian and side-effect semantics for MMIO.",
+    "rationale": "Avoid invalid or destructive register operations.",
+    "acceptance": "Overflowing or out-of-aperture accesses fail before hardware access; read-only and write-one-to-clear registers use appropriate operations; barriers are port-defined; no implicit destructive readback.",
+    "verification": "Future MMIO fake-backend review and target ordering qualification.",
+    "dependencies": [
+      "NXR-114"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-117",
+    "configuration": "Per-device register map and per-port ordering hooks.",
+    "resource_budget": "Compile-time register descriptors plus bounded validation; no heap.",
+    "review_iteration": 117,
+    "inspected_files": [
+      "docs/drivers.rst",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 021-025 distinguish typed volatile register access from verified hardware ordering and register semantics."
+  },
+  {
+    "id": "NXR-118",
+    "title": "Race-free completion wait",
+    "category": "Synchronization",
+    "statement": "The kernel shall atomically enroll device waiters with condition checks and use persistent generation-tagged completion state and one absolute deadline.",
+    "rationale": "Prevent missed interrupts and stale completion reuse.",
+    "acceptance": "Completion before or during wait enrollment is preserved; wake rechecks predicate; old generations cannot complete new commands; retries do not extend deadline.",
+    "verification": "Future interrupt-at-each-boundary and timeout-race scenarios.",
+    "dependencies": [
+      "NXR-115",
+      "NXR-128"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-118",
+    "configuration": "Per-device completion predicate and finite deadline.",
+    "resource_budget": "Static completion generation, predicate and waiter metadata.",
+    "review_iteration": 118,
+    "inspected_files": [
+      "src/scheduler.hpp",
+      "docs/drivers.rst",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 026-030 require a new wait protocol; existing relative thread sleep is insufficient for device completion."
+  },
+  {
+    "id": "NXR-119",
+    "title": "Explicit ISR operation boundary",
+    "category": "Interrupts",
+    "statement": "The kernel shall provide separately named nonblocking ISR-safe operations with bounded work and deferred rescheduling at interrupt exit.",
+    "rationale": "Keep peripheral interrupts responsive and context-safe.",
+    "acceptance": "Blocking APIs reject interrupt context; BSP documents acknowledge and nesting; higher-priority unblocked thread runs at the permitted boundary; peripheral IRQ capability remains unavailable until dispatch exists.",
+    "verification": "Future external-interrupt dispatch and nesting qualification.",
+    "dependencies": [
+      "NXR-118"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-119",
+    "configuration": "Per-port external interrupt support explicitly enabled only when qualified.",
+    "resource_budget": "Static handlers and bounded deferred state; no ISR heap.",
+    "review_iteration": 119,
+    "inspected_files": [
+      "docs/drivers.rst",
+      "include/rtos.hpp",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 031-035 preserve the current timer-only interrupt limitation and do not claim an implemented ISR IPC API."
+  },
+  {
+    "id": "NXR-120",
+    "title": "AXI timeout and fault isolation",
+    "category": "Drivers",
+    "statement": "The driver framework shall distinguish lock timeout, device completion timeout and AXI access failure and keep uncertain hardware faulted until owned recovery establishes quiescence.",
+    "rationale": "Software cannot recover every stalled hardware bus access.",
+    "acceptance": "FPGA integration specifies bounded bus error response or independent timeout; partial commands fault device; reset requires ownership and IRQ quiescence; no timeout is treated as proof that hardware stopped.",
+    "verification": "Future stalled-device and interconnect fault qualification.",
+    "dependencies": [
+      "NXR-117",
+      "NXR-118"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-120",
+    "configuration": "Board-specified AXI error responder, timeout and reset policy.",
+    "resource_budget": "Static fault state and counters; hardware timeout resource declared separately.",
+    "review_iteration": 120,
+    "inspected_files": [
+      "docs/drivers.rst",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 036-040 require hardware-level progress support; thread deadlines alone cannot bound a CPU-stalling MMIO load."
+  },
+  {
+    "id": "NXR-121",
+    "title": "Optional queued device service",
+    "category": "Drivers",
+    "statement": "The driver framework shall optionally serialize slow operations through a statically provisioned request queue and worker with explicit data lifetime and cancellation rules.",
+    "rationale": "Support slow devices without penalizing simple register drivers.",
+    "acceptance": "Queue and worker are opt-in; capacity exhaustion returns full; ordering policy is documented; retained data stays valid; queued cancellation differs from cancellation after issuing hardware commands; DMA remains deferred.",
+    "verification": "Future worker ownership and cancellation scenarios.",
+    "dependencies": [
+      "NXR-114",
+      "NXR-122",
+      "NXR-128"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-121",
+    "configuration": "Optional worker, capacity and FIFO or priority policy.",
+    "resource_budget": "Fixed request storage plus explicit worker control block and stack.",
+    "review_iteration": 121,
+    "inspected_files": [
+      "docs/drivers.rst",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 041-045 define an optional service model with no mandatory per-device thread and no DMA support."
+  },
+  {
+    "id": "NXR-122",
+    "title": "Typed static message queue",
+    "category": "IPC",
+    "statement": "The kernel shall provide fixed-capacity Queue\u003CT,N\u003E objects for positive N and initially trivially copyable messages with copied ownership and FIFO message order.",
+    "rationale": "Simple allocation-free communication between threads.",
+    "acceptance": "Successful send copies payload before return; receive preserves message order; no constructors or allocator calls hide in transfer; target payload, alignment, control and waiter costs are reported.",
+    "verification": "Future queue ownership, boundary and footprint scenarios.",
+    "dependencies": [
+      "NXR-002"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-122",
+    "configuration": "RTOS_QUEUE proposed; capacity and message type fixed at boot.",
+    "resource_budget": "N times sizeof(T) plus exact control/alignment and static wait metadata.",
+    "review_iteration": 122,
+    "inspected_files": [
+      "include/rtos_static.hpp",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 046-050 explicitly distinguish the existing unsynchronized Ring from the proposed scheduler-integrated queue."
+  },
+  {
+    "id": "NXR-123",
+    "title": "Timed queue transfer semantics",
+    "category": "IPC",
+    "statement": "The kernel shall provide immediate and timed queue send and receive with priority-ordered waiters, FIFO ties and exactly one transfer-or-timeout outcome.",
+    "rationale": "Predictable blocking with no stolen grants.",
+    "acceptance": "NoWait returns full or empty immediately; receive failure preserves output; transfer and timeout serialize; selected waiter owns the granted slot or message before competitors can steal it.",
+    "verification": "Future queue full, empty, handoff and simultaneous-timeout scenarios.",
+    "dependencies": [
+      "NXR-122",
+      "NXR-128"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-123",
+    "configuration": "NoWait, bounded timeout and documented indefinite-wait option.",
+    "resource_budget": "Wait state lives in permanent thread metadata; no per-wait allocation.",
+    "review_iteration": 123,
+    "inspected_files": [
+      "src/scheduler.hpp",
+      "include/rtos_static.hpp",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 051-055 define queue blocking behavior absent from the current scheduler state model."
+  },
+  {
+    "id": "NXR-124",
+    "title": "ISR-safe queue transfer",
+    "category": "IPC",
+    "statement": "The kernel shall provide bounded nonblocking queue operations for supported interrupt contexts using a verified port synchronization protocol.",
+    "rationale": "Allow IRQ completion messages without sleeping.",
+    "acceptance": "ISR send and receive return full or empty explicitly; nested producers preserve indices and ownership; no overwrite or unbounded retry; configurable payload cap bounds ISR copy work.",
+    "verification": "Future nested-interrupt queue and work-bound qualification.",
+    "dependencies": [
+      "NXR-119",
+      "NXR-122"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-124",
+    "configuration": "Explicit ISR transfer methods and maximum ISR message bytes.",
+    "resource_budget": "Same fixed queue storage plus port critical-section state.",
+    "review_iteration": 124,
+    "inspected_files": [
+      "include/rtos_static.hpp",
+      "docs/drivers.rst",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 056-060 reject using the current single-owner Ring directly from concurrent threads and interrupts."
+  },
+  {
+    "id": "NXR-125",
+    "title": "Event flag wait semantics",
+    "category": "IPC",
+    "statement": "The kernel shall provide fixed-width event flags with validated masks, wait-any, wait-all, returned observed bits and atomic optional clear-on-success.",
+    "rationale": "Express persistent readiness conditions without payload queues.",
+    "acceptance": "Zero and unsupported masks fail unchanged; timeout consumes no bits; repeated sets coalesce; wait-all requires all requested bits; counting use cases are directed to semaphores.",
+    "verification": "Future mask, any/all and clear-on-success scenarios.",
+    "dependencies": [
+      "NXR-128"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-125",
+    "configuration": "RTOS_EVENTS proposed; documented usable mask and clear mode.",
+    "resource_budget": "One static flag word and bounded waiter metadata per event object.",
+    "review_iteration": 125,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 061-065 define event conditions rather than counted signals; no event primitive is currently implemented."
+  },
+  {
+    "id": "NXR-126",
+    "title": "Event wake and payload ordering",
+    "category": "IPC",
+    "statement": "The kernel shall serialize event updates and wait enrollment and define priority consumption and broadcast behavior separately.",
+    "rationale": "Prevent lost updates and ambiguous multi-waiter consumption.",
+    "acceptance": "Non-clearing waits evaluate a documented snapshot; consuming waits evaluate by priority and remaining bits; ISR set never blocks; payload ownership and visibility require an explicit separate contract.",
+    "verification": "Future multi-waiter clear, broadcast and ISR-set scenarios.",
+    "dependencies": [
+      "NXR-125",
+      "NXR-119"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-126",
+    "configuration": "Explicit broadcast versus consuming wait policy.",
+    "resource_budget": "Fixed event state and existing thread wait metadata.",
+    "review_iteration": 126,
+    "inspected_files": [
+      "src/scheduler.hpp",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 066-070 resolve multi-waiter semantics and avoid implying that event flags transfer payload ownership."
+  },
+  {
+    "id": "NXR-127",
+    "title": "Bounded counting semaphore",
+    "category": "IPC",
+    "statement": "The kernel shall provide statically allocated counting semaphores with validated initial and maximum counts, bounded waits and direct priority waiter handoff.",
+    "rationale": "Count work or resource availability without ownership confusion.",
+    "acceptance": "Overflow fails unchanged; release grants selected waiter before exposing count to contenders; timeout cannot duplicate tokens; ISR release is nonblocking; semaphore has no ownership or priority inheritance.",
+    "verification": "Future count conservation and release-timeout race scenarios.",
+    "dependencies": [
+      "NXR-128",
+      "NXR-119"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-127",
+    "configuration": "RTOS_SEMAPHORE proposed; boot-fixed initial and maximum counts.",
+    "resource_budget": "Fixed count, maximum and waiter metadata; zero heap.",
+    "review_iteration": 127,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/scheduler.hpp",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 071-075 separate counted notifications from owner-aware mutexes and require token conservation."
+  },
+  {
+    "id": "NXR-128",
+    "title": "Bounded thread wait lifecycle",
+    "category": "Synchronization",
+    "statement": "The kernel shall track at most one active blocking operation per thread initially and remove wait membership exactly once on grant, timeout or supported termination.",
+    "rationale": "Keep scheduler and IPC object state consistent.",
+    "acceptance": "Blocking before start or from idle fails; timeout range respects modular tick limits; stale wake cannot affect a later wait; internal links are not application-owned; each path removes one wait registration.",
+    "verification": "Future wait-state transition and stale-wakeup scenarios.",
+    "dependencies": [
+      "NXR-001"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-128",
+    "configuration": "One active wait per thread; supported finite tick range documented.",
+    "resource_budget": "Permanent thread wait metadata with bounded object lookup.",
+    "review_iteration": 128,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/scheduler.hpp",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 076-080 identify required scheduler changes; current State only represents unused, ready, sleeping and finished."
+  },
+  {
+    "id": "NXR-129",
+    "title": "Abandoned device ownership",
+    "category": "Synchronization",
+    "statement": "The kernel shall report owner-dead and fault a device when its mutex owner exits during an uncertain transaction until explicit recovery restores a safe state.",
+    "rationale": "Avoid exposing partially programmed hardware as ready.",
+    "acceptance": "Waiters receive distinct failure; no implicit successful unlock; donation and wait references are removed; recovery requires ownership; fatal corruption is not promised recoverable.",
+    "verification": "Future owner-exit at each transaction boundary scenarios.",
+    "dependencies": [
+      "NXR-115",
+      "NXR-116",
+      "NXR-120",
+      "NXR-128"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-129",
+    "configuration": "Explicit owner-dead recovery policy; no dynamic thread reclamation.",
+    "resource_budget": "Static abandonment and recovery state; no reallocation.",
+    "review_iteration": 129,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 081-085 reject silently releasing hardware ownership on thread exit without device-state recovery."
+  },
+  {
+    "id": "NXR-130",
+    "title": "Device and IPC metrics",
+    "category": "Diagnostics",
+    "statement": "The kernel shall copy coherent bounded device and IPC snapshots into caller-provided storage with separate contention, capacity, timeout and fault statistics.",
+    "rationale": "Expose contention and resource sizing to applications.",
+    "acceptance": "Snapshots include mutex owner and effective priority, waiter counts, queue capacity/depth/high-water, full results, timeout/error/recovery; counters saturate safely; count-only query allocates nothing.",
+    "verification": "Future snapshot coherence and saturation scenarios.",
+    "dependencies": [
+      "NXR-116",
+      "NXR-122",
+      "NXR-128"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-130",
+    "configuration": "Metrics independently configurable; costs reported when enabled.",
+    "resource_budget": "Fixed per-object counters and caller-owned output arrays.",
+    "review_iteration": 130,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 086-090 extend existing thread snapshot principles without claiming implemented device or IPC metrics."
+  },
+  {
+    "id": "NXR-131",
+    "title": "Modular synchronization configuration",
+    "category": "Configuration",
+    "statement": "The build configuration shall independently enable device, queue, event, semaphore and mutex modules with validated dependencies and explicit single-hart support limits.",
+    "rationale": "Preserve the minimal footprint and a future multiprocessor seam.",
+    "acceptance": "Nano disables all new modules; invalid dependencies fail configuration; disabled storage disappears; IRQ masking is never advertised as an SMP lock; CMake and C# XDoc policies remain in force.",
+    "verification": "Future configuration matrix and target footprint audits.",
+    "dependencies": [
+      "NXR-002"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-131",
+    "configuration": "Proposed RTOS_DEVICE, RTOS_QUEUE, RTOS_EVENTS, RTOS_SEMAPHORE and RTOS_MUTEX_PI.",
+    "resource_budget": "Disabled features contribute zero module storage; enabled sizes measured per target.",
+    "review_iteration": 131,
+    "inspected_files": [
+      "docs/drivers.rst",
+      "src/scheduler.hpp",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 091-095 specify future switches and portability boundaries rather than claiming existing configurable IPC modules."
+  },
+  {
+    "id": "NXR-132",
+    "title": "Small bounded logging and documentation",
+    "category": "Diagnostics",
+    "statement": "The kernel shall keep optional static logging capacity configurable, use drop-new initially, bound synchronous drain work and document all proposed APIs and deferred DMA scope honestly.",
+    "rationale": "Avoid a mandatory 31 KiB log queue and ambiguous lifetime claims.",
+    "acceptance": "Depth and payload have explicit costs; truncation and full losses differ; buffers remain owned until consumed; ISR formatting is context-safe; no unverified RAM saving or DMA cancellation claim appears in the manual.",
+    "verification": "Future logging capacity, drain budget and ownership scenarios.",
+    "dependencies": [
+      "NXR-002",
+      "NXR-131"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-132",
+    "configuration": "Logging off in nano; explicit fixed depth and message bytes.",
+    "resource_budget": "Depth times actual slot size plus formatting and synchronization metadata reported separately.",
+    "review_iteration": 132,
+    "inspected_files": [
+      "include/rtos_static.hpp",
+      "docs/drivers.rst",
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Reviews 096-100 preserve a small optional logger and explicitly label the 100 decisions as design review without build or runtime proof."
+  },
+  {
+    "id": "NXR-133",
+    "title": "Optional simple FPGA DMA driver",
+    "category": "DMA",
+    "statement": "The BSP shall optionally support one selected FPGA DMA engine after interrupt and IPC prerequisites, with one active transfer per channel and fixed aligned buffers.",
+    "rationale": "Provide bulk transfer without growing the mandatory nano kernel.",
+    "acceptance": "Driver serializes thread callers; interrupt completion signals a waiter; invalid alignment, length or busy channel fails unchanged; scatter/gather, cyclic transfers and automatic exit cancellation remain excluded initially; disabled DMA adds no driver storage.",
+    "verification": "Future selected-engine transfer and configuration qualification.",
+    "dependencies": [
+      "NXR-115",
+      "NXR-118",
+      "NXR-119",
+      "NXR-131"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-133",
+    "configuration": "Proposed RTOS_DMA optional, off in nano; actual engine selected by BSP.",
+    "resource_budget": "Static channel state and explicit buffer capacities/alignment; report exact target costs.",
+    "review_iteration": 133,
+    "inspected_files": [
+      "docs/device-ipc-review.rst",
+      "docs/drivers.rst"
+    ],
+    "finding": "Roadmap now includes a later simple DMA BSP driver; earlier deferral still applies to the initial IPC/device phase."
+  },
+  {
+    "id": "NXR-134",
+    "title": "DMA buffer ownership and quiescence",
+    "category": "DMA",
+    "statement": "The DMA driver shall retain exclusive hardware buffer ownership until verified completion or proven quiescence and quarantine uncertain transfers after timeout or owner exit.",
+    "rationale": "Prevent memory corruption from late hardware writes.",
+    "acceptance": "Timeout alone never releases a buffer; recovery proves engine stop/reset before reuse; stale completion cannot release a newer transfer; errors and quarantine are observable; no unbounded abort wait is permitted.",
+    "verification": "Future timeout, delayed completion, reset and owner-exit fault scenarios.",
+    "dependencies": [
+      "NXR-133",
+      "NXR-120",
+      "NXR-129"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-134",
+    "configuration": "Per-engine bounded completion/reset policy; no generic cancellation promise.",
+    "resource_budget": "Fixed ownership/generation and quarantine state; retained buffers remain charged to static budget.",
+    "review_iteration": 134,
+    "inspected_files": [
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Later DMA work must establish a hardware-specific stop contract before any timed-out buffer can be reused."
+  },
+  {
+    "id": "NXR-135",
+    "title": "DMA address and cache contract",
+    "category": "DMA",
+    "statement": "The BSP shall define DMA-reachable bus address ranges, width, alignment, cache maintenance and ordering independently from CPU virtual or physical pointer representation.",
+    "rationale": "Make DMA portable across FPGA and ARM memory systems.",
+    "acceptance": "Overflowing or unreachable ranges fail before launch; cache operations respect complete owned cache lines; direction and barriers are explicit; unsupported coherency or addressing fails configuration; no IOMMU is assumed.",
+    "verification": "Future BSP mapping review and coherency qualification.",
+    "dependencies": [
+      "NXR-117",
+      "NXR-133"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-135",
+    "configuration": "Selected engine and memory-region manifest; coherent or maintained buffers explicit.",
+    "resource_budget": "Static aligned regions and mapping metadata; cache-line padding reported.",
+    "review_iteration": 135,
+    "inspected_files": [
+      "docs/device-ipc-review.rst",
+      "docs/drivers.rst"
+    ],
+    "finding": "DMA addresses cannot be inferred from C\u002B\u002B pointers; real BSP memory topology is still unknown."
+  },
+  {
+    "id": "NXR-136",
+    "title": "Conditional SpaceVPX PCIe transport",
+    "category": "PCIe",
+    "statement": "The BSP plan shall treat PCIe over SpaceVPX as a conditional optional transport with explicit endpoint or root-port scope and a required hardware integration manifest.",
+    "rationale": "Allow FPGA inter-board communication without assuming topology or compliance.",
+    "acceptance": "Manifest records IP/revision, role, generation, lanes, slot profile, peer, BAR/windows, address width, IRQ, reset and performance budgets; endpoint registers may precede DMA; root-port enumeration is separately scoped; no SpaceVPX qualification is implied.",
+    "verification": "Future hardware selection and interface design review.",
+    "dependencies": [
+      "NXR-114",
+      "NXR-117",
+      "NXR-131"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-136",
+    "configuration": "Proposed RTOS_PCIE off by default; role and IP remain undecided.",
+    "resource_budget": "Declared BAR/control storage only; root-port tables and DMA buffers separately budgeted.",
+    "review_iteration": 136,
+    "inspected_files": [
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "Possible SpaceVPX PCIe communication is recorded as conditional architecture work, not an implemented or selected board target."
+  },
+  {
+    "id": "NXR-137",
+    "title": "Versioned peer communication protocol",
+    "category": "PCIe",
+    "statement": "The PCIe transport shall define a versioned fixed-width register/mailbox protocol with explicit endian, bounds, ordering, ownership and backpressure before bulk DMA is enabled.",
+    "rationale": "Keep peer communication independent of compiler layout and local addresses.",
+    "acceptance": "Incompatible versions fail safely; lengths and ranges validate without overflow; native pointers and C\u002B\u002B layouts never cross the link; reset generations reject stale responses; synchronization follows actual bridge semantics.",
+    "verification": "Future peer conformance and malformed-message scenarios.",
+    "dependencies": [
+      "NXR-136",
+      "NXR-118"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-137",
+    "configuration": "Static mailbox depth and message bounds; register-only mode supported where hardware permits.",
+    "resource_budget": "Fixed mailbox storage and protocol state; no mandatory DMA buffers.",
+    "review_iteration": 137,
+    "inspected_files": [
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "A PCIe bridge does not supply an application messaging protocol; wire layout and peer contracts remain to be designed."
+  },
+  {
+    "id": "NXR-138",
+    "title": "PCIe fault and DMA window isolation",
+    "category": "PCIe",
+    "statement": "The PCIe BSP shall bound accessible peer and local windows and preserve ownership through link loss, reset and uncertain outstanding DMA until quiescence is established.",
+    "rationale": "Contain malformed peer requests and late transactions.",
+    "acceptance": "Reject out-of-window access before submission; link loss faults pending work; buffers remain reserved until hardware-specific recovery proves safety; reconnect rejects stale generations; IRQ and posted-write ordering follow selected IP; fault counters are exposed.",
+    "verification": "Future link-drop, reset, range-validation and late-write qualification.",
+    "dependencies": [
+      "NXR-134",
+      "NXR-135",
+      "NXR-136",
+      "NXR-137"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-138",
+    "configuration": "Board-specific windows, interrupt mechanism and reset/quiescence policy.",
+    "resource_budget": "Static window, request-generation and health records; quarantine budget explicit.",
+    "review_iteration": 138,
+    "inspected_files": [
+      "docs/device-ipc-review.rst"
+    ],
+    "finding": "PCIe reset and link loss require a selected hardware contract; software timeouts and address checks alone do not establish isolation."
   }
 ]
