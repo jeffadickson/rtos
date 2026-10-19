@@ -23,6 +23,10 @@
 #ifndef RTOS_MTIMECMP_ADDRESS
 #define RTOS_MTIMECMP_ADDRESS 0x02004000u
 #endif
+#ifndef RTOS_SYNC
+#define RTOS_SYNC 0
+#endif
+static_assert(RTOS_SYNC == 0 || RTOS_SYNC == 1);
 static_assert(RTOS_MAX_THREADS >= 1 && RTOS_MAX_THREADS <= 255);
 static_assert(RTOS_TICK_HZ > 0);
 static_assert(RTOS_IDLE_STACK_BYTES >= 512 && RTOS_IDLE_STACK_BYTES % 16 == 0);

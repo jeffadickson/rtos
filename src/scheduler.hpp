@@ -1,9 +1,19 @@
 #pragma once
 #include "rtos.hpp"
+#if RTOS_SYNC
+namespace rtos::detail { void expire_wait(Thread&,Tick); }
+#endif
 namespace rtos::detail {
 // Bounded O(thread count) scheduling; no allocation and no intrusive user lists.
 struct Scheduler {
     static constexpr unsigned capacity = RTOS_MAX_THREADS;
+    static uint8_t priority(const Thread& t) {
+#if RTOS_SYNC
+        return t.effective_priority;
+#else
+        return t.priority;
+#endif
+    }
     Thread* threads[capacity]{};
     unsigned count{}, cursor{capacity - 1};
     Tick now{};
@@ -35,6 +45,9 @@ struct Scheduler {
         now += elapsed;
         for (unsigned i=0; i<count; ++i) {
             auto& t = *threads[i];
+#if RTOS_SYNC
+            expire_wait(t,now);
+#endif
             if (t.state == State::sleeping && Tick(now - t.wake) < 0x80000000u)
                 t.state = State::ready;
         }
@@ -43,7 +56,7 @@ struct Scheduler {
         if (!rotate && previous && previous->state == State::ready && contains(*previous)) {
             bool higher = false;
             for (unsigned i=0; i<count; ++i)
-                if (threads[i]->state == State::ready && threads[i]->priority > previous->priority) higher = true;
+                if (threads[i]->state == State::ready && priority(*threads[i]) > priority(*previous)) higher = true;
             if (!higher) return previous;
         }
         Thread* best = nullptr;
@@ -51,7 +64,7 @@ struct Scheduler {
         for (unsigned n=1; n<=count; ++n) {
             unsigned i = (cursor + n) % count;
             auto* t = threads[i];
-            if (t->state == State::ready && (!best || t->priority > best->priority)) {
+            if (t->state == State::ready && (!best || priority(*t) > priority(*best))) {
                 best = t; selected = i;
             }
         }

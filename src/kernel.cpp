@@ -1,11 +1,17 @@
 #include "scheduler.hpp"
 #include "rtos_port.hpp"
+#if RTOS_SYNC
+#include "rtos_sync.hpp"
+#endif
 namespace {
 rtos::detail::Scheduler scheduler;
 rtos::Thread idle_thread;
 rtos::Stack<RTOS_IDLE_STACK_BYTES> idle_stack;
 rtos::Thread* current;
 bool running;
+#if RTOS_SYNC
+bool handling_interrupt;
+#endif
 uint32_t period, clock_hz;
 uint64_t deadline;
 #if RTOS_METRICS
@@ -33,6 +39,9 @@ void initialize(rtos::Thread& t, rtos::Entry e, void* arg, uint8_t priority,
                 void* stack, size_t bytes, const char* name) {
     auto* frame=rtos::port::initialize_context(stack,bytes,&rtos_entry);
     t.context=frame; t.entry=e; t.argument=arg; t.priority=priority; t.state=rtos::State::ready;
+#if RTOS_SYNC
+    t.effective_priority=priority;
+#endif
     t.name=name; t.stack_begin=reinterpret_cast<uintptr_t>(stack); t.stack_bytes=bytes;
 #if RTOS_METRICS
     t.runtime_cycles=0; t.dispatches=0;
@@ -89,6 +98,9 @@ Tick ticks() { Lock lock; return scheduler.now; }
 [[noreturn]] void exit() {
     Lock lock;
     if (!current || current == &idle_thread) stop();
+#if RTOS_SYNC
+    detail::abandon_wait(*current);
+#endif
     current->state=State::finished;
     yield(); stop();
 }
@@ -96,6 +108,9 @@ bool set_priority(Thread& t, uint8_t priority) {
     Lock lock;
     if (!scheduler.contains(t) || t.state == State::finished) return false;
     t.priority=priority;
+#if RTOS_SYNC
+    t.effective_priority=priority;
+#endif
     yield();
     return true;
 }
@@ -126,6 +141,9 @@ SystemInfo snapshot(ThreadInfo* output, size_t capacity) {
 }
 }
 extern "C" uint32_t* rtos_trap(uint32_t* frame, uint32_t cause) {
+#if RTOS_SYNC
+    handling_interrupt=true;
+#endif
     if (current) {
         current->context=frame;
         if (!guard_ok(*current)) stop();
@@ -150,5 +168,21 @@ extern "C" uint32_t* rtos_trap(uint32_t* frame, uint32_t cause) {
     ++next->dispatches;
 #endif
     current=next;
+#if RTOS_SYNC
+    handling_interrupt=false;
+#endif
     return current->context;
 }
+
+#if RTOS_SYNC
+namespace rtos::detail {
+CriticalState critical_enter(){return port::mask_interrupts();}
+void critical_leave(CriticalState state){port::restore_interrupts(static_cast<port::InterruptState>(state));}
+Thread* calling_thread(){return running&&!handling_interrupt&&current!=&idle_thread?current:nullptr;}
+bool interrupt_context(){return handling_interrupt;}
+bool synchronization_running(){return running;}
+Tick synchronization_now(){return scheduler.now;}
+void park_thread(){port::reschedule();}
+void schedule_ready(){if(running&&!handling_interrupt)port::reschedule();}
+}
+#endif

@@ -22,6 +22,7 @@ worst-case execution time, or hardware validation.
    memory
    drivers
    web
+   sync-iterations
    verification
    reviews
    validation

@@ -2,11 +2,12 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "rtos_config.hpp"
+#include "rtos_wait.hpp"
 
 namespace rtos {
 using Entry = void (*)(void*);
 using Tick = uint32_t;
-enum class State : uint8_t { unused, ready, sleeping, finished };
+enum class State : uint8_t { unused, ready, sleeping, finished, blocked };
 // Keep storage alive for the lifetime of the kernel. Larger priorities run first.
 struct Thread {
     uint32_t* context{};
@@ -14,6 +15,10 @@ struct Thread {
     void* argument{};
     Tick wake{};
     uint8_t priority{};
+#if RTOS_SYNC
+    uint8_t effective_priority{};
+    detail::WaitNode wait{};
+#endif
     State state{State::unused};
     const char* name{}; // Borrowed immutable string; must outlive the kernel.
     uintptr_t stack_begin{};
@@ -47,6 +52,10 @@ struct ThreadInfo {
     const char* name{};
     State state{};
     uint8_t priority{};
+#if RTOS_SYNC
+    uint8_t effective_priority{};
+    detail::WaitNode wait{};
+#endif
     bool current{}, idle{}, guard_ok{};
     size_t stack_bytes{};
     uint64_t runtime_cycles{}, dispatches{};
