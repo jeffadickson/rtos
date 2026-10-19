@@ -45,13 +45,14 @@ Result Mutex::unlock(){
     detail::Critical critical;
     auto* self=detail::calling_thread();
     if(!self||owner_!=self)return Result::context;
+    const auto before=self->effective_priority;
     detach();
     if(auto* next=waiters_.best()){
         attach(*next); // Grant ownership before making the waiter runnable.
         waiters_.complete(*next,Result::ok);
-        priority_changed(*next);
+        priority_changed(*next);critical.changed();
     }
-    priority_changed(*self);critical.changed();return Result::ok;
+    priority_changed(*self);if(self->effective_priority!=before)critical.changed();return Result::ok;
 }
 void Mutex::abandon(Thread& thread){
     if(owner_!=&thread)return;

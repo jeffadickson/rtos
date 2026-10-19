@@ -40,6 +40,18 @@ template<size_t Slots=8,size_t MessageBytes=64> class Logger {
         for(size_t i=0;i<n;++i)record.text[i]=text[i];
         record.length=static_cast<uint16_t>(n);return publish(record,n<size,isr);
     }
+    Result next_record(){
+        detail::Critical critical;
+        if(active_)return Result::ok;
+        auto result=queue_.receive(pending_);
+        if(result==Result::ok){offset_=0;active_=true;}
+        return result;
+    }
+    void commit_bytes(size_t count){
+        detail::Critical critical;
+        offset_+=count;
+        if(offset_==pending_.length){active_=false;offset_=0;detail::increment(sent_);}
+    }
 public:
     constexpr Logger()=default;
     Logger(const Logger&)=delete;
@@ -47,27 +59,38 @@ public:
     LogResult write(const char* text,size_t size){return write_impl(text,size,false);}
     // Preformatted bytes only: no varargs formatting in an interrupt handler.
     LogResult write_from_isr(const char* text,size_t size){return write_impl(text,size,true);}
-    LogResult printf(const char* format,...){
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((format(printf,2,0)))
+#endif
+    LogResult vprintf(const char* format,va_list arguments){
         {detail::Critical critical;if(!detail::calling_thread())return {Result::context,0,false};}
-        Record record{};va_list arguments;va_start(arguments,format);
-        auto formatted=detail::format_log(record.text,MessageBytes,format,arguments);va_end(arguments);
+        Record record{};va_list copy;va_copy(copy,arguments);
+        auto formatted=detail::format_log(record.text,MessageBytes,format,copy);va_end(copy);
         if(!formatted.valid){detail::Critical critical;detail::increment(errors_);return {Result::invalid,0,formatted.truncated};}
         record.length=static_cast<uint16_t>(formatted.size);return publish(record,formatted.truncated,false);
+    }
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((format(printf,2,3)))
+#endif
+    LogResult printf(const char* format,...){
+        va_list arguments;va_start(arguments,format);
+        auto result=vprintf(format,arguments);va_end(arguments);return result;
     }
     Result drain(LogWriter writer,void* context,size_t budget=32){
         if(!writer||budget==0)return Result::invalid;
         LockGuard guard(drain_mutex_);
         if(!guard.owns_lock())return guard.result();
+        bool progressed=false;
         for(unsigned calls=0;calls<16&&budget;++calls){
-            if(!active_){auto result=queue_.receive(pending_);if(result!=Result::ok)return result;offset_=0;active_=true;}
-            size_t remaining=pending_.length-offset_;
-            if(!remaining){active_=false;detail::Critical critical;detail::increment(sent_);continue;}
-            size_t n=remaining<budget?remaining:budget;
-            int accepted=writer(context,pending_.text+offset_,n);
-            if(accepted<0||size_t(accepted)>n){detail::Critical critical;detail::increment(errors_);return Result::invalid;}
+            auto result=next_record();
+            if(result!=Result::ok)return result==Result::empty&&progressed?Result::ok:result;
+            const size_t remaining=pending_.length-offset_;
+            if(!remaining){commit_bytes(0);progressed=true;continue;}
+            const size_t offered=remaining<budget?remaining:budget;
+            const int accepted=writer(context,pending_.text+offset_,offered);
+            if(accepted<0||size_t(accepted)>offered){detail::Critical critical;detail::increment(errors_);return Result::invalid;}
             if(!accepted)return Result::busy;
-            offset_+=size_t(accepted);budget-=size_t(accepted);
-            if(offset_==pending_.length){active_=false;detail::Critical critical;detail::increment(sent_);}
+            commit_bytes(size_t(accepted));budget-=size_t(accepted);progressed=true;
         }
         return active_||queue_.snapshot().depth?Result::busy:Result::ok;
     }

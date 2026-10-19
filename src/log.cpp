@@ -5,8 +5,8 @@ struct Buffer {
     char* out;size_t capacity,used{};bool truncated{};
     void put(char ch){if(used<capacity)out[used++]=ch;else truncated=true;}
     void number(uint64_t value,unsigned base,bool upper=false){
-        char digits[64];unsigned n=0;const char* alphabet=upper?"0123456789ABCDEF":"0123456789abcdef";
-        do{digits[n++]=alphabet[value%base];value/=base;}while(value);
+        char digits[20];unsigned n=0;const char* alphabet=upper?"0123456789ABCDEF":"0123456789abcdef";
+        do{const auto quotient=value/base;digits[n++]=alphabet[value-quotient*base];value=quotient;}while(value);
         while(n)put(digits[--n]);
     }
 };

@@ -5,14 +5,26 @@ using namespace rtos;
 static Logger<2,64> logger;
 struct Output {char text[1024]{};size_t size{},max_call{};int behavior{};};
 int writer(void* pointer,const char* text,size_t size){
-    auto& out=*static_cast<Output*>(pointer);if(out.behavior==1)return 0;if(out.behavior==2)return -1;if(out.behavior==3)return int(size+1);
+    assert(model::depth==0);
+    auto& out=*static_cast<Output*>(pointer);
+    if(out.behavior==4){
+        assert(logger.drain(writer,pointer,1)==Result::deadlock);
+        out.behavior=0;
+    }
+    if(out.behavior==1)return 0;
+    if(out.behavior==2)return -1;
+    if(out.behavior==3)return int(size+1);
     if(size>out.max_call)out.max_call=size;
     if(size>3)size=3;
-    assert(out.size+size<sizeof(out.text));for(size_t i=0;i<size;++i)out.text[out.size++]=text[i];return int(size);
+    assert(out.size+size<sizeof(out.text));
+    for(size_t i=0;i<size;++i)out.text[out.size++]=text[i];
+    return int(size);
 }
+LogResult forwarded(const char* format,...){va_list arguments;va_start(arguments,format);auto result=logger.vprintf(format,arguments);va_end(arguments);return result;}
 void drain_all(Output& output){for(unsigned i=0;i<100&&(logger.snapshot().queue.depth||logger.snapshot().pending);++i)(void)logger.drain(writer,&output,5);}
 int main(){
     Thread a,b;model::use(a);model::scheduler.add(a);model::scheduler.add(b);
+    Output idle;auto schedules=model::reschedules;assert(logger.drain(writer,&idle)==Result::empty&&model::reschedules==schedules);
     assert(logger.printf("A:%d %u %x %%",-12,42u,0xabu).result==Result::ok);
     model::use(b,2);assert(logger.printf("B:%s %c","ok",'!').result==Result::ok);
     assert(logger.printf("dropped").result==Result::full);
@@ -28,7 +40,8 @@ int main(){
     assert(logger.write_from_isr("IRQ",3).result==Result::context);
     assert(logger.write("retry",5).result==Result::ok);output.behavior=2;assert(logger.drain(writer,&output)==Result::invalid&&logger.snapshot().pending);
     output.behavior=3;assert(logger.drain(writer,&output)==Result::invalid);output.behavior=0;drain_all(output);
-    auto info=logger.snapshot();assert(info.accepted==6&&info.dropped==1&&info.truncated==1&&info.sent==6&&info.errors==3);
+    assert(forwarded("forward:%u",7u).result==Result::ok);output.behavior=4;assert(logger.drain(writer,&output,100)==Result::ok);
+    auto info=logger.snapshot();assert(info.accepted==7&&info.dropped==1&&info.truncated==1&&info.sent==7&&info.errors==3&&info.offset==0&&!info.pending);
     assert(logger.write(nullptr,1).result==Result::invalid);assert(logger.drain(nullptr,&output)==Result::invalid);
     assert(model::depth==0);
 }

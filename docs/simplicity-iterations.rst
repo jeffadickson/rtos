@@ -63,3 +63,32 @@ Checkpoint 50: build structure and supported profiles
 048. Retain Native AOT tooling and C# XDoc automation unchanged.
 049. Verify both ordinary and synchronization-enabled host configurations.
 050. Rebuild firmware and documentation after the build-rule consolidation before commit.
+
+Checkpoint 75: logger implementation and output behavior
+--------------------------------------------------------------------------------
+
+051. Keep private formatting followed by a copied queue record.
+052. Keep drop-new publication rather than adding blocking logger modes.
+053. Keep one owned drain path to preserve complete-record ordering.
+054. Separate staging a pending record from emitting bytes to a writer.
+055. Update pending state, offset and completion counters in one critical section.
+056. Reset the reported byte offset when a record completes.
+057. Return empty only when no output was available and no progress occurred.
+058. Return ok after successfully draining all available output.
+059. Retain busy for real backpressure or remaining queued output.
+060. Retain pending bytes after negative writer errors.
+061. Retain rejection of callbacks claiming more bytes than offered.
+062. Keep explicit byte and loop budgets for each drain.
+063. Keep UART callbacks outside interrupt-masked critical sections.
+064. Check recursive drain attempts fail promptly through nonrecursive ownership.
+065. Centralize formatting in vprintf so application wrappers do not duplicate it.
+066. Copy va_list state so forwarding does not consume caller state.
+067. Add GCC/Clang format type checking to variadic printf entry points.
+068. Retain runtime rejection of unsupported format features.
+069. Reduce numeric scratch from 64 bytes to the 20 decimal digits required by uint64.
+070. Compute quotient once and derive remainder rather than requesting two 64-bit divisions.
+071. Retain unsigned arithmetic for the minimum signed integer.
+072. Avoid rescheduling on an uncontended unlock with unchanged effective priority.
+073. Retain rescheduling when a waiter is granted ownership or donation changes.
+074. Exercise forwarding, callback context, recursive drain and coherent completion state.
+075. Recheck host behavior, target code/frame sizes and static analysis before commit.
