@@ -17,6 +17,7 @@ Tick synchronization_now();
 void park_thread();
 void schedule_ready();
 class Critical {
+    // A completion requests scheduling only after restoring the saved IRQ state.
     CriticalState saved_;
     bool schedule_{};
 public:
@@ -27,6 +28,8 @@ public:
     void changed(){schedule_=true;}
 };
 class WaitQueue {
+    // One embedded node per registered thread. No allocation, copied node or
+    // cancellation race; all list accesses require the same single-hart lock.
     Thread* first_{};
     Thread* last_{};
     size_t count_{};

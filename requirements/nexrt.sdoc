@@ -1836,3 +1836,42 @@ Static budget: Convenience includes have no independent runtime storage; example
 Dependencies: NXR-115, NXR-122, NXR-140
 <<<
 
+[REQUIREMENT]
+UID: NXR-142
+STATUS: PartialSourceUnverified
+TITLE: Annotated sources and minimal application build
+STATEMENT: >>>
+The project shall publish commented C++ contracts, a complete current-port assembly explanation and a reproducible minimal application build in its Sphinx manual.
+Acceptance: Sphinx includes actual source listings; every startup/context instruction has a meaningful comment; frame offsets match the constructor; the nano walkthrough identifies clock and map inputs, commands, ELF/map outputs and memory inspection; native and firmware checks pass without claiming board execution.
+Verification: Strict Sphinx build, source/frame review, cross-build and comparison of emitted assembly text; target register preservation remains a separate gate.
+Configuration: Existing nano profile and documentation build; no new runtime service.
+Static budget: Comments and host-side manual add no firmware objects; example retains one static application stack and control block.
+Dependencies: NXR-007, NXR-141
+<<<
+
+[REQUIREMENT]
+UID: NXR-143
+STATUS: PartialSourceUnverified
+TITLE: Source-backed HTML developer guide
+STATEMENT: >>>
+The project shall generate a standalone how-it-works HTML guide covering scheduling, application builds, driver ownership and the current assembly boundary.
+Acceptance: The native C# tool inserts escaped current minimal and assembly sources and measured footprint; the host preview serves the guide; application and AXI driver examples label hardware placeholders; the guide is excluded from the minimal firmware image.
+Verification: Native generation, local HTML preview, strict Sphinx references and cross-build/audit.
+Configuration: Host-side HTML and native Workbench; no new RTOS runtime module.
+Static budget: Host documentation only; complete source listings do not add nano firmware storage.
+Dependencies: NXR-142
+<<<
+
+[REQUIREMENT]
+UID: NXR-144
+STATUS: PartialSourceUnverified
+TITLE: FPGA port hardware handoff validation
+STATEMENT: >>>
+The configurator shall validate explicit Tang Nano RISCue and classic MicroBlaze hardware descriptions while keeping missing CPU and BSP ports disabled.
+Acceptance: Reject unknown core contracts, missing RAM/timer/interrupt inputs, overflow and incompatible ISA; templates preserve unknown addresses as null; classic MicroBlaze toolchain requires SDK feature/endian inputs; no firmware readiness flag is promoted by metadata checks.
+Verification: Native configuration self-tests, incomplete-template rejection and future SDK/board qualification.
+Configuration: Staged Tang Nano RISCue and classic MicroBlaze; firmware remains disabled.
+Static budget: Host metadata only; no runtime allocation or guessed hardware register map.
+Dependencies: NXR-101, NXR-107, NXR-108
+<<<
+

@@ -73,6 +73,7 @@ section to protect shared data: rescheduling permits another thread to run.
 
 Application shared data requires an application synchronization design.
 ``volatile`` neither protects compound operations nor establishes ownership.
-This baseline has no mutex, semaphore, queue, or ISR-safe thread-wakeup API.
-Use single-owner workers and short, reviewed interrupt-masked handoffs where
-needed; synchronization primitives are a separately scoped future extension.
+Enable RTOS_SYNC for priority-inheriting mutexes, semaphores, copied queues and
+events; see :doc:`synchronization`. Their ISR methods require a verified interrupt
+context; the port still lacks peripheral dispatch. See :doc:`assembly-port` for
+annotated assembly and :doc:`source-reference` for the commented C++ headers.

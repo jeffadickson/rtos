@@ -7,6 +7,7 @@ struct Bytes { const uint8_t* data{};size_t size{};bool valid() const{return dat
 struct MutableBytes { uint8_t* data{};size_t size{};bool valid() const{return data||size==0;} };
 inline bool checked_add(size_t a,size_t b,size_t& out){if(b>SIZE_MAX-a)return false;out=a+b;return true;}
 inline void saturate(uint32_t& value){if(value!=UINT32_MAX)++value;}
+/// Single-owner static FIFO, not a scheduler-aware Queue; full rejects the new value.
 template<class T,size_t Capacity> class Ring {
     static_assert(Capacity>0);T slots[Capacity]{};size_t head{},used{};uint32_t drops_{};
 public:
@@ -17,6 +18,10 @@ public:
     uint32_t drops()const{return drops_;}void clear(){head=used=0;}
 };
 struct Token { uint16_t slot{};uint32_t generation{}; };
+/** Fixed storage loans identified by slot plus generation. A stale token cannot
+ * release a new loan; generation exhaustion quarantines rather than wrapping.
+ * Caller serializes all access. This pool does not establish DMA/cache ownership.
+ */
 template<size_t Count,size_t BytesPerBlock> class Pool {
     static_assert(Count>0&&Count<=65535&&BytesPerBlock>0);
     alignas(16) uint8_t data_[Count][BytesPerBlock]{};uint32_t generation_[Count]{};bool loaned_[Count]{},quarantined_[Count]{};

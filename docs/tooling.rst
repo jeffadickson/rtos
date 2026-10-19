@@ -5,8 +5,8 @@ Project scripts and automation use C# with XML documentation comments. The
 policy is recorded in AGENTS.md. Sphinx is the third-party documentation-only
 Python exception, with its minimal docs/conf.py configuration.
 
-The .NET 10 projects are ``tools/Rtos.Tools``, ``tools/NexRT.Requirements`` and
-``tools/NexRT.Configure``. CMake publishes native executables by default and
+The .NET 10 projects are ``tools/Rtos.Tools``, ``tools/NexRT.Requirements``,
+``tools/NexRT.Configure`` and ``tools/NexRT.Workbench``. CMake publishes native executables by default and
 emits XDoc XML beside each executable. Compiler, AOT and linker warnings are
 errors. The .NET SDK is needed to build the tools; the native executables run
 without the .NET runtime. SDK and platform prerequisites must be installed.
@@ -21,6 +21,7 @@ Commands
    build/host/native-tools/Rtos.Tools/Rtos.Tools self-test
    build/host/native-tools/Rtos.Tools/Rtos.Tools audit --nm /path/to/nm --elf build/riscue/demo.elf
    build/host/native-tools/NexRT.Configure/NexRT.Configure list .
+   build/host/native-tools/NexRT.Configure/NexRT.Configure cmake-test .
    build/host/native-tools/NexRT.Requirements/NexRT.Requirements check .
    cmake --build --preset riscue --target static_contract_check
 
@@ -35,15 +36,18 @@ streams drained.
 
 The configurator generates deterministic CMake initial caches from
 ``config/system.json``. Its tests check capacities, topology, readiness and
-feature output. See :doc:`platforms`. The requirements tracker validates
+feature output. The native ``cmake-test`` command also invokes the actual CMake
+configuration guards in script mode, covering syntax, boundaries, alignment and
+feature dependencies. CTest runs both configuration commands. No firmware is
+compiled by these guard checks. See :doc:`platforms`. The requirements tracker validates
 traceability and generates views; see :doc:`requirements-process`.
 
 Native AOT execution
 --------------------
 
 ``RTOS_NATIVE_TOOLS=ON`` is the default. The ``native_tools`` target publishes
-all three tools under ``build/<preset>/native-tools/<assembly>/<assembly>``.
-Each individual ``rtos_tools``, ``requirements_tool`` and ``configure_tool``
+all four tools under ``build/<preset>/native-tools/<assembly>/<assembly>``.
+Each individual ``rtos_tools``, ``requirements_tool``, ``configure_tool`` and ``workbench_tool``
 target also builds its native executable. Output and intermediates are isolated
 between build directories, so firmware presets can build independently.
 

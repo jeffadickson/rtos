@@ -14,6 +14,13 @@ struct LogResult {Result result{};size_t bytes{};bool truncated{};};
 struct LogInfo {QueueInfo queue;uint32_t accepted{},dropped{},truncated{},errors{},sent{};bool pending{};size_t offset{};};
 // A synchronous writer consumes/copies accepted bytes before returning; it never retains data.
 using LogWriter=int (*)(void*,const char*,size_t);
+/** @brief Copied whole-record console queue with private producer formatting.
+ * There is no heap or libc printf override. Queue-full drops the new record.
+ * One permanent drain owner supplies a synchronous writer; pending bytes survive
+ * partial writes and backpressure. Callback execution is outside the IRQ lock.
+ * See the Sphinx synchronization chapter for the deliberately restricted format
+ * subset, scan limits, pointer lifetime and transport-error replay contract.
+ */
 template<size_t Slots=8,size_t MessageBytes=64> class Logger {
     static_assert(MessageBytes>0&&MessageBytes<=UINT16_MAX);
     struct Record {uint16_t length;char text[MessageBytes];};
@@ -56,12 +63,14 @@ public:
     constexpr Logger()=default;
     Logger(const Logger&)=delete;
     Logger& operator=(const Logger&)=delete;
+    /// Copy at most MessageBytes now; caller may reuse text after this call returns.
     LogResult write(const char* text,size_t size){return write_impl(text,size,false);}
     // Preformatted bytes only: no varargs formatting in an interrupt handler.
     LogResult write_from_isr(const char* text,size_t size){return write_impl(text,size,true);}
 #if defined(__GNUC__) || defined(__clang__)
     __attribute__((format(printf,2,0)))
 #endif
+    /// Format privately using va_copy, preserving the caller's va_list for its owner.
     LogResult vprintf(const char* format,va_list arguments){
         {detail::Critical critical;if(!detail::calling_thread())return {Result::context,0,false};}
         Record record{};va_list copy;va_copy(copy,arguments);
@@ -72,10 +81,12 @@ public:
 #if defined(__GNUC__) || defined(__clang__)
     __attribute__((format(printf,2,3)))
 #endif
+    /// Thread-only bounded integer/string formatting; unsupported conversions enqueue nothing.
     LogResult printf(const char* format,...){
         va_list arguments;va_start(arguments,format);
         auto result=vprintf(format,arguments);va_end(arguments);return result;
     }
+    /// Consume up to budget bytes in at most 16 iterations; never wait for drain ownership.
     Result drain(LogWriter writer,void* context,size_t budget=32){
         if(!writer||budget==0)return Result::invalid;
         LockGuard guard(drain_mutex_);

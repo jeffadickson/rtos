@@ -193,8 +193,8 @@ record, queue/mutex controls, counters and alignment. Exact target object size i
 0x2d0), including the pending record and queue/mutex controls. Producer formatting uses
 additional existing stack space, never a heap. The full example includes two
 1024-byte application stacks and a 1024-byte idle stack; its RAM is not the size
-of the synchronization primitives alone. Nano stays at 3648 bytes code/read-only
-and 1152 bytes zero-fill, plus its separately reserved 4096-byte boot stack.
+of the synchronization primitives alone. Current nano measurements, including
+the separately reserved boot stack, are in :doc:`footprint`.
 
 Host fixtures model scheduling boundaries, direct handoff, priority donation,
 wraparound timeout, mixed event consumption, queue pressure and short writes.

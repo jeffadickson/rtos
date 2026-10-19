@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 #ifndef RTOS_MAX_THREADS
 #define RTOS_MAX_THREADS 16
 #endif
@@ -38,8 +39,9 @@ static_assert(RTOS_MAX_HELD_MUTEXES>0 && RTOS_MAX_HELD_MUTEXES<=255);
 #define RTOS_SYNC 0
 #endif
 static_assert(RTOS_SYNC == 0 || RTOS_SYNC == 1);
+static_assert(RTOS_LOGGING == 0 || RTOS_LOGGING == 1);
 static_assert(RTOS_MAX_THREADS >= 1 && RTOS_MAX_THREADS <= 255);
-static_assert(RTOS_TICK_HZ > 0);
+static_assert(RTOS_TICK_HZ > 0 && RTOS_TICK_HZ <= UINT32_MAX);
 static_assert(RTOS_IDLE_STACK_BYTES >= 512 && RTOS_IDLE_STACK_BYTES % 16 == 0);
 static_assert(RTOS_ROUND_ROBIN == 0 || RTOS_ROUND_ROBIN == 1);
 static_assert(RTOS_METRICS == 0 || RTOS_METRICS == 1);

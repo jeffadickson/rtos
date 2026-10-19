@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **141**. Catalogue SHA-256: ``b5dcf73bae5e2d279a3d7d2f6af378e3aa09123b73859ac730bebfc140b5e081``.
+Reviewed requirements: **144**. Catalogue SHA-256: ``4da6cf57f0558043b69e10d368b9b948142a914d4cda29cc0bc9202ca38f74a6``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -4943,4 +4943,109 @@ NXR-141 Simple application starting surface
 
 
 **Review finding:** Simplicity pass supplies a short starting path and compatible named APIs; hardware UART, IRQ, clock and timing qualification remain outstanding.
+
+NXR-142 Annotated sources and minimal application build
+-------------------------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** Documentation
+
+
+**Requirement:** The project shall publish commented C++ contracts, a complete current-port assembly explanation and a reproducible minimal application build in its Sphinx manual.
+
+
+**Rationale:** Keep implementation ownership and machine-state assumptions reviewable without a separate undocumented startup boundary.
+
+
+**Acceptance:** Sphinx includes actual source listings; every startup/context instruction has a meaningful comment; frame offsets match the constructor; the nano walkthrough identifies clock and map inputs, commands, ELF/map outputs and memory inspection; native and firmware checks pass without claiming board execution.
+
+
+**Verification:** Strict Sphinx build, source/frame review, cross-build and comparison of emitted assembly text; target register preservation remains a separate gate.
+
+
+**Planned test:** TEST-NXR-142
+
+
+**Dependencies:** NXR-007, NXR-141
+
+
+**Configuration:** Existing nano profile and documentation build; no new runtime service.
+
+
+**Static resource budget:** Comments and host-side manual add no firmware objects; example retains one static application stack and control block.
+
+
+**Review finding:** Source comments, live Sphinx listings and a complete nano walkthrough are present; documentation and cross-build checks do not establish physical timer, register or stack correctness.
+
+NXR-143 Source-backed HTML developer guide
+------------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** Documentation
+
+
+**Requirement:** The project shall generate a standalone how-it-works HTML guide covering scheduling, application builds, driver ownership and the current assembly boundary.
+
+
+**Rationale:** Explain the kernel and driver workflow without losing source or resource traceability.
+
+
+**Acceptance:** The native C# tool inserts escaped current minimal and assembly sources and measured footprint; the host preview serves the guide; application and AXI driver examples label hardware placeholders; the guide is excluded from the minimal firmware image.
+
+
+**Verification:** Native generation, local HTML preview, strict Sphinx references and cross-build/audit.
+
+
+**Planned test:** TEST-NXR-143
+
+
+**Dependencies:** NXR-142
+
+
+**Configuration:** Host-side HTML and native Workbench; no new RTOS runtime module.
+
+
+**Static resource budget:** Host documentation only; complete source listings do not add nano firmware storage.
+
+
+**Review finding:** An authored guide and source-backed C# generator are present; host documentation does not supply board drivers or certify target behavior.
+
+NXR-144 FPGA port hardware handoff validation
+---------------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** Portability
+
+
+**Requirement:** The configurator shall validate explicit Tang Nano RISCue and classic MicroBlaze hardware descriptions while keeping missing CPU and BSP ports disabled.
+
+
+**Rationale:** Unknown soft cores and maps must not be mistaken for runnable firmware support.
+
+
+**Acceptance:** Reject unknown core contracts, missing RAM/timer/interrupt inputs, overflow and incompatible ISA; templates preserve unknown addresses as null; classic MicroBlaze toolchain requires SDK feature/endian inputs; no firmware readiness flag is promoted by metadata checks.
+
+
+**Verification:** Native configuration self-tests, incomplete-template rejection and future SDK/board qualification.
+
+
+**Planned test:** TEST-NXR-144
+
+
+**Dependencies:** NXR-101, NXR-107, NXR-108
+
+
+**Configuration:** Staged Tang Nano RISCue and classic MicroBlaze; firmware remains disabled.
+
+
+**Static resource budget:** Host metadata only; no runtime allocation or guessed hardware register map.
+
+
+**Review finding:** Hardware validation and compiler/BSP scaffolding are present; CPU context assembly, actual board maps, external IRQ/timer adapters and target qualification are still outstanding.
 

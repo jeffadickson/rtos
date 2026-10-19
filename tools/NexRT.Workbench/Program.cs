@@ -189,6 +189,13 @@ internal static class Program
     {
         var f=JsonSerializer.Deserialize(File.ReadAllText("site/footprint.json"),WorkJson.Default.Footprint)!;var template=File.ReadAllText("site/introduction.template.html");
         File.WriteAllText("site/index.html",template.Replace("{{IMAGE}}",f.ImageBytes.ToString()).Replace("{{RAM}}",f.CommittedRam.ToString()).Replace("{{BSS}}",f.ZeroFill.ToString()).Replace("{{SHA}}",f.ElfSha256));
+        var guide=File.ReadAllText("site/how-it-works.template.html")
+            .Replace("{{IMAGE}}",f.ImageBytes.ToString()).Replace("{{RAM}}",f.CommittedRam.ToString()).Replace("{{SHA}}",f.ElfSha256)
+            .Replace("{{MINIMAL_SOURCE}}",WebUtility.HtmlEncode(File.ReadAllText("examples/nano.cpp")))
+            .Replace("{{STARTUP_SOURCE}}",WebUtility.HtmlEncode(File.ReadAllText("ports/riscue/start.S")))
+            .Replace("{{ASM_SOURCE}}",WebUtility.HtmlEncode(File.ReadAllText("ports/riscue/context.S")))
+            .Replace("{{PORT_SOURCE}}",WebUtility.HtmlEncode(File.ReadAllText("ports/riscue/rtos_port.hpp")));
+        File.WriteAllText("site/how-it-works.html",guide);
     }
     /// <summary>Compiles HTML bytes into an immutable C++ asset with a recorded content digest.</summary>
     private static void Assets()
@@ -201,6 +208,6 @@ internal static class Program
     private static async Task Serve(int port)
     {
         if(port<1024||port>65535)throw new ArgumentException("Use a nonprivileged port");var listener=new TcpListener(IPAddress.Loopback,port);listener.Start();Console.WriteLine($"http://127.0.0.1:{port}/");
-        for(;;){using var client=await listener.AcceptTcpClientAsync();client.ReceiveTimeout=5000;using var stream=client.GetStream();var request=new byte[1024];using var timeout=new CancellationTokenSource(5000);int length=await stream.ReadAsync(request,timeout.Token);string line=Encoding.ASCII.GetString(request,0,length);string path=line.StartsWith("GET /footprint.json ",StringComparison.Ordinal)?"site/footprint.json":"site/index.html";var body=File.ReadAllBytes(path);var header=Encoding.ASCII.GetBytes($"HTTP/1.0 200 OK\r\nContent-Type: {(path.EndsWith("json",StringComparison.Ordinal)?"application/json":"text/html; charset=utf-8")}\r\nContent-Length: {body.Length}\r\nConnection: close\r\n\r\n");await stream.WriteAsync(header);await stream.WriteAsync(body);}
+        for(;;){using var client=await listener.AcceptTcpClientAsync();client.ReceiveTimeout=5000;using var stream=client.GetStream();var request=new byte[1024];using var timeout=new CancellationTokenSource(5000);int length=await stream.ReadAsync(request,timeout.Token);string line=Encoding.ASCII.GetString(request,0,length);string path=line.StartsWith("GET /footprint.json ",StringComparison.Ordinal)?"site/footprint.json":line.StartsWith("GET /how-it-works.html ",StringComparison.Ordinal)?"site/how-it-works.html":"site/index.html";var body=File.ReadAllBytes(path);var header=Encoding.ASCII.GetBytes($"HTTP/1.0 200 OK\r\nContent-Type: {(path.EndsWith("json",StringComparison.Ordinal)?"application/json":"text/html; charset=utf-8")}\r\nContent-Length: {body.Length}\r\nConnection: close\r\n\r\n");await stream.WriteAsync(header);await stream.WriteAsync(body);}
     }
 }

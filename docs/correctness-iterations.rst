@@ -93,3 +93,50 @@ Checkpoint 75: timeout ordering and wait cleanup
 073. Verify explicit recovery permits a later lock after modeled quiescence.
 074. Check diagnostic counter saturation and retain bounded single-hart semantics.
 075. Refresh requirement evidence and gate both host profiles and Sphinx.
+
+Checkpoint 100: configuration and release evidence
+--------------------------------------------------------------------------------
+
+076. Review CMake capacity values as emitted C++ integer literals.
+077. Reject leading-zero decimal settings before they become octal literals.
+078. Reject expressions and lists instead of relying on compiler errors.
+079. Reject oversized digit strings before numeric comparison.
+080. Enforce the configured application-thread range at configure time.
+081. Enforce the uint32 tick-rate range in CMake and direct-header builds.
+082. Enforce idle-stack minimum, address-space bound and 16-byte alignment.
+083. Preserve existing queue payload and held-mutex capacity ranges.
+084. Require logging to be a boolean in direct-header builds.
+085. Make the configuration header self-contained for uint32 constants.
+086. Reject invalid logging dependencies when validating the entire JSON catalogue.
+087. Retain the dependency guard when rendering a selected profile.
+088. Add native C# checks of the actual CMake guard file without compiling firmware.
+089. Exercise accepted minimum and maximum values for all five numeric settings.
+090. Exercise zero, negative, leading-zero, expression, list and oversized input rejection.
+091. Exercise just-outside-range capacities and misaligned idle storage.
+092. Exercise valid and invalid logging/synchronization combinations.
+093. Preserve explicit failure when selecting unimplemented flash storage.
+094. Update the configuration manual with implemented synchronization and logging switches.
+095. Remove implemented IPC from the future-service table and retain board-integration limits.
+096. Label original validation and footprint tables as historical evidence.
+097. Remeasure the nano ELF and regenerate the HTML introduction and immutable web asset.
+098. Refresh requirement hashes without upgrading unqualified runtime status.
+099. Gate host profiles, firmware profiles, static allocation contracts and static analysis.
+100. Build strict Sphinx, commit the final checkpoint locally and push the four commits once.
+
+Final-checkpoint documentation additions
+--------------------------------------------------------------------------------
+
+The requested source-documentation and minimal-build walkthrough were added while
+checkpoint 100 was in progress. Public C++ comments now state storage/context and
+error contracts; implementation comments explain handoff, donation and accounting.
+Sphinx includes the actual annotated headers. Every startup/context assembly
+instruction and directive is commented, with a frame ABI and inline-assembly
+walkthrough in :doc:`assembly-port`. :doc:`minimal-application` includes the actual
+readable nano source, host-tool and cross-build commands, clock/map inputs,
+debugger counter and memory measurement. These additions stay in the final
+checkpoint rather than creating intermediate commits.
+The follow-up HTML guide is generated from the checked-in sources by the native
+C# Workbench. Tang Nano and classic MicroBlaze receive hardware-input validation
+and staged compiler/BSP work packages; missing hardware identity prevents a
+runnable-port claim. VORAGO M0/M4 remain planned profiles. See
+:doc:`how-it-works` and :doc:`port-bringup` for these final-checkpoint additions.

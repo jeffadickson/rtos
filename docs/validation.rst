@@ -1,7 +1,9 @@
 Local validation results
 ========================
 
-Engineering baseline checked 18 October 2026 on Ubuntu-24.04 through WSL.
+The results below are the original engineering baseline checked 18 October 2026
+on Ubuntu-24.04 through WSL. Later checks are recorded in
+:doc:`correctness-iterations`; current minimal RAM figures are in :doc:`footprint`.
 Native compiler: GCC 13.3.0. RISC-V compiler: GCC 13.2.0, RV32IM+Zicsr,
 ILP32. Documentation: Sphinx 8.2.3 with Python 3.12.3. Host automation:
 .NET SDK 10.0.402, C# with generated XDoc XML documentation.

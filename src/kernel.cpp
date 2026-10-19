@@ -6,6 +6,7 @@
 #endif
 namespace {
 rtos::detail::Scheduler scheduler;
+// Idle owns private boot-static storage and consumes no application registry slot.
 rtos::Thread idle_thread;
 rtos::Stack<RTOS_IDLE_STACK_BYTES> idle_stack;
 rtos::Thread* current;
@@ -28,6 +29,7 @@ struct Lock {
 };
 [[noreturn]] void stop() { rtos::port::halt(); }
 void idle(void*) { for(;;) rtos::port::idle(); }
+// Every synthesized frame enters here; returning application entries finish via exit().
 extern "C" [[noreturn]] void rtos_entry() { current->entry(current->argument); rtos::exit(); }
 bool guard_ok(const rtos::Thread& t) {
 #if RTOS_STACK_GUARD
@@ -38,6 +40,7 @@ bool guard_ok(const rtos::Thread& t) {
 }
 void initialize(rtos::Thread& t, rtos::Entry e, void* arg, uint8_t priority,
                 void* stack, size_t bytes, const char* name) {
+    // No allocation or runtime constructors. context.S owns the exact frame layout.
     auto* frame=rtos::port::initialize_context(stack,bytes,&rtos_entry);
     t.context=frame; t.entry=e; t.argument=arg; t.priority=priority; t.state=rtos::State::ready;
 #if RTOS_SYNC
@@ -53,6 +56,7 @@ void initialize(rtos::Thread& t, rtos::Entry e, void* arg, uint8_t priority,
 }
 #if RTOS_METRICS
 void account(uint64_t now) {
+    // Snapshot and trap callers both mask IRQs. Account once to avoid double counting.
     if (current) current->runtime_cycles += now-last_account;
     last_account=now;
 }
@@ -60,6 +64,8 @@ void account(uint64_t now) {
 }
 namespace rtos {
 bool create(Thread& t, Entry e, void* arg, uint8_t priority, void* stack, size_t bytes, const char* name) {
+    // Reject all extents before publication/frame writes. Actual pointer validity
+    // cannot be established by an unprotected machine-mode kernel.
     const auto begin = reinterpret_cast<uintptr_t>(stack);
     const auto control = reinterpret_cast<uintptr_t>(&t);
     if (running || t.state != State::unused || !e || !stack || bytes < 512 ||
@@ -71,6 +77,8 @@ bool create(Thread& t, Entry e, void* arg, uint8_t priority, void* stack, size_t
     return true;
 }
 [[noreturn]] void start(uint32_t hz, uint32_t tick_hz) {
+    // First dispatch runs from the boot stack with current==nullptr. Its bootstrap
+    // frame is discarded; application stacks already hold synthesized entry frames.
     (void)port::mask_interrupts();
     if (running || !tick_hz || hz < tick_hz ||
         scheduler.conflicts(reinterpret_cast<uintptr_t>(idle_stack.words),sizeof(idle_stack)) ||
@@ -91,6 +99,7 @@ bool create(Thread& t, Entry e, void* arg, uint8_t priority, void* stack, size_t
 void yield() { if (running) port::reschedule(); }
 bool sleep_for(Tick delay) {
     if (!running || delay > 0x7fffffffu) return false;
+    // The saved context may retain MIE=0; this lock restores prior MIE after resume.
     Lock lock;
     if (delay) { current->wake=scheduler.now+delay; current->state=State::sleeping; }
     yield();
@@ -144,6 +153,8 @@ SystemInfo snapshot(ThreadInfo* output, size_t capacity) {
 }
 }
 extern "C" uint32_t* rtos_trap(uint32_t* frame, uint32_t cause) {
+    // Called only by context.S after all integer state is saved and MIE is clear.
+    // Return a selected frame pointer; assembly changes sp after this call unwinds.
 #if RTOS_SYNC
     handling_interrupt=true;
 #endif

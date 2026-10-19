@@ -1,11 +1,11 @@
 {
-  "codeAndReadOnly": 3648,
+  "codeAndReadOnly": 3812,
   "initializedData": 0,
-  "zeroFill": 1152,
-  "allocatedSpan": 4800,
+  "zeroFill": 1164,
+  "allocatedSpan": 4976,
   "padding": 0,
   "bootReserve": 4096,
-  "committedRam": 8896,
-  "imageBytes": 3648,
-  "elfSha256": "fb9614f0967cb4eaf04a46bdc36f8f67901bd0e7ab7dca7272b92504765417e7"
+  "committedRam": 9072,
+  "imageBytes": 3812,
+  "elfSha256": "1748f24060236e3df48f224bfedf043fddd41dc0ecc9d25d22e922e898d2f346"
 }

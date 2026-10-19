@@ -2,6 +2,7 @@
 namespace rtos::detail {
 namespace {
 struct Buffer {
+    // Length-delimited output: filling capacity is valid and adds no implicit NUL.
     char* out;size_t capacity,used{};bool truncated{};
     void put(char ch){if(used<capacity)out[used++]=ch;else truncated=true;}
     void number(uint64_t value,unsigned base,bool upper=false){
@@ -23,6 +24,7 @@ FormatResult format_log(char* output,size_t capacity,const char* format,va_list 
         if(ch=='l'){longs=1;if(++i>=256)return {};ch=format[i];if(ch=='l'){longs=2;if(++i>=256)return {};ch=format[i];}}
         if(ch=='d'||ch=='i'){
             int64_t value=longs==2?va_arg(arguments,long long):longs==1?va_arg(arguments,long):va_arg(arguments,int);
+            // Unsigned subtraction handles INT64_MIN without signed-negation overflow.
             uint64_t magnitude=uint64_t(value);if(value<0){buffer.put('-');magnitude=uint64_t(0)-magnitude;}
             buffer.number(magnitude,10);
         }else if(ch=='u'||ch=='x'||ch=='X'){

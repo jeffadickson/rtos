@@ -7,6 +7,13 @@ a small `.S` boundary preserves all registers during preemption.
 
 ## Start small
 
+Build the complete [minimal application](docs/minimal-application.rst) with the
+`nano` preset: static thread/stack storage, required timer clock, build commands,
+output files and memory inspection.
+Open the generated [How it works HTML guide](site/how-it-works.html) for the
+overview, application and driver patterns, and annotated assembly. Its source
+listings and memory figures are inserted by the native C# Workbench.
+
 Use [the short application guide](docs/simple-start.rst): one include, a typed
 queue for values, a transaction lock for shared hardware, and queued printf.
 Events, semaphores and atomic words are available when the application needs them.
@@ -35,6 +42,9 @@ The detailed Sphinx user manual is in [docs/index.rst](docs/index.rst). It cover
 boot, APIs and errors, configuration, CPU usage calculation, memory ownership,
 RISCue assembly/ABI, driver inventory, Ethernet integration, requirements and
 verification, and five engineering review iterations.
+The [C++ source reference](docs/source-reference.rst) includes annotated headers;
+the [assembly walkthrough](docs/assembly-port.rst) documents every startup/context
+instruction and the saved-frame ABI.
 
 ```sh
 python3 -m venv build/docs-venv
@@ -67,6 +77,10 @@ only cross-built firmware port. VORAGO, AMD/Xilinx ARM, MicroBlaze and Tang Nano
 9K entries are researched planned/provisional profiles; firmware generation
 fails explicitly until each port and BSP exists. AMP/SMP are designed for but
 currently rejected.
+Tang and classic MicroBlaze hardware handoff templates and compiler/BSP work
+packages are in [port bring-up](docs/port-bringup.rst). The native `board-check`
+command validates supplied inputs; it does not turn an incomplete port into
+firmware support. VORAGO M0/M4 profiles likewise still need their ARM port/BSP.
 
 ## Static communication and queued printf
 

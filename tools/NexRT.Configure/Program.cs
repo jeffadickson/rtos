@@ -8,7 +8,7 @@ internal sealed record Target(string Id,string Architecture,string Cpu,string St
 internal sealed record Profile(string Id,int MaxThreads,int TickHz,int IdleStackBytes,bool Metrics,bool StackGuard,bool RoundRobin,bool Ethernet,bool Web=false,bool Storage=false,bool Sync=false,bool Logging=false);
 /// <summary>Explicit target and profile catalogue.</summary>
 internal sealed record Catalogue(int SchemaVersion,Target[] Targets,Profile[] Profiles);
-/// <summary>Generates deterministic CMake initial caches without running external commands or installing software.</summary>
+/// <summary>Generates deterministic CMake initial caches and checks configuration contracts.</summary>
 internal static class Program
 {
     /// <summary>Lists targets, generates a configuration, or executes configuration contract tests.</summary>
@@ -16,7 +16,7 @@ internal static class Program
     {
         try
         {
-            if(args.Length<2) throw new ArgumentException("Usage: list ROOT | self-test ROOT | generate ROOT TARGET PROFILE OUTPUT [CPU_COUNT] [up|amp|smp]");
+            if(args.Length<2) throw new ArgumentException("Usage: list ROOT | self-test ROOT | cmake-test ROOT | board-check ROOT JSON | generate ROOT TARGET PROFILE OUTPUT [CPU_COUNT] [up|amp|smp]");
             var path=Path.Combine(Path.GetFullPath(args[1]),"config/system.json");
             if(new FileInfo(path).Length>1024*1024) throw new InvalidDataException("Catalogue exceeds 1 MiB.");
             var catalogue=JsonSerializer.Deserialize(File.ReadAllText(path), ConfigurationJsonContext.Default.Catalogue) ?? throw new InvalidDataException("Null catalogue.");
@@ -26,7 +26,9 @@ internal static class Program
                 case "list" when args.Length==2:
                     foreach(var target in catalogue.Targets) Console.WriteLine($"{target.Id,-25} {target.Cpu,-22} {target.Status}; firmware={(target.FirmwareReady?"cross-built, target-unverified":"planned")}");
                     Console.WriteLine("Profiles: "+string.Join(", ",catalogue.Profiles.Select(p=>p.Id))); break;
-                case "self-test" when args.Length==2: SelfTest(catalogue); break;
+                case "self-test" when args.Length==2: SelfTest(catalogue); BoardContracts.SelfTest(); break;
+                case "board-check" when args.Length==3: BoardContracts.Check(Path.GetFullPath(args[2])); break;
+                case "cmake-test" when args.Length==2: ConfigurationChecks.Run(Path.GetFullPath(args[1])); break;
                 case "generate" when args.Length is >=5 and <=7:
                     var selected=catalogue.Targets.SingleOrDefault(t=>t.Id==args[2]) ?? throw new ArgumentException("Unknown target.");
                     var profile=catalogue.Profiles.SingleOrDefault(p=>p.Id==args[3]) ?? throw new ArgumentException("Unknown profile.");
@@ -51,7 +53,7 @@ internal static class Program
         foreach(var t in c.Targets)
             if(!Id(t.Id)||t.PhysicalCpuLimit is <1 or >64||t.Status is not("planned" or "provisional" or "cross-built")||t.FirmwareReady!=(t.Id=="riscue"&&t.Status=="cross-built")) throw new InvalidDataException("Invalid target/readiness.");
         foreach(var p in c.Profiles)
-            if(!Id(p.Id)||p.MaxThreads is <1 or >255||p.TickHz is <1 or >1000000||p.IdleStackBytes is <512 or >1048576||p.IdleStackBytes%16!=0) throw new InvalidDataException("Invalid profile capacity.");
+            if(!Id(p.Id)||p.MaxThreads is <1 or >255||p.TickHz is <1 or >1000000||p.IdleStackBytes is <512 or >1048576||p.IdleStackBytes%16!=0||p.Logging&&!p.Sync) throw new InvalidDataException("Invalid profile capacity or logging dependency.");
     }
     /// <summary>Renders static capacities and features; rejects multiprocessing until a qualified implementation exists.</summary>
     private static string Render(Target t,Profile p,int cpus,string mode)
@@ -78,6 +80,7 @@ internal static class Program
         Reject(()=>Validate(c with{Targets=[t with{Id="bad\ncommand"}]}));
         Reject(()=>Validate(c with{Targets=[t with{Id="fake",FirmwareReady=true}]}));
         Reject(()=>Render(t,p with{Logging=true,Sync=false},1,"up"));
+        Reject(()=>Validate(c with{Profiles=[p with{Logging=true,Sync=false}]}));
         var logging=Render(t,p with{Logging=true,Sync=true},1,"up");
         if(!logging.Contains("set(RTOS_LOGGING ON")||!logging.Contains("set(RTOS_SYNC ON")) throw new InvalidOperationException("Logging flags missing.");
         var first=Render(t,p,1,"up");

@@ -5,7 +5,10 @@ Configure with ``cmake --preset host -DOPTION=VALUE`` or the firmware preset.
 Settings are propagated through ``rtos_options``. Application targets should
 link ``rtos`` or ``rtos_ethernet`` so they inherit the same definitions.
 Never compile different translation units with different feature definitions:
-``RTOS_METRICS`` changes the public thread object's layout.
+``RTOS_METRICS`` and ``RTOS_SYNC`` change the public thread object's layout.
+Capacities and tick rates use positive decimal integers without leading zeroes;
+expressions and lists are rejected during configuration. Timer addresses may use
+hexadecimal. Every configured capacity still has to fit the selected board's RAM.
 
 .. list-table:: Implemented configuration
    :header-rows: 1
@@ -19,7 +22,7 @@ Never compile different translation units with different feature definitions:
      - 1..255 application threads; idle is additional.
    * - ``RTOS_TICK_HZ``
      - 1000
-     - Positive default rate; ``start`` may supply another rate.
+     - 1..UINT32_MAX default rate; ``start`` may supply another rate.
    * - ``RTOS_IDLE_STACK_BYTES``
      - 1024
      - At least 512 bytes; multiple of 16.
@@ -35,6 +38,21 @@ Never compile different translation units with different feature definitions:
    * - ``RTOS_ETHERNET``
      - ON
      - Build the optional static polling adapter, not a hardware MAC driver.
+   * - ``RTOS_WEB``
+     - ON
+     - Bounded read-only HTTP component; transport and TCP/IP integration are separate.
+   * - ``RTOS_SYNC``
+     - OFF
+     - Static queues, semaphores, events, priority-inheriting mutexes and single-hart atomic words.
+   * - ``RTOS_LOGGING``
+     - OFF
+     - Bounded queued formatting; requires synchronization. UART callback is board supplied.
+   * - ``RTOS_IPC_MAX_MESSAGE_BYTES``
+     - 128
+     - 1..512 bytes per copied queue value, including logger record metadata.
+   * - ``RTOS_MAX_HELD_MUTEXES``
+     - 8
+     - 1..255 simultaneously owned mutexes per thread.
    * - ``RTOS_MTIME_ADDRESS``
      - 0x0200bff8
      - Aligned address of two 32-bit machine timer words.
@@ -49,6 +67,9 @@ Headers also provide defaults for non-CMake consumers. Header boolean settings
 must be 0 or 1. Address correctness and available memory remain board-level
 responsibilities. The default Ethernet frame capacity is a compile-time constant
 of 1536 bytes and RX poll budget is a per-call parameter.
+``RTOS_STORAGE`` remains OFF; selecting ON fails explicitly until the flash
+service is implemented. CMake checks idle-stack alignment and representability;
+the linker and board integration establish whether the requested storage fits.
 
 Recommended profiles
 --------------------
@@ -70,12 +91,6 @@ These are proposed extensions, not currently available options:
    * - Service
      - Proposed configuration
      - Acceptance condition
-   * - Synchronization
-     - Static mutexes with priority inheritance, counting semaphores, event bits
-     - Inversion, timeout, ISR rules and owner-death tests
-   * - Messaging
-     - Typed fixed-capacity queues, ISR-to-worker notification
-     - Bounded operations; full/empty and overflow policy tests
    * - Time services
      - Absolute periodic delay, tickless idle, static callback timers
      - Drift, wrap, cancellation and interrupt-latency tests
@@ -91,6 +106,10 @@ These are proposed extensions, not currently available options:
    * - Portability
      - Port interface, interrupt controller hooks, memory protection
      - Full context/ABI and isolation verification for each port
+
+The synchronization and messaging services above are implemented for the
+single-hart model and cross-built RISCue port. Physical peripheral interrupt
+dispatch, UART/MAC drivers, DMA, PCIe and other CPU ports remain integration work.
 
 Avoid making unverified features selectable. Each extension should define its
 storage budget, boot lifecycle, failure behavior, and tests before exposure as

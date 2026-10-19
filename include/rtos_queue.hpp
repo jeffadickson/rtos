@@ -3,7 +3,12 @@
 namespace rtos {
 struct QueueInfo {size_t depth{},capacity{},high_water{},send_waiters{},receive_waiters{};uint32_t full{},empty{},timeouts{};};
 namespace detail {inline void increment(uint32_t& value){if(value!=UINT32_MAX)++value;}}
-// All storage is permanent. Copies are bounded by the configured payload cap.
+/** @brief Boot-static FIFO of copied trivial values, never owning a pointee.
+ * Capacity is the queued-value count; priority/FIFO selects blocked producers
+ * and consumers. Copies happen under single-hart IRQ serialization and are
+ * bounded by RTOS_IPC_MAX_MESSAGE_BYTES. Full/empty observations and completed
+ * timeouts are separate saturating diagnostics, not an inferred packet-loss count.
+ */
 template<class T,size_t Capacity> class Queue {
     static_assert(Capacity>0,"Queue capacity must be positive");
     static_assert(__is_trivially_copyable(T)&&__is_trivially_constructible(T),"Messages must be trivial value types");
@@ -14,6 +19,7 @@ template<class T,size_t Capacity> class Queue {
     detail::WaitQueue senders_,receivers_;
     Result send_locked(const T& value,detail::Critical& lock){
         if(auto* t=receivers_.best()){
+            // A blocked receiver's stack remains alive. Copy before making it ready.
             *static_cast<T*>(t->wait.data)=value;
             receivers_.complete(*t,Result::ok);lock.changed();return Result::ok;
         }
@@ -26,6 +32,7 @@ template<class T,size_t Capacity> class Queue {
         if(!used_){detail::increment(empty_);return Result::empty;}
         output=slots_[head_];head_=(head_+1)%Capacity;--used_;
         if(auto* t=senders_.best()){
+            // Refill the newly freed slot before waking its staged-value owner.
             slots_[(head_+used_)%Capacity]=*static_cast<const T*>(t->wait.data);++used_;
             senders_.complete(*t,Result::ok);lock.changed();
         }
@@ -35,6 +42,7 @@ public:
     constexpr Queue()=default;
     Queue(const Queue&)=delete;
     Queue& operator=(const Queue&)=delete;
+    /// Copy a value or wait for space; timeout covers admission, not later processing.
     Result send(const T& value,Tick timeout=NoWait){
         detail::Critical lock;
         if(!detail::calling_thread())return Result::context;
@@ -46,6 +54,7 @@ public:
         if(result==Result::timeout)detail::increment(timeouts_);
         return result;
     }
+    /// Receive one value; empty, timeout and invalid/context failures leave output unchanged.
     Result receive(T& output,Tick timeout=NoWait){
         detail::Critical lock;
         if(!detail::calling_thread())return Result::context;
@@ -56,11 +65,13 @@ public:
         if(result==Result::timeout)detail::increment(timeouts_);
         return result;
     }
+    /// ISR-only bounded copy; never wait and report full explicitly.
     Result try_send_from_isr(const T& value){
         detail::Critical lock;
         if(!detail::interrupt_context()||!detail::synchronization_running())return Result::context;
         return send_locked(value,lock);
     }
+    /// ISR-only receive; empty preserves output. The current BSP must supply dispatch.
     Result try_receive_from_isr(T& output){
         detail::Critical lock;
         if(!detail::interrupt_context()||!detail::synchronization_running())return Result::context;

@@ -1,12 +1,15 @@
 #include "rtos_sync.hpp"
 namespace rtos::detail {
 Thread* WaitQueue::best()const {
+    // Enrollment order is stable; strict '>' preserves FIFO among equal priorities.
     Thread* chosen=nullptr;
     for(auto* t=first_;t;t=t->wait.next)
         if(!chosen||t->effective_priority>chosen->effective_priority)chosen=t;
     return chosen;
 }
 Result WaitQueue::wait(Tick timeout,void* data,uint32_t mask,uint8_t flags){
+    // Caller holds Critical across enrollment and ECALL: no wakeup can be lost
+    // between testing availability, publishing this node and becoming blocked.
     auto* t=calling_thread();
     if(!t||t->state!=State::ready||t->wait.queue)return Result::context;
     if(timeout==0||timeout>MaxWait)return Result::invalid;
@@ -20,6 +23,8 @@ Result WaitQueue::wait(Tick timeout,void* data,uint32_t mask,uint8_t flags){
     return t->wait.result;
 }
 void WaitQueue::complete(Thread& t,Result result){
+    // Remove every enrollment/payload link before waking. Queue senders may point
+    // into a suspended stack; no later timeout or handoff may reuse that pointer.
     if(t.wait.queue!=this)return;
     Thread* previous=nullptr;auto* p=first_;
     while(p&&p!=&t){previous=p;p=p->wait.next;}
@@ -32,6 +37,7 @@ void WaitQueue::complete(Thread& t,Result result){
     if(on_change)on_change(observer);
 }
 void expire_wait(Thread& t,Tick now){
+    // Half-range comparisons are valid because every accepted delay is <= MaxWait.
     if(t.state==State::blocked&&t.wait.queue&&Tick(now-t.wake)<0x80000000u)
         t.wait.queue->complete(t,Result::timeout);
 }
@@ -68,6 +74,7 @@ Result EventFlags::wait(uint32_t mask,uint32_t& observed,Tick timeout,bool all,b
 }
 Result EventFlags::set_locked(uint32_t bits,detail::Critical& lock){
     if(!bits)return Result::invalid;
+    // Non-consumers must see the original set even if an earlier consumer clears it.
     bits_|=bits;const auto broadcast=bits_;
     // Select only eligible waiters, by effective priority then enrollment order.
     for(;;){Thread* chosen=nullptr;

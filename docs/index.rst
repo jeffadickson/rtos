@@ -14,10 +14,15 @@ worst-case execution time, or hardware validation.
    :numbered:
 
    simple-start
+   minimal-application
+   how-it-works
    getting-started
    architecture
+   assembly-port
+   source-reference
    configuration
    platforms
+   port-bringup
    api
    metrics
    memory

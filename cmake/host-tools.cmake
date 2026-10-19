@@ -40,7 +40,10 @@ function(nexrt_add_host_tool target assembly project)
   string(SHA256 fingerprint "${fingerprint_input}")
   set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${tool_sources} "${CMAKE_SOURCE_DIR}/${project}")
   file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/tool-fingerprints")
-  file(WRITE "${CMAKE_BINARY_DIR}/tool-fingerprints/${target}.txt" "${fingerprint}")
+  # Preserve mtime for unchanged content; a changed fingerprint must republish
+  # even when an earlier build finished after the source modification timestamp.
+  set(fingerprint_file "${CMAKE_BINARY_DIR}/tool-fingerprints/${target}.txt")
+  file(CONFIGURE OUTPUT "${fingerprint_file}" CONTENT "${fingerprint}" @ONLY)
   if(RTOS_NATIVE_TOOLS AND RTOS_PREBUILT_NATIVE_TOOLS)
     get_filename_component(bundle "${RTOS_PREBUILT_NATIVE_TOOLS}" ABSOLUTE BASE_DIR "${CMAKE_SOURCE_DIR}")
     if(CMAKE_HOST_WIN32)
@@ -69,7 +72,7 @@ function(nexrt_add_host_tool target assembly project)
       set(suffix "")
     endif()
     set(output "${output_directory}/${assembly}${suffix}")
-    add_custom_command(OUTPUT "${output}" "${output_directory}/${assembly}.xml"
+    add_custom_command(OUTPUT "${output}" "${output_directory}/${assembly}.xml" "${output}.sources"
       COMMAND ${CMAKE_COMMAND} -E make_directory "${output_directory}"
       COMMAND ${DOTNET_EXECUTABLE} publish "${CMAKE_SOURCE_DIR}/${project}"
         --configuration Release --runtime ${NXR_HOST_RID} --self-contained true --output "${output_directory}" --nologo
@@ -79,22 +82,22 @@ function(nexrt_add_host_tool target assembly project)
         --property:DocumentationFile=${output_directory}/${assembly}.xml
       COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/tool-fingerprints/${target}.txt" "${output}.sources"
       COMMAND ${CMAKE_COMMAND} -E touch "${output}" "${output_directory}/${assembly}.xml"
-      DEPENDS "${CMAKE_SOURCE_DIR}/${project}" ${tool_sources} VERBATIM)
+      DEPENDS "${CMAKE_SOURCE_DIR}/${project}" ${tool_sources} "${fingerprint_file}" VERBATIM)
     set(command "${output}")
     message(STATUS "${assembly}: Native AOT host executable (${NXR_HOST_RID})")
   else()
     set(output_directory "${CMAKE_BINARY_DIR}/managed-tools/${assembly}")
     set(output "${output_directory}/${assembly}.dll")
-    add_custom_command(OUTPUT "${output}" "${output_directory}/${assembly}.xml"
+    add_custom_command(OUTPUT "${output}" "${output_directory}/${assembly}.xml" "${output}.sources"
       COMMAND ${DOTNET_EXECUTABLE} build "${CMAKE_SOURCE_DIR}/${project}" --configuration Release
         --output "${output_directory}" --nologo --property:PublishAot=false
         --property:BaseIntermediateOutputPath=${CMAKE_BINARY_DIR}/managed-obj/${target}/
       COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/tool-fingerprints/${target}.txt" "${output}.sources"
       COMMAND ${CMAKE_COMMAND} -E touch "${output}" "${output_directory}/${assembly}.xml"
-      DEPENDS "${CMAKE_SOURCE_DIR}/${project}" ${tool_sources} VERBATIM)
+      DEPENDS "${CMAKE_SOURCE_DIR}/${project}" ${tool_sources} "${fingerprint_file}" VERBATIM)
     set(command "${DOTNET_EXECUTABLE};${output}")
   endif()
-  add_custom_target(${target} ALL DEPENDS "${output}" "${output_directory}/${assembly}.xml")
+  add_custom_target(${target} ALL DEPENDS "${output}" "${output_directory}/${assembly}.xml" "${output}.sources")
   set(${target}_COMMAND "${command}" PARENT_SCOPE)
   set(${target}_OUTPUT "${output}" PARENT_SCOPE)
 endfunction()

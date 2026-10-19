@@ -12,11 +12,13 @@ public:
     uint32_t load()const{detail::Critical lock;return value_;}
     void store(uint32_t desired){detail::Critical lock;value_=desired;}
     uint32_t exchange(uint32_t desired){detail::Critical lock;auto prior=value_;value_=desired;return prior;}
+    /// On mismatch update expected with the observed value; never spuriously fail.
     bool compare_exchange(uint32_t& expected,uint32_t desired){
         detail::Critical lock;
         if(value_==expected){value_=desired;return true;}
         expected=value_;return false;
     }
+    /// Fetch operations return the previous value; unsigned addition wraps modulo 2^32.
     uint32_t fetch_add(uint32_t value){detail::Critical lock;auto prior=value_;value_+=value;return prior;}
     uint32_t fetch_or(uint32_t value){detail::Critical lock;auto prior=value_;value_|=value;return prior;}
     uint32_t fetch_and(uint32_t value){detail::Critical lock;auto prior=value_;value_&=value;return prior;}

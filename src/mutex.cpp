@@ -9,6 +9,8 @@ void Mutex::detach(){
     owner_=nullptr;next_owned_=nullptr;
 }
 void Mutex::priority_changed(Thread& start){
+    // Recompute from base plus ALL owned mutexes, rather than undoing just one
+    // donation. Propagate both rises and falls to the next owner in the wait chain.
     auto* t=&start;
     // Cycles are rejected at enrollment. Bound propagation even after corrupted metadata.
     for(unsigned chain=0;t&&chain<RTOS_MAX_THREADS;++chain){
@@ -31,6 +33,7 @@ Result Mutex::lock(Tick timeout){
     if(self->held_mutexes>=RTOS_MAX_HELD_MUTEXES)return Result::overflow;
     if(!owner_){attach(*self);return Result::ok;}
     if(!timeout)return Result::busy;
+    // Reject cycles before publishing waiting_mutex; inheritance cannot cure deadlock.
     auto* p=owner_;
     for(unsigned visited=0;p;++visited){
         if(p==self||visited>=RTOS_MAX_THREADS)return Result::deadlock;
@@ -55,6 +58,8 @@ Result Mutex::unlock(){
     priority_changed(*self);if(self->effective_priority!=before)critical.changed();return Result::ok;
 }
 void Mutex::abandon(Thread& thread){
+    // A dead owner cannot certify protected state or hardware quiescence. Quarantine
+    // ownership and wake every waiter with an explicit fault; recovery is caller policy.
     if(owner_!=&thread)return;
     detach();faulted_=true;
     while(auto* t=waiters_.best())waiters_.complete(*t,Result::owner_dead);
