@@ -178,10 +178,10 @@
     "id": "NXR-007",
     "title": "Integer context preservation",
     "category": "Port",
-    "statement": "The RISCue trap boundary shall preserve interrupted integer registers, continuation PC, stack pointer and machine status across preemption and yields with 16-byte C\u002B\u002B call alignment.",
+    "statement": "The RISCue trap boundary shall preserve interrupted integer registers, continuation PC, stack pointer and machine status across preemption and yields with 16-byte C++ call alignment.",
     "rationale": "Asynchronous state requires assembly capture.",
     "acceptance": "Distinct register patterns survive 100000 timer preemptions and yields with zero PC, stack, register or interrupt-state mismatches.",
-    "verification": "Assembly-assisted target register stress with nested C\u002B\u002B calls and canaries.",
+    "verification": "Assembly-assisted target register stress with nested C++ calls and canaries.",
     "dependencies": [
       "NXR-004"
     ],
@@ -235,7 +235,7 @@
     "category": "Time",
     "statement": "Relative sleep shall accept 0..INT32_MAX ticks, treat zero as yield, reject larger delays and use wrap-safe deadlines.",
     "rationale": "Avoid ambiguous modular comparisons.",
-    "acceptance": "Cover 0, 1, INT32_MAX, INT32_MAX\u002B1 and wrap across UINT32_MAX; rejected calls do not block or mutate state.",
+    "acceptance": "Cover 0, 1, INT32_MAX, INT32_MAX+1 and wrap across UINT32_MAX; rejected calls do not block or mutate state.",
     "verification": "Host modular arithmetic and target sleep API boundary tests.",
     "dependencies": [
       "NXR-004"
@@ -950,7 +950,7 @@
     "id": "NXR-036",
     "title": "Built-in command registry",
     "category": "Shell",
-    "statement": "The shell shall dispatch only a sealed boot-defined table of built-in C\u002B\u002B command functions with unique bounded names.",
+    "statement": "The shell shall dispatch only a sealed boot-defined table of built-in C++ command functions with unique bounded names.",
     "rationale": "A Unix-like console need not load programs or create processes.",
     "acceptance": "Duplicate/overlong names fail at boot; unknown commands return command-not-found; dispatch invokes only registered pointers; registry overflow fails unchanged.",
     "verification": "Registry validation, unknown command and dispatch identity tests.",
@@ -1545,7 +1545,7 @@
     "id": "NXR-058",
     "title": "Existing stack integration seam",
     "category": "Networking",
-    "statement": "An optional existing TCP/IP stack shall integrate behind a version-pinned C/C\u002B\u002B adapter with boot-reserved pools and audited ownership paths.",
+    "statement": "An optional existing TCP/IP stack shall integrate behind a version-pinned C/C++ adapter with boot-reserved pools and audited ownership paths.",
     "rationale": "Reuse networking without weakening allocation constraints.",
     "acceptance": "Chosen version/config cross-builds; forbidden allocator symbols absent; each retained packet has bounded owner/release paths; disabling stack removes code/pools.",
     "verification": "Pinned-stack build, negative allocation fixture and ownership audit.",
@@ -1601,7 +1601,7 @@
     "category": "Networking",
     "statement": "Packet storage shall use boot-reserved pools with bounded runtime loans, validated ownership transitions and explicit exhaustion results.",
     "rationale": "A fixed arena can still leak loans.",
-    "acceptance": "Free\u002Bloaned\u002Bhardware\u002Bquarantined counts equal capacity; double release/foreign pointers fail; exhaustion drops/rejects with counters; stress recovers every nonquarantined loan.",
+    "acceptance": "Free+loaned+hardware+quarantined counts equal capacity; double release/foreign pointers fail; exhaustion drops/rejects with counters; stress recovers every nonquarantined loan.",
     "verification": "Exhaustion, double release, foreign-pointer and conservation stress tests.",
     "dependencies": [
       "NXR-002",
@@ -1830,7 +1830,7 @@
     "verification_files": [],
     "planned_test": "TEST-NXR-068",
     "configuration": "Snapshots available with metrics disabled; bounded rows.",
-    "resource_budget": "Caller rows; masked copy bounded by min(capacity, registered threads\u002Bidle).",
+    "resource_budget": "Caller rows; masked copy bounded by min(capacity, registered threads+idle).",
     "review_iteration": 68,
     "inspected_files": [
       "include/rtos.hpp",
@@ -1904,7 +1904,7 @@
     "category": "Diagnostics",
     "statement": "Optional watermarks shall fill unused boot stack regions and scan a configured byte budget per call without reading live saved-frame storage.",
     "rationale": "Guards are not usage measurements; full scans extend latency.",
-    "acceptance": "Known fill destruction yields conservative usage estimates; scans obey budget; initial fill excludes saved frame; concurrent execution cannot cause invalid reads; values labeled estimates. Scan only suspended noncurrent threads while holding a bounded scheduler lock; current-thread sampling is unavailable unless a target-safe self-capture mechanism is verified. No concurrent C\u002B\u002B stack accesses are permitted.",
+    "acceptance": "Known fill destruction yields conservative usage estimates; scans obey budget; initial fill excludes saved frame; concurrent execution cannot cause invalid reads; values labeled estimates. Scan only suspended noncurrent threads while holding a bounded scheduler lock; current-thread sampling is unavailable unless a target-safe self-capture mechanism is verified. No concurrent C++ stack accesses are permitted.",
     "verification": "Fill/frame boundaries, budgets and deep-call/preemption sampling tests.",
     "dependencies": [
       "NXR-003",
@@ -2027,7 +2027,7 @@
     "implementation_files": [],
     "verification_files": [],
     "planned_test": "TEST-NXR-075",
-    "configuration": "Optional tickless; maximum suppression \u003C= INT32_MAX ticks.",
+    "configuration": "Optional tickless; maximum suppression <= INT32_MAX ticks.",
     "resource_budget": "Fixed next-deadline metadata; bounded thread/timer scans.",
     "review_iteration": 75,
     "inspected_files": [
@@ -2044,7 +2044,7 @@
     "category": "Tooling",
     "statement": "All custom project automation shall use C# with XML documentation comments and warnings-as-errors; only minimal Sphinx configuration and its third-party runtime may use Python.",
     "rationale": "Enforce the language policy.",
-    "acceptance": "Scan rejects custom Python outside docs/conf.py; all tooling emits XML docs; missing required documentation and warnings fail build; kernel remains C\u002B\u002B.",
+    "acceptance": "Scan rejects custom Python outside docs/conf.py; all tooling emits XML docs; missing required documentation and warnings fail build; kernel remains C++.",
     "verification": "Inventory and negative undocumented-tool/Python fixtures.",
     "dependencies": [
       "NXR-002"
@@ -2084,7 +2084,7 @@
     ],
     "verification_files": [],
     "planned_test": "TEST-NXR-077",
-    "configuration": "CMake\u003E=3.22; Ninja; RV32IM\u002BZicsr ILP32.",
+    "configuration": "CMake>=3.22; Ninja; RV32IM+Zicsr ILP32.",
     "resource_budget": "No runtime storage; bounded build artifacts.",
     "review_iteration": 77,
     "inspected_files": [
@@ -2275,7 +2275,7 @@
     ],
     "verification_files": [],
     "planned_test": "TEST-NXR-084",
-    "configuration": "Freestanding C\u002B\u002B17; no exceptions/RTTI/runtime initialization.",
+    "configuration": "Freestanding C++17; no exceptions/RTTI/runtime initialization.",
     "resource_budget": "Zero constructor/preinit section bytes.",
     "review_iteration": 84,
     "inspected_files": [
@@ -2423,7 +2423,7 @@
     "id": "NXR-090",
     "title": "Open-source static analysis gate",
     "category": "Analysis",
-    "statement": "Release profiles shall run pinned open-source C\u002B\u002B analyzers with target-correct definitions and fail on selected unsuppressed findings or analyzer failure.",
+    "statement": "Release profiles shall run pinned open-source C++ analyzers with target-correct definitions and fail on selected unsuppressed findings or analyzer failure.",
     "rationale": "Zero exit alone may hide diagnostics.",
     "acceptance": "RV32 options recorded; defect fixture fails gate; clean fixture passes; narrow suppressions include reason/reviewer/expiry; missing tool fails; assembly limits stated.",
     "verification": "Defect, missing-tool, wrong-definition, suppression-expiry fixtures.",
@@ -2621,7 +2621,7 @@
     "category": "Verification",
     "statement": "Release stress shall demonstrate stable pool inventories under declared loan/release/failure workloads without claiming universal leak proof.",
     "rationale": "Static slots can be lost permanently.",
-    "acceptance": "At least one million operations per enabled reusable class conserve free\u002Bactive\u002Bquarantined; quiescent active returns baseline; quarantines explained; seed/image/workload retained.",
+    "acceptance": "At least one million operations per enabled reusable class conserve free+active+quarantined; quiescent active returns baseline; quarantines explained; seed/image/workload retained.",
     "verification": "Queue, descriptor, file, job, packet, socket, timer fault stress.",
     "dependencies": [
       "NXR-002",
@@ -2762,7 +2762,7 @@
     ],
     "planned_test": "TEST-NXR-101",
     "configuration": "config/system.json; CMake cache; CPU_COUNT=1 and up initially.",
-    "resource_budget": "All configured firmware storage fixed before start; configurator catalogue \u003C=1MiB.",
+    "resource_budget": "All configured firmware storage fixed before start; configurator catalogue <=1MiB.",
     "review_iteration": 101,
     "inspected_files": [
       "config/system.json",
@@ -2777,7 +2777,7 @@
     "title": "Architecture port boundary",
     "category": "Architecture",
     "statement": "Architecture-specific context construction, interrupt control, trap classification and timer access shall reside in selected architecture ports with explicit frame and ABI contracts.",
-    "rationale": "C\u002B\u002B scheduler code must not embed one ISA\u0027s assembly.",
+    "rationale": "C++ scheduler code must not embed one ISA's assembly.",
     "acceptance": "Kernel has no inline assembly; RISCue preserves its36-word frame and gp/tp initialization; ports never share incompatible assembly; 64-bit ports replace fixed32-bit context assumptions before support claims.",
     "verification": "RV32 cross-build, disassembly/frame review and per-port register canary tests.",
     "dependencies": [
@@ -2859,7 +2859,7 @@
     "id": "NXR-105",
     "title": "Zynq UltraScale R5F target",
     "category": "Porting",
-    "statement": "The Zynq UltraScale\u002B Cortex-R5F target shall define split/lockstep mode, TCM map, boot ownership, MPU, interrupt and timer policy before firmware enablement.",
+    "statement": "The Zynq UltraScale+ Cortex-R5F target shall define split/lockstep mode, TCM map, boot ownership, MPU, interrupt and timer policy before firmware enablement.",
     "rationale": "Lockstep is one logical execution context rather than SMP.",
     "acceptance": "Selected mode matches firmware/map; CPU count counts logical contexts; TCM/DDR and A53 shared regions partitioned; FP disabled or context-qualified; remote reset and DMA ownership bounded.",
     "verification": "R5 board context, timer, fault, TCM, interprocessor visibility and noheap qualification.",
@@ -2963,7 +2963,7 @@
       "config/system.json",
       "docs/platforms.rst"
     ],
-    "finding": "Sipeed confirms FPGA board and oscillator; selected user\u0027s SoC/bitstream remains unknown and board port is planned."
+    "finding": "Sipeed confirms FPGA board and oscillator; selected user's SoC/bitstream remains unknown and board port is planned."
   },
   {
     "id": "NXR-109",
@@ -3350,7 +3350,7 @@
     "id": "NXR-122",
     "title": "Typed static message queue",
     "category": "IPC",
-    "statement": "The kernel shall provide fixed-capacity Queue\u003CT,N\u003E objects for positive N and initially trivially copyable messages with copied ownership and FIFO message order.",
+    "statement": "The kernel shall provide fixed-capacity Queue<T,N> objects for positive N and initially trivially copyable messages with copied ownership and FIFO message order.",
     "rationale": "Simple allocation-free communication between threads.",
     "acceptance": "Successful send copies payload before return; receive preserves message order; no constructors or allocator calls hide in transfer; target payload, alignment, control and waiter costs are reported.",
     "verification": "Future queue ownership, boundary and footprint scenarios.",
@@ -3406,7 +3406,8 @@
       "tests/queue.cpp",
       "tests/mutex.cpp",
       "tests/log.cpp",
-      "tests/sync_edges.cpp"
+      "tests/sync_edges.cpp",
+      "tests/sync_deadlines.cpp"
     ],
     "planned_test": "TEST-NXR-123",
     "configuration": "NoWait, bounded timeout and documented indefinite-wait option.",
@@ -3419,9 +3420,10 @@
       "include/rtos_queue.hpp",
       "include/rtos_log.hpp",
       "docs/synchronization.rst",
-      "include/rtos/detail/wait_queue.hpp"
+      "include/rtos/detail/wait_queue.hpp",
+      "tests/sync_deadlines.cpp"
     ],
-    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
+    "finding": "Correctness pass adds host regressions for deadline ordering, wait cleanup, multiple owner-dead waiters, formatter bounds and concurrent logger producers as applicable. Source and host-model evidence does not qualify target interrupts, UART, SMP or timing."
   },
   {
     "id": "NXR-124",
@@ -3484,7 +3486,8 @@
       "tests/queue.cpp",
       "tests/mutex.cpp",
       "tests/log.cpp",
-      "tests/sync_edges.cpp"
+      "tests/sync_edges.cpp",
+      "tests/sync_deadlines.cpp"
     ],
     "planned_test": "TEST-NXR-125",
     "configuration": "RTOS_EVENTS proposed; documented usable mask and clear mode.",
@@ -3497,9 +3500,10 @@
       "include/rtos_queue.hpp",
       "include/rtos_log.hpp",
       "docs/synchronization.rst",
-      "include/rtos/detail/wait_queue.hpp"
+      "include/rtos/detail/wait_queue.hpp",
+      "tests/sync_deadlines.cpp"
     ],
-    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
+    "finding": "Correctness pass adds host regressions for deadline ordering, wait cleanup, multiple owner-dead waiters, formatter bounds and concurrent logger producers as applicable. Source and host-model evidence does not qualify target interrupts, UART, SMP or timing."
   },
   {
     "id": "NXR-126",
@@ -3524,7 +3528,8 @@
       "tests/queue.cpp",
       "tests/mutex.cpp",
       "tests/log.cpp",
-      "tests/sync_edges.cpp"
+      "tests/sync_edges.cpp",
+      "tests/sync_deadlines.cpp"
     ],
     "planned_test": "TEST-NXR-126",
     "configuration": "Explicit broadcast versus consuming wait policy.",
@@ -3537,9 +3542,10 @@
       "include/rtos_queue.hpp",
       "include/rtos_log.hpp",
       "docs/synchronization.rst",
-      "include/rtos/detail/wait_queue.hpp"
+      "include/rtos/detail/wait_queue.hpp",
+      "tests/sync_deadlines.cpp"
     ],
-    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
+    "finding": "Correctness pass adds host regressions for deadline ordering, wait cleanup, multiple owner-dead waiters, formatter bounds and concurrent logger producers as applicable. Source and host-model evidence does not qualify target interrupts, UART, SMP or timing."
   },
   {
     "id": "NXR-127",
@@ -3564,7 +3570,8 @@
       "tests/queue.cpp",
       "tests/mutex.cpp",
       "tests/log.cpp",
-      "tests/sync_edges.cpp"
+      "tests/sync_edges.cpp",
+      "tests/sync_deadlines.cpp"
     ],
     "planned_test": "TEST-NXR-127",
     "configuration": "RTOS_SEMAPHORE proposed; boot-fixed initial and maximum counts.",
@@ -3577,9 +3584,10 @@
       "include/rtos_queue.hpp",
       "include/rtos_log.hpp",
       "docs/synchronization.rst",
-      "include/rtos/detail/wait_queue.hpp"
+      "include/rtos/detail/wait_queue.hpp",
+      "tests/sync_deadlines.cpp"
     ],
-    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
+    "finding": "Correctness pass adds host regressions for deadline ordering, wait cleanup, multiple owner-dead waiters, formatter bounds and concurrent logger producers as applicable. Source and host-model evidence does not qualify target interrupts, UART, SMP or timing."
   },
   {
     "id": "NXR-128",
@@ -3603,7 +3611,8 @@
       "tests/queue.cpp",
       "tests/mutex.cpp",
       "tests/log.cpp",
-      "tests/sync_edges.cpp"
+      "tests/sync_edges.cpp",
+      "tests/sync_deadlines.cpp"
     ],
     "planned_test": "TEST-NXR-128",
     "configuration": "One active wait per thread; supported finite tick range documented.",
@@ -3616,9 +3625,10 @@
       "include/rtos_queue.hpp",
       "include/rtos_log.hpp",
       "docs/synchronization.rst",
-      "include/rtos/detail/wait_queue.hpp"
+      "include/rtos/detail/wait_queue.hpp",
+      "tests/sync_deadlines.cpp"
     ],
-    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
+    "finding": "Correctness pass adds host regressions for deadline ordering, wait cleanup, multiple owner-dead waiters, formatter bounds and concurrent logger producers as applicable. Source and host-model evidence does not qualify target interrupts, UART, SMP or timing."
   },
   {
     "id": "NXR-129",
@@ -3645,7 +3655,8 @@
       "tests/queue.cpp",
       "tests/mutex.cpp",
       "tests/log.cpp",
-      "tests/sync_edges.cpp"
+      "tests/sync_edges.cpp",
+      "tests/sync_deadlines.cpp"
     ],
     "planned_test": "TEST-NXR-129",
     "configuration": "Explicit owner-dead recovery policy; no dynamic thread reclamation.",
@@ -3657,9 +3668,10 @@
       "src/mutex.cpp",
       "include/rtos_queue.hpp",
       "include/rtos_log.hpp",
-      "docs/synchronization.rst"
+      "docs/synchronization.rst",
+      "tests/sync_deadlines.cpp"
     ],
-    "finding": "Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete."
+    "finding": "Correctness pass adds host regressions for deadline ordering, wait cleanup, multiple owner-dead waiters, formatter bounds and concurrent logger producers as applicable. Source and host-model evidence does not qualify target interrupts, UART, SMP or timing."
   },
   {
     "id": "NXR-130",
@@ -3762,7 +3774,8 @@
       "tests/queue.cpp",
       "tests/mutex.cpp",
       "tests/log.cpp",
-      "tests/sync_edges.cpp"
+      "tests/sync_edges.cpp",
+      "tests/log_edges.cpp"
     ],
     "planned_test": "TEST-NXR-132",
     "configuration": "Logging off in nano; explicit fixed depth and message bytes.",
@@ -3775,9 +3788,10 @@
       "include/rtos_queue.hpp",
       "include/rtos_log.hpp",
       "docs/synchronization.rst",
-      "include/rtos/detail/wait_queue.hpp"
+      "include/rtos/detail/wait_queue.hpp",
+      "tests/log_edges.cpp"
     ],
-    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
+    "finding": "Correctness pass adds host regressions for deadline ordering, wait cleanup, multiple owner-dead waiters, formatter bounds and concurrent logger producers as applicable. Source and host-model evidence does not qualify target interrupts, UART, SMP or timing."
   },
   {
     "id": "NXR-133",
@@ -3854,7 +3868,7 @@
       "docs/device-ipc-review.rst",
       "docs/drivers.rst"
     ],
-    "finding": "DMA addresses cannot be inferred from C\u002B\u002B pointers; real BSP memory topology is still unknown."
+    "finding": "DMA addresses cannot be inferred from C++ pointers; real BSP memory topology is still unknown."
   },
   {
     "id": "NXR-136",
@@ -3887,7 +3901,7 @@
     "category": "PCIe",
     "statement": "The PCIe transport shall define a versioned fixed-width register/mailbox protocol with explicit endian, bounds, ordering, ownership and backpressure before bulk DMA is enabled.",
     "rationale": "Keep peer communication independent of compiler layout and local addresses.",
-    "acceptance": "Incompatible versions fail safely; lengths and ranges validate without overflow; native pointers and C\u002B\u002B layouts never cross the link; reset generations reject stale responses; synchronization follows actual bridge semantics.",
+    "acceptance": "Incompatible versions fail safely; lengths and ranges validate without overflow; native pointers and C++ layouts never cross the link; reset generations reject stale responses; synchronization follows actual bridge semantics.",
     "verification": "Future peer conformance and malformed-message scenarios.",
     "dependencies": [
       "NXR-136",
@@ -3981,7 +3995,8 @@
       "src/log.cpp"
     ],
     "verification_files": [
-      "tests/log.cpp"
+      "tests/log.cpp",
+      "tests/log_edges.cpp"
     ],
     "planned_test": "TEST-NXR-140",
     "configuration": "RTOS_LOGGING requires RTOS_SYNC; fixed logger depth and record size.",
@@ -3992,9 +4007,10 @@
       "src/log.cpp",
       "tests/log.cpp",
       "docs/synchronization.rst",
-      "include/rtos/detail/wait_queue.hpp"
+      "include/rtos/detail/wait_queue.hpp",
+      "tests/log_edges.cpp"
     ],
-    "finding": "Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing."
+    "finding": "Correctness pass adds host regressions for deadline ordering, wait cleanup, multiple owner-dead waiters, formatter bounds and concurrent logger producers as applicable. Source and host-model evidence does not qualify target interrupts, UART, SMP or timing."
   },
   {
     "id": "NXR-141",

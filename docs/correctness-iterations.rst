@@ -64,3 +64,32 @@ Checkpoint 50: bounded formatting and console ownership
 048. Enqueue from a second modeled producer during an unlocked transport callback.
 049. Check coherent pending metrics, busy drain ownership and whole-record ordering.
 050. Validate zero-budget rejection and run both host suites and strict Sphinx.
+
+Checkpoint 75: timeout ordering and wait cleanup
+--------------------------------------------------------------------------------
+
+051. Review serialization of a tick and signal at the same logical deadline.
+052. Exercise tick-first ordering: the waiter times out before the release.
+053. Check that the later release retains a semaphore token for another acquire.
+054. Exercise signal-first ordering: the waiter succeeds before the tick.
+055. Check that a later tick cannot time out an already completed wait.
+056. Check completed wait queue and payload pointers are cleared.
+057. Exercise a one-tick wait crossing UINT32_MAX to zero.
+058. Exercise the maximum permitted relative event wait.
+059. Preserve event output on timeout at the maximum deadline.
+060. Check the timed-out event waiter is removed from the queue.
+061. Fill a one-slot queue and enroll two blocked producers.
+062. Expire the first producer while the second remains blocked.
+063. Check expired producer staging pointers are cleared before another receive.
+064. Receive the buffered value and grant the remaining producer's value.
+065. Verify the timed-out value is never delivered later.
+066. Verify send-waiter count and completed-timeout count after both returns.
+067. Preserve receive output on the resulting empty queue.
+068. Combine wait-all observation with a higher-priority consuming wait-any.
+069. Preserve the broadcast snapshot for non-consuming waiters.
+070. Verify only the consumer's observed bit is removed from stored event flags.
+071. Exit a mutex owner with two enrolled waiters and inherited priority.
+072. Verify both waiters receive owner_dead and all ownership links are cleared.
+073. Verify explicit recovery permits a later lock after modeled quiescence.
+074. Check diagnostic counter saturation and retain bounded single-hart semantics.
+075. Refresh requirement evidence and gate both host profiles and Sphinx.

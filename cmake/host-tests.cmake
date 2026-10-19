@@ -59,4 +59,5 @@ rtos_host_test(mutex_test NAME mutex_inheritance SYNC SOURCES tests/mutex.cpp LI
 rtos_host_test(log_test NAME queued_printf LOGGING SOURCES tests/log.cpp src/log.cpp LIBRARIES rtos_sync_model)
 rtos_host_test(log_edges_test NAME queued_printf_edges LOGGING SOURCES tests/log_edges.cpp src/log.cpp LIBRARIES rtos_sync_model)
 rtos_host_test(sync_edges_test NAME synchronization_edges SYNC SOURCES tests/sync_edges.cpp LIBRARIES rtos_sync_model)
+rtos_host_test(sync_deadlines_test NAME synchronization_deadlines SYNC SOURCES tests/sync_deadlines.cpp LIBRARIES rtos_sync_model)
 rtos_host_test(public_api_test NAME ipc_public_api SYNC SOURCES tests/public_api.cpp LIBRARIES rtos_sync_model)

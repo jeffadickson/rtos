@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **141**. Catalogue SHA-256: ``3cc457913d37af6eafc15d8975285614950248086a27691af68b57d6af3182a7``.
+Reviewed requirements: **141**. Catalogue SHA-256: ``b5dcf73bae5e2d279a3d7d2f6af378e3aa09123b73859ac730bebfc140b5e081``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -4312,7 +4312,7 @@ NXR-123 Timed queue transfer semantics
 **Static resource budget:** Wait state lives in permanent thread metadata; no per-wait allocation.
 
 
-**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
+**Review finding:** Correctness pass adds host regressions for deadline ordering, wait cleanup, multiple owner-dead waiters, formatter bounds and concurrent logger producers as applicable. Source and host-model evidence does not qualify target interrupts, UART, SMP or timing.
 
 NXR-124 ISR-safe queue transfer
 -------------------------------
@@ -4382,7 +4382,7 @@ NXR-125 Event flag wait semantics
 **Static resource budget:** One static flag word and bounded waiter metadata per event object.
 
 
-**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
+**Review finding:** Correctness pass adds host regressions for deadline ordering, wait cleanup, multiple owner-dead waiters, formatter bounds and concurrent logger producers as applicable. Source and host-model evidence does not qualify target interrupts, UART, SMP or timing.
 
 NXR-126 Event wake and payload ordering
 ---------------------------------------
@@ -4417,7 +4417,7 @@ NXR-126 Event wake and payload ordering
 **Static resource budget:** Fixed event state and existing thread wait metadata.
 
 
-**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
+**Review finding:** Correctness pass adds host regressions for deadline ordering, wait cleanup, multiple owner-dead waiters, formatter bounds and concurrent logger producers as applicable. Source and host-model evidence does not qualify target interrupts, UART, SMP or timing.
 
 NXR-127 Bounded counting semaphore
 ----------------------------------
@@ -4452,7 +4452,7 @@ NXR-127 Bounded counting semaphore
 **Static resource budget:** Fixed count, maximum and waiter metadata; zero heap.
 
 
-**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
+**Review finding:** Correctness pass adds host regressions for deadline ordering, wait cleanup, multiple owner-dead waiters, formatter bounds and concurrent logger producers as applicable. Source and host-model evidence does not qualify target interrupts, UART, SMP or timing.
 
 NXR-128 Bounded thread wait lifecycle
 -------------------------------------
@@ -4487,7 +4487,7 @@ NXR-128 Bounded thread wait lifecycle
 **Static resource budget:** Permanent thread wait metadata with bounded object lookup.
 
 
-**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
+**Review finding:** Correctness pass adds host regressions for deadline ordering, wait cleanup, multiple owner-dead waiters, formatter bounds and concurrent logger producers as applicable. Source and host-model evidence does not qualify target interrupts, UART, SMP or timing.
 
 NXR-129 Abandoned device ownership
 ----------------------------------
@@ -4522,7 +4522,7 @@ NXR-129 Abandoned device ownership
 **Static resource budget:** Static abandonment and recovery state; no reallocation.
 
 
-**Review finding:** Synchronization implementation pass supplies source and host state-machine fixtures; single-hart firmware cross-link is separate from hardware qualification. External IRQ dispatch, board drivers, per-primitive configuration and full acceptance evidence remain incomplete.
+**Review finding:** Correctness pass adds host regressions for deadline ordering, wait cleanup, multiple owner-dead waiters, formatter bounds and concurrent logger producers as applicable. Source and host-model evidence does not qualify target interrupts, UART, SMP or timing.
 
 NXR-130 Device and IPC metrics
 ------------------------------
@@ -4627,7 +4627,7 @@ NXR-132 Small bounded logging and documentation
 **Static resource budget:** Depth times actual slot size plus formatting and synchronization metadata reported separately.
 
 
-**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
+**Review finding:** Correctness pass adds host regressions for deadline ordering, wait cleanup, multiple owner-dead waiters, formatter bounds and concurrent logger producers as applicable. Source and host-model evidence does not qualify target interrupts, UART, SMP or timing.
 
 NXR-133 Optional simple FPGA DMA driver
 ---------------------------------------
@@ -4907,7 +4907,7 @@ NXR-140 Bounded queued printf formatting
 **Static resource budget:** RV32 Logger of 8 records with 64 message bytes occupies 720 bytes in the measured example; private formatter consumes reserved thread stack space.
 
 
-**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
+**Review finding:** Correctness pass adds host regressions for deadline ordering, wait cleanup, multiple owner-dead waiters, formatter bounds and concurrent logger producers as applicable. Source and host-model evidence does not qualify target interrupts, UART, SMP or timing.
 
 NXR-141 Simple application starting surface
 -------------------------------------------
