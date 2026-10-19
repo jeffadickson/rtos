@@ -20,7 +20,8 @@
         "RTOS_ETHERNET": "OFF",
         "RTOS_WEB": "OFF",
         "RTOS_STORAGE": "OFF",
-        "RTOS_SYNC": "OFF"
+        "RTOS_SYNC": "OFF",
+        "RTOS_LOGGING": "OFF"
       }
     },
     {
@@ -75,6 +76,16 @@
         "RTOS_WEB": "OFF",
         "RTOS_ETHERNET": "OFF"
       }
+    },
+    {
+      "name": "host-sync",
+      "inherits": "host",
+      "binaryDir": "${sourceDir}/build/host-sync",
+      "cacheVariables": {
+        "RTOS_SYNC": "ON",
+        "RTOS_ETHERNET": "OFF",
+        "RTOS_WEB": "OFF"
+      }
     }
   ],
   "buildPresets": [
@@ -101,6 +112,10 @@
     {
       "name": "logging",
       "configurePreset": "logging"
+    },
+    {
+      "name": "host-sync",
+      "configurePreset": "host-sync"
     }
   ],
   "testPresets": [
@@ -114,6 +129,13 @@
     {
       "name": "minimal",
       "configurePreset": "minimal",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "host-sync",
+      "configurePreset": "host-sync",
       "output": {
         "outputOnFailure": true
       }

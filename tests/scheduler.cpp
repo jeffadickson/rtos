@@ -1,12 +1,21 @@
 #include "scheduler.hpp"
 #include <cassert>
+#if RTOS_SYNC
+#include "sync_model.hpp"
+#endif
 using namespace rtos;
+static void priority(Thread& t,uint8_t value){
+    t.priority=value;
+#if RTOS_SYNC
+    t.effective_priority=value;
+#endif
+}
 int main() {
     detail::Scheduler s;
     assert(s.pick()==nullptr);
     Thread a{}, b{}, c{};
     a.state=b.state=c.state=State::ready;
-    a.priority=1; b.priority=c.priority=2;
+    priority(a,1); priority(b,2); priority(c,2);
     assert(s.add(a) && s.add(b) && s.add(c) && !s.add(a));
     assert(s.pick()==&b); assert(s.pick()==&c); assert(s.pick()==&b);
     b.state=c.state=State::sleeping; b.wake=2; c.wake=3;
@@ -24,10 +33,10 @@ int main() {
     // Disabling time slicing still permits higher-priority wakeup and explicit yield.
     detail::Scheduler fixed;
     Thread x{}, y{};
-    x.state=y.state=State::ready; x.priority=y.priority=1;
+    x.state=y.state=State::ready; priority(x,1); priority(y,1);
     assert(fixed.add(x) && fixed.add(y));
     assert(fixed.pick(&x,false)==&x);
-    y.priority=2; assert(fixed.pick(&x,false)==&y);
+    priority(y,2); assert(fixed.pick(&x,false)==&y);
     x.state=State::sleeping; assert(fixed.pick(&x,false)==&y);
     assert(detail::elapsed_ticks(99,100,10)==0);
     assert(detail::elapsed_ticks(100,100,10)==1);

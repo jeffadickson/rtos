@@ -1,7 +1,7 @@
 {
   "AGENTS.md": "6f824d5519abf7e3b3bee28094c41a05ee850eeac4c767926e764860f0582cfa",
-  "CMakeLists.txt": "0b4639e0a867d32eb0270c25154f00d311eb3b9a30e60b67fe09423ba02b407b",
-  "CMakePresets.json": "338dfa91927bd51836ed2d73d03477d09a062d7e16b63a9afa361e0918c5851a",
+  "CMakeLists.txt": "e8f803e4518cbbfe87b03bc6fa2bfcc9239c2690c570f46d317baf05b651f328",
+  "CMakePresets.json": "b6ad41f5abecf62d516b64b217317359e85476f00ce1f345012b446b4c2085a2",
   "cmake/configuration.cmake": "981585ff564d3ff936a4ed97c2ed3702e80a39fe7a0b0fc7af2686c33fafa93c",
   "cmake/configure-tool.cmake": "b4fb22e35a3e0f1ecda10826b72d056f0de7f568730b4d0ffee6fc82e0285b52",
   "cmake/host-tools.cmake": "761027c8e1c519ce274ef5d62487f24d173f772505c84c179ab3e1e4fc29da49",
@@ -51,7 +51,7 @@
   "tests/memory.cpp": "f5935948113daebb0f1cf5de8ded9b6dae1019f040f177b8d3e972ed2662a654",
   "tests/mutex.cpp": "13fa48705f9ebcbe255cdfe66157fcd8a084f9e994fd190b1d835438a65dee05",
   "tests/queue.cpp": "1180935ccdb5d1ae7a2318c497bbd0d37fb12387797d1a78cb20dc2e8181c984",
-  "tests/scheduler.cpp": "42cf83ae2f707c6e965dd074e83da76b51e00e0dc9158642a15128483647f1ff",
+  "tests/scheduler.cpp": "dc0f6ec5b73c7313ab1bf5d4e4c27d0fcd0ec857cb9ae0e6f715a7acda1671c5",
   "tests/sync.cpp": "683bca5bb7403852c0df32c90a22d363108615246b22874d78cc66225b69b31d",
   "tests/sync_edges.cpp": "20f4e7003b0693fdb7f46fb80cdba3c2628719d62ea77070b2a9e9b52b9d72d9",
   "tools/NexRT.Configure/NativeJson.cs": "6a6b84c4a106ce18f2099f0080e3566511b85b2bd8b0850e524d6fbf44660a92",
