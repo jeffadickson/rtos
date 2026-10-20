@@ -90,7 +90,7 @@ internal static class Program
     private static async Task<int> Audit(string nm, string elf)
     {
         var result = await Run(nm, ["-C", elf]);
-        if (result.ExitCode != 0) throw new InvalidOperationException($"nm failed ({result.ExitCode}): {result.Error}");
+        if (result.ExitCode != 0) throw new InvalidOperationException($"nm failed ({result.ExitCode}): {result.Output}");
         if(!HasDefinedSymbols(result.Output))throw new IOException("Static-only audit requires an unstripped image with defined symbols");
         var bad = Violations(result.Output);
         if (bad.Length != 0)
@@ -141,7 +141,7 @@ internal static class Program
             }
             if (compile.ExitCode != 0) throw new InvalidOperationException(compile.Output + compile.Error);
             var symbols = await Run(nm, ["-C", elf]);
-            if (symbols.ExitCode != 0) throw new InvalidOperationException("nm failed: " + symbols.Error);
+            if (symbols.ExitCode != 0) throw new InvalidOperationException("nm failed: " + symbols.Output);
             if(fixture.Name=="stripped"){
                 if(HasDefinedSymbols(symbols.Output))throw new IOException("Stripped fixture retained defined symbols");
                 Console.WriteLine("PASS: stripped image rejected as unauditable");continue;

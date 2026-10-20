@@ -1,0 +1,17 @@
+Test project /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+    Start 1: tooling
+1/6 Test #1: tooling ..........................   Passed    1.61 sec
+    Start 2: memory
+2/6 Test #2: memory ...........................   Passed    0.07 sec
+    Start 3: scheduler
+3/6 Test #3: scheduler ........................   Passed    0.09 sec
+    Start 4: ethernet
+4/6 Test #4: ethernet .........................   Passed    0.10 sec
+    Start 5: requirements_tracker
+5/6 Test #5: requirements_tracker .............   Passed   16.61 sec
+    Start 6: requirements_negative
+6/6 Test #6: requirements_negative ............   Passed   19.00 sec
+
+100% tests passed, 0 tests failed out of 6
+
+Total Test time (real) =  39.65 sec

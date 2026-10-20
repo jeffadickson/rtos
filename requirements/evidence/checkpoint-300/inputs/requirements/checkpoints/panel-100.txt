@@ -1,0 +1,18 @@
+Panel after checkpoint 100 (355ea0c)
+===================================
+Three independent automated specialist reviewers inspected committed sources
+and retained run evidence; these are not human reviews or certification.
+
+Kernel: no concrete defects; previous stack API coverage requests closed.
+Port: no new defects; preinitializer and dotted-symbol findings closed.
+Correction: checkpoint050 already matched priority constructors with wildcards;
+pass056 made matching explicit and added fixtures, rather than repairing absence.
+Assurance P2 accepted: synchronous Console.Write inside the capture lock could
+block on an unread outer pipe and defeat cancellation. Remove live forwarding
+and add a native stalled-consumer regression fixture in passes101-110.
+Assurance limitation accepted: after a parent exits, orphaned descendants are
+not necessarily terminable through Process.Kill(entireProcessTree). Qualify docs.
+
+Next coverage: explicit register canaries, PSP padding, timer catch-up and initial
+counter rollover, retaining a full 32-bit reload period. Preserve ABI boundaries
+and test injected canary faults separately from positive runs.

@@ -1,0 +1,41 @@
+Implementation checkpoint 300
+=============================
+All300 numbered focused implementation/contract/verification passes are recorded
+in docs/implementation-300.rst. Builds/commits occur at50-pass checkpoints,
+with independent automated kernel/port/assurance review and recorded dispositions.
+
+Final validation:
+- Native AOT C# tools built with XDoc; collector self-tests passed.
+- Ordinary host:26/26; Clang18 ASan/UBSan:27/27; Valgrind3.22:20/20.
+- Controlled invalid-memory probes produced the intended ASan heap-use-after-free,
+  UBSan signed-overflow and Memcheck invalid-read diagnostics. Their failing
+  child exits are required by passing detection gates; they are not workload bugs.
+- Cppcheck, clang-tidy, strict Sphinx HTML and158-row requirements checks passed.
+- Fifteen current ARM runs passed:normal20261020-192652-408,
+  wrap20261020-192746-511,fast20261020-192845-949,
+  watermark-off20261020-192915-504,guard-off20261020-193110-916.
+- Wrap shift3:live_hits6,first_elapsed5,initial_low4294967039,epoch_seen1.
+  Every run delivered20000 messages and20000 semaphore handoffs.
+- RISCue UART run20261020-192732-589 passed three-worker arithmetic/sequence,
+  physical UART8N1 decoding and dependency identities:88778625 steps,88 timer traps.
+- ARM/RV32 nine-fixture initialization/allocator contracts passed.
+- Missing-input nm audit rejected with its original diagnostic preserved.
+- Ordinary ARM nano cross-build:2388 text,0 data,1168 BSS; no stress/canary
+  symbols. Cross-build only: examples/nano.cpp still requires its timer constant
+  to be replaced with actual target frequency before execution.
+- RV32 nano remains3812 text,0 data,1164 BSS; allocated4976,default boot4096,
+  committed9072 bytes. ELF SHA256 remains
+  42f44b0a19328a3672774838a8d82f6568eeb0d58b1046bb7bb6ba1375815a5e.
+- Nano/UART and ARM images passed unstripped static-only symbol audits.
+- HTML introduction/how-it-works and embedded asset digest regenerated.
+
+Selected raw logs, manifests, detailed CTest output, unstripped ELFs, tool
+identities and source-traced requirements are retained under
+requirements/evidence/checkpoint-300 with a SHA256/size manifest.
+Independent final panel review follows the checkpoint commit; its disposition
+is retained separately alongside this summary before the final push.
+
+Limits: no physical board qualification, certification, SMP/DMA coherence or
+proven worst-case stack bound. StrictDoc-format export is C#-validated rather
+than parsed by the Python StrictDoc engine. Name audits cannot prove absence of
+arbitrary renamed/custom allocators. Other BSPs/services remain explicitly planned.

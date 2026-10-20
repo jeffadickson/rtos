@@ -7,7 +7,8 @@ Python exception, with its minimal docs/conf.py configuration.
 
 The .NET 10 projects are ``tools/Rtos.Tools``, ``tools/NexRT.Requirements``,
 ``tools/NexRT.Configure``, ``tools/NexRT.Workbench``, ``tools/NexRT.ArmSim``
-and ``tools/NexRT.Sim``. CMake publishes native executables by default and
+and ``tools/NexRT.Sim``, plus the collector ``tools/NexRT.Evidence``.
+CMake publishes native executables by default and
 emits XDoc XML beside each executable. Compiler, AOT and linker warnings are
 errors. The .NET SDK is needed to build the tools; the native executables run
 without the .NET runtime. SDK and platform prerequisites must be installed.

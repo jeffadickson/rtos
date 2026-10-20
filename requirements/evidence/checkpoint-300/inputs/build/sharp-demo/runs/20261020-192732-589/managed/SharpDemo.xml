@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SharpDemo</name>
+    </assembly>
+    <members>
+        <member name="T:Entry">
+            <summary>Runs actual RISCue firmware and checks bytes decoded from the UART pin.</summary>
+        </member>
+        <member name="M:Entry.Initialize(System.IntPtr,System.Int32)">
+            <summary>Native bridge entry; discovery and execution stay on the simulator thread.</summary>
+        </member>
+        <member name="M:Entry.ThreeWorkers(SharpTestBench.TestContext)">
+            <summary>Checks repeated arithmetic, whole records, all three workers and timer preemption.</summary>
+        </member>
+    </members>
+</doc>

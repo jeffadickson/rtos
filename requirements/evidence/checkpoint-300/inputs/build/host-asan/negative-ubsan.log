@@ -1,0 +1,2 @@
+/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/memory_negative.cpp:16:36: runtime error: signed integer overflow: 2147483647 + 2 cannot be represented in type 'int'
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/memory_negative.cpp:16:36 

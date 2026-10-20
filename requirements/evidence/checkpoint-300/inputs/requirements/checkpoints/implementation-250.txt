@@ -1,0 +1,25 @@
+Implementation checkpoint 250
+=============================
+Passes201-250 add optional host memory instrumentation, strengthen no-heap
+evidence prerequisites and bound compiler/audit subprocesses. Ordinary firmware
+contains no host instrumentation or added kernel service.
+
+Validation completed:
+- Native AOT Rtos.Tools rebuilt with XDoc and shared-source fingerprint.
+- Ordinary host suite:25/25 checks passed.
+- Clang18 ASan/UBSan:24/24 checks passed (46.55 seconds); separate full-suite log.
+- Valgrind3.22 Memcheck:19/19 checks passed (162.11 seconds).
+  Includes all four seeds and1296 waiter campaigns; detailed CTest log retained.
+- Intended configure failures: host memory tools with firmware; simultaneous
+  sanitizers and Valgrind. Both reject for their specific intended diagnostics.
+- ARM simulation three timer shifts passed; run20261020-191042-905.
+  Shift3 numerical witness:live_hits3,first_elapsed5,initial_low0,epoch_seen0
+  (normal timer configuration; near-wrap evidence remains separate).
+- ARM and RV32 nine-fixture static contracts passed, including stripped-image
+  rejection and retained positive constant-initialization fixture.
+- Cppcheck, clang-tidy, strict Sphinx and157-row requirements consistency passed.
+- RV32 nano stays text3812/data0/BSS1164; static-only audit passed.
+
+Host memory results do not prove target leak absence or hardware timing.
+Known-name audit requires unstripped symbols and cannot detect renamed allocators.
+Independent specialist panel review follows the checkpoint commit.

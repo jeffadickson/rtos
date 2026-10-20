@@ -1,0 +1,412 @@
+Archive member included to satisfy reference by file (symbol)
+
+librtos.a(kernel.cpp.obj)     CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj (rtos::create(rtos::Thread&, void (*)(void*), void*, unsigned char, void*, unsigned int, char const*))
+librtos.a(memory.cpp.obj)     CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj (memset)
+librtos.a(context.S.obj)      librtos.a(kernel.cpp.obj) (rtos_vector)
+librtos.a(sync.cpp.obj)       CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj (rtos::detail::WaitQueue::best() const)
+librtos.a(mutex.cpp.obj)      librtos.a(kernel.cpp.obj) (rtos::Mutex::priority_changed(rtos::Thread&))
+librtos.a(log.cpp.obj)        CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj (rtos::detail::format_log(char*, unsigned int, char const*, void*))
+/mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+                              librtos.a(kernel.cpp.obj) (__udivdi3)
+/mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_clz.o)
+                              /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_udivdi3.o) (__clz_tab)
+
+Discarded input sections
+
+ .group         0x00000000        0xc CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+ .group         0x00000000        0xc CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+ .group         0x00000000        0xc CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+ .group         0x00000000        0xc CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+ .group         0x00000000        0xc CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+ .group         0x00000000        0xc CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+ .comment       0x00000000       0x23 CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+ .text          0x00000000        0x0 CMakeFiles/demo.dir/ports/riscue/start.S.obj
+ .data          0x00000000        0x0 CMakeFiles/demo.dir/ports/riscue/start.S.obj
+ .bss           0x00000000        0x0 CMakeFiles/demo.dir/ports/riscue/start.S.obj
+ .group         0x00000000        0xc librtos.a(kernel.cpp.obj)
+ .group         0x00000000        0xc librtos.a(kernel.cpp.obj)
+ .group         0x00000000        0xc librtos.a(kernel.cpp.obj)
+ .group         0x00000000        0xc librtos.a(kernel.cpp.obj)
+ .text          0x00000000        0x0 librtos.a(kernel.cpp.obj)
+ .data          0x00000000        0x0 librtos.a(kernel.cpp.obj)
+ .bss           0x00000000        0x0 librtos.a(kernel.cpp.obj)
+ .text._ZN4rtos5ticksEv
+                0x00000000       0x3c librtos.a(kernel.cpp.obj)
+ .text._ZN4rtos12set_priorityERNS_6ThreadEh
+                0x00000000       0x90 librtos.a(kernel.cpp.obj)
+ .text._ZN4rtos8snapshotEPNS_10ThreadInfoEj
+                0x00000000      0x1f4 librtos.a(kernel.cpp.obj)
+ .text._ZN4rtos11stack_usageERKNS_6ThreadERNS_10StackUsageEj
+                0x00000000       0xcc librtos.a(kernel.cpp.obj)
+ .text._ZN4rtos6detail17interrupt_contextEv
+                0x00000000        0xc librtos.a(kernel.cpp.obj)
+ .text._ZN4rtos6detail23synchronization_runningEv
+                0x00000000        0xc librtos.a(kernel.cpp.obj)
+ .comment       0x00000000       0x23 librtos.a(kernel.cpp.obj)
+ .text          0x00000000        0x0 librtos.a(memory.cpp.obj)
+ .data          0x00000000        0x0 librtos.a(memory.cpp.obj)
+ .bss           0x00000000        0x0 librtos.a(memory.cpp.obj)
+ .text.memmove  0x00000000       0x50 librtos.a(memory.cpp.obj)
+ .text.memcmp   0x00000000       0x44 librtos.a(memory.cpp.obj)
+ .comment       0x00000000       0x23 librtos.a(memory.cpp.obj)
+ .data          0x00000000        0x0 librtos.a(context.S.obj)
+ .bss           0x00000000        0x0 librtos.a(context.S.obj)
+ .group         0x00000000        0xc librtos.a(sync.cpp.obj)
+ .group         0x00000000        0xc librtos.a(sync.cpp.obj)
+ .text          0x00000000        0x0 librtos.a(sync.cpp.obj)
+ .data          0x00000000        0x0 librtos.a(sync.cpp.obj)
+ .bss           0x00000000        0x0 librtos.a(sync.cpp.obj)
+ .text._ZN4rtos6detail8CriticalC2Ev
+                0x00000000       0x30 librtos.a(sync.cpp.obj)
+ .text._ZN4rtos6detail8CriticalD2Ev
+                0x00000000       0x48 librtos.a(sync.cpp.obj)
+ .text._ZN4rtos9Semaphore7acquireEm
+                0x00000000       0xa8 librtos.a(sync.cpp.obj)
+ .text._ZN4rtos9Semaphore14release_lockedERNS_6detail8CriticalE
+                0x00000000       0x84 librtos.a(sync.cpp.obj)
+ .text._ZN4rtos9Semaphore7releaseEv
+                0x00000000       0x64 librtos.a(sync.cpp.obj)
+ .text._ZN4rtos9Semaphore16release_from_isrEv
+                0x00000000       0x70 librtos.a(sync.cpp.obj)
+ .text._ZNK4rtos9Semaphore8snapshotEv
+                0x00000000       0x60 librtos.a(sync.cpp.obj)
+ .text._ZN4rtos10EventFlags4waitEmRmmbb
+                0x00000000      0x124 librtos.a(sync.cpp.obj)
+ .text._ZN4rtos10EventFlags10set_lockedEmRNS_6detail8CriticalE
+                0x00000000      0x104 librtos.a(sync.cpp.obj)
+ .text._ZN4rtos10EventFlags3setEm
+                0x00000000       0x6c librtos.a(sync.cpp.obj)
+ .text._ZN4rtos10EventFlags12set_from_isrEm
+                0x00000000       0x80 librtos.a(sync.cpp.obj)
+ .text._ZN4rtos10EventFlags5clearEm
+                0x00000000       0x7c librtos.a(sync.cpp.obj)
+ .text._ZNK4rtos10EventFlags8snapshotEv
+                0x00000000       0x50 librtos.a(sync.cpp.obj)
+ .comment       0x00000000       0x23 librtos.a(sync.cpp.obj)
+ .group         0x00000000        0xc librtos.a(mutex.cpp.obj)
+ .text          0x00000000        0x0 librtos.a(mutex.cpp.obj)
+ .data          0x00000000        0x0 librtos.a(mutex.cpp.obj)
+ .bss           0x00000000        0x0 librtos.a(mutex.cpp.obj)
+ .text._ZN4rtos6detail8CriticalD2Ev
+                0x00000000       0x48 librtos.a(mutex.cpp.obj)
+ .text._ZN4rtos5Mutex24recover_after_quiescenceEv
+                0x00000000       0x74 librtos.a(mutex.cpp.obj)
+ .text._ZNK4rtos5Mutex8snapshotEv
+                0x00000000       0x64 librtos.a(mutex.cpp.obj)
+ .comment       0x00000000       0x23 librtos.a(mutex.cpp.obj)
+ .text          0x00000000        0x0 librtos.a(log.cpp.obj)
+ .data          0x00000000        0x0 librtos.a(log.cpp.obj)
+ .bss           0x00000000        0x0 librtos.a(log.cpp.obj)
+ .comment       0x00000000       0x23 librtos.a(log.cpp.obj)
+ .data          0x00000000        0x0 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+ .bss           0x00000000        0x0 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+ .comment       0x00000000       0x23 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+ .eh_frame      0x00000000       0x28 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+ .text          0x00000000        0x0 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_clz.o)
+ .data          0x00000000        0x0 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_clz.o)
+ .bss           0x00000000        0x0 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_clz.o)
+ .comment       0x00000000       0x23 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_clz.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+RAM              0x00000000         0x00007f00         xrw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+                0x00001000                        __boot_stack_bytes = 0x1000
+LOAD CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+LOAD CMakeFiles/demo.dir/ports/riscue/start.S.obj
+LOAD librtos.a
+LOAD /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a
+                [!provide]                        PROVIDE (__boot_stack_bytes = 0x1000)
+
+.text           0x00000000     0x2268
+ *(.text.start)
+ .text.start    0x00000000       0x48 CMakeFiles/demo.dir/ports/riscue/start.S.obj
+                0x00000000                _start
+ *(.text*)
+ .text          0x00000048      0x46c CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+ .text._ZN4rtos6detail8CriticalC2Ev
+                0x000004b4       0x30 CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+                0x000004b4                rtos::detail::Critical::Critical()
+                0x000004b4                rtos::detail::Critical::Critical()
+ .text._ZN4rtos6detail8CriticalD2Ev
+                0x000004e4       0x48 CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+                0x000004e4                rtos::detail::Critical::~Critical()
+                0x000004e4                rtos::detail::Critical::~Critical()
+ .text._ZN4rtos6detail9incrementERm
+                0x0000052c       0x18 CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+                0x0000052c                rtos::detail::increment(unsigned long&)
+ .text.startup  0x00000544       0xe4 CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+                0x00000544                main
+ .text._ZN4rtos6LoggerILj8ELj64EE12commit_bytesEj
+                0x00000628       0x6c CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+                0x00000628                rtos::Logger<8u, 64u>::commit_bytes(unsigned int)
+ .text._ZN4rtos6LoggerILj8ELj64EE7vprintfEPKcPv
+                0x00000694      0x24c CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+                0x00000694                rtos::Logger<8u, 64u>::vprintf(char const*, void*)
+ .text._ZN4rtos6LoggerILj8ELj64EE6printfEPKcz
+                0x000008e0       0x48 CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+                0x000008e0                rtos::Logger<8u, 64u>::printf(char const*, ...)
+ .text._ZN12_GLOBAL__N_13armEv
+                0x00000928       0x28 librtos.a(kernel.cpp.obj)
+ .text._ZN12_GLOBAL__N_14LockD2Ev
+                0x00000950       0x14 librtos.a(kernel.cpp.obj)
+ .text._ZN12_GLOBAL__N_14idleEPv
+                0x00000964        0x8 librtos.a(kernel.cpp.obj)
+ .text._ZN12_GLOBAL__N_17accountEy
+                0x0000096c       0x54 librtos.a(kernel.cpp.obj)
+ .text._ZN4rtos6detail14ranges_overlapEjjjj
+                0x000009c0       0x30 librtos.a(kernel.cpp.obj)
+                0x000009c0                rtos::detail::ranges_overlap(unsigned int, unsigned int, unsigned int, unsigned int)
+ .text._ZNK4rtos6detail9Scheduler9conflictsEjj
+                0x000009f0       0xbc librtos.a(kernel.cpp.obj)
+                0x000009f0                rtos::detail::Scheduler::conflicts(unsigned int, unsigned int) const
+ .text._ZN4rtos4port4haltEv
+                0x00000aac        0xc librtos.a(kernel.cpp.obj)
+                0x00000aac                rtos::port::halt()
+ .text._ZN4rtos4port8time_nowEv
+                0x00000ab8       0x24 librtos.a(kernel.cpp.obj)
+                0x00000ab8                rtos::port::time_now()
+ .text._ZN4rtos6createERNS_6ThreadEPFvPvES2_hS2_jPKc
+                0x00000adc      0x200 librtos.a(kernel.cpp.obj)
+                0x00000adc                rtos::create(rtos::Thread&, void (*)(void*), void*, unsigned char, void*, unsigned int, char const*)
+ .text._ZN4rtos5startEmm
+                0x00000cdc      0x1bc librtos.a(kernel.cpp.obj)
+                0x00000cdc                rtos::start(unsigned long, unsigned long)
+ .text._ZN4rtos5yieldEv
+                0x00000e98       0x14 librtos.a(kernel.cpp.obj)
+                0x00000e98                rtos::yield()
+ .text._ZN4rtos9sleep_forEm
+                0x00000eac       0x78 librtos.a(kernel.cpp.obj)
+                0x00000eac                rtos::sleep_for(unsigned long)
+ .text._ZN4rtos4exitEv
+                0x00000f24       0x50 librtos.a(kernel.cpp.obj)
+                0x00000f24                rtos::exit()
+ .text.rtos_entry
+                0x00000f74       0x24 librtos.a(kernel.cpp.obj)
+                0x00000f74                rtos_entry
+ .text.rtos_trap
+                0x00000f98      0x274 librtos.a(kernel.cpp.obj)
+                0x00000f98                rtos_trap
+ .text._ZN4rtos6detail14critical_enterEv
+                0x0000120c        0x8 librtos.a(kernel.cpp.obj)
+                0x0000120c                rtos::detail::critical_enter()
+ .text._ZN4rtos6detail14critical_leaveEj
+                0x00001214       0x10 librtos.a(kernel.cpp.obj)
+                0x00001214                rtos::detail::critical_leave(unsigned int)
+ .text._ZN4rtos6detail14calling_threadEv
+                0x00001224       0x38 librtos.a(kernel.cpp.obj)
+                0x00001224                rtos::detail::calling_thread()
+ .text._ZN4rtos6detail19synchronization_nowEv
+                0x0000125c        0xc librtos.a(kernel.cpp.obj)
+                0x0000125c                rtos::detail::synchronization_now()
+ .text._ZN4rtos6detail11park_threadEv
+                0x00001268        0x8 librtos.a(kernel.cpp.obj)
+                0x00001268                rtos::detail::park_thread()
+ .text._ZN4rtos6detail14schedule_readyEv
+                0x00001270       0x20 librtos.a(kernel.cpp.obj)
+                0x00001270                rtos::detail::schedule_ready()
+ .text.memset   0x00001290       0x20 librtos.a(memory.cpp.obj)
+                0x00001290                memset
+ .text.memcpy   0x000012b0       0x28 librtos.a(memory.cpp.obj)
+                0x000012b0                memcpy
+ .text          0x000012d8      0x138 librtos.a(context.S.obj)
+                0x000012d8                rtos_vector
+ .text._ZNK4rtos6detail9WaitQueue4bestEv
+                0x00001410       0x30 librtos.a(sync.cpp.obj)
+                0x00001410                rtos::detail::WaitQueue::best() const
+ .text._ZN4rtos6detail9WaitQueue4waitEmPvmh
+                0x00001440      0x100 librtos.a(sync.cpp.obj)
+                0x00001440                rtos::detail::WaitQueue::wait(unsigned long, void*, unsigned long, unsigned char)
+ .text._ZN4rtos6detail9WaitQueue8completeERNS_6ThreadENS0_10WaitResultE
+                0x00001540       0x80 librtos.a(sync.cpp.obj)
+                0x00001540                rtos::detail::WaitQueue::complete(rtos::Thread&, rtos::detail::WaitResult)
+ .text._ZN4rtos6detail11expire_waitERNS_6ThreadEm
+                0x000015c0       0x38 librtos.a(sync.cpp.obj)
+                0x000015c0                rtos::detail::expire_wait(rtos::Thread&, unsigned long)
+ .text._ZN4rtos6detail12abandon_waitERNS_6ThreadE
+                0x000015f8       0x1c librtos.a(sync.cpp.obj)
+                0x000015f8                rtos::detail::abandon_wait(rtos::Thread&)
+ .text._ZN4rtos5Mutex6attachERNS_6ThreadE
+                0x00001614       0x20 librtos.a(mutex.cpp.obj)
+                0x00001614                rtos::Mutex::attach(rtos::Thread&)
+ .text._ZN4rtos5Mutex6detachEv
+                0x00001634       0x48 librtos.a(mutex.cpp.obj)
+                0x00001634                rtos::Mutex::detach()
+ .text._ZN4rtos5Mutex16priority_changedERNS_6ThreadE
+                0x0000167c       0xa8 librtos.a(mutex.cpp.obj)
+                0x0000167c                rtos::Mutex::priority_changed(rtos::Thread&)
+ .text._ZN4rtos5Mutex7changedEPv
+                0x00001724       0x14 librtos.a(mutex.cpp.obj)
+                0x00001724                rtos::Mutex::changed(void*)
+ .text._ZN4rtos5Mutex4lockEm
+                0x00001738      0x118 librtos.a(mutex.cpp.obj)
+                0x00001738                rtos::Mutex::lock(unsigned long)
+ .text._ZN4rtos5Mutex6unlockEv
+                0x00001850       0xf4 librtos.a(mutex.cpp.obj)
+                0x00001850                rtos::Mutex::unlock()
+ .text._ZN4rtos5Mutex7abandonERNS_6ThreadE
+                0x00001944       0x64 librtos.a(mutex.cpp.obj)
+                0x00001944                rtos::Mutex::abandon(rtos::Thread&)
+ .text._ZN4rtos5Mutex10owner_exitERNS_6ThreadE
+                0x000019a8       0x48 librtos.a(mutex.cpp.obj)
+                0x000019a8                rtos::Mutex::owner_exit(rtos::Thread&)
+ .text._ZN4rtos6detail12_GLOBAL__N_16Buffer3putEc
+                0x000019f0       0x30 librtos.a(log.cpp.obj)
+ .text._ZN4rtos6detail12_GLOBAL__N_16Buffer6numberEyjb
+                0x00001a20       0xec librtos.a(log.cpp.obj)
+ .text._ZN4rtos6detail10format_logEPcjPKcPv
+                0x00001b0c      0x32c librtos.a(log.cpp.obj)
+                0x00001b0c                rtos::detail::format_log(char*, unsigned int, char const*, void*)
+ .text          0x00001e38      0x430 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+                0x00001e38                __udivdi3
+
+.rodata         0x00002268      0x184
+ *(.rodata*)
+ .rodata.str1.4
+                0x00002268       0x83 CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+                                 0x49 (size before relaxing)
+ .rodata._ZN4rtos5startEmm.str1.4
+                0x000022eb        0x5 librtos.a(kernel.cpp.obj)
+ .rodata._ZN4rtos6detail12_GLOBAL__N_16Buffer6numberEyjb.str1.4
+                0x000022eb       0x25 librtos.a(log.cpp.obj)
+ .rodata._ZN4rtos6detail10format_logEPcjPKcPv.str1.4
+                0x000022eb        0x7 librtos.a(log.cpp.obj)
+ *fill*         0x000022eb        0x1 
+ .rodata        0x000022ec      0x100 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_clz.o)
+                0x000022ec                __clz_tab
+
+.rela.dyn       0x000023ec        0x0
+ .rela.text.start
+                0x000023ec        0x0 CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+
+.data           0x000023ec      0x2ec
+                0x000023f0                        . = ALIGN (0x10)
+ *fill*         0x000023ec        0x4 
+                0x00002bf0                        PROVIDE (__global_pointer$ = (. + 0x800))
+ *(.data*)
+ .data          0x000023f0      0x2d0 CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+ .data._ZN12_GLOBAL__N_19schedulerE
+                0x000026c0       0x18 librtos.a(kernel.cpp.obj)
+ *(.sdata*)
+
+.init_array
+ *(.init_array .init_array.* .ctors .ctors.*)
+
+.preinit_array
+ *(.preinit_array .preinit_array.*)
+
+.fini_array
+ *(.fini_array .fini_array.* .dtors .dtors.*)
+                0x00000001                        ASSERT ((SIZEOF (.init_array) == 0x0), Runtime C++ constructors are unsupported; use constant initialization)
+                0x00000001                        ASSERT ((SIZEOF (.preinit_array) == 0x0), Runtime preinitialization is unsupported)
+                0x00000001                        ASSERT ((SIZEOF (.fini_array) == 0x0), Runtime finalization is unsupported)
+
+.bss            0x000026e0     0x15a0
+                0x000026e0                        . = ALIGN (0x10)
+                0x000026e0                        _bss_start = .
+ *(.bss*)
+ .bss           0x000026e0     0x1310 CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+ .bss._ZN12_GLOBAL__N_112last_accountE
+                0x000039f0        0x8 librtos.a(kernel.cpp.obj)
+ .bss._ZN12_GLOBAL__N_19boot_timeE
+                0x000039f8        0x8 librtos.a(kernel.cpp.obj)
+ .bss._ZN12_GLOBAL__N_18deadlineE
+                0x00003a00        0x8 librtos.a(kernel.cpp.obj)
+ .bss._ZN12_GLOBAL__N_18clock_hzE
+                0x00003a08        0x4 librtos.a(kernel.cpp.obj)
+ .bss._ZN12_GLOBAL__N_16periodE
+                0x00003a0c        0x4 librtos.a(kernel.cpp.obj)
+ .bss._ZN12_GLOBAL__N_118handling_interruptE
+                0x00003a10        0x1 librtos.a(kernel.cpp.obj)
+ .bss._ZN12_GLOBAL__N_17runningE
+                0x00003a11        0x1 librtos.a(kernel.cpp.obj)
+ *fill*         0x00003a12        0x2 
+ .bss._ZN12_GLOBAL__N_17currentE
+                0x00003a14        0x4 librtos.a(kernel.cpp.obj)
+ *fill*         0x00003a18        0x8 
+ .bss._ZN12_GLOBAL__N_110idle_stackE
+                0x00003a20      0x200 librtos.a(kernel.cpp.obj)
+ .bss._ZN12_GLOBAL__N_111idle_threadE
+                0x00003c20       0x58 librtos.a(kernel.cpp.obj)
+ *(.sbss*)
+ *(COMMON)
+                0x00003c80                        . = ALIGN (0x10)
+ *fill*         0x00003c78        0x8 
+                0x00003c80                        _bss_end = .
+                0x00007f00                        _stack_top = (ORIGIN (RAM) + LENGTH (RAM))
+                0x00006f00                        _boot_stack_bottom = (_stack_top - __boot_stack_bytes)
+                0x00000001                        ASSERT ((((__boot_stack_bytes >= 0x200) && (__boot_stack_bytes <= LENGTH (RAM))) && ((__boot_stack_bytes % 0x10) == 0x0)), Invalid boot stack reserve)
+                0x00000001                        ASSERT ((_bss_end <= _boot_stack_bottom), Insufficient boot stack reserve)
+
+/DISCARD/
+ *(.eh_frame*)
+ *(.comment*)
+OUTPUT(demo.elf elf32-littleriscv)
+
+.riscv.attributes
+                0x00000000       0x37
+ .riscv.attributes
+                0x00000000       0x33 CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj
+ .riscv.attributes
+                0x00000033       0x35 CMakeFiles/demo.dir/ports/riscue/start.S.obj
+ .riscv.attributes
+                0x00000068       0x37 librtos.a(kernel.cpp.obj)
+ .riscv.attributes
+                0x0000009f       0x33 librtos.a(memory.cpp.obj)
+ .riscv.attributes
+                0x000000d2       0x35 librtos.a(context.S.obj)
+ .riscv.attributes
+                0x00000107       0x33 librtos.a(sync.cpp.obj)
+ .riscv.attributes
+                0x0000013a       0x33 librtos.a(mutex.cpp.obj)
+ .riscv.attributes
+                0x0000016d       0x33 librtos.a(log.cpp.obj)
+ .riscv.attributes
+                0x000001a0       0x2a /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+ .riscv.attributes
+                0x000001ca       0x2a /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_clz.o)
+
+.debug_info     0x00000000      0x839
+ .debug_info    0x00000000      0x761 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+ .debug_info    0x00000761       0xd8 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_clz.o)
+
+.debug_abbrev   0x00000000      0x216
+ .debug_abbrev  0x00000000      0x1a6 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+ .debug_abbrev  0x000001a6       0x70 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_clz.o)
+
+.debug_loclists
+                0x00000000      0x704
+ .debug_loclists
+                0x00000000      0x704 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+
+.debug_aranges  0x00000000       0x38
+ .debug_aranges
+                0x00000000       0x20 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+ .debug_aranges
+                0x00000020       0x18 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_clz.o)
+
+.debug_rnglists
+                0x00000000       0x99
+ .debug_rnglists
+                0x00000000       0x99 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+
+.debug_line     0x00000000      0x944
+ .debug_line    0x00000000      0x905 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+ .debug_line    0x00000905       0x3f /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_clz.o)
+
+.debug_str      0x00000000      0x297
+ .debug_str     0x00000000      0x297 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+                                0x23e (size before relaxing)
+ .debug_str     0x00000297      0x18b /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_clz.o)
+
+.debug_line_str
+                0x00000000       0xc5
+ .debug_line_str
+                0x00000000       0xc5 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_udivdi3.o)
+                                0x148 (size before relaxing)
+ .debug_line_str
+                0x000000c5      0x148 /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/rv32im/ilp32/libgcc.a(_clz.o)

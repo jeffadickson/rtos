@@ -1,0 +1,2 @@
+nm failed (1): /home/jeffd/.cache/nexrt-arm/root/usr/bin/arm-none-eabi-nm: 'build/expected-missing-audit-input.elf': No such file
+

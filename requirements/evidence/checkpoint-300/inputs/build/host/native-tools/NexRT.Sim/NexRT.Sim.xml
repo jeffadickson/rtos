@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>NexRT.Sim</name>
+    </assembly>
+    <members>
+        <member name="T:NexRT.Sim.Program">
+            <summary>Native C# orchestration for a real RISCue/SharpTestBench UART simulation; no Python build glue.</summary>
+        </member>
+        <member name="M:NexRT.Sim.Program.Main(System.String[])">
+            <summary>Builds a checked model and test DLL, then preserves a fresh bounded simulation run.</summary>
+        </member>
+        <member name="M:NexRT.Sim.Program.Hash(System.String)">
+            <summary>Identifies exact source and executable bytes in the preserved run manifest.</summary>
+        </member>
+        <member name="M:NexRT.Sim.Program.Run(System.String,System.String[],System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>Runs arguments without a shell, streams both channels, and enforces a wall-clock limit.</summary>
+        </member>
+        <member name="T:NexRT.Host.HostResult">
+            <summary>Complete bounded process outcome, including partial output on cancellation.</summary>
+        </member>
+        <member name="M:NexRT.Host.HostResult.#ctor(System.Int32,System.String,System.Boolean,System.Boolean,System.String)">
+            <summary>Complete bounded process outcome, including partial output on cancellation.</summary>
+        </member>
+        <member name="T:NexRT.Host.HostProcess">
+            <summary>Runs owned subprocesses without shell parsing or unbounded redirected-pipe waits.</summary>
+        </member>
+        <member name="M:NexRT.Host.HostProcess.Run(System.Diagnostics.ProcessStartInfo,System.TimeSpan,System.Int32)">
+            <summary>Bounds process exit and both output drains by one deadline and a shared character cap.</summary>
+            <param name="start">Literal executable/argument list; streams are redirected here.</param>
+            <param name="duration">Wall-clock execution and drain budget.</param>
+            <param name="maximumCharacters">Maximum retained output across both channels.</param>
+            <returns>Captured outcome; timeout includes descendants retaining inherited pipes.</returns>
+        </member>
+    </members>
+</doc>

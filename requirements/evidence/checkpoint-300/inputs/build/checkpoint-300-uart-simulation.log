@@ -1,0 +1,9 @@
+[0/2] Re-checking globbed directories...
+[0/1] cd /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host && /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/native-tools/NexRT.Sim/NexRT.Sim /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos /mnt/c/dev/RISCue /mnt/c/dev/SharpTestBench /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/uart/demo.elf
+Running /mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/riscv64-unknown-elf-objcopy -O binary /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/uart/demo.elf /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/sharp-demo/runs/20261020-192732-589/firmware.bin
+Running /usr/local/share/dotnet/dotnet build /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/sim/SharpDemo/SharpDemo.csproj -c Release --output /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/sharp-demo/runs/20261020-192732-589/managed -p:SharpTestBenchRoot=/mnt/c/dev/SharpTestBench
+Running verilator --version
+Running /usr/local/share/dotnet/dotnet --info
+Running /home/jeffd/.cache/nexrt/37c06ff7a0e8b661/model/riscue_demo +firmware=/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/sharp-demo/runs/20261020-192732-589/firmware.hex
+UART transcript: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/sharp-demo/runs/20261020-192732-589/uart.log
+Evidence: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/sharp-demo/runs/20261020-192732-589

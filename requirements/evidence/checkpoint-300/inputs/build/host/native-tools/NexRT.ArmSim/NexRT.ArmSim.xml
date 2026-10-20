@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>NexRT.ArmSim</name>
+    </assembly>
+    <members>
+        <member name="T:Program">
+            <summary>Runs bounded real-kernel ARM simulations with varied virtual timer timing.</summary>
+        </member>
+        <member name="M:Program.Main(System.String[])">
+            <summary>Requires QEMU path, firmware ELF and output directory; preserves every run.</summary>
+        </member>
+        <member name="M:Program.Digest(System.String)">
+            <summary>Identifies a file without retaining its complete contents in host memory.</summary>
+        </member>
+        <member name="M:Program.Fixture(System.String)">
+            <summary>Finite subprocess fixtures, run only by the native runner self-test.</summary>
+        </member>
+        <member name="M:Program.SelfTest">
+            <summary>Verifies success, failure, execution timeout, output limits and descendant-held pipes.</summary>
+        </member>
+        <member name="M:Program.Run(System.String,System.String[],System.String,System.Boolean)">
+            <summary>Streams both output pipes, enforces a 120-second bound and verifies guest success.</summary>
+        </member>
+        <member name="T:NexRT.Host.HostResult">
+            <summary>Complete bounded process outcome, including partial output on cancellation.</summary>
+        </member>
+        <member name="M:NexRT.Host.HostResult.#ctor(System.Int32,System.String,System.Boolean,System.Boolean,System.String)">
+            <summary>Complete bounded process outcome, including partial output on cancellation.</summary>
+        </member>
+        <member name="T:NexRT.Host.HostProcess">
+            <summary>Runs owned subprocesses without shell parsing or unbounded redirected-pipe waits.</summary>
+        </member>
+        <member name="M:NexRT.Host.HostProcess.Run(System.Diagnostics.ProcessStartInfo,System.TimeSpan,System.Int32)">
+            <summary>Bounds process exit and both output drains by one deadline and a shared character cap.</summary>
+            <param name="start">Literal executable/argument list; streams are redirected here.</param>
+            <param name="duration">Wall-clock execution and drain budget.</param>
+            <param name="maximumCharacters">Maximum retained output across both channels.</param>
+            <returns>Captured outcome; timeout includes descendants retaining inherited pipes.</returns>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,6 @@
+dffb1a45ebfd86798d9f58952c438c3c64eb8b203cde9a38be6081a592848d3a  build/host/native-tools/NexRT.Evidence/NexRT.Evidence
+7b415c97361eb17fe6af871e8c1be22f7a50e56ab81f17916a833519990c791c  build/host/native-tools/Rtos.Tools/Rtos.Tools
+f963a4562e586a1484311ed32e2642f20740810ddf83561cb58aab480fbdc04c  build/host/native-tools/NexRT.ArmSim/NexRT.ArmSim
+15eaf9855403c0bcb4274cbdf7444dd5628466d0a0257ed6a3eebdbb17e9b9cb  build/host/native-tools/NexRT.Sim/NexRT.Sim
+7f4a887108f1184074c2a6ebd4fb56bb3feee24c36170bf0d4d0152f164f3de1  build/host/native-tools/NexRT.Requirements/NexRT.Requirements
+6a6f3426e3d7495a6b281a1f89218ba61cd741908173e6f3b6dc80b0005c10bb  build/host/native-tools/NexRT.Workbench/NexRT.Workbench

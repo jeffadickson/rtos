@@ -30,7 +30,7 @@ set(RTOS_PREBUILT_NATIVE_TOOLS "" CACHE PATH "Validated build-host native tool b
 function(nexrt_add_host_tool target assembly project)
   get_filename_component(project_directory "${CMAKE_SOURCE_DIR}/${project}" DIRECTORY)
   file(GLOB tool_sources CONFIGURE_DEPENDS "${project_directory}/*.cs")
-  if(assembly STREQUAL "NexRT.ArmSim" OR assembly STREQUAL "NexRT.Sim" OR assembly STREQUAL "Rtos.Tools")
+  if(assembly STREQUAL "NexRT.ArmSim" OR assembly STREQUAL "NexRT.Sim" OR assembly STREQUAL "Rtos.Tools" OR assembly STREQUAL "NexRT.Evidence")
     list(APPEND tool_sources "${CMAKE_SOURCE_DIR}/tools/HostProcess.cs")
   endif()
   set(fingerprint_input "${NXR_HOST_RID}")

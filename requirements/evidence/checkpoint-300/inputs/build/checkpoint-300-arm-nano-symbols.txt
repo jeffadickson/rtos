@@ -1,0 +1,45 @@
+00000118 T Reset_Handler
+000005d8 T SVC_Handler
+000005dc T SysTick_Handler
+20000250 b (anonymous namespace)::idle_stack
+20000450 b (anonymous namespace)::idle_thread
+00000214 t (anonymous namespace)::arm()
+00000140 t (anonymous namespace)::Lock::~Lock() [clone .isra.0]
+0000013c t (anonymous namespace)::idle(void*)
+20000004 b (anonymous namespace)::task
+000000c0 t (anonymous namespace)::work(void*)
+20000030 b (anonymous namespace)::stack
+2000023c b (anonymous namespace)::period
+20000244 b (anonymous namespace)::current
+20000240 b (anonymous namespace)::running
+20000238 b (anonymous namespace)::clock_hz
+20000230 b (anonymous namespace)::deadline
+20000470 b (anonymous namespace)::scheduler
+00000498 T rtos::exit()
+20000488 V rtos::port::last_counter
+20000480 V rtos::port::counter_epoch
+000001c8 W rtos::port::mask_interrupts()
+000001dc W rtos::port::halt()
+000001e8 W rtos::port::time_now()
+00000334 T rtos::start(unsigned long, unsigned long)
+00000440 T rtos::yield()
+00000268 T rtos::create(rtos::Thread&, void (*)(void*), void*, unsigned char, void*, unsigned int, char const*)
+00000150 W rtos::detail::ranges_overlap(unsigned int, unsigned int, unsigned int, unsigned int)
+00000450 T rtos::sleep_for(unsigned long)
+00000174 W rtos::detail::Scheduler::conflicts(unsigned int, unsigned int) const
+00000934 W __aeabi_idiv0
+00000934 W __aeabi_ldiv0
+00000650 T __aeabi_uldivmod
+00001000 A __boot_stack_bytes
+00000680 T __udivmoddi4
+2000f000 A _boot_stack_bottom
+20000490 B _bss_end
+20000000 B _bss_start
+20010000 B _stack_top
+000005de t arm_context
+00000000 R arm_vectors
+000000d8 T main
+20000000 B nano_iterations
+00000634 W rtos_arm_fault
+000004c0 T rtos_entry
+000004d4 T rtos_trap

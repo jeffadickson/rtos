@@ -1,0 +1,5 @@
+QEMU=/home/jeffd/.cache/nexrt-arm/root/usr/bin/qemu-system-arm
+QEMU_SHA256=7ce133ab7b8eb1d1aa766e3f7a1ea182f8d1830a7dbe0ed3ad4f5cb85e4a0960
+ELF=/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/arm-stress-no-watermark/demo.elf
+ELF_SHA256=edd86ca22ca34e0b0e2c637a5bc29d7eace52470b645beb032263ec79214415f
+ICOUNT_SHIFTS=3,4,5

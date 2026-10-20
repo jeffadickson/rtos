@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NexRT — how it works</title><style>
+:root{color-scheme:dark;--bg:#101922;--ink:#e9f1ef;--muted:#b7cbcf;--line:#344b59;--accent:#8de6bc}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 system-ui,sans-serif}main{max-width:1080px;margin:auto;padding:32px 24px}a{color:var(--accent)}nav{display:flex;flex-wrap:wrap;gap:20px;border-bottom:1px solid var(--line);padding-bottom:18px}h1{font-size:clamp(36px,6vw,64px);line-height:1.1}h2{margin-top:64px;line-height:1.2}h3{margin-top:30px}p,li{max-width:84ch}.lead{font-size:22px;color:var(--muted)}pre{background:#0b1117;border:1px solid var(--line);border-radius:8px;padding:20px;overflow:auto;font:14px/1.65 ui-monospace,monospace;tab-size:4}code{font-family:ui-monospace,monospace}details{margin:20px 0}summary{cursor:pointer;color:var(--accent);font-weight:600}.flow{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:30px 0}.flow span{padding:14px;border:1px solid var(--line);border-radius:6px}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid var(--line);padding:12px;text-align:left}.note{border-left:3px solid var(--accent);padding-left:18px;color:var(--muted)}footer{margin-top:64px;border-top:1px solid var(--line);padding-top:20px}:focus-visible{outline:3px solid var(--accent);outline-offset:4px}</style></head>
+<body><main><nav aria-label="Guide"><a href="index.html">NexRT introduction</a><a href="#overview">Overview</a><a href="#applications">Write an application</a><a href="#drivers">Write a driver</a><a href="#assembly">Assembly</a><a href="#ports">Ports</a></nav>
+<h1>Small kernel.<br>Explicit ownership.</h1><p class="lead">How NexRT schedules work, how to write an application, and where drivers meet the CPU.</p>
+<p class="note">This is a host-side developer guide generated from the checked-in examples and assembly. RISCue firmware cross-builds; hardware execution, other CPU ports and board qualification remain separate work.</p>
+<section id="overview"><h2>What the kernel does</h2><div class="flow" aria-label="Architecture"><span>Static application threads</span><b aria-hidden="true">→</b><span>Scheduler + optional IPC</span><b aria-hidden="true">→</b><span>CPU port</span><b aria-hidden="true">→</b><span>Board hardware</span></div>
+<p>Before scheduling, main registers permanent thread control blocks and stacks. <code>start()</code> seals the registry, creates private idle state, configures the timer and dispatches. At each scheduling boundary the highest ready priority wins. Larger priority numbers take precedence; equal priorities rotate when requested. A sleeping or blocked thread permits other work to run.</p>
+<p>The kernel has no general heap, runtime thread creation or stack growth. Optional queues copy bounded values, mutexes serialize device transactions with priority inheritance, events represent readiness, and semaphores count tokens. These single-hart mechanisms do not provide SMP locking or DMA coherency.</p>
+<p>The measured nano image is <strong>3812 bytes</strong> of code/initialized data and <strong>9072 bytes</strong> of committed RISCue RAM, including the 4096-byte boot reserve. This guide and web services are excluded from that minimal image.</p></section>
+<section id="applications"><h2>Write and build an application</h2><p>Start with one function, one control block and one fixed stack. The following is the actual nano example. Set <code>machine_timer_hz</code> to the real timer frequency and verify the timer addresses/RAM map before board execution.</p><pre><code>#include &quot;rtos.hpp&quot;
+// One thread writes this debugger-visible counter. Volatile is not synchronization.
+volatile uint32_t nano_iterations;
+namespace {
+// Permanent boot-owned storage; the kernel borrows these objects forever.
+rtos::Thread task;
+rtos::Stack&lt;512&gt; stack; // Example size, not a proven worst-case stack bound.
+// EXAMPLE ONLY: replace with the actual board mtime frequency before execution.
+constexpr uint32_t machine_timer_hz = 10&#39;000&#39;000;
+void work(void*) {
+    for (;;) {
+        ++nano_iterations;
+        rtos::sleep_for(1); // Tick units; blocking permits private idle to execute.
+    }
+}
+}
+extern &quot;C&quot; int main() {
+    // Higher numeric priority wins; nano reserves one application registry slot.
+    if (!rtos::create(task, work, nullptr, 1, stack, &quot;nano&quot;)) return 1;
+    rtos::start(machine_timer_hz); // Non-returning timer setup and first dispatch.
+}
+</code></pre>
+<pre><code>cmake --preset host
+cmake --build --preset host --target native_tools
+cmake --preset nano \
+  -DRISCV_TOOLCHAIN_PREFIX=/path/to/toolchain/bin/riscv64-unknown-elf- \
+  -DRTOS_PREBUILT_NATIVE_TOOLS=build/host/native-tools
+cmake --build --preset nano</code></pre>
+<p>Run from the repository root in Linux/WSL with CMake, Ninja, .NET 10 Native AOT prerequisites and a suitable RV32 toolchain. The result is <code>build/nano/demo.elf</code> plus <code>demo.map</code>. The build audits allocator/constructor symbols. Watch <code>nano_iterations</code> in a board debugger after verifying your loader and FPGA design.</p>
+<h3>Communicate by copying a small value</h3><pre><code>#include "rtos_ipc.hpp"
+struct Sample { uint32_t channel; int32_t value; };
+static rtos::Queue&lt;Sample, 4&gt; samples;
+// Producer: check full explicitly.
+auto sent = samples.send({1, 42});
+// Consumer thread: timeout is ticks; failure leaves sample unchanged.
+Sample sample{};
+auto received = samples.receive(sample, 100);</code></pre><p>Enable <code>RTOS_SYNC</code> for these services; enable <code>RTOS_LOGGING</code> for bounded queued printf. Keep pointee lifetime explicit if a message contains a pointer. Use one permanent output thread and one logger for a shared console.</p></section>
+<section id="drivers"><h2>Write a small driver</h2><p>A driver owns register access, clock/reset setup, operation deadlines and recovery. The kernel supplies scheduling and ownership. Construct one permanent driver per physical device and share that object among its client threads.</p>
+<ol><li>Obtain the hardware register map, access widths, endianness, reset values and timing contract.</li><li>Keep MMIO in one board-facing class. <code>volatile</code> preserves accesses; it does not make a multi-register operation atomic or supply a bus fence.</li><li>Wrap the whole command/data/status transaction with <code>DeviceTransactions</code>, not each individual register.</li><li>Bound ownership waits and hardware completion separately. A stalled AXI load requires interconnect timeout/recovery; a software timeout cannot rescue a non-returning bus transaction.</li><li>Return explicit results and retain fault state until hardware is known safe. Never silently reuse an owner-dead device.</li></ol>
+<pre><code>class Device {
+    rtos::DeviceTransactions transaction_;
+public:
+    rtos::Result execute(uint32_t command) {
+        return transaction_.transact(100, [&amp;]() {
+            // Board code: write command, wait to a bounded deadline,
+            // read status, and acknowledge completion.
+            // Replace this placeholder with your verified register protocol.
+            (void)command;
+            return rtos::Result::invalid;
+        });
+    }
+};
+static Device shared_device;</code></pre>
+<p>The placeholder deliberately does not claim to perform I/O. Thread clients call the same instance. The acquisition timeout covers the mutex, not callback duration. ISR code must only use documented nonblocking APIs after the port provides verified dispatch/acknowledgement. The present RISCue port enables its machine timer only; a completion event alone does not install a peripheral interrupt handler.</p>
+<p>For a first integration, prefer bounded polling and a single owning worker. DMA is a later adapter with explicit buffer ownership, address/cache policy, completion and cancellation/quiescence. PCIe/SpaceVPX additionally needs versioned peer messages and fault/window isolation. No generic cache flush or bus address is guessed.</p></section>
+<section id="assembly"><h2>How preemption crosses assembly</h2><p>Reset disables interrupts, establishes sp/gp, clears BSS and calls main. There is no constructor runner or ROM-to-RAM data copy. A loader must place initialized data correctly.</p><p>A trap may interrupt any live register. The vector saves every integer register and machine continuation state before calling C++. The scheduler returns a different saved-frame pointer; assembly changes stacks only after the C++ call unwinds, restores the selected frame and executes <code>mret</code>.</p>
+<table><thead><tr><th>Frame bytes</th><th>State</th></tr></thead><tbody><tr><td>0</td><td>Unused x0 slot</td></tr><tr><td>4..124</td><td>x1..x31; original sp at byte 8, restored last</td></tr><tr><td>128</td><td>mepc; ECALL advances by four, timer keeps the interrupted PC</td></tr><tr><td>132</td><td>mstatus; MIE remains clear during restoration</td></tr><tr><td>136..143</td><td>Alignment padding; frame total is 144 bytes</td></tr></tbody></table>
+<p>The frame constructor uses the same layout. Initial status <code>0x1880</code> selects machine mode with MPIE set and MIE clear. First <code>mret</code> enables interrupts after restore. Runtime traps use each interrupted thread's stack; the boot reserve is not a separate ISR stack.</p>
+<details><summary>Every startup instruction</summary><pre><code>/* Reset entry for the flat RAM image. The loader must place .text/.rodata/.data
+ * at their linked addresses; there is no ROM-to-RAM data copy or constructor
+ * runner. link.ld supplies aligned BSS bounds and the reserved boot stack top.
+ * Entry must already be in machine mode on the sole participating hart.
+ * See the Sphinx assembly-port chapter for boot and debugger contracts.
+ */
+.section .text.start          /* link.ld KEEP places startup first in the RAM image. */
+.global _start                /* ELF entry symbol selected by ENTRY(_start). */
+.option norelax               /* Keep gp initialization from relaxing to mv gp,gp. */
+_start:
+ csrci mstatus,8              /* Clear global MIE before touching uninitialized state. */
+ csrw mie,zero                /* Disable all individual machine interrupt sources. */
+ la sp,_stack_top             /* Use the linker-reserved 4 KiB, 16-byte-aligned boot stack. */
+ la gp,__global_pointer$      /* Establish the ABI small-data base before C++ executes. */
+ la t0,_bss_start             /* First word to zero; no C++ globals may be read earlier. */
+ la t1,_bss_end               /* Exclusive end, padded to 16 bytes by link.ld. */
+1: beq t0,t1,2f               /* Empty or fully cleared BSS proceeds to main. */
+ sw zero,0(t0)                /* Initialize one aligned word of static zero-fill storage. */
+ addi t0,t0,4                 /* Advance exactly one RV32 word. */
+ j 1b                        /* Numeric local label 1 backward: continue BSS clearing. */
+2: call main                 /* Boot registration and start(); no argc/argv runtime. */
+3: wfi                       /* If main returns, remain here with interrupt sources off. */
+ j 3b                        /* Also safe if WFI is implemented as a no-op. */
+</code></pre></details><details><summary>Every context-switch instruction</summary><pre><code>/* Machine-mode RV32IM/Zicsr trap entry. See the Sphinx assembly-port chapter.
+ * There is no C/C++ prologue: every interrupted integer register must survive.
+ * The frame is 36 words / 144 bytes; xN occupies byte offset 4*N, except x0 is
+ * unused. mepc is at 128, mstatus at 132, and 136..143 are alignment padding.
+ * initialize_context() in rtos_port.hpp must construct exactly this layout.
+ * Traps use the interrupted stack; the boot stack is used before first dispatch.
+ * Hardware clears MIE on entry. Nested traps, FP/vector state and TLS are not
+ * supported. This handler must never enable interrupts before mret.
+ */
+.section .text                 /* Executable code retained through the vector reference. */
+.balign 4                     /* Direct mtvec requires the low two address bits clear. */
+.global rtos_vector           /* Referenced by port::install_vector(). */
+rtos_vector:
+ addi sp,sp,-144              /* Reserve a frame, preserving 16-byte ABI alignment. */
+ sw x1,4(sp)                  /* ra: interrupted return address, before call overwrites it. */
+ sw x3,12(sp)                 /* gp: small-data global pointer. */
+ sw x4,16(sp)                 /* tp: preserve the register even though TLS is unsupported. */
+ sw x5,20(sp)                 /* t0: save before using it as the entry scratch register. */
+ sw x6,24(sp)                 /* t1: caller-saved temporary. */
+ sw x7,28(sp)                 /* t2: caller-saved temporary. */
+ sw x8,32(sp)                 /* s0/fp: callee-saved register / optional frame pointer. */
+ sw x9,36(sp)                 /* s1: callee-saved register. */
+ sw x10,40(sp)                /* a0: interrupted argument/result, not the handler argument. */
+ sw x11,44(sp)                /* a1: interrupted argument/result. */
+ sw x12,48(sp)                /* a2: interrupted argument. */
+ sw x13,52(sp)                /* a3: interrupted argument. */
+ sw x14,56(sp)                /* a4: interrupted argument. */
+ sw x15,60(sp)                /* a5: interrupted argument. */
+ sw x16,64(sp)                /* a6: interrupted argument. */
+ sw x17,68(sp)                /* a7: interrupted argument. */
+ sw x18,72(sp)                /* s2: callee-saved register. */
+ sw x19,76(sp)                /* s3: callee-saved register. */
+ sw x20,80(sp)                /* s4: callee-saved register. */
+ sw x21,84(sp)                /* s5: callee-saved register. */
+ sw x22,88(sp)                /* s6: callee-saved register. */
+ sw x23,92(sp)                /* s7: callee-saved register. */
+ sw x24,96(sp)                /* s8: callee-saved register. */
+ sw x25,100(sp)               /* s9: callee-saved register. */
+ sw x26,104(sp)               /* s10: callee-saved register. */
+ sw x27,108(sp)               /* s11: callee-saved register. */
+ sw x28,112(sp)               /* t3: caller-saved temporary. */
+ sw x29,116(sp)               /* t4: caller-saved temporary. */
+ sw x30,120(sp)               /* t5: caller-saved temporary. */
+ sw x31,124(sp)               /* t6: caller-saved temporary. */
+ addi t0,sp,144               /* Recover x2/sp as it was before frame reservation. */
+ sw t0,8(sp)                  /* Store the original sp in x2&#39;s canonical slot. */
+ csrr t0,mepc                 /* Hardware continuation PC (the ECALL address for yield). */
+ sw t0,128(sp)                /* C++ advances this word by four only for ECALL. */
+ csrr t0,mstatus              /* Trap-entry MIE=0; MPIE retains the prior interrupt state. */
+ sw t0,132(sp)                /* Keep this thread&#39;s return mode and interrupt state. */
+ mv a0,sp                     /* C ABI argument 0: interrupted frame pointer. */
+ csrr a1,mcause               /* C ABI argument 1: complete cause, including interrupt bit. */
+ call rtos_trap               /* Save/account/select; returns the next frame in a0. */
+ mv sp,a0                     /* Switch stacks only after the C++ call has returned. */
+ lw t0,128(sp)                /* Read the selected thread&#39;s continuation PC. */
+ csrw mepc,t0                 /* Set mret destination before restoring its temporary. */
+ lw t0,132(sp)                /* Read the selected thread&#39;s saved machine status. */
+ csrw mstatus,t0              /* Saved MIE stays zero until the final mret. */
+ lw x1,4(sp)                  /* Restore ra; do not return through the C++ call&#39;s ra. */
+ lw x3,12(sp)                 /* Restore gp. */
+ lw x4,16(sp)                 /* Restore tp. */
+ lw x5,20(sp)                 /* Restore t0 after all scratch CSR operations finish. */
+ lw x6,24(sp)                 /* Restore t1. */
+ lw x7,28(sp)                 /* Restore t2. */
+ lw x8,32(sp)                 /* Restore s0/fp. */
+ lw x9,36(sp)                 /* Restore s1. */
+ lw x10,40(sp)                /* Restore a0, replacing the handler&#39;s frame result. */
+ lw x11,44(sp)                /* Restore a1. */
+ lw x12,48(sp)                /* Restore a2. */
+ lw x13,52(sp)                /* Restore a3. */
+ lw x14,56(sp)                /* Restore a4. */
+ lw x15,60(sp)                /* Restore a5. */
+ lw x16,64(sp)                /* Restore a6. */
+ lw x17,68(sp)                /* Restore a7. */
+ lw x18,72(sp)                /* Restore s2. */
+ lw x19,76(sp)                /* Restore s3. */
+ lw x20,80(sp)                /* Restore s4. */
+ lw x21,84(sp)                /* Restore s5. */
+ lw x22,88(sp)                /* Restore s6. */
+ lw x23,92(sp)                /* Restore s7. */
+ lw x24,96(sp)                /* Restore s8. */
+ lw x25,100(sp)               /* Restore s9. */
+ lw x26,104(sp)               /* Restore s10. */
+ lw x27,108(sp)               /* Restore s11. */
+ lw x28,112(sp)               /* Restore t3. */
+ lw x29,116(sp)               /* Restore t4. */
+ lw x30,120(sp)               /* Restore t5. */
+ lw x31,124(sp)               /* Restore t6. */
+ lw sp,8(sp)                  /* Restore sp LAST: every earlier load uses the frame base. */
+ mret                         /* Resume mepc in M mode; MPIE becomes MIE atomically. */
+</code></pre></details><details><summary>Inline assembly and timer operations</summary><pre><code>#pragma once
+#include &lt;stddef.h&gt;
+#include &lt;stdint.h&gt;
+extern &quot;C&quot; void rtos_vector();
+namespace rtos::port {
+using InterruptState = uint32_t;
+/** Atomically read mstatus and clear MIE (bit 3) on this hart. The &#39;=r&#39; output
+ * permits compiler register allocation; immediate 8 is the CSR bit mask. The
+ * memory clobber orders compiler RAM accesses, not hardware MMIO, DMA or SMP.
+ */
+inline InterruptState mask_interrupts() { InterruptState previous; asm volatile(&quot;csrrci %0, mstatus, 8&quot; : &quot;=r&quot;(previous) :: &quot;memory&quot;); return previous; }
+/// Restore saved MIE only. Nested callers unwind in order with MIE still masked.
+inline void restore_interrupts(InterruptState previous) { if(previous &amp; 8) asm volatile(&quot;csrsi mstatus, 8&quot; ::: &quot;memory&quot;); }
+/// Power/wait hint; current RISCue may implement WFI as a NOP.
+inline void idle() { asm volatile(&quot;wfi&quot;); }
+/// Fail closed: disable interrupts and remain in the hint loop forever.
+[[noreturn]] inline void halt() { (void)mask_interrupts(); for(;;) idle(); }
+/// Read split MMIO high/low/high; retry on rollover to avoid a torn RV32 value.
+/// Board integration must provide accessible, ordered 32-bit timer registers.
+inline uint64_t time_now() {
+    auto* timer=reinterpret_cast&lt;volatile uint32_t*&gt;(RTOS_MTIME_ADDRESS);
+    uint32_t hi,lo,again;
+    do { hi=timer[1]; lo=timer[0]; again=timer[1]; } while(hi!=again);
+    return (uint64_t(hi)&lt;&lt;32)|lo;
+}
+/// High=max, low, final high prevents a transient early compare on this board.
+/// This assumes ordered MMIO; another port must supply its own verified ordering.
+inline void arm(uint64_t deadline) {
+    auto* compare=reinterpret_cast&lt;volatile uint32_t*&gt;(RTOS_MTIMECMP_ADDRESS);
+    compare[1]=0xffffffffu; compare[0]=uint32_t(deadline); compare[1]=deadline&gt;&gt;32;
+}
+/** Construct context.S&#39;s 36-word frame in validated permanent stack storage.
+ * Slot 2 is the original stack top, slot 32 the entry trampoline. 0x1880 means
+ * MPP=M, MPIE=1, MIE=0: the first mret enables IRQs after restoring all registers.
+ * gp/tp inherit bootstrap register values; tp preservation is not TLS support.
+ * See the Sphinx assembly-port frame table before changing either implementation.
+ */
+inline uint32_t* initialize_context(void* stack,size_t bytes,void (*entry)()) {
+    auto* frame=reinterpret_cast&lt;uint32_t*&gt;(static_cast&lt;char*&gt;(stack)+bytes)-36;
+    for(unsigned i=0;i&lt;36;++i) frame[i]=0;
+    frame[2]=reinterpret_cast&lt;uintptr_t&gt;(frame+36);
+    asm volatile(&quot;mv %0, gp&quot; : &quot;=r&quot;(frame[3])); // Allocated register output is stored in x3&#39;s slot.
+    asm volatile(&quot;mv %0, tp&quot; : &quot;=r&quot;(frame[4])); // Preserve bootstrap x4 without inventing a TLS base.
+    frame[32]=reinterpret_cast&lt;uintptr_t&gt;(entry); frame[33]=0x1880u;
+    return frame;
+}
+/// Set the aligned direct mtvec using an allocated &#39;r&#39; operand and compiler barrier.
+inline void install_vector() { asm volatile(&quot;csrw mtvec, %0&quot; :: &quot;r&quot;(&amp;rtos_vector) : &quot;memory&quot;); }
+/// Enable MTIE (bit 7) only; external interrupt sources remain disabled.
+inline void enable_timer() { asm volatile(&quot;csrw mie, %0&quot; :: &quot;r&quot;(0x80u) : &quot;memory&quot;); }
+/// A synchronous 32-bit ECALL traps even with MIE clear; memory clobber orders RAM.
+inline void reschedule() { asm volatile(&quot;ecall&quot; ::: &quot;memory&quot;); }
+/// Machine-mode ECALL: exception code 11, interrupt bit clear.
+inline bool is_yield(uint32_t cause) { return cause==11; }
+/// Machine timer: interrupt bit 31 set plus exception code 7.
+inline bool is_tick(uint32_t cause) { return cause==0x80000007u; }
+/// Skip only ECALL&#39;s four bytes; a timer trap retains the interrupted PC.
+inline void resume_after_yield(uint32_t* frame) { frame[32]+=4; }
+}
+</code></pre></details>
+<p>Inline assembly uses compiler-allocated registers and memory clobbers where required. A memory clobber orders compiler operations; it is not a hardware fence, DMA cache operation or multicore lock. Nested traps, user mode, TLS and floating-point/vector context are outside this port.</p></section>
+<section id="ports"><h2>Port the CPU and the board separately</h2><p>Tang Nano 9K is an FPGA board, so its selected soft core determines the interrupt ISA, timer and memory map. Classic MicroBlaze is a separate architecture from MicroBlaze V. Do not substitute RISC-V assembly for a classic MicroBlaze context switch.</p><p>A port needs an exact hardware design/export, compiler ABI, endianness, RAM, timer frequency/registers, interrupt routing, startup/vector policy and cache policy. Until these are checked, configuration status stays provisional/planned. Cross-build evidence does not establish board execution.</p><p>The Sphinx manual contains the detailed API, source reference, driver inventory, platform status and target qualification checklist.</p></section>
+<section id="uploads"><h2>Small uploaded diagnostics and QSPI boot</h2><p>Planned: reserve one optional RAM slot and one permanent diagnostic worker at boot. Ground tools link an image for that exact slot and firmware/service ABI, retain ELF symbols for debugging, and upload a flat payload plus a checked manifest. The target needs bounded transfer, validation and activation, without an ELF parser or runtime symbol resolver. Slot and worker storage still count toward RAM; the minimal build has neither.</p><p>Replacement requires a stopped worker and no outstanding references or device operations. Uploaded native code shares kernel privilege; a qualified watchdog/reset path is needed for hung code. Cache and instruction-fetch synchronization must be supplied by the actual board port before activation.</p><p>QSPI can store boot and diagnostic images. Copying boot code into RAM does not reduce execution RAM; XIP can, when the FPGA controller supports memory-mapped instruction fetch. The current flat-RAM port has no QSPI/XIP driver or flash-to-RAM data initialization. See the Sphinx manual's Uploaded diagnostics and QSPI boot chapter for the full planned contract.</p><p><code>RTOS_BOOT_STACK_BYTES</code> now makes the boot reserve explicit and configurable. Its default stays 4096 bytes; smaller values require startup call-chain and board validation. Runtime traps consume each thread's own stack.</p></section>
+<section id="arm-simulation"><h2>ARM simulation and verification</h2><p>The Cortex-M3 QEMU port runs privileged threads on PSP and kernel handlers on a separate MSP stack. Hardware saves eight integer-frame words; assembly prefixes BASEPRI, EXC_RETURN and r4–r11. SVC handles blocking calls; SysTick preempts. This differs from the RISCue frame shown above.</p><p>The stress application uses nine worker/coordinator stacks, static queues and extra test state. Its memory use is not the minimal configuration measured at the top. Register and NZCV canaries, interrupted-PC witnesses, timer catch-up, rollover and queue variants exercise real exception paths. Host models add repeatable IPC checks; optional ASan/UBSan and Valgrind inspect host C++.</p><p>The Sphinx manual contains the complete ARM assembly, stack layouts, driver contracts, libgloss explanation, build examples and evidence limitations. VORAGO, Zynq, classic MicroBlaze and a specific Tang Nano soft SoC still need their exact BSP and port work.</p></section>
+<footer><p>Generated from repository source. Minimal ELF SHA-256: <code>42f44b0a19328a3672774838a8d82f6568eeb0d58b1046bb7bb6ba1375815a5e</code>.</p></footer></main></body></html>

@@ -40,6 +40,14 @@ allocator check cannot detect arbitrary renamed/custom allocators by itself.
 Perform the audit before stripping a delivery image, and retain the unstripped
 audited ELF and its identity with evidence.
 
+The memory presets also build a deliberately invalid host-only probe. Native
+C# gates require a nonzero exit and the specific heap-use-after-free ASan,
+signed-overflow UBSan, or invalid-read Memcheck diagnostic. A generic crash or
+tool startup failure does not count. These expected diagnostic logs are named
+``negative-asan.log``, ``negative-ubsan.log`` and ``negative-valgrind.log`` in
+their respective build directories. The invalid probe is absent from ordinary
+host/firmware builds and is not part of a passing application workload.
+
 Compiler/linker contract fixtures include stripped-image rejection alongside
 constant initialization, constructor/preinitializer/finalizer rejection and
 reachable allocator detection. Audit/compiler subprocesses use the shared

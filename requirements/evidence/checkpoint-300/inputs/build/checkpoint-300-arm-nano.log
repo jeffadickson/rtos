@@ -1,0 +1,13 @@
+[0/2] Re-checking globbed directories...
+[1/9] Building ASM object CMakeFiles/rtos.dir/ports/arm-mps2/context.S.obj
+[2/9] Building ASM object CMakeFiles/rtos.dir/ports/arm-mps2/canaries.S.obj
+[3/9] Building ASM object CMakeFiles/demo.dir/ports/arm-mps2/start.S.obj
+[4/9] Building CXX object CMakeFiles/rtos.dir/ports/arm-mps2/fault.cpp.obj
+[5/9] Building CXX object CMakeFiles/rtos.dir/src/memory.cpp.obj
+[6/9] Building CXX object CMakeFiles/demo.dir/examples/nano.cpp.obj
+[7/9] Building CXX object CMakeFiles/rtos.dir/src/kernel.cpp.obj
+[8/9] Linking CXX static library librtos.a
+[9/9] Linking CXX executable demo.elf
+Static-only ELF audit passed: no allocator or dynamic C++ initializer symbols
+   text	   data	    bss	    dec	    hex	filename
+   2388	      0	   1168	   3556	    de4	/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/arm-nano/demo.elf

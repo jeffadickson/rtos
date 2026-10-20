@@ -1,0 +1,315 @@
+Archive member included to satisfy reference by file (symbol)
+
+librtos.a(kernel.cpp.obj)     CMakeFiles/demo.dir/examples/nano.cpp.obj (rtos::create(rtos::Thread&, void (*)(void*), void*, unsigned char, void*, unsigned int, char const*))
+librtos.a(memory.cpp.obj)     librtos.a(kernel.cpp.obj) (memset)
+librtos.a(context.S.obj)      CMakeFiles/demo.dir/ports/arm-mps2/start.S.obj (SVC_Handler)
+librtos.a(fault.cpp.obj)      CMakeFiles/demo.dir/ports/arm-mps2/start.S.obj (rtos_arm_fault)
+/home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_aeabi_uldivmod.o)
+                              librtos.a(kernel.cpp.obj) (__aeabi_uldivmod)
+/home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_udivmoddi4.o)
+                              /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_aeabi_uldivmod.o) (__udivmoddi4)
+/home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_dvmd_tls.o)
+                              /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_aeabi_uldivmod.o) (__aeabi_ldiv0)
+
+Discarded input sections
+
+ .data          0x00000000        0x0 CMakeFiles/demo.dir/examples/nano.cpp.obj
+ .text          0x00000000        0x0 CMakeFiles/demo.dir/ports/arm-mps2/start.S.obj
+ .data          0x00000000        0x0 CMakeFiles/demo.dir/ports/arm-mps2/start.S.obj
+ .bss           0x00000000        0x0 CMakeFiles/demo.dir/ports/arm-mps2/start.S.obj
+ .group         0x00000000        0x8 librtos.a(kernel.cpp.obj)
+ .group         0x00000000        0xc librtos.a(kernel.cpp.obj)
+ .group         0x00000000        0x8 librtos.a(kernel.cpp.obj)
+ .group         0x00000000        0xc librtos.a(kernel.cpp.obj)
+ .group         0x00000000        0xc librtos.a(kernel.cpp.obj)
+ .group         0x00000000        0x8 librtos.a(kernel.cpp.obj)
+ .group         0x00000000        0x8 librtos.a(kernel.cpp.obj)
+ .text          0x00000000        0x0 librtos.a(kernel.cpp.obj)
+ .data          0x00000000        0x0 librtos.a(kernel.cpp.obj)
+ .bss           0x00000000        0x0 librtos.a(kernel.cpp.obj)
+ .text._ZN4rtos5ticksEv
+                0x00000000       0x20 librtos.a(kernel.cpp.obj)
+ .text._ZN4rtos12set_priorityERNS_6ThreadEh
+                0x00000000       0x3c librtos.a(kernel.cpp.obj)
+ .text._ZN4rtos8snapshotEPNS_10ThreadInfoEj
+                0x00000000       0xf4 librtos.a(kernel.cpp.obj)
+ .text._ZN4rtos11stack_usageERKNS_6ThreadERNS_10StackUsageEj
+                0x00000000       0x78 librtos.a(kernel.cpp.obj)
+ .text          0x00000000        0x0 librtos.a(memory.cpp.obj)
+ .data          0x00000000        0x0 librtos.a(memory.cpp.obj)
+ .bss           0x00000000        0x0 librtos.a(memory.cpp.obj)
+ .text.memset   0x00000000       0x10 librtos.a(memory.cpp.obj)
+ .text.memcpy   0x00000000       0x14 librtos.a(memory.cpp.obj)
+ .text.memmove  0x00000000       0x24 librtos.a(memory.cpp.obj)
+ .text.memcmp   0x00000000       0x28 librtos.a(memory.cpp.obj)
+ .comment       0x00000000       0x27 librtos.a(memory.cpp.obj)
+ .ARM.attributes
+                0x00000000       0x2d librtos.a(memory.cpp.obj)
+ .text          0x00000000        0x0 librtos.a(context.S.obj)
+ .data          0x00000000        0x0 librtos.a(context.S.obj)
+ .bss           0x00000000        0x0 librtos.a(context.S.obj)
+ .text          0x00000000        0x0 librtos.a(fault.cpp.obj)
+ .data          0x00000000        0x0 librtos.a(fault.cpp.obj)
+ .bss           0x00000000        0x0 librtos.a(fault.cpp.obj)
+ .data          0x00000000        0x0 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_aeabi_uldivmod.o)
+ .bss           0x00000000        0x0 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_aeabi_uldivmod.o)
+ .data          0x00000000        0x0 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_udivmoddi4.o)
+ .bss           0x00000000        0x0 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_udivmoddi4.o)
+ .ARM.extab     0x00000000        0x0 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_udivmoddi4.o)
+ .data          0x00000000        0x0 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_dvmd_tls.o)
+ .bss           0x00000000        0x0 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_dvmd_tls.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+CODE             0x00000000         0x00040000         xr
+RAM              0x20000000         0x00010000         rw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+                0x00001000                        __boot_stack_bytes = 0x1000
+LOAD CMakeFiles/demo.dir/examples/nano.cpp.obj
+LOAD CMakeFiles/demo.dir/ports/arm-mps2/start.S.obj
+LOAD librtos.a
+LOAD /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a
+                [!provide]                        PROVIDE (__boot_stack_bytes = 0x1000)
+
+.vectors        0x00000000       0xc0
+ *(.vectors)
+ .vectors       0x00000000       0xc0 CMakeFiles/demo.dir/ports/arm-mps2/start.S.obj
+                0x00000000                arm_vectors
+
+.text           0x000000c0      0x88c
+ *(.text*)
+ .text          0x000000c0       0x18 CMakeFiles/demo.dir/examples/nano.cpp.obj
+ .text.startup  0x000000d8       0x40 CMakeFiles/demo.dir/examples/nano.cpp.obj
+                0x000000d8                main
+ .text.start    0x00000118       0x24 CMakeFiles/demo.dir/ports/arm-mps2/start.S.obj
+                0x00000118                Reset_Handler
+ .text._ZN12_GLOBAL__N_14idleEPv
+                0x0000013c        0x4 librtos.a(kernel.cpp.obj)
+ .text._ZN12_GLOBAL__N_14LockD2Ev.isra.0
+                0x00000140       0x10 librtos.a(kernel.cpp.obj)
+ .text._ZN4rtos6detail14ranges_overlapEjjjj
+                0x00000150       0x24 librtos.a(kernel.cpp.obj)
+                0x00000150                rtos::detail::ranges_overlap(unsigned int, unsigned int, unsigned int, unsigned int)
+ .text._ZNK4rtos6detail9Scheduler9conflictsEjj
+                0x00000174       0x54 librtos.a(kernel.cpp.obj)
+                0x00000174                rtos::detail::Scheduler::conflicts(unsigned int, unsigned int) const
+ .text._ZN4rtos4port15mask_interruptsEv
+                0x000001c8       0x14 librtos.a(kernel.cpp.obj)
+                0x000001c8                rtos::port::mask_interrupts()
+ .text._ZN4rtos4port4haltEv
+                0x000001dc        0xa librtos.a(kernel.cpp.obj)
+                0x000001dc                rtos::port::halt()
+ *fill*         0x000001e6        0x2 
+ .text._ZN4rtos4port8time_nowEv
+                0x000001e8       0x2c librtos.a(kernel.cpp.obj)
+                0x000001e8                rtos::port::time_now()
+ .text._ZN12_GLOBAL__N_13armEv
+                0x00000214       0x54 librtos.a(kernel.cpp.obj)
+ .text._ZN4rtos6createERNS_6ThreadEPFvPvES2_hS2_jPKc
+                0x00000268       0xcc librtos.a(kernel.cpp.obj)
+                0x00000268                rtos::create(rtos::Thread&, void (*)(void*), void*, unsigned char, void*, unsigned int, char const*)
+ .text._ZN4rtos5startEmm
+                0x00000334      0x10c librtos.a(kernel.cpp.obj)
+                0x00000334                rtos::start(unsigned long, unsigned long)
+ .text._ZN4rtos5yieldEv
+                0x00000440       0x10 librtos.a(kernel.cpp.obj)
+                0x00000440                rtos::yield()
+ .text._ZN4rtos9sleep_forEm
+                0x00000450       0x48 librtos.a(kernel.cpp.obj)
+                0x00000450                rtos::sleep_for(unsigned long)
+ .text._ZN4rtos4exitEv
+                0x00000498       0x28 librtos.a(kernel.cpp.obj)
+                0x00000498                rtos::exit()
+ .text.rtos_entry
+                0x000004c0       0x14 librtos.a(kernel.cpp.obj)
+                0x000004c0                rtos_entry
+ .text.rtos_trap
+                0x000004d4      0x104 librtos.a(kernel.cpp.obj)
+                0x000004d4                rtos_trap
+ .text.arm_context
+                0x000005d8       0x5c librtos.a(context.S.obj)
+                0x000005d8                SVC_Handler
+                0x000005dc                SysTick_Handler
+ .text.rtos_arm_fault
+                0x00000634       0x1c librtos.a(fault.cpp.obj)
+                0x00000634                rtos_arm_fault
+ .text          0x00000650       0x30 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_aeabi_uldivmod.o)
+                0x00000650                __aeabi_uldivmod
+ .text          0x00000680      0x2b4 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_udivmoddi4.o)
+                0x00000680                __udivmoddi4
+ .text          0x00000934        0x4 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_dvmd_tls.o)
+                0x00000934                __aeabi_ldiv0
+                0x00000934                __aeabi_idiv0
+ *(.rodata*)
+ .rodata.str1.1
+                0x00000938        0xa CMakeFiles/demo.dir/examples/nano.cpp.obj
+                                  0x5 (size before relaxing)
+ .rodata._ZN4rtos5startEmm.str1.1
+                0x00000942        0x5 librtos.a(kernel.cpp.obj)
+ *fill*         0x00000942        0x2 
+ .rodata        0x00000944        0x8 librtos.a(fault.cpp.obj)
+
+.glue_7         0x0000094c        0x0
+ .glue_7        0x0000094c        0x0 linker stubs
+
+.glue_7t        0x0000094c        0x0
+ .glue_7t       0x0000094c        0x0 linker stubs
+
+.vfp11_veneer   0x0000094c        0x0
+ .vfp11_veneer  0x0000094c        0x0 linker stubs
+
+.v4_bx          0x0000094c        0x0
+ .v4_bx         0x0000094c        0x0 linker stubs
+
+.iplt           0x0000094c        0x0
+ .iplt          0x0000094c        0x0 CMakeFiles/demo.dir/examples/nano.cpp.obj
+
+.ARM.extab
+ *(.ARM.extab*)
+
+.ARM.exidx      0x0000094c        0x8
+ *(.ARM.exidx*)
+ .ARM.exidx     0x0000094c        0x8 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_udivmoddi4.o)
+
+.rel.dyn        0x00000954        0x0
+ .rel.iplt      0x00000954        0x0 CMakeFiles/demo.dir/examples/nano.cpp.obj
+
+.data
+ *(.data*)
+
+.igot.plt       0x20000000        0x0
+ .igot.plt      0x20000000        0x0 CMakeFiles/demo.dir/examples/nano.cpp.obj
+
+.bss            0x20000000      0x490
+                0x20000000                        . = ALIGN (0x10)
+                0x20000000                        _bss_start = .
+ *(.bss*)
+ .bss           0x20000000      0x230 CMakeFiles/demo.dir/examples/nano.cpp.obj
+                0x20000000                nano_iterations
+ .bss._ZN12_GLOBAL__N_18deadlineE
+                0x20000230        0x8 librtos.a(kernel.cpp.obj)
+ .bss._ZN12_GLOBAL__N_18clock_hzE
+                0x20000238        0x4 librtos.a(kernel.cpp.obj)
+ .bss._ZN12_GLOBAL__N_16periodE
+                0x2000023c        0x4 librtos.a(kernel.cpp.obj)
+ .bss._ZN12_GLOBAL__N_17runningE
+                0x20000240        0x1 librtos.a(kernel.cpp.obj)
+ *fill*         0x20000241        0x3 
+ .bss._ZN12_GLOBAL__N_17currentE
+                0x20000244        0x4 librtos.a(kernel.cpp.obj)
+ *fill*         0x20000248        0x8 
+ .bss._ZN12_GLOBAL__N_110idle_stackE
+                0x20000250      0x200 librtos.a(kernel.cpp.obj)
+ .bss._ZN12_GLOBAL__N_111idle_threadE
+                0x20000450       0x20 librtos.a(kernel.cpp.obj)
+ .bss._ZN12_GLOBAL__N_19schedulerE
+                0x20000470       0x10 librtos.a(kernel.cpp.obj)
+ .bss._ZN4rtos4port13counter_epochE
+                0x20000480        0x8 librtos.a(kernel.cpp.obj)
+                0x20000480                rtos::port::counter_epoch
+ .bss._ZN4rtos4port12last_counterE
+                0x20000488        0x4 librtos.a(kernel.cpp.obj)
+                0x20000488                rtos::port::last_counter
+ *(COMMON)
+                0x20000490                        . = ALIGN (0x10)
+ *fill*         0x2000048c        0x4 
+                0x20000490                        _bss_end = .
+
+.init_array
+ *(.init_array .init_array.* .ctors .ctors.*)
+
+.preinit_array
+ *(.preinit_array .preinit_array.*)
+
+.fini_array
+ *(.fini_array .fini_array.* .dtors .dtors.*)
+                0x00000001                        ASSERT ((SIZEOF (.init_array) == 0x0), Runtime C++ constructors are unsupported; use constant initialization)
+                0x00000001                        ASSERT ((SIZEOF (.preinit_array) == 0x0), Runtime preinitialization is unsupported)
+                0x00000001                        ASSERT ((SIZEOF (.fini_array) == 0x0), Runtime finalization is unsupported)
+                0x20010000                        _stack_top = (ORIGIN (RAM) + LENGTH (RAM))
+                0x2000f000                        _boot_stack_bottom = (_stack_top - __boot_stack_bytes)
+                0x00000001                        ASSERT ((((__boot_stack_bytes >= 0x200) && (__boot_stack_bytes <= LENGTH (RAM))) && ((__boot_stack_bytes % 0x10) == 0x0)), Invalid boot stack reserve)
+                0x00000001                        ASSERT ((_bss_end <= _boot_stack_bottom), Static RAM overlaps exception/boot stack)
+OUTPUT(demo.elf elf32-littlearm)
+LOAD linker stubs
+
+.comment        0x00000000       0x26
+ .comment       0x00000000       0x26 CMakeFiles/demo.dir/examples/nano.cpp.obj
+                                 0x27 (size before relaxing)
+ .comment       0x00000026       0x27 librtos.a(kernel.cpp.obj)
+ .comment       0x00000026       0x27 librtos.a(fault.cpp.obj)
+ .comment       0x00000026       0x27 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_udivmoddi4.o)
+
+.ARM.attributes
+                0x00000000       0x2b
+ .ARM.attributes
+                0x00000000       0x2d CMakeFiles/demo.dir/examples/nano.cpp.obj
+ .ARM.attributes
+                0x0000002d       0x21 CMakeFiles/demo.dir/ports/arm-mps2/start.S.obj
+ .ARM.attributes
+                0x0000004e       0x2d librtos.a(kernel.cpp.obj)
+ .ARM.attributes
+                0x0000007b       0x21 librtos.a(context.S.obj)
+ .ARM.attributes
+                0x0000009c       0x2d librtos.a(fault.cpp.obj)
+ .ARM.attributes
+                0x000000c9       0x1d /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_aeabi_uldivmod.o)
+ .ARM.attributes
+                0x000000e6       0x2d /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_udivmoddi4.o)
+ .ARM.attributes
+                0x00000113       0x1d /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_dvmd_tls.o)
+
+.debug_line     0x00000000      0x608
+ .debug_line    0x00000000       0x4e /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_aeabi_uldivmod.o)
+ .debug_line    0x0000004e      0x570 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_udivmoddi4.o)
+ .debug_line    0x000005be       0x4a /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_dvmd_tls.o)
+
+.debug_line_str
+                0x00000000       0x9f
+ .debug_line_str
+                0x00000000       0x9f /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_aeabi_uldivmod.o)
+                                 0x93 (size before relaxing)
+ .debug_line_str
+                0x0000009f       0x97 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_dvmd_tls.o)
+
+.debug_info     0x00000000      0x755
+ .debug_info    0x00000000       0x24 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_aeabi_uldivmod.o)
+ .debug_info    0x00000024      0x6f5 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_udivmoddi4.o)
+ .debug_info    0x00000719       0x3c /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_dvmd_tls.o)
+
+.debug_abbrev   0x00000000      0x1a4
+ .debug_abbrev  0x00000000       0x14 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_aeabi_uldivmod.o)
+ .debug_abbrev  0x00000014      0x16a /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_udivmoddi4.o)
+ .debug_abbrev  0x0000017e       0x26 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_dvmd_tls.o)
+
+.debug_aranges  0x00000000       0x60
+ .debug_aranges
+                0x00000000       0x20 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_aeabi_uldivmod.o)
+ .debug_aranges
+                0x00000020       0x20 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_udivmoddi4.o)
+ .debug_aranges
+                0x00000040       0x20 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_dvmd_tls.o)
+
+.debug_str      0x00000000      0x6c8
+ .debug_str     0x00000000      0x6c8 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_aeabi_uldivmod.o)
+                                 0x9f (size before relaxing)
+ .debug_str     0x000006c8      0x67d /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_udivmoddi4.o)
+ .debug_str     0x000006c8       0xbf /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_dvmd_tls.o)
+
+.debug_frame    0x00000000       0x60
+ .debug_frame   0x00000000       0x2c /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_aeabi_uldivmod.o)
+ .debug_frame   0x0000002c       0x34 /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_udivmoddi4.o)
+
+.debug_loclists
+                0x00000000      0xa6a
+ .debug_loclists
+                0x00000000      0xa6a /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_udivmoddi4.o)
+
+.debug_rnglists
+                0x00000000       0x9d
+ .debug_rnglists
+                0x00000000       0x9d /home/jeffd/.cache/nexrt-arm/root/usr/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v7-m/nofp/libgcc.a(_udivmoddi4.o)

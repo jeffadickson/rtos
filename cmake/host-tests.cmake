@@ -49,6 +49,8 @@ rtos_host_warnings(rtos_sync_model)
 
 if(DOTNET_EXECUTABLE)
   add_test(NAME tooling COMMAND ${rtos_tools_COMMAND} self-test)
+  add_test(NAME evidence_tool COMMAND ${evidence_tool_COMMAND} self-test)
+  set_tests_properties(evidence_tool PROPERTIES TIMEOUT 30)
 endif()
 rtos_host_test(memory_test NAME memory SOURCES tests/memory.cpp src/memory.cpp LIBRARIES rtos_options)
 if(MSVC)
@@ -83,3 +85,21 @@ foreach(seed IN ITEMS 42 3735928559 4294967295)
   rtos_memcheck(ipc_random_test ipc_random_seed_${seed} ${seed})
 endforeach()
 rtos_host_test(ipc_wait_order_test NAME ipc_wait_order SYNC SOURCES tests/ipc_wait_order.cpp LIBRARIES rtos_sync_model)
+
+# Deliberately invalid probes are never ordinary tests or firmware dependencies.
+if(RTOS_HOST_SANITIZERS OR RTOS_HOST_VALGRIND)
+  add_executable(memory_negative_probe tests/memory_negative.cpp)
+  rtos_host_warnings(memory_negative_probe)
+  if(RTOS_HOST_SANITIZERS)
+    foreach(mode IN ITEMS asan ubsan)
+      add_test(NAME negative_${mode} COMMAND ${evidence_tool_COMMAND} probe ${mode}
+        $<TARGET_FILE:memory_negative_probe> ${CMAKE_BINARY_DIR}/negative-${mode}.log)
+      set_tests_properties(negative_${mode} PROPERTIES TIMEOUT 40)
+    endforeach()
+  else()
+    add_test(NAME negative_valgrind COMMAND ${evidence_tool_COMMAND} probe valgrind
+      $<TARGET_FILE:memory_negative_probe> ${CMAKE_BINARY_DIR}/negative-valgrind.log
+      ${NXR_VALGRIND_EXECUTABLE} "${NXR_VALGRIND_LIB}")
+    set_tests_properties(negative_valgrind PROPERTIES TIMEOUT 40 LABELS memcheck)
+  endif()
+endif()

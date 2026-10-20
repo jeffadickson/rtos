@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **157**. Catalogue SHA-256: ``a12b16e0eb756cd75aa3b9a7c728e0205a99740e7427bfe0a07b7421909d0ccf``.
+Reviewed requirements: **158**. Catalogue SHA-256: ``b546ae2d7b067d13fc2f490fe0de4e8a2d335eda63d21f2a575ec3d8d1b3722c``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -5503,4 +5503,39 @@ NXR-157 Optional host memory analysis and fail-closed symbol audits
 
 
 **Review finding:** Known-symbol audit remains a limited check against recognizable allocation paths, not proof against arbitrary renamed/custom allocators.
+
+NXR-158 Retained evidence and controlled analyzer detection gates
+-----------------------------------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** Verification
+
+
+**Requirement:** Engineering checkpoints shall retain explicitly selected passing logs, manifests and audited unstripped images with bounded hash verification; controlled invalid-memory probes shall demonstrate specific analyzer rejection.
+
+
+**Rationale:** Ignored transient evidence can disappear and passing workloads alone do not show that analyzer failure gates are effective.
+
+
+**Acceptance:** Native C# collector rejects traversal, links, overwrite, size/count excess and changed/unlisted/duplicate inputs; round-trip/tamper self-tests pass; ASan, UBSan and Memcheck probes require intended diagnostic plus failure.
+
+
+**Verification:** Native evidence self-tests, actual controlled-failure gates and final package verification.
+
+
+**Planned test:** TEST-NXR-158
+
+
+**Dependencies:** NXR-152, NXR-157
+
+
+**Configuration:** XDoc C# Native AOT collector with bounded inputs; probe output captured by shared bounded executor.
+
+
+**Static resource budget:** No firmware services or RAM; intentionally invalid host probe excluded from ordinary builds.
+
+
+**Review finding:** Hashes support consistency rather than authenticity; retained simulation/host evidence is not board qualification or certification.
 

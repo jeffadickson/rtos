@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Rtos.Tools</name>
+    </assembly>
+    <members>
+        <member name="T:Rtos.Tools.Program">
+            <summary>Runs static-storage firmware audits and compiler contract checks without a shell.</summary>
+        </member>
+        <member name="F:Rtos.Tools.Program.Forbidden">
+            <summary>Names forbidden by the project's static-only firmware policy.</summary>
+        </member>
+        <member name="M:Rtos.Tools.Program.Main(System.String[])">
+            <summary>Dispatches audit, static-contract, or self-test commands.</summary>
+            <param name="args">Command followed by explicit --name value pairs.</param>
+            <returns>Zero on success; one on rejected input, policy violation, or tool failure.</returns>
+        </member>
+        <member name="M:Rtos.Tools.Program.ParseOptions(System.String[])">
+            <summary>Parses options without evaluating shell syntax or accepting duplicate keys.</summary>
+        </member>
+        <member name="M:Rtos.Tools.Program.Required(System.Collections.Generic.Dictionary{System.String,System.String},System.String)">
+            <summary>Returns a mandatory, nonempty option or reports a command-line error.</summary>
+        </member>
+        <member name="T:Rtos.Tools.Program.Result">
+            <summary>Captures a child process result while draining both redirected streams concurrently.</summary>
+        </member>
+        <member name="M:Rtos.Tools.Program.Result.#ctor(System.Int32,System.String,System.String)">
+            <summary>Captures a child process result while draining both redirected streams concurrently.</summary>
+        </member>
+        <member name="M:Rtos.Tools.Program.Run(System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>Runs an executable directly; every argument remains a separate literal argument.</summary>
+        </member>
+        <member name="M:Rtos.Tools.Program.Violations(System.String)">
+            <summary>Finds known heap and dynamic-initialization symbols in demangled nm output.</summary>
+        </member>
+        <member name="M:Rtos.Tools.Program.HasDefinedSymbols(System.String)">
+            <summary>Requires a defined symbol; stripped/empty listings cannot support the name audit.</summary>
+        </member>
+        <member name="M:Rtos.Tools.Program.Audit(System.String,System.String)">
+            <summary>Checks an image and preserves failures from nm rather than treating empty output as a pass.</summary>
+        </member>
+        <member name="M:Rtos.Tools.Program.CheckContract(System.String,System.String,System.String,System.String,System.String)">
+            <summary>Compiles real positive/negative images to verify constructor and allocator rejection.</summary>
+        </member>
+        <member name="M:Rtos.Tools.Program.SelfTest">
+            <summary>Checks audit boundary cases and command parsing without external dependencies.</summary>
+        </member>
+        <member name="T:NexRT.Host.HostResult">
+            <summary>Complete bounded process outcome, including partial output on cancellation.</summary>
+        </member>
+        <member name="M:NexRT.Host.HostResult.#ctor(System.Int32,System.String,System.Boolean,System.Boolean,System.String)">
+            <summary>Complete bounded process outcome, including partial output on cancellation.</summary>
+        </member>
+        <member name="T:NexRT.Host.HostProcess">
+            <summary>Runs owned subprocesses without shell parsing or unbounded redirected-pipe waits.</summary>
+        </member>
+        <member name="M:NexRT.Host.HostProcess.Run(System.Diagnostics.ProcessStartInfo,System.TimeSpan,System.Int32)">
+            <summary>Bounds process exit and both output drains by one deadline and a shared character cap.</summary>
+            <param name="start">Literal executable/argument list; streams are redirected here.</param>
+            <param name="duration">Wall-clock execution and drain budget.</param>
+            <param name="maximumCharacters">Maximum retained output across both channels.</param>
+            <returns>Captured outcome; timeout includes descendants retaining inherited pipes.</returns>
+        </member>
+    </members>
+</doc>

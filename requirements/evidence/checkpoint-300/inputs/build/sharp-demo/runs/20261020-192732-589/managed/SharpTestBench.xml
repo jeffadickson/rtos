@@ -1,0 +1,646 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SharpTestBench</name>
+    </assembly>
+    <members>
+        <member name="T:SharpTestBench.IntegerSignal">
+            <summary>Native HDL integer / enumeration access, not a fabricated packed width.</summary>
+        </member>
+        <member name="T:SharpTestBench.EnumSignal`1">
+            <summary>Maps explicit C# enum numeric values to HDL enum ordinals.</summary>
+        </member>
+        <member name="T:SharpTestBench.LogicSignal`1">
+            <summary>Width-checked nine-state signal, preserving U/X/0/1/Z/W/L/H/-.</summary>
+        </member>
+        <member name="T:SharpTestBench.Bindings">
+            <summary>Generates typed bindings from recursively elaborated scopes and arrays.</summary>
+        </member>
+        <member name="T:SharpTestBench.SimulatorCapabilities">
+            <summary>Conservative policy for the pinned adapters and tested product families.
+            This is not a live probe or a certification of every version of a simulator.</summary>
+        </member>
+        <member name="T:SharpTestBench.CleanupScope">
+            <summary>Owns cleanup callbacks in reverse registration order. Register immediately after acquisition.</summary>
+        </member>
+        <member name="T:SharpTestBench.FunctionalCoverage">
+            <summary>Explicit functional coverage, with typed samples and caller-defined bins.
+            It measures observed scenarios, not managed or HDL code coverage.</summary>
+        </member>
+        <member name="M:SharpTestBench.CoveragePoint`1.Sample(`0)">
+            <summary>Each matching bin receives a hit; overlaps are allowed. Failed predicates
+            and counter overflow leave all counters unchanged. Predicates must be pure.</summary>
+        </member>
+        <member name="T:SharpTestBench.DiscoveryStatus">
+            <summary>An empty native iterator cannot distinguish no objects from missing backend support.</summary>
+        </member>
+        <member name="T:SharpTestBench.PackedLayoutSource">
+            <summary>A bit-addressable view of the range exposed by GPI, not a reconstruction of HDL source types.</summary>
+        </member>
+        <member name="T:SharpTestBench.HdlObject">
+            <summary>A simulator-owned HDL object; access requires the owning simulation thread.</summary>
+        </member>
+        <member name="M:SharpTestBench.HdlObject.Roots">
+            <summary>Discover modules from the first GPI implementation providing an iterator.</summary>
+        </member>
+        <member name="M:SharpTestBench.HdlObject.Packages">
+            <summary>Discover HDL package scopes (not .NET/NuGet packages).</summary>
+        </member>
+        <member name="M:SharpTestBench.HdlObject.DiscoverPackedLayout">
+            <summary>Infer a bit layout from native packed dimensions, or fall back to the GPI-visible bit range.</summary>
+        </member>
+        <member name="P:SharpTestBench.HdlObject.Direction">
+            <summary>Query authoritative port direction, or Unknown for unavailable metadata/non-port objects.</summary>
+            <remarks>Older native hosts and unverified simulator families return Unknown. Direction
+            does not imply a prohibition on verification force/release or internal-signal writes.</remarks>
+        </member>
+        <member name="M:SharpTestBench.HdlObject.RequireDirection(SharpTestBench.PortDirection)">
+            <summary>Validate an expected HDL direction before constructing a typed binding.</summary>
+            <returns>This object for fluent binding construction.</returns>
+            <exception cref="T:System.NotSupportedException">The simulator cannot supply the required metadata.</exception>
+            <exception cref="T:System.InvalidOperationException">The known direction differs from the expectation.</exception>
+        </member>
+        <member name="P:SharpTestBench.HdlObject.Name">
+            <summary>Local object name reported by the simulator, without its parent hierarchy.</summary>
+        </member>
+        <member name="P:SharpTestBench.HdlObject.FullName">
+            <summary>Simulator-qualified object name; separators are backend-specific.</summary>
+        </member>
+        <member name="P:SharpTestBench.HdlObject.TypeName">
+            <summary>HDL type name reported by the backend; spelling is simulator-specific.</summary>
+        </member>
+        <member name="P:SharpTestBench.HdlObject.DefinitionName">
+            <summary>HDL definition metadata, or null when unavailable.</summary>
+        </member>
+        <member name="T:SharpTestBench.HdlArray`1">
+            <summary>Lazy, cached bindings addressed by declared HDL indices.</summary>
+        </member>
+        <member name="T:SharpTestBench.LogicResolution">
+            <summary>Explicit treatment of nonbinary logic; never applied implicitly to integer conversions.</summary>
+        </member>
+        <member name="F:SharpTestBench.LogicResolution.Weak">
+            <summary>Map L/H to 0/1 and W to X; preserve other unknown symbols (pinned cocotb behavior).</summary>
+        </member>
+        <member name="F:SharpTestBench.LogicResolution.Zeros">
+            <summary>Map L/H to 0/1 and all remaining unknowns to zero.</summary>
+        </member>
+        <member name="F:SharpTestBench.LogicResolution.Ones">
+            <summary>Map L/H to 0/1 and all remaining unknowns to one.</summary>
+        </member>
+        <member name="F:SharpTestBench.LogicResolution.Random">
+            <summary>Map L/H to 0/1 and resolve remaining unknowns using a caller-supplied Random.</summary>
+        </member>
+        <member name="T:SharpTestBench.ByteOrder">
+            <summary>Byte order for logic-vector serialization, independent of HDL index direction.</summary>
+        </member>
+        <member name="F:SharpTestBench.ByteOrder.BigEndian">
+            <summary>Most significant byte first.</summary>
+        </member>
+        <member name="F:SharpTestBench.ByteOrder.LittleEndian">
+            <summary>Least significant byte first.</summary>
+        </member>
+        <member name="M:SharpTestBench.LogicOps.IsResolvable(SharpTestBench.Logic)">
+            <summary>True for 0, 1, L and H, which have an unambiguous binary value.</summary>
+        </member>
+        <member name="M:SharpTestBench.LogicOps.Resolve(SharpTestBench.Logic,SharpTestBench.LogicResolution,System.Random)">
+            <summary>Resolve one valid nine-state value using an explicit policy.</summary>
+            <param name="value">Logic state to resolve.</param>
+            <param name="resolution">Weak, zeros, ones or random policy.</param>
+            <param name="random">Required for random resolution; one Next(2) call per unresolved state.</param>
+            <returns>A new state; weak resolution can still contain unknowns.</returns>
+        </member>
+        <member name="T:SharpTestBench.LogicArray">
+            <summary>Immutable nine-state operations; positional indexing and HDL indexing remain explicitly separate.</summary>
+            <summary>Immutable nine-state values, in displayed MSB-to-LSB order.</summary>
+        </member>
+        <member name="P:SharpTestBench.LogicArray.IsResolvable">
+            <summary>True when every element is 0, 1, L or H; true for the empty vector.</summary>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.WithRange(SharpTestBench.HdlRange)">
+            <summary>Return an independently ranged immutable value without changing its displayed bit order.</summary>
+            <exception cref="T:System.ArgumentException">The new range length differs from this vector's length.</exception>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.Resolve(SharpTestBench.LogicResolution,System.Random)">
+            <summary>Resolve each element from left to right, preserving range and leaving this value unchanged.</summary>
+            <remarks>Random resolution requires an explicit generator; no Python PRNG stream equivalence is implied.</remarks>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.FromUnsigned(System.Numerics.BigInteger,SharpTestBench.HdlRange,System.Boolean)">
+            <summary>Construct an unsigned, leftmost-MSB value with the given HDL bounds.</summary>
+            <param name="value">Nonnegative integer; negative values always fail, even with wrapping.</param>
+            <param name="range">Nonempty inclusive HDL range.</param>
+            <param name="wrap">True to discard excess significant bits; false to reject overflow.</param>
+            <exception cref="T:System.OverflowException">The value is negative or does not fit without wrapping.</exception>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.FromSigned(System.Numerics.BigInteger,SharpTestBench.HdlRange,System.Boolean)">
+            <summary>Construct a two's-complement, leftmost-MSB value with the given HDL bounds.</summary>
+            <param name="value">Signed integer.</param>
+            <param name="range">Nonempty inclusive HDL range.</param>
+            <param name="wrap">True to retain low bits modulo 2^Length; false to reject signed overflow.</param>
+            <exception cref="T:System.OverflowException">The value does not fit the signed range without wrapping.</exception>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.ToUnsigned">
+            <summary>Interpret the leftmost bit as the MSB; L/H map to 0/1 and other unresolved states throw.</summary>
+            <exception cref="T:System.InvalidOperationException">The value is empty or contains unresolved states.</exception>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.ToSigned">
+            <summary>Interpret the leftmost bit as the two's-complement sign bit; reject empty/unresolved values.</summary>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.ToBytes(SharpTestBench.ByteOrder)">
+            <summary>Serialize ceil(Length/8) bytes, retaining leading zero bytes and zero-padding the high partial byte.</summary>
+            <param name="byteOrder">Required byte order; independent of HDL ascending/descending direction.</param>
+            <exception cref="T:System.InvalidOperationException">The vector is empty or contains unresolved states.</exception>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.FromBytes(System.ReadOnlySpan{System.Byte},SharpTestBench.ByteOrder,System.Nullable{SharpTestBench.HdlRange})">
+            <summary>Construct a binary value from explicit-endian bytes; optional bounds must match exactly 8 bits per byte.</summary>
+            <param name="value">Nonempty bytes interpreted as an unsigned integer.</param>
+            <param name="byteOrder">Required byte order.</param>
+            <param name="range">Optional HDL range; defaults to descending Length*8-1 downto 0.</param>
+            <exception cref="T:System.ArgumentException">Input is empty or the supplied bounds have the wrong length.</exception>
+        </member>
+        <member name="P:SharpTestBench.LogicArray.Count">
+            <summary>Element count for IReadOnlyList; equivalent to Length.</summary>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.op_BitwiseAnd(SharpTestBench.LogicArray,SharpTestBench.LogicArray)">
+            <summary>Nine-state AND by displayed position; lengths must match and the left operand's range is preserved.</summary>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.op_BitwiseOr(SharpTestBench.LogicArray,SharpTestBench.LogicArray)">
+            <summary>Nine-state OR by displayed position; lengths must match and the left operand's range is preserved.</summary>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.op_ExclusiveOr(SharpTestBench.LogicArray,SharpTestBench.LogicArray)">
+            <summary>Nine-state XOR by displayed position; lengths must match and the left operand's range is preserved.</summary>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.op_OnesComplement(SharpTestBench.LogicArray)">
+            <summary>Nine-state inversion, preserving the operand's range and leaving it unchanged.</summary>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.WithElement(System.Int32,SharpTestBench.Logic)">
+            <summary>Return a new value with one HDL-indexed element replaced; this value remains unchanged.</summary>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.WithSlice(SharpTestBench.HdlRange,System.Collections.Generic.IEnumerable{SharpTestBench.Logic})">
+            <summary>Return a new value with an inclusive HDL slice replaced by the supplied sequence.</summary>
+            <param name="range">Same-direction slice; explicit null slices accept only an empty replacement.</param>
+            <param name="replacement">Valid logic states in displayed order; count must exactly match slice length.</param>
+            <remarks>The entire replacement is validated before creating the result. Self and overlapping sources
+            are safe. Neither this value nor a replacement LogicArray is mutated, including on enumeration failure.</remarks>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.TryIndexOf(SharpTestBench.Logic,System.Int32@,System.Nullable{SharpTestBench.HdlRange})">
+            <summary>Find a state in declaration order, optionally within an inclusive HDL search range.</summary>
+            <param name="value">Exact nine-state symbol to find; L and 0 (or H and 1) are distinct.</param>
+            <param name="hdlIndex">Matching HDL index on success; default on failure. Negative indices are valid.</param>
+            <param name="searchRange">Optional same-direction inclusive bounds.</param>
+            <returns>True if found; the boolean distinguishes absence from valid index zero or minus one.</returns>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.CountOf(SharpTestBench.Logic)">
+            <summary>Count occurrences of an exact nine-state symbol; weak and strong states remain distinct.</summary>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.GetEnumerator">
+            <summary>Enumerate states from the declared left bound to the right bound, in displayed order.</summary>
+        </member>
+        <member name="P:SharpTestBench.LogicArray.Length">
+            <summary>Number of displayed logic states.</summary>
+        </member>
+        <member name="P:SharpTestBench.LogicArray.Range">
+            <summary>Immutable inclusive HDL bounds and direction.</summary>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.#ctor(System.String)">
+            <summary>Parse a nine-state string with default descending Length-1 downto 0 bounds.</summary>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.#ctor(System.String,SharpTestBench.HdlRange)">
+            <summary>Parse a nine-state string whose length must match the declared range.</summary>
+        </member>
+        <member name="P:SharpTestBench.LogicArray.Item(System.Int32)">
+            <summary>Read by zero-based displayed position; use At for an HDL index.</summary>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.At(System.Int32)">
+            <summary>Read by declared HDL index, including negative indices.</summary>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.Slice(SharpTestBench.HdlRange)">
+            <summary>Copy an inclusive same-direction HDL slice; explicit null slices produce empty values.</summary>
+        </member>
+        <member name="M:SharpTestBench.LogicArray.ToString">
+            <summary>Return uppercase states in displayed MSB-to-LSB order.</summary>
+        </member>
+        <member name="T:SharpTestBench.Native.U32Write">
+            <summary>Sequential descriptor matching cs_u32_write on 32- and 64-bit hosts.</summary>
+        </member>
+        <member name="T:SharpTestBench.NativeClockSession">
+            <summary>Owns a native clock handle and roots its rare failure callback until successful stop.</summary>
+        </member>
+        <member name="M:SharpTestBench.NativeClockSession.#ctor(SharpTestBench.Signal,System.UInt64,System.UInt64)">
+            <summary>Start native edge scheduling; no per-edge managed continuation is registered.</summary>
+        </member>
+        <member name="M:SharpTestBench.NativeClockSession.Wait(System.Threading.CancellationToken)">
+            <summary>Wait for cancellation or callback-registration failure, keeping native ownership explicit.</summary>
+        </member>
+        <member name="M:SharpTestBench.NativeClockSession.Update(System.UInt64,System.UInt64)">
+            <summary>Apply a timing change at the next full-cycle boundary.</summary>
+        </member>
+        <member name="M:SharpTestBench.NativeClockSession.Dispose">
+            <summary>Cancel all native callbacks before unrooting the delegate; safe to call repeatedly.</summary>
+        </member>
+        <member name="T:SharpTestBench.PackedMember">
+            <summary>A field declaration in HDL order, most significant first.</summary>
+        </member>
+        <member name="M:SharpTestBench.PackedMember.#ctor(System.String,System.Int32)">
+            <summary>A field declaration in HDL order, most significant first.</summary>
+        </member>
+        <member name="T:SharpTestBench.PackedStructLayout">
+            <summary>Portable packed-struct schema. Offsets are calculated; source declarations are supplied by the caller.</summary>
+        </member>
+        <member name="T:SharpTestBench.PackedStruct`1">
+            <summary>Named typed fields over a whole packed signal, using a checked schema.</summary>
+        </member>
+        <member name="T:SharpTestBench.PackedTransport">
+            <summary>Transfers four-state planes using buffers owned only for the duration of a native call.</summary>
+        </member>
+        <member name="M:SharpTestBench.PackedTransport.Read``1(System.IntPtr)">
+            <summary>Reads into stack or pooled storage and copies planes into immutable integers before returning it.</summary>
+        </member>
+        <member name="M:SharpTestBench.PackedTransport.Write``1(System.IntPtr,SharpTestBench.LogicVector{``0},SharpTestBench.WriteAction)">
+            <summary>Encodes an immutable value at execution time; no rented buffer survives a scheduler turn.</summary>
+            <remarks>Deferred writes capture the value, so replacement/cancellation cannot leak or reuse a queued buffer.</remarks>
+        </member>
+        <member name="M:SharpTestBench.PackedTransport.Check(System.Int32)">
+            <summary>Translates the frozen native packed-transport status codes into managed exceptions.</summary>
+        </member>
+        <member name="T:SharpTestBench.PackedLayout">
+            <summary>Explicit HDL packed dimensions, outermost first. Rightmost element is least significant.</summary>
+        </member>
+        <member name="T:SharpTestBench.PackedField`2">
+            <summary>A typed field of a packed signal. Writes are whole-vector deposits composed with pending deposits.</summary>
+        </member>
+        <member name="T:SharpTestBench.PackedArray`2">
+            <summary>Typed indexing over explicitly supplied packed HDL dimensions.</summary>
+        </member>
+        <member name="T:SharpTestBench.PerformanceOptions">
+            <summary>Process-wide switches used for reproducible optimization attribution.</summary>
+            <remarks>Set STB_DIRECT_PACKED, STB_BATCH_TRANSFERS, STB_NATIVE_CLOCK or
+            STB_LINEAR_TEXT to 0 before starting the simulator to disable one feature.</remarks>
+        </member>
+        <member name="M:SharpTestBench.PerformanceOptions.Enabled(System.String)">
+            <summary>Read a switch once; an absent value enables the implementation.</summary>
+        </member>
+        <member name="T:SharpTestBench.PortDirection">
+            <summary>HDL port direction relative to the declaring module, obtained from simulator metadata.</summary>
+        </member>
+        <member name="F:SharpTestBench.PortDirection.Unknown">
+            <summary>Metadata is unavailable or the object is not a port; these cases are not inferred.</summary>
+        </member>
+        <member name="F:SharpTestBench.PortDirection.Input">
+            <summary>The module receives this port.</summary>
+        </member>
+        <member name="F:SharpTestBench.PortDirection.Output">
+            <summary>The module drives this port.</summary>
+        </member>
+        <member name="F:SharpTestBench.PortDirection.InOut">
+            <summary>The module can both receive and drive this port.</summary>
+        </member>
+        <member name="T:SharpTestBench.SimEvent">
+            <summary>Manual-reset simulation event. Set wakes existing and future waiters until Clear.</summary>
+        </member>
+        <member name="T:SharpTestBench.SimSemaphore">
+            <summary>FIFO semaphore. Cancellation returns granted-but-unconsumed permits.</summary>
+        </member>
+        <member name="P:SharpTestBench.SimLock.IsLocked">
+            <summary>True while held or reserved for the next queued acquirer.</summary>
+        </member>
+        <member name="T:SharpTestBench.SimQueueBase`1">
+            <summary>Shared simulation queue coordination; custom storage subclasses are not supported.</summary>
+            <typeparam name="T">Type of item transferred between simulation tasks.</typeparam>
+        </member>
+        <member name="M:SharpTestBench.SimQueueBase`1.#ctor(System.Int32)">
+            <summary>Create a queue with a strictly positive capacity; the default is int.MaxValue.</summary>
+            <param name="capacity">Maximum number of stored items.</param>
+        </member>
+        <member name="P:SharpTestBench.SimQueueBase`1.Capacity">
+            <summary>Maximum number of stored items.</summary>
+        </member>
+        <member name="P:SharpTestBench.SimQueueBase`1.Count">
+            <summary>Stored item count, including items reserved for pending consumers.</summary>
+        </member>
+        <member name="P:SharpTestBench.SimQueueBase`1.IsEmpty">
+            <summary>True when no items are physically stored; does not describe reserved permits.</summary>
+        </member>
+        <member name="P:SharpTestBench.SimQueueBase`1.IsFull">
+            <summary>True when stored item count reaches Capacity; pending producers may reserve free slots.</summary>
+        </member>
+        <member name="M:SharpTestBench.SimQueueBase`1.Put(`0,System.Nullable{System.Threading.CancellationToken})">
+            <summary>Wait for an available slot, then insert an item in queue order.</summary>
+            <param name="value">Item to append.</param>
+            <param name="token">Cancellation token, or null to inherit the simulation task's token.</param>
+        </member>
+        <member name="M:SharpTestBench.SimQueueBase`1.Get(System.Nullable{System.Threading.CancellationToken})">
+            <summary>Wait for an available item, then remove the next stored item.</summary>
+            <param name="token">Cancellation token, or null to inherit the simulation task's token.</param>
+            <returns>The next available item.</returns>
+        </member>
+        <member name="M:SharpTestBench.SimQueueBase`1.TryPut(`0)">
+            <summary>Append immediately if an unreserved slot exists; never waits or advances simulation time.</summary>
+            <param name="value">Item to append.</param>
+            <returns>False when all slots are occupied or reserved by pending producers.</returns>
+        </member>
+        <member name="M:SharpTestBench.SimQueueBase`1.TryGet(`0@)">
+            <summary>Remove immediately if an unreserved item exists; never steals from a pending consumer.</summary>
+            <param name="value">The removed item, or default when no item is available.</param>
+            <returns>True when an item was removed. False may occur with Count greater than zero during handoff.</returns>
+        </member>
+        <member name="T:SharpTestBench.SimQueue`1">
+            <summary>FIFO simulation queue. Pending waiters receive permits in arrival order.</summary>
+        </member>
+        <member name="M:SharpTestBench.SimQueue`1.#ctor(System.Int32)">
+            <summary>Create a FIFO queue with strictly positive capacity.</summary>
+        </member>
+        <member name="P:SharpTestBench.SimQueue`1.Count">
+            <inheritdoc/>
+        </member>
+        <member name="T:SharpTestBench.SimLifoQueue`1">
+            <summary>Last-in-first-out simulation queue. Waiter permits remain FIFO.</summary>
+        </member>
+        <member name="M:SharpTestBench.SimLifoQueue`1.#ctor(System.Int32)">
+            <summary>Create a LIFO queue with strictly positive capacity.</summary>
+        </member>
+        <member name="P:SharpTestBench.SimLifoQueue`1.Count">
+            <inheritdoc/>
+        </member>
+        <member name="T:SharpTestBench.SimPriorityQueue`1">
+            <summary>Smallest-first simulation queue, with insertion order preserved for equal priorities.</summary>
+            <remarks>Comparison uses the whole payload unless a comparer is supplied. Comparers must be
+            consistent and must not mutate queued sort keys or reenter queue operations. Comparer exceptions
+            leave contents and capacity unchanged. Sorted storage uses O(log n) comparisons and O(n) movement.</remarks>
+        </member>
+        <member name="M:SharpTestBench.SimPriorityQueue`1.#ctor(System.Int32,System.Collections.Generic.IComparer{`0})">
+            <summary>Create a priority queue with strictly positive capacity and an optional payload comparer.</summary>
+        </member>
+        <member name="P:SharpTestBench.SimPriorityQueue`1.Count">
+            <inheritdoc/>
+        </member>
+        <member name="T:SharpTestBench.ClockImplementation">
+            <summary>Clock engine selection. Auto uses validated native support when available.</summary>
+        </member>
+        <member name="T:SharpTestBench.SimClock">
+            <summary>Adjustable one-bit clock with equivalent managed and native pulse timing.</summary>
+            <remarks>Run begins low, deposits edges at ReadWrite, and stops without an extra
+            edge on cancellation. Period updates affect the next complete low/high pair.</remarks>
+        </member>
+        <member name="M:SharpTestBench.SimClock.#ctor(SharpTestBench.Signal,System.UInt64,System.Nullable{System.UInt64},SharpTestBench.ClockImplementation)">
+            <summary>Create an idle clock. Native explicitly requires a validated backend and ABI support.</summary>
+        </member>
+        <member name="M:SharpTestBench.SimClock.SetPeriod(System.UInt64,System.Nullable{System.UInt64})">
+            <summary>Set timing for the next full cycle; the current pulse pair keeps its original timing.</summary>
+        </member>
+        <member name="M:SharpTestBench.SimClock.Run(System.Threading.CancellationToken)">
+            <summary>Run until cancellation; only one run may own this clock instance at a time.</summary>
+        </member>
+        <member name="P:SharpTestBench.SimJob.Current">
+            <summary>The StartSoon job executing in this async flow, or null in the test body.</summary>
+        </member>
+        <member name="P:SharpTestBench.SimJob.Complete">
+            <summary>A reusable completion-only trigger. It never propagates this job's
+            result, failure or cancellation and never takes ownership of the job.</summary>
+        </member>
+        <member name="M:SharpTestBench.SimJob.SetName(System.String)">
+            <summary>Change the diagnostic name on the simulator thread; task identity and state are unchanged.</summary>
+        </member>
+        <member name="T:SharpTestBench.CallbackKind">
+            <summary>Kind of native simulator callback dispatched by the runtime.</summary>
+        </member>
+        <member name="T:SharpTestBench.SimulatorCallbackInfo">
+            <summary>An immutable snapshot of an actual native callback; Time is in simulator steps.</summary>
+            <param name="Kind">Native callback category.</param>
+            <param name="Time">Simulator time when the callback fired.</param>
+            <param name="Trigger">Original native trigger object, or null for an internal runtime callback.</param>
+        </member>
+        <member name="M:SharpTestBench.SimulatorCallbackInfo.#ctor(SharpTestBench.CallbackKind,System.UInt64,SharpTestBench.Trigger)">
+            <summary>An immutable snapshot of an actual native callback; Time is in simulator steps.</summary>
+            <param name="Kind">Native callback category.</param>
+            <param name="Time">Simulator time when the callback fired.</param>
+            <param name="Trigger">Original native trigger object, or null for an internal runtime callback.</param>
+        </member>
+        <member name="P:SharpTestBench.SimulatorCallbackInfo.Kind">
+            <summary>Native callback category.</summary>
+        </member>
+        <member name="P:SharpTestBench.SimulatorCallbackInfo.Time">
+            <summary>Simulator time when the callback fired.</summary>
+        </member>
+        <member name="P:SharpTestBench.SimulatorCallbackInfo.Trigger">
+            <summary>Original native trigger object, or null for an internal runtime callback.</summary>
+        </member>
+        <member name="M:SharpTestBench.SimRuntime.OwnNative(System.IDisposable)">
+            <summary>Root native owners until explicit cancellation/disposal; used in leak detection.</summary>
+        </member>
+        <member name="M:SharpTestBench.SimRuntime.NativeNotification(System.Action)">
+            <summary>Dispatch a rare native clock failure in timer context without crossing an exception through C.</summary>
+        </member>
+        <member name="M:SharpTestBench.SimRuntime.ReleaseNativeResources">
+            <summary>Stop native timers and release owned VPI handles while the simulator is still alive.</summary>
+        </member>
+        <member name="P:SharpTestBench.SimRuntime.LastSimulatorCallback">
+            <summary>
+            Last dispatched native callback, including internal deadline/write callbacks.
+            Null before the first native callback. Managed events and Yield do not change
+            this snapshot. Read it on the simulator thread; it is runtime-wide, not job-local.
+            </summary>
+        </member>
+        <member name="M:SharpTestBench.SimRuntime.FlushWrites">
+            <summary>Flush in last-write order, batching only consecutive eligible numeric deposits.</summary>
+        </member>
+        <member name="T:SharpTestBench.SignalReadBatch">
+            <summary>Reusable ordered snapshot of known unsigned signals of at most 32 bits.</summary>
+            <remarks>Reads occur in one simulator phase and do not advance time. This is not
+            an HDL-atomic transaction. Call in ReadOnly for stable bus sampling. Discard all
+            destination values if Read throws; X/Z values are rejected rather than coerced.</remarks>
+        </member>
+        <member name="M:SharpTestBench.SignalReadBatch.#ctor(SharpTestBench.Signal[])">
+            <summary>Bind an immutable signal list once; all signals must belong to the same runtime.</summary>
+        </member>
+        <member name="P:SharpTestBench.SignalReadBatch.Count">
+            <summary>Number of values written by each snapshot.</summary>
+        </member>
+        <member name="M:SharpTestBench.SignalReadBatch.Read(System.Span{System.UInt32})">
+            <summary>Read into an exactly sized caller-owned span; no buffers are retained.</summary>
+        </member>
+        <member name="P:SharpTestBench.Signal.UsesDirectPackedTransport">
+            <summary>True when this object uses checked direct VPI vector transport instead of binary text.</summary>
+        </member>
+        <member name="M:SharpTestBench.Signal`1.PackedBits">
+            <summary>Automatically index bits using the simulator-visible range.</summary>
+        </member>
+        <member name="M:SharpTestBench.Signal`1.PackedInferred``1">
+            <summary>Infer typed elements by consuming complete innermost native packed dimensions.</summary>
+        </member>
+        <member name="T:SharpTestBench.UnsignedSignal`1">
+            <summary>Strict unsigned API. Signed writes require an explicit conversion.</summary>
+        </member>
+        <member name="T:SharpTestBench.SignedSignal`1">
+            <summary>Strict signed API. Unsigned writes require an explicit conversion.</summary>
+        </member>
+        <member name="T:SharpTestBench.SimTaskGroup">
+            <summary>A lexical scope for owned simulator tasks. Use TestContext.RunGroup.</summary>
+        </member>
+        <member name="T:SharpTestBench.SimTaskLocal`1">
+            <summary>A typed key for job-local state. Jobs start empty; values are not inherited.
+            Access is restricted to a StartSoon job on the simulator thread.</summary>
+        </member>
+        <member name="T:SharpTestBench.SimTasks">
+            <summary>Simulator task combinators with explicit ownership.</summary>
+        </member>
+        <member name="M:SharpTestBench.SimTasks.First(System.Threading.Tasks.Task[])">
+            <summary>Wait for the first task, propagating its error or cancellation.
+            Already-complete ties select the first task in input order. Losers keep running.</summary>
+        </member>
+        <member name="M:SharpTestBench.SimTasks.Combine(System.Threading.Tasks.Task[])">
+            <summary>Wait for all tasks. All must settle before errors propagate.</summary>
+        </member>
+        <member name="M:SharpTestBench.SimTasks.WithTimeout(System.Threading.Tasks.Task,System.UInt64,System.Nullable{System.Threading.CancellationToken})">
+            <summary>Apply a simulation-time deadline to a wait; the task remains caller-owned.
+            A task already complete when the deadline is observed wins the tie.</summary>
+        </member>
+        <member name="M:SharpTestBench.SimTasks.Owned``1(System.Func{System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}})">
+            <summary>Transfer lifetime ownership of a deferred operation to a combinator.</summary>
+        </member>
+        <member name="M:SharpTestBench.SimTasks.Borrowed``1(System.Threading.Tasks.Task{``0})">
+            <summary>Observe a task without taking cancellation ownership.</summary>
+        </member>
+        <member name="M:SharpTestBench.SimTasks.Owned(SharpTestBench.Trigger)">
+            <summary>Own a trigger subscription. Its result is the original trigger.</summary>
+        </member>
+        <member name="T:SharpTestBench.SimAwaitable`1">
+            <summary>An explicit owned operation factory or a borrowed task observation.</summary>
+        </member>
+        <member name="M:SharpTestBench.Trigger.Subscribe(SharpTestBench.SimRuntime,System.Action{System.Exception})">
+            <summary>
+            Register one wait on the simulator thread. Complete with null for success or
+            an exception for failure; return a non-null, idempotent, nonthrowing detach
+            handle. Completion may be synchronous. Each call owns independent state.
+            Completion and disposal must run on the simulator thread. If registration
+            throws, the implementation must undo any resources it already acquired.
+            </summary>
+        </member>
+        <member name="M:SharpTestBench.Trigger.SubscribeTo(SharpTestBench.Trigger,SharpTestBench.SimRuntime,System.Action{System.Exception})">
+            <summary>Subscribe to a child trigger when implementing a custom trigger.</summary>
+            <remarks>The caller owns the returned subscription, including on failure or cancellation.</remarks>
+        </member>
+        <member name="M:SharpTestBench.Triggers.ValueChange(SharpTestBench.Signal)">
+            <summary>Wait for a logic or integer signal to change; preserves the original overload.</summary>
+        </member>
+        <member name="M:SharpTestBench.Triggers.ValueChange(SharpTestBench.HdlObject)">
+            <summary>
+            Wait for a scalar value object, including real and HDL string signals, to change.
+            Availability of native change notifications depends on the simulator adapter.
+            Scopes, arrays and aggregate structures are not value-change targets.
+            </summary>
+        </member>
+        <member name="T:SharpTestBench.ValueArray`1">
+            <summary>Fixed-size mutable array addressed by declared HDL indices, with explicit positional access.</summary>
+            <typeparam name="T">Stored element type; equality defaults to EqualityComparer&lt;T&gt;.Default.</typeparam>
+        </member>
+        <member name="P:SharpTestBench.ValueArray`1.Range">
+            <summary>Declared indices. Reassignment must preserve length and never reorders stored values.</summary>
+        </member>
+        <member name="P:SharpTestBench.ValueArray`1.Length">
+            <summary>Number of stored elements, including zero for a null range.</summary>
+        </member>
+        <member name="M:SharpTestBench.ValueArray`1.#ctor(System.Collections.Generic.IEnumerable{`0},SharpTestBench.HdlRange)">
+            <summary>Copy values in iteration order and assign the specified HDL range.</summary>
+            <exception cref="T:System.ArgumentException">The number of values differs from the range length.</exception>
+        </member>
+        <member name="P:SharpTestBench.ValueArray`1.Item(System.Int32)">
+            <summary>Read or write one element by its HDL index, which can be negative.</summary>
+        </member>
+        <member name="M:SharpTestBench.ValueArray`1.ByOffset(System.Int32)">
+            <summary>Read an element by its zero-based position from the declared left bound.</summary>
+        </member>
+        <member name="M:SharpTestBench.ValueArray`1.Slice(SharpTestBench.HdlRange)">
+            <summary>Copy an inclusive HDL slice. Direction must match; null slices produce empty arrays.</summary>
+        </member>
+        <member name="M:SharpTestBench.ValueArray`1.SetSlice(SharpTestBench.HdlRange,System.Collections.Generic.IEnumerable{`0})">
+            <summary>Replace an inclusive HDL slice after snapshotting and validating all replacement values.</summary>
+            <remarks>Aliased/self sources are safe. Bounds, length and enumeration failures cause no writes
+            by this operation. Side effects performed by the supplied enumerable itself cannot be undone.</remarks>
+            <exception cref="T:System.ArgumentException">Direction or replacement length does not match.</exception>
+        </member>
+        <member name="M:SharpTestBench.ValueArray`1.TryIndexOf(`0,System.Int32@,System.Nullable{SharpTestBench.HdlRange},System.Collections.Generic.IEqualityComparer{`0})">
+            <summary>Find the first matching element in declaration order, optionally within an inclusive HDL slice.</summary>
+            <param name="value">Value to find, including null when permitted by T.</param>
+            <param name="hdlIndex">Matching HDL index on success; default on failure. Use the boolean result.</param>
+            <param name="searchRange">Search bounds, or null for the whole array.</param>
+            <param name="comparer">Optional equality comparer; defaults to EqualityComparer&lt;T&gt;.Default.</param>
+            <returns>True on a match. Negative indices, including -1, are valid successes.</returns>
+        </member>
+        <member name="M:SharpTestBench.ValueArray`1.CountOf(`0,System.Collections.Generic.IEqualityComparer{`0})">
+            <summary>Count matching values using the supplied comparer or EqualityComparer&lt;T&gt;.Default.</summary>
+        </member>
+        <member name="M:SharpTestBench.ValueArray`1.GetEnumerator">
+            <summary>Enumerate values from the declared left bound toward the right bound.</summary>
+        </member>
+        <member name="T:SharpTestBench.LogicVector`1">
+            <summary>Four-state vector. Unknown mask covers X and Z; high-Z mask distinguishes Z.</summary>
+        </member>
+        <member name="M:SharpTestBench.LogicVector`1.Parse(System.String)">
+            <summary>Parse exactly the declared number of MSB-first 0/1/X/Z characters.</summary>
+        </member>
+        <member name="M:SharpTestBench.LogicVector`1.ToString">
+            <summary>Format every bit, preserving leading zeroes and unresolved X/Z states.</summary>
+        </member>
+        <member name="T:SharpTestBench.HdlRange">
+            <summary>Inclusive HDL bounds with explicit direction and structural equality.</summary>
+            <param name="Left">Declared left bound.</param>
+            <param name="Right">Declared inclusive right bound.</param>
+            <param name="Ascending">True for to, false for downto; inconsistent bounds form a null range.</param>
+        </member>
+        <member name="M:SharpTestBench.HdlRange.#ctor(System.Int32,System.Int32,System.Boolean)">
+            <summary>Inclusive HDL bounds with explicit direction and structural equality.</summary>
+            <param name="Left">Declared left bound.</param>
+            <param name="Right">Declared inclusive right bound.</param>
+            <param name="Ascending">True for to, false for downto; inconsistent bounds form a null range.</param>
+        </member>
+        <member name="P:SharpTestBench.HdlRange.Left">
+            <summary>Declared left bound.</summary>
+        </member>
+        <member name="P:SharpTestBench.HdlRange.Right">
+            <summary>Declared inclusive right bound.</summary>
+        </member>
+        <member name="P:SharpTestBench.HdlRange.Ascending">
+            <summary>True for to, false for downto; inconsistent bounds form a null range.</summary>
+        </member>
+        <member name="M:SharpTestBench.HdlRange.#ctor(System.Int32,System.Int32)">
+            <summary>Create a range with direction inferred from its bounds.</summary>
+        </member>
+        <member name="M:SharpTestBench.HdlRange.To(System.Int32,System.Int32)">
+            <summary>Create an ascending range, including a null range when left exceeds right.</summary>
+        </member>
+        <member name="M:SharpTestBench.HdlRange.DownTo(System.Int32,System.Int32)">
+            <summary>Create a descending range, including a null range when left is below right.</summary>
+        </member>
+        <member name="P:SharpTestBench.HdlRange.IsNull">
+            <summary>True when the bounds cannot be traversed in the declared direction.</summary>
+        </member>
+        <member name="P:SharpTestBench.HdlRange.Length">
+            <summary>Element count; throws OverflowException if it exceeds Int32.MaxValue.</summary>
+        </member>
+        <member name="M:SharpTestBench.HdlRange.Deconstruct(System.Int32@,System.Int32@)">
+            <summary>Extract the declared bounds without discarding the stored direction.</summary>
+        </member>
+        <member name="M:SharpTestBench.HdlRange.Contains(System.Int32)">
+            <summary>Test membership without computing length, including ranges longer than Int32.MaxValue.</summary>
+        </member>
+        <member name="M:SharpTestBench.HdlRange.GetEnumerator">
+            <summary>Enumerate declared indices without overflowing at either Int32 boundary.</summary>
+            <remarks>Enumeration is lazy and supports all Int32 endpoints, even if Length overflows.</remarks>
+        </member>
+        <member name="M:SharpTestBench.HdlRange.Offset(System.Int32)">
+            <summary>Convert an HDL index to a zero-based position; throws on absence or Int32 offset overflow.</summary>
+        </member>
+        <member name="M:SharpTestBench.HdlRange.Index(System.Int32)">
+            <summary>Convert a nonnegative position to an HDL index; requires Length to fit in Int32.</summary>
+        </member>
+        <member name="T:SharpTestBench.VectorText">
+            <summary>Linear four-state text conversion without per-bit BigInteger temporaries.</summary>
+        </member>
+        <member name="M:SharpTestBench.VectorText.Parse``1(System.String)">
+            <summary>Decode MSB-first text into three little-endian byte planes, then copy into immutable integers.</summary>
+        </member>
+        <member name="M:SharpTestBench.VectorText.Format``1(SharpTestBench.LogicVector{``0})">
+            <summary>Allocate the final string once; inspect each encoded byte rather than shifting arbitrary-precision values per bit.</summary>
+        </member>
+    </members>
+</doc>

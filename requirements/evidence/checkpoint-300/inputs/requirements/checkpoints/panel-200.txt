@@ -1,0 +1,15 @@
+Panel after checkpoint200 (aa27dfd)
+=================================
+Three independent automated reviewers found no new concrete correctness defect.
+Kernel and port reviewers closed all panel150 witness findings; all fifteen
+final retained ARM logs pass. Assurance confirmed campaign counts and model scope.
+
+Accepted improvements: include capacity/PRNG state in random failure reports;
+log numerical ARM witnesses; preserve the separately redirected full CTest log,
+because CTest LastTest.log was replaced by a focused four-seed rerun.
+These are incorporated in passes201-210 and final evidence packaging.
+
+Deferred coverage: sender/event waiter permutations, more masked phases and
+durations, real ARM donation withdrawal with a surviving lower-priority waiter.
+No corresponding production defect was demonstrated; these remain future work.
+Next block prioritizes optional host memory analysis and fail-closed audits.

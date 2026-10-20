@@ -1,0 +1,15 @@
+{
+  "SchemaVersion": 1,
+  "Tests": [
+    {
+      "Name": "ThreeWorkers",
+      "QualifiedName": "Entry.ThreeWorkers",
+      "Stage": 0,
+      "CaseIndex": 0,
+      "Seed": 1,
+      "TimeoutSteps": 2000000000,
+      "Skip": false,
+      "Simulators": []
+    }
+  ]
+}

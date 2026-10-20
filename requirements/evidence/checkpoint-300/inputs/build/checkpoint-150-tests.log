@@ -1,0 +1,45 @@
+Test project /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+      Start  1: tooling
+ 1/20 Test  #1: tooling ..........................   Passed    0.02 sec
+      Start  2: memory
+ 2/20 Test  #2: memory ...........................   Passed    0.01 sec
+      Start  3: scheduler
+ 3/20 Test  #3: scheduler ........................   Passed    0.01 sec
+      Start  4: ethernet
+ 4/20 Test  #4: ethernet .........................   Passed    0.02 sec
+      Start  5: web
+ 5/20 Test  #5: web ..............................   Passed    0.01 sec
+      Start  6: static_storage
+ 6/20 Test  #6: static_storage ...................   Passed    0.01 sec
+      Start  7: synchronization
+ 7/20 Test  #7: synchronization ..................   Passed    0.01 sec
+      Start  8: ipc_queue_atomic
+ 8/20 Test  #8: ipc_queue_atomic .................   Passed    0.01 sec
+      Start  9: mutex_inheritance
+ 9/20 Test  #9: mutex_inheritance ................   Passed    0.01 sec
+      Start 10: queued_printf
+10/20 Test #10: queued_printf ....................   Passed    0.01 sec
+      Start 11: queued_printf_edges
+11/20 Test #11: queued_printf_edges ..............   Passed    0.01 sec
+      Start 12: synchronization_edges
+12/20 Test #12: synchronization_edges ............   Passed    0.01 sec
+      Start 13: synchronization_deadlines
+13/20 Test #13: synchronization_deadlines ........   Passed    0.01 sec
+      Start 14: ipc_public_api
+14/20 Test #14: ipc_public_api ...................   Passed    0.01 sec
+      Start 15: stack_watermark
+15/20 Test #15: stack_watermark ..................   Passed    0.01 sec
+      Start 16: requirements_tracker
+16/20 Test #16: requirements_tracker .............   Passed   12.38 sec
+      Start 17: requirements_negative
+17/20 Test #17: requirements_negative ............   Passed    9.07 sec
+      Start 18: configuration
+18/20 Test #18: configuration ....................   Passed    0.30 sec
+      Start 19: configuration_cmake
+19/20 Test #19: configuration_cmake ..............   Passed    3.78 sec
+      Start 20: arm_runner_process
+20/20 Test #20: arm_runner_process ...............   Passed    8.01 sec
+
+100% tests passed, 0 tests failed out of 20
+
+Total Test time (real) =  34.61 sec

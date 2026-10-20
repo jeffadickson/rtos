@@ -277,3 +277,58 @@ Passes 201-250: host memory analysis and audit boundaries
 248. Regenerate requirements views.
 249. Inspect source diffs before building.
 250. Build, validate memory checks/contracts, commit and request panel review.
+
+Passes 251-300: detection gates, evidence and closure
+--------------------------------------------------------------------------------
+
+251. Accept dropped nm diagnostic output identified by assurance.
+252. Restore merged diagnostics in both nm failure paths.
+253. Add deliberate invalid-memory host probes.
+254. Require ASan heap-use-after-free detection.
+255. Require UBSan signed-overflow detection.
+256. Require Memcheck invalid-read detection and error exit99.
+257. Add an XDoc-documented native C# evidence collector.
+258. Restrict collection to explicit workspace inputs.
+259. Bound selected file count and bytes.
+260. Reject links and paths outside the root.
+261. Compare source/copy/source hashes during capture.
+262. Publish only after staging verification.
+263. Record size and SHA-256 per retained file.
+264. Reject missing, duplicate and unlisted evidence.
+265. Add round-trip and tamper self-tests.
+266. Add overwrite, traversal and byte-limit rejection tests.
+267. Wire deliberate memory failures into finite CTest gates.
+268. Retain raw expected analyzer diagnostics.
+269. Fingerprint native evidence-tool sources.
+270. Keep custom collection/probe automation in C# with XDoc.
+271. Update HTML simulation status.
+272. Expose optional stack observations in the HTML controls.
+273. Explain ARM PSP/MSP alongside the RISC-V overview.
+274. Separate minimal RAM from stress-stack storage.
+275. Document evidence capture and verification.
+276. Identify expected negative diagnostics separately.
+277. Preserve deferred hardware and qualification scope.
+278. Add the retained-evidence requirement.
+279. Update Sphinx navigation/tooling references.
+280. Update this final numbered work ledger.
+281. Inspect new code and storage boundaries.
+282. Check destination ancestors before directory creation.
+283. Inspect manifest path and delimiter handling.
+284. Inspect duplicate input normalization.
+285. Inspect staging cleanup boundaries.
+286. Inspect rejection of unlisted retained files.
+287. Extend duplicate, unlisted and oversized-input self-tests.
+288. Inspect native-bundle freshness checks.
+289. Inspect specific diagnostic requirements in negative gates.
+290. Confirm invalid probes are absent from ordinary builds.
+291. Recheck requirements/export qualification limits.
+292. Recheck minimal-feature exclusions.
+293. Recheck unstripped audit prerequisites.
+294. Recheck ordinary-build witness exclusions.
+295. Inspect the final execution matrix and process bounds.
+296. Inspect saved-PC slot and half-open witness range.
+297. Prepare HTML, evidence and source-fingerprint regeneration.
+298. Regenerate requirements and StrictDoc-format views.
+299. Inspect final source diffs before checkpoint builds.
+300. Build and validate the matrix, retain evidence, commit, review, repair as
+     appropriate and push after final checks.

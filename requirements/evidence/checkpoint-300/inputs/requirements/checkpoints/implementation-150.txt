@@ -1,0 +1,24 @@
+Implementation checkpoint 150
+=============================
+Passes101-150: panel-100 console-capture repair, explicit ARM assembly canaries,
+PSP padding observation, timer catch-up and initial rollover, queue/tick variants.
+
+Completed validation:
+- Native AOT C# runners rebuilt with XML documentation; 20/20 host CTest checks.
+- Process self-test includes an unread outer stdout consumer, output cap,
+  execution deadline, nonzero exit and descendant-held pipes (8.01 seconds).
+- Nine QEMU runs passed register, negative-probe, PSP-padding and timer markers.
+- Normal run: 20261020-183806-836; wrap: 20261020-183922-769;
+  2000 Hz / three-slot queue: 20261020-184144-865.
+- Each run delivered 20,000 messages and 20,000 semaphore handoffs.
+- ARM static-contract compiler/linker fixtures passed.
+- Cppcheck and clang-tidy passed. Strict Sphinx required a heading-underline
+  repair; requirements were regenerated after the documentation repair.
+- Repaired strict Sphinx and 155-row tracker checks passed.
+- RV32 nano remained text3812/data0/BSS1164; UART unchanged; both no-heap audits.
+
+Canaries are validation-only assembly referenced by the stress app; no TCB
+fields or heap services were added. QEMU/ELF hashes are checked before and after
+campaigns. Process cancellation bounds runner waits but cannot promise cleanup
+of orphan descendants whose parent has already exited.
+Review follows commit; simulation is not hardware qualification.

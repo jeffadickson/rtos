@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>NexRT.Evidence</name>
+    </assembly>
+    <members>
+        <member name="T:Program">
+            <summary>Collects bounded, hashed engineering evidence and verifies negative memory-analysis gates.</summary>
+        </member>
+        <member name="M:Program.Main(System.String[])">
+            <summary>Dispatches collect ROOT DEST INPUT..., verify DIRECTORY, self-test, or probe MODE ELF LOG [TOOL LIB].</summary>
+        </member>
+        <member name="M:Program.Within(System.String,System.String)">
+            <summary>Resolves a relative path under a trusted root, rejecting traversal and manifest delimiters.</summary>
+        </member>
+        <member name="M:Program.NoLinks(System.String,System.String)">
+            <summary>Rejects symbolic links and Windows reparse points before walking or copying.</summary>
+        </member>
+        <member name="M:Program.Files(System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>Walks a shallow, bounded input tree without following links.</summary>
+        </member>
+        <member name="M:Program.Hash(System.String)">
+            <summary>Hashes an existing file by streaming rather than retaining its entire contents.</summary>
+        </member>
+        <member name="M:Program.Copy(System.String,System.String,System.Int64@)">
+            <summary>Bounds actual copied bytes even if a selected file grows after the initial quota check.</summary>
+        </member>
+        <member name="M:Program.Collect(System.String,System.String,System.String[])">
+            <summary>Copies explicit inputs to a fresh staging directory and publishes only after verification.</summary>
+        </member>
+        <member name="M:Program.Verify(System.String)">
+            <summary>Verifies every retained size/hash and rejects missing, duplicate or unlisted files.</summary>
+        </member>
+        <member name="M:Program.SelfTest">
+            <summary>Exercises round-trip, tamper detection, overwrite rejection and traversal rejection in an owned temp root.</summary>
+        </member>
+        <member name="M:Program.Probe(System.String[])">
+            <summary>Requires a specific analyzer failure, retaining raw diagnostics rather than accepting arbitrary crashes.</summary>
+        </member>
+        <member name="T:NexRT.Host.HostResult">
+            <summary>Complete bounded process outcome, including partial output on cancellation.</summary>
+        </member>
+        <member name="M:NexRT.Host.HostResult.#ctor(System.Int32,System.String,System.Boolean,System.Boolean,System.String)">
+            <summary>Complete bounded process outcome, including partial output on cancellation.</summary>
+        </member>
+        <member name="T:NexRT.Host.HostProcess">
+            <summary>Runs owned subprocesses without shell parsing or unbounded redirected-pipe waits.</summary>
+        </member>
+        <member name="M:NexRT.Host.HostProcess.Run(System.Diagnostics.ProcessStartInfo,System.TimeSpan,System.Int32)">
+            <summary>Bounds process exit and both output drains by one deadline and a shared character cap.</summary>
+            <param name="start">Literal executable/argument list; streams are redirected here.</param>
+            <param name="duration">Wall-clock execution and drain budget.</param>
+            <param name="maximumCharacters">Maximum retained output across both channels.</param>
+            <returns>Captured outcome; timeout includes descendants retaining inherited pipes.</returns>
+        </member>
+    </members>
+</doc>

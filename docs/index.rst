@@ -1,7 +1,7 @@
 RISCue RTOS User Manual
 =======================
 
-Version 0.2.0. Engineering baseline, 18 October 2026.
+Version 0.2.0. Engineering baseline, 20 October 2026.
 
 This manual describes the implemented kernel, its configuration, operating
 contracts, integration boundaries, and verification obligations. It is written
@@ -20,6 +20,7 @@ worst-case execution time, or hardware validation.
    arm-canaries
    ipc-stress
    host-memory
+   evidence
    how-it-works
    getting-started
    architecture
@@ -52,7 +53,9 @@ worst-case execution time, or hardware validation.
 Scope and status
 ----------------
 
-The target is one RISCue RV32 machine-mode hart. Implemented services are
+Execution targets are one RISCue RV32 machine-mode hart and a single Cortex-M3
+on QEMU MPS2 for simulation. Physical ARM board support remains separate work.
+Implemented services are
 preemptive fixed-priority threads, optional equal-priority time slicing,
 relative sleep, yield, thread completion, runtime priority updates, diagnostics,
 an optional polling Ethernet integration adapter, and optional static IPC,

@@ -1,0 +1,10 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  SharpTestBench -> /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/sharp-demo/runs/20261020-192732-589/managed/SharpTestBench.dll
+  SharpDemo -> /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/sharp-demo/runs/20261020-192732-589/managed/SharpDemo.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:22.41

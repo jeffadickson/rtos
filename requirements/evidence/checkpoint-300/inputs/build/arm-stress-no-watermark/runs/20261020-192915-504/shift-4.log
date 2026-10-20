@@ -1,0 +1,17 @@
+ARM stress: real Cortex-M3 kernel, static queues/semaphores/mutexes
+PASS: register canaries, negative probes, PSP alignment padding
+WITNESS: live_hits=9 first_elapsed=5 initial_low=1 epoch_seen=0
+PASS: masked timer catch-up and counter continuity
+PASS: finite timeouts, FIFO limits, priority inheritance
+STACK: id=0 used=0 capacity=2048 enabled=0
+STACK: id=1 used=0 capacity=2048 enabled=0
+STACK: id=2 used=0 capacity=2048 enabled=0
+STACK: id=3 used=0 capacity=2048 enabled=0
+STACK: id=4 used=0 capacity=2048 enabled=0
+STACK: id=5 used=0 capacity=2048 enabled=0
+STACK: id=6 used=0 capacity=2048 enabled=0
+STACK: id=7 used=0 capacity=2048 enabled=0
+STACK: id=8 used=0 capacity=2048 enabled=0
+STACK: id=9 used=0 capacity=1024 enabled=0
+PASS: messages=20000 token_handoffs=20000 ticks=20189 cpu_rounds=2805510
+ARM_STRESS_PASS

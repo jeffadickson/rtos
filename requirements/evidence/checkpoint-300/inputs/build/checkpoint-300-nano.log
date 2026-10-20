@@ -1,0 +1,11 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- Configuring done (30.3s)
+-- Generating done (2.8s)
+-- Build files have been written to: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/nano
+[0/2] Re-checking globbed directories...
+[1/1] Linking CXX executable demo.elf
+/mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/../lib/gcc/riscv64-unknown-elf/13.2.0/../../../riscv64-unknown-elf/bin/ld: warning: demo.elf has a LOAD segment with RWX permissions
+Static-only ELF audit passed: no allocator or dynamic C++ initializer symbols
+   text	   data	    bss	    dec	    hex	filename
+   3812	      0	   1164	   4976	   1370	/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/nano/demo.elf

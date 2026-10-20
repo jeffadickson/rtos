@@ -1,0 +1,53 @@
+Test project /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host-asan
+      Start  1: tooling
+ 1/24 Test  #1: tooling ..........................   Passed    0.20 sec
+      Start  2: memory
+ 2/24 Test  #2: memory ...........................   Passed    0.13 sec
+      Start  3: scheduler
+ 3/24 Test  #3: scheduler ........................   Passed    0.08 sec
+      Start  4: ethernet
+ 4/24 Test  #4: ethernet .........................   Passed    0.10 sec
+      Start  5: web
+ 5/24 Test  #5: web ..............................   Passed    0.11 sec
+      Start  6: static_storage
+ 6/24 Test  #6: static_storage ...................   Passed    0.11 sec
+      Start  7: synchronization
+ 7/24 Test  #7: synchronization ..................   Passed    0.07 sec
+      Start  8: ipc_queue_atomic
+ 8/24 Test  #8: ipc_queue_atomic .................   Passed    0.06 sec
+      Start  9: mutex_inheritance
+ 9/24 Test  #9: mutex_inheritance ................   Passed    0.10 sec
+      Start 10: queued_printf
+10/24 Test #10: queued_printf ....................   Passed    0.08 sec
+      Start 11: queued_printf_edges
+11/24 Test #11: queued_printf_edges ..............   Passed    0.11 sec
+      Start 12: synchronization_edges
+12/24 Test #12: synchronization_edges ............   Passed    0.25 sec
+      Start 13: synchronization_deadlines
+13/24 Test #13: synchronization_deadlines ........   Passed    0.13 sec
+      Start 14: ipc_public_api
+14/24 Test #14: ipc_public_api ...................   Passed    0.08 sec
+      Start 15: stack_watermark
+15/24 Test #15: stack_watermark ..................   Passed    0.17 sec
+      Start 16: ipc_random_seed_1
+16/24 Test #16: ipc_random_seed_1 ................   Passed    0.19 sec
+      Start 17: ipc_random_seed_42
+17/24 Test #17: ipc_random_seed_42 ...............   Passed    0.14 sec
+      Start 18: ipc_random_seed_3735928559
+18/24 Test #18: ipc_random_seed_3735928559 .......   Passed    0.18 sec
+      Start 19: ipc_random_seed_4294967295
+19/24 Test #19: ipc_random_seed_4294967295 .......   Passed    0.24 sec
+      Start 20: ipc_wait_order
+20/24 Test #20: ipc_wait_order ...................   Passed    0.10 sec
+      Start 21: requirements_tracker
+21/24 Test #21: requirements_tracker .............   Passed   17.83 sec
+      Start 22: requirements_negative
+22/24 Test #22: requirements_negative ............   Passed   15.83 sec
+      Start 23: configuration
+23/24 Test #23: configuration ....................   Passed    0.39 sec
+      Start 24: configuration_cmake
+24/24 Test #24: configuration_cmake ..............   Passed    8.45 sec
+
+100% tests passed, 0 tests failed out of 24
+
+Total Test time (real) =  46.55 sec

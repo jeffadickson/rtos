@@ -1,0 +1,169 @@
+[0/2] Re-checking globbed directories...
+[0/4] cd /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos && /home/jeffd/.cache/nexrt-analyzers/root/usr/lib/llvm-18/bin/clang-tidy --version && /home/jeffd/.cache/nexrt-analyzers/root/usr/lib/llvm-18/bin/clang-tidy -p=/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host --config-file=/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/.clang-tidy /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/ethernet.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/web.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/sync.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/mutex.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/memory.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/memory.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/scheduler.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/ethernet.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/web.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/static.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/sync.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/queue.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/mutex.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/log.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/log.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/log_edges.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/sync_edges.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/sync_deadlines.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/public_api.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/stack_watermark.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/ipc_random.cpp /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/ipc_wait_order.cpp
+Ubuntu LLVM version 18.1.3
+  Optimized build.
+[1/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/ethernet.cpp.
+[2/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/web.cpp.
+[3/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/sync.cpp.
+[4/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/mutex.cpp.
+[5/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/memory.cpp.
+[6/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/memory.cpp.
+[7/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/scheduler.cpp.
+[8/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/ethernet.cpp.
+[9/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/web.cpp.
+[10/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/static.cpp.
+[11/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/sync.cpp.
+[12/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/queue.cpp.
+[13/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/mutex.cpp.
+[14/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/log.cpp.
+[15/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/log.cpp.
+[16/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/log.cpp.
+[17/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/log_edges.cpp.
+[18/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/sync_edges.cpp.
+[19/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/sync_deadlines.cpp.
+[20/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/public_api.cpp.
+[21/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/stack_watermark.cpp.
+[22/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/ipc_random.cpp.
+[23/22] Processing file /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/ipc_wait_order.cpp.
+[1/4] cd /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host && /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/native-tools/NexRT.Requirements/NexRT.Requirements check /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos
+Tracker check passed: 158 substantive review iterations; 96 planned; no runtime verification claims.
+[2/4] cd /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos && /home/jeffd/.cache/nexrt-analyzers/root/usr/bin/cppcheck --version && /home/jeffd/.cache/nexrt-analyzers/root/usr/bin/cppcheck --project=/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/compile_commands.json --enable=warning,performance,portability --error-exitcode=1 --std=c++17 --inline-suppr --template=gcc --suppressions-list=/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/config/cppcheck-suppressions.txt
+Cppcheck 2.13.0
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/ethernet.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/ethernet.cpp: RTOS_IDLE_STACK_BYTES=1024;RTOS_IPC_MAX_MESSAGE_BYTES=128;RTOS_LOGGING=0;RTOS_MAX_HELD_MUTEXES=8;RTOS_MAX_THREADS=16;RTOS_METRICS=1;RTOS_MTIMECMP_ADDRESS=0x02004000;RTOS_MTIME_ADDRESS=0x0200bff8;RTOS_ROUND_ROBIN=1;RTOS_STACK_GUARD=1;RTOS_STACK_WATERMARK=0;RTOS_SYNC=0;RTOS_TICK_HZ=1000...
+1/23 files checked 4% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/web.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/web.cpp: RTOS_IDLE_STACK_BYTES=1024;RTOS_IPC_MAX_MESSAGE_BYTES=128;RTOS_LOGGING=0;RTOS_MAX_HELD_MUTEXES=8;RTOS_MAX_THREADS=16;RTOS_METRICS=1;RTOS_MTIMECMP_ADDRESS=0x02004000;RTOS_MTIME_ADDRESS=0x0200bff8;RTOS_ROUND_ROBIN=1;RTOS_STACK_GUARD=1;RTOS_STACK_WATERMARK=0;RTOS_SYNC=0;RTOS_TICK_HZ=1000...
+2/23 files checked 8% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/sync.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/sync.cpp: RTOS_SYNC=1...
+3/23 files checked 13% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/mutex.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/mutex.cpp: RTOS_SYNC=1...
+4/23 files checked 17% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/memory.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/memory.cpp: RTOS_IDLE_STACK_BYTES=1024;RTOS_IPC_MAX_MESSAGE_BYTES=128;RTOS_LOGGING=0;RTOS_MAX_HELD_MUTEXES=8;RTOS_MAX_THREADS=16;RTOS_METRICS=1;RTOS_MTIMECMP_ADDRESS=0x02004000;RTOS_MTIME_ADDRESS=0x0200bff8;RTOS_ROUND_ROBIN=1;RTOS_STACK_GUARD=1;RTOS_STACK_WATERMARK=0;RTOS_SYNC=0;RTOS_TICK_HZ=1000...
+5/23 files checked 21% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/memory.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/memory.cpp: RTOS_IDLE_STACK_BYTES=1024;RTOS_IPC_MAX_MESSAGE_BYTES=128;RTOS_LOGGING=0;RTOS_MAX_HELD_MUTEXES=8;RTOS_MAX_THREADS=16;RTOS_METRICS=1;RTOS_MTIMECMP_ADDRESS=0x02004000;RTOS_MTIME_ADDRESS=0x0200bff8;RTOS_ROUND_ROBIN=1;RTOS_STACK_GUARD=1;RTOS_STACK_WATERMARK=0;RTOS_SYNC=0;RTOS_TICK_HZ=1000...
+6/23 files checked 26% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/scheduler.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/scheduler.cpp: RTOS_IDLE_STACK_BYTES=1024;RTOS_IPC_MAX_MESSAGE_BYTES=128;RTOS_LOGGING=0;RTOS_MAX_HELD_MUTEXES=8;RTOS_MAX_THREADS=16;RTOS_METRICS=1;RTOS_MTIMECMP_ADDRESS=0x02004000;RTOS_MTIME_ADDRESS=0x0200bff8;RTOS_ROUND_ROBIN=1;RTOS_STACK_GUARD=1;RTOS_STACK_WATERMARK=0;RTOS_SYNC=0;RTOS_TICK_HZ=1000...
+7/23 files checked 30% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/ethernet.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/ethernet.cpp: RTOS_IDLE_STACK_BYTES=1024;RTOS_IPC_MAX_MESSAGE_BYTES=128;RTOS_LOGGING=0;RTOS_MAX_HELD_MUTEXES=8;RTOS_MAX_THREADS=16;RTOS_METRICS=1;RTOS_MTIMECMP_ADDRESS=0x02004000;RTOS_MTIME_ADDRESS=0x0200bff8;RTOS_ROUND_ROBIN=1;RTOS_STACK_GUARD=1;RTOS_STACK_WATERMARK=0;RTOS_SYNC=0;RTOS_TICK_HZ=1000...
+8/23 files checked 34% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/web.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/web.cpp: RTOS_IDLE_STACK_BYTES=1024;RTOS_IPC_MAX_MESSAGE_BYTES=128;RTOS_LOGGING=0;RTOS_MAX_HELD_MUTEXES=8;RTOS_MAX_THREADS=16;RTOS_METRICS=1;RTOS_MTIMECMP_ADDRESS=0x02004000;RTOS_MTIME_ADDRESS=0x0200bff8;RTOS_ROUND_ROBIN=1;RTOS_STACK_GUARD=1;RTOS_STACK_WATERMARK=0;RTOS_SYNC=0;RTOS_TICK_HZ=1000...
+9/23 files checked 39% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/static.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/static.cpp: RTOS_IDLE_STACK_BYTES=1024;RTOS_IPC_MAX_MESSAGE_BYTES=128;RTOS_LOGGING=0;RTOS_MAX_HELD_MUTEXES=8;RTOS_MAX_THREADS=16;RTOS_METRICS=1;RTOS_MTIMECMP_ADDRESS=0x02004000;RTOS_MTIME_ADDRESS=0x0200bff8;RTOS_ROUND_ROBIN=1;RTOS_STACK_GUARD=1;RTOS_STACK_WATERMARK=0;RTOS_SYNC=0;RTOS_TICK_HZ=1000...
+10/23 files checked 43% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/sync.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/sync.cpp: RTOS_SYNC=1...
+11/23 files checked 47% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/queue.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/queue.cpp: RTOS_SYNC=1...
+12/23 files checked 52% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/mutex.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/mutex.cpp: RTOS_SYNC=1...
+13/23 files checked 56% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/log.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/log.cpp: RTOS_LOGGING=1;RTOS_SYNC=1...
+14/23 files checked 60% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/log.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/log.cpp: RTOS_LOGGING=1;RTOS_SYNC=1...
+15/23 files checked 65% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/log_edges.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/log_edges.cpp: RTOS_LOGGING=1;RTOS_SYNC=1...
+16/23 files checked 69% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/log.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/src/log.cpp: RTOS_LOGGING=1;RTOS_SYNC=1...
+17/23 files checked 73% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/sync_edges.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/sync_edges.cpp: RTOS_SYNC=1...
+18/23 files checked 78% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/sync_deadlines.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/sync_deadlines.cpp: RTOS_SYNC=1...
+19/23 files checked 82% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/public_api.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/public_api.cpp: RTOS_SYNC=1...
+20/23 files checked 86% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/stack_watermark.cpp ...
+21/23 files checked 91% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/ipc_random.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/ipc_random.cpp: RTOS_SYNC=1...
+22/23 files checked 95% done
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/ipc_wait_order.cpp ...
+Checking /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/tests/ipc_wait_order.cpp: RTOS_SYNC=1...
+23/23 files checked 100% done
+[3/4] cd /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host && /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/docs-venv/bin/sphinx-build -n -W --keep-going -b html /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/docs /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/docs/html
+Running Sphinx v8.2.3
+loading translations [en]... done
+loading pickled environment... done
+building [mo]: targets for 0 po files that are out of date
+writing output... 
+building [html]: targets for 6 source files that are out of date
+updating environment: 1 added, 6 changed, 0 removed
+reading sources... [ 14%] evidence
+reading sources... [ 29%] footprint
+reading sources... [ 43%] host-memory
+reading sources... [ 57%] implementation-300
+reading sources... [ 71%] index
+reading sources... [ 86%] requirements-tracker
+reading sources... [100%] tooling
+
+looking for now-outdated files... 25 found
+pickling environment... done
+checking consistency... done
+preparing documents... done
+copying assets... 
+copying static files... 
+Writing evaluated template result to /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/docs/html/_static/basic.css
+Writing evaluated template result to /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/docs/html/_static/documentation_options.js
+Writing evaluated template result to /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/docs/html/_static/language_data.js
+Writing evaluated template result to /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/docs/html/_static/alabaster.css
+copying static files: done
+copying extra files... 
+copying extra files: done
+copying assets: done
+writing output... [  3%] api
+writing output... [  6%] architecture
+writing output... [  9%] assembly-port
+writing output... [ 12%] configuration
+writing output... [ 16%] correctness-iterations
+writing output... [ 19%] device-ipc-review
+writing output... [ 22%] diagnostic-overlays
+writing output... [ 25%] drivers
+writing output... [ 28%] evidence
+writing output... [ 31%] footprint
+writing output... [ 34%] getting-started
+writing output... [ 38%] host-memory
+writing output... [ 41%] how-it-works
+writing output... [ 44%] implementation-300
+writing output... [ 47%] index
+writing output... [ 50%] integration-history
+writing output... [ 53%] memory
+writing output... [ 56%] metrics
+writing output... [ 59%] platforms
+writing output... [ 62%] port-bringup
+writing output... [ 66%] requirements-process
+writing output... [ 69%] requirements-tracker
+writing output... [ 72%] reviews
+writing output... [ 75%] simplicity-iterations
+writing output... [ 78%] source-reference
+writing output... [ 81%] stack-observations
+writing output... [ 84%] sync-iterations
+writing output... [ 88%] synchronization
+writing output... [ 91%] tooling
+writing output... [ 94%] validation
+writing output... [ 97%] verification
+writing output... [100%] web
+
+generating indices... genindex done
+writing additional pages... search done
+dumping search index in English (code: en)... done
+dumping object inventory... done
+build succeeded.
+
+The HTML pages are in docs/html.

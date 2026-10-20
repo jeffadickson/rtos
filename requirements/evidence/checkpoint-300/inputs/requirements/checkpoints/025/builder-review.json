@@ -1,0 +1,29 @@
+{
+  "checkpoint": 25,
+  "reviewer": "requirements_builder agent",
+  "scope": "Independent implementability and tracker source review; not target runtime validation",
+  "disposition": "Requirements accepted after corrections; execution retry follows documentation fix",
+  "findings": [
+    {
+      "requirement": "NXR-013",
+      "issue": "Internal transition locks and application-held interrupt masks were conflated",
+      "resolution": "Public blocking/scheduling under application-held masking rejected; internal restoration retained"
+    },
+    {
+      "requirement": "NXR-021",
+      "issue": "Flag width and waiter consumption ordering unspecified",
+      "resolution": "1..32 bits, reserved mask, priority/FIFO order, per-waiter consumption selected"
+    },
+    {
+      "requirement": "NXR-024",
+      "issue": "Cancellation and periodic backlog policies unspecified",
+      "resolution": "Cancelled versus Busy and one pending invocation with saturating miss count selected"
+    },
+    {
+      "requirement": "all",
+      "issue": "Compressed prose spacing",
+      "resolution": "C# prose normalization applied"
+    }
+  ],
+  "documentation_gate_fix": "Initial strict Sphinx gate rejected a short heading underline; C# normalized it. Original failed log retained."
+}

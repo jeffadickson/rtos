@@ -1,0 +1,37 @@
+00001140 b (anonymous namespace)::idle_stack
+00001340 b (anonymous namespace)::idle_thread
+000000dc t (anonymous namespace)::arm()
+00000104 t (anonymous namespace)::Lock::~Lock()
+00000104 t (anonymous namespace)::Lock::~Lock()
+00000118 t (anonymous namespace)::idle(void*)
+00001100 b (anonymous namespace)::task
+00000048 t (anonymous namespace)::work(void*)
+00000f00 b (anonymous namespace)::stack
+0000112c b (anonymous namespace)::period
+00001134 b (anonymous namespace)::current
+00001130 b (anonymous namespace)::running
+00001128 b (anonymous namespace)::clock_hz
+00001120 b (anonymous namespace)::deadline
+00001360 b (anonymous namespace)::scheduler
+000005e0 T rtos::exit()
+0000020c W rtos::port::halt()
+000003bc T rtos::start(unsigned long, unsigned long)
+00000554 T rtos::yield()
+00000218 T rtos::create(rtos::Thread&, void (*)(void*), void*, unsigned char, void*, unsigned int, char const*)
+00000120 W rtos::detail::ranges_overlap(unsigned int, unsigned int, unsigned int, unsigned int)
+00000568 T rtos::sleep_for(unsigned long)
+00000150 W rtos::detail::Scheduler::conflicts(unsigned int, unsigned int) const
+00001000 A __boot_stack_bytes
+00000de4 R __clz_tab
+000016f0 B __global_pointer$
+000009a4 T __udivdi3
+00006f00 A _boot_stack_bottom
+00001370 B _bss_end
+00000ef0 B _bss_start
+00007f00 B _stack_top
+00000000 T _start
+00000078 T main
+00000ef0 B nano_iterations
+00000620 T rtos_entry
+00000644 T rtos_trap
+0000086c T rtos_vector

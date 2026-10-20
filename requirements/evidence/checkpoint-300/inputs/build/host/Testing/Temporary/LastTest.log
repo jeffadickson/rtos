@@ -1,0 +1,422 @@
+Start testing: Oct 20 12:26 PDT
+----------------------------------------------------------
+1/26 Testing: tooling
+1/26 Test: tooling
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/native-tools/Rtos.Tools/Rtos.Tools" "self-test"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"tooling" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+PASS: audit symbol boundaries, spaced paths, duplicate-option rejection
+<end of output>
+Test time =   3.61 sec
+----------------------------------------------------------
+Test Passed.
+"tooling" end time: Oct 20 12:26 PDT
+"tooling" time elapsed: 00:00:03
+----------------------------------------------------------
+
+2/26 Testing: evidence_tool
+2/26 Test: evidence_tool
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/native-tools/NexRT.Evidence/NexRT.Evidence" "self-test"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"evidence_tool" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+EVIDENCE_VERIFIED files=1
+EVIDENCE_COLLECTED files=1 bytes=9 directory=/tmp/nexrt-evidence-456c02bce72d4a16816c5ad17ddf60e0/bundle
+EVIDENCE_VERIFIED files=1
+PASS: evidence round-trip, tamper, overwrite and traversal rejection
+<end of output>
+Test time =   6.41 sec
+----------------------------------------------------------
+Test Passed.
+"evidence_tool" end time: Oct 20 12:26 PDT
+"evidence_tool" time elapsed: 00:00:06
+----------------------------------------------------------
+
+3/26 Testing: memory
+3/26 Test: memory
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/memory_test"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"memory" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.12 sec
+----------------------------------------------------------
+Test Passed.
+"memory" end time: Oct 20 12:26 PDT
+"memory" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/26 Testing: scheduler
+4/26 Test: scheduler
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/scheduler_test"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"scheduler" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.13 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler" end time: Oct 20 12:26 PDT
+"scheduler" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/26 Testing: ethernet
+5/26 Test: ethernet
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/ethernet_test"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"ethernet" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.34 sec
+----------------------------------------------------------
+Test Passed.
+"ethernet" end time: Oct 20 12:26 PDT
+"ethernet" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/26 Testing: web
+6/26 Test: web
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/web_test"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"web" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.30 sec
+----------------------------------------------------------
+Test Passed.
+"web" end time: Oct 20 12:26 PDT
+"web" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/26 Testing: static_storage
+7/26 Test: static_storage
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/static_test"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"static_storage" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"static_storage" end time: Oct 20 12:26 PDT
+"static_storage" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/26 Testing: synchronization
+8/26 Test: synchronization
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/sync_test"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"synchronization" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.10 sec
+----------------------------------------------------------
+Test Passed.
+"synchronization" end time: Oct 20 12:26 PDT
+"synchronization" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/26 Testing: ipc_queue_atomic
+9/26 Test: ipc_queue_atomic
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/queue_test"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"ipc_queue_atomic" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.10 sec
+----------------------------------------------------------
+Test Passed.
+"ipc_queue_atomic" end time: Oct 20 12:26 PDT
+"ipc_queue_atomic" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/26 Testing: mutex_inheritance
+10/26 Test: mutex_inheritance
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/mutex_test"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"mutex_inheritance" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.11 sec
+----------------------------------------------------------
+Test Passed.
+"mutex_inheritance" end time: Oct 20 12:26 PDT
+"mutex_inheritance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/26 Testing: queued_printf
+11/26 Test: queued_printf
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/log_test"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"queued_printf" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"queued_printf" end time: Oct 20 12:26 PDT
+"queued_printf" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/26 Testing: queued_printf_edges
+12/26 Test: queued_printf_edges
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/log_edges_test"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"queued_printf_edges" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"queued_printf_edges" end time: Oct 20 12:26 PDT
+"queued_printf_edges" time elapsed: 00:00:00
+----------------------------------------------------------
+
+13/26 Testing: synchronization_edges
+13/26 Test: synchronization_edges
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/sync_edges_test"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"synchronization_edges" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.06 sec
+----------------------------------------------------------
+Test Passed.
+"synchronization_edges" end time: Oct 20 12:26 PDT
+"synchronization_edges" time elapsed: 00:00:00
+----------------------------------------------------------
+
+14/26 Testing: synchronization_deadlines
+14/26 Test: synchronization_deadlines
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/sync_deadlines_test"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"synchronization_deadlines" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"synchronization_deadlines" end time: Oct 20 12:26 PDT
+"synchronization_deadlines" time elapsed: 00:00:00
+----------------------------------------------------------
+
+15/26 Testing: ipc_public_api
+15/26 Test: ipc_public_api
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/public_api_test"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"ipc_public_api" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.12 sec
+----------------------------------------------------------
+Test Passed.
+"ipc_public_api" end time: Oct 20 12:26 PDT
+"ipc_public_api" time elapsed: 00:00:00
+----------------------------------------------------------
+
+16/26 Testing: stack_watermark
+16/26 Test: stack_watermark
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/stack_watermark_test"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"stack_watermark" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"stack_watermark" end time: Oct 20 12:26 PDT
+"stack_watermark" time elapsed: 00:00:00
+----------------------------------------------------------
+
+17/26 Testing: ipc_random_seed_1
+17/26 Test: ipc_random_seed_1
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/ipc_random_test"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"ipc_random_seed_1" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+IPC_RANDOM_PASS seed=1 capacity=1 steps=50000
+IPC_RANDOM_PASS seed=1 capacity=3 steps=50000
+IPC_RANDOM_PASS seed=1 capacity=8 steps=50000
+<end of output>
+Test time =   0.26 sec
+----------------------------------------------------------
+Test Passed.
+"ipc_random_seed_1" end time: Oct 20 12:26 PDT
+"ipc_random_seed_1" time elapsed: 00:00:00
+----------------------------------------------------------
+
+18/26 Testing: ipc_random_seed_42
+18/26 Test: ipc_random_seed_42
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/ipc_random_test" "42"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"ipc_random_seed_42" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+IPC_RANDOM_PASS seed=42 capacity=1 steps=50000
+IPC_RANDOM_PASS seed=42 capacity=3 steps=50000
+IPC_RANDOM_PASS seed=42 capacity=8 steps=50000
+<end of output>
+Test time =   0.22 sec
+----------------------------------------------------------
+Test Passed.
+"ipc_random_seed_42" end time: Oct 20 12:26 PDT
+"ipc_random_seed_42" time elapsed: 00:00:00
+----------------------------------------------------------
+
+19/26 Testing: ipc_random_seed_3735928559
+19/26 Test: ipc_random_seed_3735928559
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/ipc_random_test" "3735928559"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"ipc_random_seed_3735928559" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+IPC_RANDOM_PASS seed=3735928559 capacity=1 steps=50000
+IPC_RANDOM_PASS seed=3735928559 capacity=3 steps=50000
+IPC_RANDOM_PASS seed=3735928559 capacity=8 steps=50000
+<end of output>
+Test time =   0.28 sec
+----------------------------------------------------------
+Test Passed.
+"ipc_random_seed_3735928559" end time: Oct 20 12:26 PDT
+"ipc_random_seed_3735928559" time elapsed: 00:00:00
+----------------------------------------------------------
+
+20/26 Testing: ipc_random_seed_4294967295
+20/26 Test: ipc_random_seed_4294967295
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/ipc_random_test" "4294967295"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"ipc_random_seed_4294967295" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+IPC_RANDOM_PASS seed=4294967295 capacity=1 steps=50000
+IPC_RANDOM_PASS seed=4294967295 capacity=3 steps=50000
+IPC_RANDOM_PASS seed=4294967295 capacity=8 steps=50000
+<end of output>
+Test time =   0.17 sec
+----------------------------------------------------------
+Test Passed.
+"ipc_random_seed_4294967295" end time: Oct 20 12:26 PDT
+"ipc_random_seed_4294967295" time elapsed: 00:00:00
+----------------------------------------------------------
+
+21/26 Testing: ipc_wait_order
+21/26 Test: ipc_wait_order
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/ipc_wait_order_test"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"ipc_wait_order" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"ipc_wait_order" end time: Oct 20 12:26 PDT
+"ipc_wait_order" time elapsed: 00:00:00
+----------------------------------------------------------
+
+22/26 Testing: requirements_tracker
+22/26 Test: requirements_tracker
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/native-tools/NexRT.Requirements/NexRT.Requirements" "check" "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"requirements_tracker" start time: Oct 20 12:26 PDT
+Output:
+----------------------------------------------------------
+Tracker check passed: 158 substantive review iterations; 96 planned; no runtime verification claims.
+<end of output>
+Test time =  21.67 sec
+----------------------------------------------------------
+Test Passed.
+"requirements_tracker" end time: Oct 20 12:27 PDT
+"requirements_tracker" time elapsed: 00:00:21
+----------------------------------------------------------
+
+23/26 Testing: requirements_negative
+23/26 Test: requirements_negative
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/native-tools/NexRT.Requirements/NexRT.Requirements" "self-test" "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"requirements_negative" start time: Oct 20 12:27 PDT
+Output:
+----------------------------------------------------------
+PASS: rejected duplicate IDs/reviews
+PASS: rejected dependency cycle
+PASS: rejected unknown dependency
+PASS: rejected missing acceptance criteria
+PASS: rejected false runtime verification
+PASS: rejected path traversal
+PASS: rejected missing inspected source
+PASS: CSV delimiters/quotes preserved
+<end of output>
+Test time =  12.90 sec
+----------------------------------------------------------
+Test Passed.
+"requirements_negative" end time: Oct 20 12:27 PDT
+"requirements_negative" time elapsed: 00:00:12
+----------------------------------------------------------
+
+24/26 Testing: configuration
+24/26 Test: configuration
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/native-tools/NexRT.Configure/NexRT.Configure" "self-test" "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"configuration" start time: Oct 20 12:27 PDT
+Output:
+----------------------------------------------------------
+PASS: topology, capacity, injection, readiness, deterministic generation and all planned target configurations.
+<end of output>
+Test time =   0.31 sec
+----------------------------------------------------------
+Test Passed.
+"configuration" end time: Oct 20 12:27 PDT
+"configuration" time elapsed: 00:00:00
+----------------------------------------------------------
+
+25/26 Testing: configuration_cmake
+25/26 Test: configuration_cmake
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/native-tools/NexRT.Configure/NexRT.Configure" "cmake-test" "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"configuration_cmake" start time: Oct 20 12:27 PDT
+Output:
+----------------------------------------------------------
+PASS: 49 CMake syntax, boundary, alignment and feature-dependency checks.
+<end of output>
+Test time =   4.40 sec
+----------------------------------------------------------
+Test Passed.
+"configuration_cmake" end time: Oct 20 12:27 PDT
+"configuration_cmake" time elapsed: 00:00:04
+----------------------------------------------------------
+
+26/26 Testing: arm_runner_process
+26/26 Test: arm_runner_process
+Command: "/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host/native-tools/NexRT.ArmSim/NexRT.ArmSim" "--self-test"
+Directory: /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host
+"arm_runner_process" start time: Oct 20 12:27 PDT
+Output:
+----------------------------------------------------------
+PASS: process exit, timeout, output cap, stalled outer consumer and inherited pipes
+<end of output>
+Test time =   7.99 sec
+----------------------------------------------------------
+Test Passed.
+"arm_runner_process" end time: Oct 20 12:27 PDT
+"arm_runner_process" time elapsed: 00:00:07
+----------------------------------------------------------
+
+End testing: Oct 20 12:27 PDT

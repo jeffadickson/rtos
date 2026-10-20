@@ -1,0 +1,276 @@
+PLAIN pipeline, RF_TMR=0, FI_ENABLE=0; upstream AXI bridge; plain RAM; accelerated TX UART
+CS_TEST_FILTER=ThreeWorkers
+CS_SEED=1
+/home/jeffd/.cache/nexrt/37c06ff7a0e8b661/model/riscue_demo 24ab0e1f4cd2348ba7dfb264b49ef933496818060916038cbc505fdfdf861039
+/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/libs/libcocotb_bootstrap.so f44321e40c8c57ff7ef44c1d5b3d8521890da1b0c7380bbb6ee8339256d8fb8a
+/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/libs/libgpi.so b3c7eb6de5c2072d65a93e58b9fee2bb6cf2ff70a6a12f96b45afe6a237931a8
+/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/libs/libgpi_impl_aldec_vhpi.so ad9caa22977a71430db1de74bf0965155f6026b00b621768b95c9ede45dc77bb
+/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/libs/libgpi_impl_aldec_vpi.so 6b19b43e10dabbbb5b4b9195fc706477fcc7629f5d3b8714e4d5040d217fca20
+/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/libs/libgpi_impl_dsim_vpi.so 338ac7b20f2603baccb73201d6a561fbca47951db791df8c8b40ac99f9ba6642
+/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/libs/libgpi_impl_ghdl_vpi.so 3d80df09ae08a55439d6b64c1f9a33688e0a96a1d096ba3730db29a7a3891384
+/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/libs/libgpi_impl_icarus_vpi.so 7191d827b045f3ebd16087568037e245edee75bce8816d4c4afb584f5a81218b
+/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/libs/libgpi_impl_ius_vhpi.so 30d72416bb528f385ec794d3e384e31c3d60da72b55d92af19d9e5542faae0a4
+/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/libs/libgpi_impl_ius_vpi.so 38c379b65d6631c8af0211b7806d70fbe363cf0a2e98b3158f1c5c0b0d277c2f
+/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/libs/libgpi_impl_modelsim_fli.so d9d55ba020a7afb0da0f58162e5fdef7926faf91c514417d832305d1996c74cb
+/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/libs/libgpi_impl_modelsim_vhpi.so 80479bd038e2fe79e4127d9b082880566de7e389b6c32ba72fce74fe97f78ff8
+/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/libs/libgpi_impl_modelsim_vpi.so d00d3bb15a66e9a4aaa6d9d8fc8c8efd389f268a301fe0a63e1e944efc654934
+/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/libs/libgpi_impl_nvc_vhpi.so ec24584004ea6cac32200c1b3c20d1d9e551be707043a0176529bd74a40ee452
+/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/libs/libgpi_impl_vcs_vpi.so 3b8c413c4757dbe30a809556a1e977b6b4f577d313742ff63f1c60f5089da012
+/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/libs/libgpi_impl_verilator_vpi.so 6758b8589fe16c3c52df390cdca61902d3303de58c45e083ba8312f234680343
+/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/share/lib/verilator/verilator.cpp 51a00765e48f67db4549cffc4285a67294897e0d548f7625e4e6fdfc6993d741
+/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/sharp-demo/runs/20261020-192732-589/managed/SharpDemo.deps.json c489fc5b548d9b5133ed0f37363b7149c3bae8a6cb99cf7c491a8d954ca87eae
+/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/sharp-demo/runs/20261020-192732-589/managed/SharpDemo.dll 5bb1769d05360d6a1a22c4cb38d63b5f1cf2af1eb0b8d2ed73c9601f697aa678
+/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/sharp-demo/runs/20261020-192732-589/managed/SharpDemo.runtimeconfig.json 9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f
+/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/sharp-demo/runs/20261020-192732-589/managed/SharpTestBench.deps.json 217353af530610dd360cd98c6d28499af879ff81f0ad0bd9148707db22c81797
+/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/sharp-demo/runs/20261020-192732-589/managed/SharpTestBench.dll f58667fb5ecc9cabfd46d19c9a03965e75fc284423827b65710875f31a818418
+/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/uart/demo.elf 1cbd755d3914dc622a478f2b473cf45c404065ccebf9e8c98a0b32e7159222fe
+/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/sim/rtl/riscue_demo.sv 0e9f659bb2e192e49f60d813d145ed944d57135f8725f05b1168706dd76e7b46
+/mnt/c/dev/RISCue/boards/kc705/uart_tx.sv a5103542c85995bef1f74a839290ec15e9bfc780e857896d4c6e246023609684
+/mnt/c/dev/RISCue/rtl/ft_pkg.sv abb263d7d7088f20caa31f2e2964eec41720a98d724bbf3f3610566e7c6091a0
+/mnt/c/dev/RISCue/rtl/riscue_axi_core.sv ff687b92431dba83a4d2d5809dea9213811d81b85e9807c8dfcadc30e815b938
+/mnt/c/dev/RISCue/rtl/riscue_axi_master_bridge.sv 2e40a1ecd8325229c6bb1641da5336e7f36e8c4f9ed5d74d471bc172a842cc45
+/mnt/c/dev/RISCue/rtl/riscue_execute.sv 9e623facae2108272975d936c711596721dae21af0e8e36a3f3b5147404600e3
+/mnt/c/dev/RISCue/rtl/riscue_jump_target.sv 8111523cf25adf041ce4d3eab6d4e963812b9b4038b96ba1214c37cb801f701f
+/mnt/c/dev/RISCue/rtl/riscue_muldiv.sv c6047876f3af142d901bfc41ded436ffde327880408bbad7164a75223c4e4851
+/mnt/c/dev/RISCue/rtl/riscue_pipeline_core.sv 2d8db4453f0b320a016c9c074578f12c039b29a0cae5e087937b6cb703d6250d
+/mnt/c/dev/RISCue/rtl/riscue_pipeline_pkg.sv 528ff8319602ee05dcceeb2ba9b9165df977a306bd3dcba8caaef923dbe89d75
+/mnt/c/dev/RISCue/rtl/riscue_rvc.sv c76b03742f72cf132a79386bc8121d0379830c22ae9a5b9bfaa6abb3ae0526eb
+/mnt/c/dev/SharpTestBench/build/libsharptestbench_host.so a106266dbf295540953fb81af300dce38d11f56405eeff51a0d5e24bbeae5ab8
+/usr/local/share/dotnet/host/fxr/10.0.13/libhostfxr.so 03147defc576e5a50a0f52b628d8b98a75fea83e1572956fcd48b5353c4657e5
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/.version 378c3e82aa2ace897376e7c986fed5ae773ae76bd1ab145f6d007d9969b8e9e7
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/Microsoft.CSharp.dll 4a99825b3345cee71c9a18f95921edeec0199d36359690b0b00b67f74a09fa3c
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/Microsoft.NETCore.App.deps.json c2d9bfad058007689fd7db5f92ac679d91ad85bcff65e3c6fa49c1be30e7ee9a
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/Microsoft.NETCore.App.runtimeconfig.json b0389faed3531f74a620de69039790f308c6e08affe1ebd21bc51c3b80cde8b5
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/Microsoft.VisualBasic.Core.dll f5d76b33d2acde27ea83b2a6846c2c8ccbb0fced26a63b86418abb5a0e706697
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/Microsoft.VisualBasic.dll b5869ff6e0c6df9801662785ac58f278a6799c813c573103a75c310d5a377a79
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/Microsoft.Win32.Primitives.dll 5fa2bfb4d3d7022cfc11957617e9989e5fa61a471a720ff26b1bfc7d1d9d6406
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/Microsoft.Win32.Registry.dll 7d0c170816f319325da46541e4f37f4fa749d34dcfd3b7abfdacdc6f24ee33b1
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.AppContext.dll 825778128e91f3e65f1e2df0e972f1ca827518ce589120231ee13d481e696c5d
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Buffers.dll 015009d81a7f0100146a2ce904121684a11af304100710058bf6a7e8bb2826f4
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Collections.Concurrent.dll 7d7e3b3cc26b1d6a473bfcad2b6f26f47da1c7fcd987b9f33ddf03715916e0dc
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Collections.Immutable.dll 436274e38b0d4ef6c3e375fbe7a7d464bdba020dfca2ae7fe63de87f6796c87f
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Collections.NonGeneric.dll 1f92ea3c230d2b4cef1d4eb9327b3cd6516fded8e70f91e40ffceda17fe41559
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Collections.Specialized.dll 1778a3dbfdfd9f2303b21db1919bb4ad7f7cf3b36294c4b170a84a727eb8ade8
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Collections.dll 7ae47f8046afb2517bced030b168a6c97c204b8bfa003a28e1ab6b743cf8f24d
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.ComponentModel.Annotations.dll dd7e80e916063085b9c058fb495166f4dffe9b2b502a598589eda730dcc417b5
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.ComponentModel.DataAnnotations.dll 51b101b79f68fd702ffcee9eae4aff09737798b5c42a70bfe9788155b64ad256
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.ComponentModel.EventBasedAsync.dll 22346a3aee9ce1961fa36ca9816b4ed17b7835c4b32283af05dc4c3c90e716b6
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.ComponentModel.Primitives.dll bd3c3a35e14172a986d56e8e24407ba7643204ad995b6ecde60689d7b550a973
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.ComponentModel.TypeConverter.dll 341ffacd21ff006d538472038e1c4d42cc75b26ddd95a6cf6006b5b24f114a87
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.ComponentModel.dll 2abe3fd998af0eeb082c3bde444995be44cf94f7875888886d4732a8462874fb
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Configuration.dll e5ffa6409446e8a608e4cc7f0c0d39562a075230fbf61d32ec314e02462fe7d3
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Console.dll 7c6a8fd880909130f0279e9669d162e45e5db0e0963d5e32495c3c2a3305dffc
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Core.dll 6011b6cd6591d7c4c48468513340c477f04ca2765808e9c7e80ed98891858f0b
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Data.Common.dll 6122e9bc97d432bddb146b490510b160f0c8ab7e0ce89fa8847fd858166123a1
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Data.DataSetExtensions.dll 1530720d4393a63514621734001a04597d0e35fc16f4b8a774c938d47883e34c
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Data.dll 0b94d8b29c34e4ddad1bb5fd304be28dc3e08aef017b56c5b0624b07af588c62
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Diagnostics.Contracts.dll fc479f589078ddd7a63b2635ac1d6a0e02ea4318cfe8af680961bf666ad0d8e2
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Diagnostics.Debug.dll 7f5040c44d6704d6d92227d6cde5ece2fc22176c93e217f2c5fda969c8e84ea1
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Diagnostics.DiagnosticSource.dll da7d3f3c04ef61d5d6304021a37e5ee51a576641b6652161b1b677b06ef2bb2e
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Diagnostics.FileVersionInfo.dll 143088ea89e901ca2df59a27ac1e561bd42bd78ae8c203a18d39d7a761e818d6
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Diagnostics.Process.dll ebbe6500ec760ab9557163f08c0b02f13fc7c121d77ea36d6872bbea8e7e25fa
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Diagnostics.StackTrace.dll 6028761e864eade1753d06bd2c4ded5cc80d70b3280a6bc85152efdb4a0960b0
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Diagnostics.TextWriterTraceListener.dll f5015ca5faeebafc669dd704f6c3f601cb6d924f64f11bbf5625df4152f21540
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Diagnostics.Tools.dll 85f4e9022380bfe46bd568f6a6c8b05a670b4645e356e6a77f164031ead05121
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Diagnostics.TraceSource.dll e39881aac61bcb9aad4fed94a1bd8d814f04ccda35adc8686683b5a6aabd17d4
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Diagnostics.Tracing.dll e1553a04888fd9348b9ba23c920fed05fdddf4cdd47ad347dc887af84521eabe
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Drawing.Primitives.dll 185c993a7250abf82cc7eb20a8f53e51acc04e661feef7d69721d9d69d1bff3a
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Drawing.dll 874d8da155fa07b634a6934e697427503d52baad15c5789b03b8dace7433bcd3
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Dynamic.Runtime.dll 548b68eecccbc1e8b9e35615f135226481062fa4954a63c8951518ea89c3ba59
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Formats.Asn1.dll ec5721f93002f245c620276e428452dfabdf21d0c26e7008abefcafff5ce507d
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Formats.Tar.dll 575afe10e59dab59953022ac54d30d21aef3bbe99eb4268e742a0edabe3d9f2e
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Globalization.Calendars.dll 2b2b4e75c58b05c714a04c62ba41fde8a5c688fad7c48048ec343ddb575e3396
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Globalization.Extensions.dll 05ce842dea973cf70f2fb9e44ff269664fd96ace0b3837cde6c1493184915390
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Globalization.dll 4b8da3084a26108766911f9a6f4954fd9e8ccb8472f34d3970013b2fa77692db
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.IO.Compression.Brotli.dll c66fda55aa019b90b5cb50a6ec069079532e2d9f3c0b2720aad1220b1c2a0110
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.IO.Compression.FileSystem.dll 53dff201b1e28329b02e319fcb6ded173498087ff5705d05d178d2cdeffcc89b
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.IO.Compression.ZipFile.dll 8cffb5898c0d53b4f6d945f1380b76ee0ef6327ded77856716ae65b91749d79f
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.IO.Compression.dll 716370ae55fc018735479dc38d30c43770a194f4795b5f9cdc5ad2dc713b8fd9
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.IO.FileSystem.AccessControl.dll 6beeea4a8d9fbbd83dca3f5e6591faf2a69d5abb6befa4cb27e9d73bc74c65a1
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.IO.FileSystem.DriveInfo.dll 57f8e5c8d9304817e9f78bcdd3621c11bc7765484e44f0e95b0cfb2f2e899a1e
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.IO.FileSystem.Primitives.dll 2fab65c881d5b62c1dc14e8031c210ddd7328cc092319f276011965c7f2c2acf
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.IO.FileSystem.Watcher.dll 954731b1d94a4e94d5d1ca13d6b3be84693231edd206dcfcd0b3923d5b695b8e
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.IO.FileSystem.dll 581cff7d4aa7e525c1a4ba4e4c0155e2588be796480916a28e1e1f049f9f9321
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.IO.IsolatedStorage.dll a8970b1b961040091c110b2d9a9cb7ed1f84d150acecacc5f27fde2e48e44374
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.IO.MemoryMappedFiles.dll 926cacd97b6731c1c002c29a6b21caeb9af0f6c42457f2724c26af4d664685d6
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.IO.Pipelines.dll c8f7085e346d460c0f5f003f3f8cbc8662e6972481bf0646c60094b93232c312
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.IO.Pipes.AccessControl.dll 5f2cbd7375e512dc2dee1e2cc2e22ed0fcf9178a93159af308113a227310e2af
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.IO.Pipes.dll d2ee83ae33ad50657e07332c3e666ef1a0d896bbccbd44485b71ded832cbea41
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.IO.UnmanagedMemoryStream.dll 58f9eb7c1884f051d2e1d5ec0b9508e888a88beec8fe22967edb1d10f9cbe327
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.IO.dll 7c7c9d25d712cffa9e0dc93e752c616249a7098ff39ee179b6c953a1007f1607
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Linq.AsyncEnumerable.dll 969c4c4a5cbbb4768f4c4f70fd0b9d5ba8c1963c0c491a8787404e45d1f74e02
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Linq.Expressions.dll ec7e0543b745953353502545498e850f913c4ef619d7f5278d6f0f150b34dee8
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Linq.Parallel.dll edfa7c67ba99ff43c09e9e5600bcc6831233e73a2332133646c1041d567ffadb
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Linq.Queryable.dll 3b801db20a98073d5d228ed8f64a89653895bf5e864ec13c320ff3db009d1886
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Linq.dll f4f4667910c7070f3ce8707cf84faf55ab71cdfaee17f4a019fd31fe69fb09f4
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Memory.dll f194e001b2d2769c135df86b95120524b8c66b3a2c421c445567d5283b053c9e
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.Http.Json.dll 7c7a42eab42ee32c3a0c208f52e3470407ccd1f119bf012f6808eb2463374e7c
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.Http.dll d616060cfe1f0583d029a442e39d8e565c6e034899ca414733858f87df0c4bbf
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.HttpListener.dll 0762e2950fb65e0929cff2606f16ca840e0e123ffab1d3e2b5ec3248a9f6a83d
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.Mail.dll cb1aec873fd404c286b63b2555cb11e91cf0eb84e57ab467295523bc0d0b4d7c
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.NameResolution.dll 4e941fa8bfe44ba7f8fccbf46ef49b19e819f8c4dd4a8784d43779d889920aa8
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.NetworkInformation.dll 4a444a4317748bafd8cef1a37894872f03db2e17dd7b998a7d665e9d54438468
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.Ping.dll 10581f0e543aac641048a194422f12ec9264b74b2f253d68e5f3eabb92ecc40b
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.Primitives.dll ba4f28ebed7c1fdb6394165c49039b69b245410ae35d408225b8808e0a62fade
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.Quic.dll e16666e27190dff7ffd058ea678b12f07e8b0d4d4f84cf3a45ca9cdad99d9046
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.Requests.dll 7e120951e14b69eacbbba198fbfe2a964291947c787f81d922d7c0bc834e4f7e
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.Security.dll b0356021a68be0cdf570dac0c99fcabccf66d945ba1e047bdf058ac85dba85ef
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.ServerSentEvents.dll 404323f0c57c0cfbd9ad7203170731459cfa5ec559ee2efb7d0c9614abffa387
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.ServicePoint.dll 555f55a6f6be3110666224258488371f9baee1c47c09ba6eaf5245998aa03f7a
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.Sockets.dll 6d38f6e3001494e745043fc6c73a8a59cde3cf745e9039752cb5c236c5d67a57
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.WebClient.dll 675e55e21ffba3a1ee72f6cd01383f4ce0566db23f12e6acd317d6efd1d53413
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.WebHeaderCollection.dll 4103d505574a4bfd9c0663d6636aa3828571e5f3793aab6ee1d2b6bd859c78e3
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.WebProxy.dll 776c09716c22562be4fce87a15922f8f09b95b568f7e526041d2d2ef75f1dfb2
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.WebSockets.Client.dll acaf453cab16eda9f6cb263e4948c22d9fe5a649b20f06a3b1805bd7ec5e9289
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.WebSockets.dll 616d052f75ae675bc898d07379083f351b070c3b12dda8364a829501347a0ffc
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Net.dll ae45f3df8e37ed1983f42fcb0e7ca732b83aa03696594ec2d5697c9c41e2b34d
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Numerics.Vectors.dll cfb25ffd087ec5697f25cf2b2c46882a88e1757a715325e165620f434a21b0cd
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Numerics.dll c64ec24fb698a427fcc2ecfa98920772b98135c0c0618448ba286446ca432d80
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.ObjectModel.dll fad05b1bcf6fccc4f236c47647d3815e621146012cabd2d78848053a5e936082
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Private.CoreLib.dll 11a0f23df9fbb128743f372b0583528aac702f6b534706bfc28bfcd54dae6907
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Private.DataContractSerialization.dll 6f2ac2441dc3190bda8bf74992eea2dd46a06089cd54d75bc744a4861cdedb99
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Private.Uri.dll 3db52e8ff0b57d77303a25bcf852f80f5a9dc3fcf2e0fe3f9536b9bd1f0989cc
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Private.Xml.Linq.dll 48e7f4b8f203ab4e0c8ab271de8d8a6fec3364568f4a81d60d21a0ed3ecaa536
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Private.Xml.dll 025330653ce1cb5d4b41352cb8e7ea337e88cf046ea82d8011af8bc3957df994
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Reflection.DispatchProxy.dll 53e06ce4aa091d4348f8adc300bab05799db26f2143e7d91d1f6944c16a7387d
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Reflection.Emit.ILGeneration.dll 9d63159625a4cd0378e2984bacc1f7e9d6ae4bcf6786a9b8c0f180357b0f2fc2
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Reflection.Emit.Lightweight.dll e7160ee9ab391aba3b785d2d6bb6238e53fcfbb79eb2b5b6152d39df0789c08e
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Reflection.Emit.dll 751d63e2fb917b1957af5097050a8c7d6a33b90af1111ea1cba827557599681e
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Reflection.Extensions.dll 1e235491854738c8422a272a56e1e57b4b7b5bbf2aa9986f59c91c74122e8947
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Reflection.Metadata.dll 44c9bdc9f55531ed61d89d2bc36adbf40739e5d76e3ecca5f08fe76cf9ed376d
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Reflection.Primitives.dll bba28fedec22aa9da25d9bced1403d7f8dcb488e0ba8d1b18d8f2db85e62e804
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Reflection.TypeExtensions.dll a061a301692c7e338930cbcf8a939ecd7874bc1007d9bc756f050d6056a45de9
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Reflection.dll a9eea73af75dc6eb6400ad5ff68389684b6595cb9678fda705272cb52eceeaa0
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Resources.Reader.dll 172e841890c789233913c1a7b5556ec6d30193578c23a59bb6c87611ac1094ca
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Resources.ResourceManager.dll ad249c9695c7bee250397c4eab58f5d3a94804c290d304699946f4b7b495e235
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Resources.Writer.dll 1081a1a2094183f6153b0b025a5a5a82031a593f54327c15033498c6661a4eb2
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Runtime.CompilerServices.Unsafe.dll 11cd582ee1438b3ea6cd4f5ccce319ef7d0e9d32e2d68a73f4c3f6de8250ef40
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Runtime.CompilerServices.VisualC.dll 351473a37c97a8a6c02b563e9c3c2789e40354063d15ada5ba065cb9f5c51247
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Runtime.Extensions.dll 5e7f59d42c2aef4ecc4d3944348daef1d139c0ab79abcbdc5ac200d9176baa5b
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Runtime.Handles.dll ee1a74dc142fa9e237ad766033fd91b7d3eac683867ac728dc59b7c94f0eb96e
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Runtime.InteropServices.JavaScript.dll 395388521964063ad6231a7a680dd19916b4c64c53199253db7080c615462ac1
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Runtime.InteropServices.RuntimeInformation.dll a2e76c6a1df200db9c33609e05b492fe9e119f3141bb12938bbc5469b28a4cf6
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Runtime.InteropServices.dll 6fb98df38126bc44a49fadc3623077f55f74dc2057e31e3ee36b42d6276cb071
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Runtime.Intrinsics.dll 53a868629ac22a62432b9e2fd2596521b88360bc135e11c9bbd8e95b57b10309
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Runtime.Loader.dll fc50300de5a99bce14051c80591e07e8ec24955f726ef7523d4c250f65209a80
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Runtime.Numerics.dll e39f7e18a1e8e55909ccb55a8fcbe72d7dc517bf7a917831f41789ac11dfa62c
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Runtime.Serialization.Formatters.dll a2d3859b5031ec72f966997ad481f44764fef0ca5f80478ef7f154d4ca7ed3d4
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Runtime.Serialization.Json.dll cd1103b9715f1d6cfeccf287456f8731abfe9cf500be03c453df1038fcf97139
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Runtime.Serialization.Primitives.dll c13bb29ca25d2a1ecbd5e2095a0d78193b4d63a1334f40e0d0e08c3362363e50
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Runtime.Serialization.Xml.dll f27a4b89db02da4de3696a42d6e74312f3544549e8591f2861f946df63ab1e65
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Runtime.Serialization.dll 52e45c5d0810c6e25fc0ed6762cd09f8f3878a086feef4ba16c38b8d0b2b63ca
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Runtime.dll 39b2fd77c6a959dda812bd73ef87150f509712ade8da2b60ac6e82810236feeb
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Security.AccessControl.dll d2b6ab47475c9aef8c3177b532fd81ba180d3c57a86c6b5b6651897bc9569488
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Security.Claims.dll cccf1d533e2b8139cf55310340f8002d15db86c53c744e968e69f46596416723
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Security.Cryptography.Algorithms.dll bbad66460d11b1bde60161aedbc42655d20d2a573f8b5d4f2647e346434504d9
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Security.Cryptography.Cng.dll e5a9970f00c8fe2c0b50fb14116f8752cc342fa668ff4fcf45e66770db45e833
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Security.Cryptography.Csp.dll 0319a9161a4645e0e1cffe302849732eda05e56de9069d231a5e2e7a7f560351
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Security.Cryptography.Encoding.dll 9d717154066ac95d8df466d793a7c0cd65fad87bf6d1ddcd9cd438727f1e3895
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Security.Cryptography.OpenSsl.dll 01661e912b3146079087ee3b6ef16c206b6d4466a71f797b8931d27f65ce6508
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Security.Cryptography.Primitives.dll 04b96686a046a5b8a66b168a6c207075000a0270eb952c66c09b68f86fb4f98b
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Security.Cryptography.X509Certificates.dll b8e71837cc08f0dd13284f4952213171969fcde3f3ca69604746a81a4e924ccd
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Security.Cryptography.dll 0cdbec5378d85c5841ec8d1b01a794888e003d184e62171e32ec60b4738874e4
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Security.Principal.Windows.dll 365ed81510826806f6a31590891fe9c0bd6229d17fd7af2e3f2a3198d51a112c
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Security.Principal.dll d8c6f239f31f6832b67eab9acc3bdca8e76b7bf6121d78fb44fa578ca1d5b4ff
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Security.SecureString.dll 4d7f30b3477f47b8e9b9b3b8db2cb159ac4de8cb6cb637a204088d31a1150fe4
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Security.dll 64caaca40c9e7a9ba090cb494b4eb8d513f7beb1e7a160336f3ae5bb3808c2d6
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.ServiceModel.Web.dll bc1e72f16c5e5c78881c8338d90fe1266fde8e7a887931af475981c14f7e753c
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.ServiceProcess.dll 065486be60303350e39f2ff2b16b28d0d984658ad5ab11e3d7e43b91e1db5d15
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Text.Encoding.CodePages.dll 63d97454efdbec082e3c53211eeeddbd5fde3c5b127bc610f373a198df18115e
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Text.Encoding.Extensions.dll 2ae51d14b16c04f2102f828f0ff7fe42ecc0ac73ed88139ead380d557c457fb8
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Text.Encoding.dll f1e65ab033db89f70009f32472bd0e06600e4cb5dd9cee9641967d89882927f6
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Text.Encodings.Web.dll dbbfc41d1b15f426c77d74fffea99aafbeb327ac9cfc4cd6e298f89ecaad882d
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Text.Json.dll 14eedb06fd8e45bf2a8ab823b43ae8ce5bdfc57e86dbe92fc8dfe0c5b089ab75
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Text.RegularExpressions.dll d6aa536e4f318533743499a726b12ff550aebc34afd8324d2267406f02e14fe9
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Threading.AccessControl.dll f05ec8a355815611f50d872dff15a5a520a7c1d56fe811d426049c8d031a5e67
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Threading.Channels.dll 5496ed6c71488f7a401f48169dc2e5d57b81d74a61cfc55c6584c3aa80017f3a
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Threading.Overlapped.dll 25f4494bfc19f751910a5d3b957be26791817385b7b0651372b3c6fe2dda4cd8
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Threading.Tasks.Dataflow.dll 97e669e2695403624a602972838cb02a0e2b9cfcf18786535b3f5e0c516a1435
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Threading.Tasks.Extensions.dll 4eddddc951e7a3c0470e315392d4f5b626632cf801d9e4f5a1f675fbf2e00f62
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Threading.Tasks.Parallel.dll 4c47db285546521b8836a7bb7e38b9ca8c069c01ed3a3bb2978b0dd14ba83357
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Threading.Tasks.dll d5560344816be3b8b44cebedb0e73fe9bd7d4b44c222c27a55ba871d0ba813bc
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Threading.Thread.dll 8f73f688d6f8079d0a642481a7dd7a47d6119948d2e09fcb9129d2aa615d5836
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Threading.ThreadPool.dll e18e9a162959a6266217dfa4970de21a198936a47a1cd5ed50a97932f8554840
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Threading.Timer.dll 8fd30fa4c41dcc0204e536227ce1cb6d1757cef74e6cc6e15566b54bc207bdc8
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Threading.dll 944033ad4d0cffb8de02a4de904261db08b0e7af4032adc0d22a9655bf239278
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Transactions.Local.dll 9866eb15d0d0ee67216284f97a05e8248858084eaa046231cfb9ca0ba133019f
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Transactions.dll 7c2737b7f266cb412a8641a85e9c997d044ec1c685dec08d05c1c15303aeb22e
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.ValueTuple.dll 9973d402bd95ba55e3d7df227ea95f13ea9a06c12199ace06e2ffcac53a3a38a
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Web.HttpUtility.dll c5c00a6ab2dc118f9901b0b790a0f7519ba44c57e97b34e72e294ba623c64751
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Web.dll 7b9a77eb1efe24b7d6cd07101d436eb0476e971d575ee624d8cde4e387bbf6f1
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Windows.dll 33a56068a814f4fcccadc2208a08ebeea2fc714335a440e517f5c4801f1d0c7d
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Xml.Linq.dll 3dec21015684a1f348703dec85794f9eeb0f5ef9ad5fde834df6163d08c0d202
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Xml.ReaderWriter.dll c4f6229b72e5a9eeebaad8105a3c2ad7021b7cb45f80fee194d6abbab4998b6a
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Xml.Serialization.dll c10f91fd65f050e3b594564924ef938549ffed71e7cdceb8281c23507e249f1c
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Xml.XDocument.dll 3cda941cd272afa7683831a962ee7ec9bb4280b54d33597e51650e7ba9988b86
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Xml.XPath.XDocument.dll 672967cc8cd817dc17101eb640bc52254e843846dbde43920f21652f9203da50
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Xml.XPath.dll 7dccae585a421796d2d8f5d45ad4a696ae88303d9a42a32aa60bc1cf16cd31ae
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Xml.XmlDocument.dll 2f0859fadc2032b94ae09b5cf2fa0dfd58d2da9a100e302a7642f3d144365638
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Xml.XmlSerializer.dll 4d6b4a4632964a5c920bd57adf71f070ba87fe1542ab90c8a456b30e633aa4cc
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.Xml.dll 64a55c6f24bde4332bdf30847d10d27b95359f8988b889abd9b6a2a7b989ceb2
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/System.dll 8b25e3d3336a364d5c44dbc5052a0879e85348aea5a6e2a3763379ad65098f61
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/WindowsBase.dll 11b1d0cff8b2fb0e0f73d7de44e5d9dc0ee092575c1ccddb2cc15ae3a5e4cbd0
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/libSystem.Globalization.Native.so 0f2e238ffcb1cec0e330413bbf6d8219b8ceb0e506f28d1a26a7df407be74d4f
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/libSystem.IO.Compression.Native.so c565a755c20dbd3e1d6d33ed0b5e978b5974a90fe3ef86cba4bf4c4814543f12
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/libSystem.Native.so 153a2e5fc2c71d4909fbb7a478ad5a3cf7e599f9235196c8fca5022250d14047
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/libSystem.Net.Security.Native.so bbae394b30519c2b85a6fdedc8b2839d37cd487680d66327ff7f8550d5785923
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/libSystem.Security.Cryptography.Native.OpenSsl.so 3fa65a43cdee5edfd2cc450978355bf72c8af800346a15d4565c79f36ff5ce70
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/libclrgc.so 27dfa87201fb98eb990b88f3a4f90c425c51bbc961278334668eb10a8970b456
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/libclrgcexp.so a6d4b98c2e62dd9f320f5f18d6e9be111ce0695930a08caf3fdc839cb85dd07a
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/libclrjit.so 39b743f983aee4e89d29a7a06728806045a0629391b63cbb199fa198b5710652
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/libcoreclr.so 2d4d3f0b2698a74f186329510d93785e55d10934cb9ebe6e3edca6b24c624402
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/libcoreclrtraceptprovider.so 9a052ff18675a7d2b41b192d866654b6fa303c8c038b2bb83d751ad68786036b
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/libhostpolicy.so 95061f94c2d2a95e668e02b97d53c4edb86665fa6e47e4877ceb28c63c9e35da
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/libmscordaccore.so 82d8da07c78e268ccb822cfb2c0959048ac74574ee72e8e6caf26103d9cedf2c
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/libmscordbi.so 8e9445855c3e8553c0ee540b7de72e241d85fc53bff6c48ccbff7ec70482aebf
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/mscorlib.dll 955ac1b81e52216facf457609a7178f97dac72104dedc3cb3e469aaa7f613aa0
+/usr/local/share/dotnet/shared/Microsoft.NETCore.App/10.0.13/netstandard.dll bd752a47f24b1c26c960e19271e740c7301ad9fbdaa3718ed4b65c05473f6486
+Verilator 5.048 2026-04-26 rev vUNKNOWN-built20261017
+
+--cc
+--exe
+--build
+-j
+2
+--Mdir
+/home/jeffd/.cache/nexrt/37c06ff7a0e8b661/model
+--top-module
+riscue_demo
+--prefix
+Vtop
+-o
+riscue_demo
+--vpi
+--public-flat-rw
+--timing
+--timescale-override
+1ns/1ns
+-Wno-fatal
+-CFLAGS
+-std=c++20 -O2
+-LDFLAGS
+-Wl,-rpath,/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/libs -L/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/libs -lcocotb_bootstrap -rdynamic
+/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/share/lib/verilator/verilator.cpp
+/mnt/c/dev/RISCue/rtl/ft_pkg.sv
+/mnt/c/dev/RISCue/rtl/riscue_pipeline_pkg.sv
+/mnt/c/dev/RISCue/rtl/riscue_rvc.sv
+/mnt/c/dev/RISCue/rtl/riscue_jump_target.sv
+/mnt/c/dev/RISCue/rtl/riscue_execute.sv
+/mnt/c/dev/RISCue/rtl/riscue_muldiv.sv
+/mnt/c/dev/RISCue/rtl/riscue_pipeline_core.sv
+/mnt/c/dev/RISCue/rtl/riscue_axi_master_bridge.sv
+/mnt/c/dev/RISCue/rtl/riscue_axi_core.sv
+/mnt/c/dev/RISCue/boards/kc705/uart_tx.sv
+/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/sim/rtl/riscue_demo.sv
+/mnt/c/dev/RISCue/rtl/ft_pkg.sv abb263d7d7088f20caa31f2e2964eec41720a98d724bbf3f3610566e7c6091a0
+/mnt/c/dev/RISCue/rtl/riscue_pipeline_pkg.sv 528ff8319602ee05dcceeb2ba9b9165df977a306bd3dcba8caaef923dbe89d75
+/mnt/c/dev/RISCue/rtl/riscue_rvc.sv c76b03742f72cf132a79386bc8121d0379830c22ae9a5b9bfaa6abb3ae0526eb
+/mnt/c/dev/RISCue/rtl/riscue_jump_target.sv 8111523cf25adf041ce4d3eab6d4e963812b9b4038b96ba1214c37cb801f701f
+/mnt/c/dev/RISCue/rtl/riscue_execute.sv 9e623facae2108272975d936c711596721dae21af0e8e36a3f3b5147404600e3
+/mnt/c/dev/RISCue/rtl/riscue_muldiv.sv c6047876f3af142d901bfc41ded436ffde327880408bbad7164a75223c4e4851
+/mnt/c/dev/RISCue/rtl/riscue_pipeline_core.sv 2d8db4453f0b320a016c9c074578f12c039b29a0cae5e087937b6cb703d6250d
+/mnt/c/dev/RISCue/rtl/riscue_axi_master_bridge.sv 2e40a1ecd8325229c6bb1641da5336e7f36e8c4f9ed5d74d471bc172a842cc45
+/mnt/c/dev/RISCue/rtl/riscue_axi_core.sv ff687b92431dba83a4d2d5809dea9213811d81b85e9807c8dfcadc30e815b938
+/mnt/c/dev/RISCue/boards/kc705/uart_tx.sv a5103542c85995bef1f74a839290ec15e9bfc780e857896d4c6e246023609684
+/mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/sim/rtl/riscue_demo.sv 0e9f659bb2e192e49f60d813d145ed944d57135f8725f05b1168706dd76e7b46
+/home/jeffd/.venvs/sharptestbench/lib/python3.12/site-packages/cocotb/share/lib/verilator/verilator.cpp 51a00765e48f67db4549cffc4285a67294897e0d548f7625e4e6fdfc6993d741

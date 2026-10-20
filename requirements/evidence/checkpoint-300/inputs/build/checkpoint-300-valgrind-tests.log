@@ -1,0 +1,48 @@
+Test project /mnt/c/Users/jeffd/Documents/Codex/2026-10-18/i-want-a-simple-multitasking-rtos/build/host-valgrind
+      Start  4: memcheck_memory
+ 1/20 Test  #4: memcheck_memory .......................   Passed    1.24 sec
+      Start  6: memcheck_scheduler
+ 2/20 Test  #6: memcheck_scheduler ....................   Passed    1.74 sec
+      Start  8: memcheck_ethernet
+ 3/20 Test  #8: memcheck_ethernet .....................   Passed    1.57 sec
+      Start 10: memcheck_web
+ 4/20 Test #10: memcheck_web ..........................   Passed    2.14 sec
+      Start 12: memcheck_static_storage
+ 5/20 Test #12: memcheck_static_storage ...............   Passed    2.69 sec
+      Start 14: memcheck_synchronization
+ 6/20 Test #14: memcheck_synchronization ..............   Passed    3.69 sec
+      Start 16: memcheck_ipc_queue_atomic
+ 7/20 Test #16: memcheck_ipc_queue_atomic .............   Passed    1.94 sec
+      Start 18: memcheck_mutex_inheritance
+ 8/20 Test #18: memcheck_mutex_inheritance ............   Passed    1.99 sec
+      Start 20: memcheck_queued_printf
+ 9/20 Test #20: memcheck_queued_printf ................   Passed    2.01 sec
+      Start 22: memcheck_queued_printf_edges
+10/20 Test #22: memcheck_queued_printf_edges ..........   Passed    3.21 sec
+      Start 24: memcheck_synchronization_edges
+11/20 Test #24: memcheck_synchronization_edges ........   Passed    2.62 sec
+      Start 26: memcheck_synchronization_deadlines
+12/20 Test #26: memcheck_synchronization_deadlines ....   Passed    2.49 sec
+      Start 28: memcheck_ipc_public_api
+13/20 Test #28: memcheck_ipc_public_api ...............   Passed    2.02 sec
+      Start 30: memcheck_stack_watermark
+14/20 Test #30: memcheck_stack_watermark ..............   Passed    0.75 sec
+      Start 32: memcheck_ipc_random_seed_1
+15/20 Test #32: memcheck_ipc_random_seed_1 ............   Passed    4.39 sec
+      Start 34: memcheck_ipc_random_seed_42
+16/20 Test #34: memcheck_ipc_random_seed_42 ...........   Passed    8.93 sec
+      Start 36: memcheck_ipc_random_seed_3735928559
+17/20 Test #36: memcheck_ipc_random_seed_3735928559 ...   Passed    9.13 sec
+      Start 38: memcheck_ipc_random_seed_4294967295
+18/20 Test #38: memcheck_ipc_random_seed_4294967295 ...   Passed   15.96 sec
+      Start 40: memcheck_ipc_wait_order
+19/20 Test #40: memcheck_ipc_wait_order ...............   Passed    5.32 sec
+      Start 41: negative_valgrind
+20/20 Test #41: negative_valgrind .....................   Passed    2.60 sec
+
+100% tests passed, 0 tests failed out of 20
+
+Label Time Summary:
+memcheck    =  76.44 sec*proc (20 tests)
+
+Total Test time (real) =  78.08 sec

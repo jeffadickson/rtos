@@ -4596,5 +4596,40 @@
       "docs/host-memory.rst"
     ],
     "finding": "Known-symbol audit remains a limited check against recognizable allocation paths, not proof against arbitrary renamed/custom allocators."
+  },
+  {
+    "id": "NXR-158",
+    "title": "Retained evidence and controlled analyzer detection gates",
+    "category": "Verification",
+    "statement": "Engineering checkpoints shall retain explicitly selected passing logs, manifests and audited unstripped images with bounded hash verification; controlled invalid-memory probes shall demonstrate specific analyzer rejection.",
+    "rationale": "Ignored transient evidence can disappear and passing workloads alone do not show that analyzer failure gates are effective.",
+    "acceptance": "Native C# collector rejects traversal, links, overwrite, size/count excess and changed/unlisted/duplicate inputs; round-trip/tamper self-tests pass; ASan, UBSan and Memcheck probes require intended diagnostic plus failure.",
+    "verification": "Native evidence self-tests, actual controlled-failure gates and final package verification.",
+    "dependencies": [
+      "NXR-152",
+      "NXR-157"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "tools/NexRT.Evidence/Program.cs",
+      "cmake/host-tests.cmake",
+      "tests/memory_negative.cpp"
+    ],
+    "verification_files": [
+      "tools/NexRT.Evidence/Program.cs",
+      "tests/memory_negative.cpp"
+    ],
+    "planned_test": "TEST-NXR-158",
+    "configuration": "XDoc C# Native AOT collector with bounded inputs; probe output captured by shared bounded executor.",
+    "resource_budget": "No firmware services or RAM; intentionally invalid host probe excluded from ordinary builds.",
+    "review_iteration": 158,
+    "inspected_files": [
+      "tools/NexRT.Evidence/Program.cs",
+      "cmake/host-tests.cmake",
+      "tests/memory_negative.cpp",
+      "docs/evidence.rst",
+      "docs/host-memory.rst"
+    ],
+    "finding": "Hashes support consistency rather than authenticity; retained simulation/host evidence is not board qualification or certification."
   }
 ]

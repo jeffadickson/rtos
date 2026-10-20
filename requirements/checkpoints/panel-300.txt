@@ -1,0 +1,32 @@
+Final panel after checkpoint300 (reviewed source commit559d1f4)
+============================================================
+Three independent automated specialist reviewers inspected committed source
+and retained evidence read-only. They performed no builds, edits or pushes.
+No reviewer represented a human certification or qualification assessment.
+
+Kernel: no concrete defects/blockers. Production kernel/API unchanged in this
+last block. Independently checked all180 package entries: zero hash/size errors.
+Verified26 host,27 sanitizer and20 Memcheck passes and all15 ARM success logs.
+
+Port: no concrete defects. All five ARM ELF hashes match their run manifests;
+all15 runs pass. Checked45 selected ARM/nano files against the package manifest.
+Confirmed wrap witness values, ordinary ARM witness exclusion, unchanged RV32
+nano identity, contract rejection logs and UART result88778625 steps/88 traps.
+Ordinary ARM nano remains cross-build only, with clock configuration required.
+
+Assurance: no concrete defects/blockers. Collector containment, link rejection,
+quotas, bounded copy/hash checks and complete manifest validation are coherent.
+Native AOT/XDoc/fingerprints integrated. Missing-file nm diagnostics preserved.
+Full retained transcripts resolve the overwritten LastTest.log concern.
+Controlled negative probes, hash consistency and qualification limits are clear.
+
+Disposition: no final code repairs required. This amendment adds only the panel
+record. Root also exported the committed evidence through git archive and
+verified all180 files after extraction, confirming byte preservation through
+the Git representation. Final push follows this recorded review.
+
+Future coverage remains documented: sender/event waiter permutations, additional
+masked phases/durations, real ARM donation withdrawal with surviving waiters,
+and hardware-specific BSP/IRQ/cache qualification. No corresponding production
+defect was demonstrated. DMA, SMP, additional ports and certification are not
+claimed complete by this campaign.

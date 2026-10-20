@@ -1,0 +1,15 @@
+     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:74   in gpi_print_registered_impl       GPI: VPI support registered
+[30154865 step] thread=1 round=1 value=678856385 mask=7
+[30840905 step] thread=3 round=1 value=2569212003 mask=7
+[31462575 step] thread=2 round=1 value=3771517842 mask=7
+[57815535 step] thread=1 round=2 value=3742680769 mask=7
+[58452235 step] thread=2 round=2 value=214104978 mask=7
+[60098035 step] thread=3 round=2 value=980496483 mask=7
+[86809955 step] thread=1 round=3 value=632489665 mask=7
+[87406545 step] thread=2 round=3 value=79244178 mask=7
+[88092585 step] thread=1 round=4 value=4233184961 mask=7
+[88778625 step] thread=3 round=3 value=3820965987 mask=7
+[88778625 step] PASS: three workers, independent arithmetic, UART 8N1; timer traps=88
+CS_TEST passed ThreeWorkers steps=88778625 seed=1
+CS_SUMMARY 1 passed 0 failed 0 skipped
+- :0: Verilog $finish

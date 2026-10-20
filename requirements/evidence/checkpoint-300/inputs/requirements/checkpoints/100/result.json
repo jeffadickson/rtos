@@ -1,0 +1,82 @@
+{
+  "iteration": 100,
+  "reviewed_requirements": 100,
+  "catalogue_sha256": "57e1f36953cdb67703c3223783b88559493bce17bf77cace5a360dd7cfa9276a",
+  "reviewed_sources_sha256": "4d39a6422fdfb3eb46a496e6135dc9af1c2761b6dd1ae36a5ff20cc3eff81b0c",
+  "utc": "2026-10-18T18:13:42.2267019+00:00",
+  "result": "passed",
+  "scope": "requirements/tooling/unchanged C\u002B\u002B baseline; no new runtime services implemented",
+  "commands": [
+    {
+      "tool": "cmake",
+      "arguments": [
+        "--build",
+        "--preset",
+        "host"
+      ],
+      "exit_code": 0,
+      "log": "requirements/checkpoints/100/01-cmake.log",
+      "sha256": "afae3f5cd3d9691a84525011fd818e65e7789fd1e14136eba33a119af4983363"
+    },
+    {
+      "tool": "ctest",
+      "arguments": [
+        "--preset",
+        "host"
+      ],
+      "exit_code": 0,
+      "log": "requirements/checkpoints/100/02-ctest.log",
+      "sha256": "5c24ac6b5f3533bc48c94989aa9391bfc52dbc6a1235d5db48c72449e8f906cb"
+    },
+    {
+      "tool": "cmake",
+      "arguments": [
+        "--build",
+        "--preset",
+        "riscue"
+      ],
+      "exit_code": 0,
+      "log": "requirements/checkpoints/100/03-cmake.log",
+      "sha256": "ed70e428948c58fd9d04074d3ae12959be16762be3e0b8d48ae594231808289e"
+    },
+    {
+      "tool": "cmake",
+      "arguments": [
+        "--build",
+        "--preset",
+        "riscue",
+        "--target",
+        "static_contract_check"
+      ],
+      "exit_code": 0,
+      "log": "requirements/checkpoints/100/04-cmake.log",
+      "sha256": "1786d44dcd60a4c03b64ed2da2a2e9b3cf43e80c2c25f659e4cf5861e70c7407"
+    },
+    {
+      "tool": "cmake",
+      "arguments": [
+        "--build",
+        "--preset",
+        "host",
+        "--target",
+        "static_analysis"
+      ],
+      "exit_code": 0,
+      "log": "requirements/checkpoints/100/05-cmake.log",
+      "sha256": "33ba98183f0f1876c428431cf8bed454d7e407e97770e607f55b888516797313"
+    },
+    {
+      "tool": "cmake",
+      "arguments": [
+        "--build",
+        "--preset",
+        "host",
+        "--target",
+        "docs"
+      ],
+      "exit_code": 0,
+      "log": "requirements/checkpoints/100/06-cmake.log",
+      "sha256": "1a7d2990417ba4dbc7a3dc4c56db239933f6890fd98dd307aeeb0763c2902942"
+    }
+  ]
+}

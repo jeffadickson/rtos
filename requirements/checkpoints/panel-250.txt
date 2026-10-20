@@ -1,0 +1,16 @@
+Panel after checkpoint250 (fa495ea)
+=================================
+Independent automated kernel/port reviewers found no concrete defects.
+Assurance P3 accepted: merged subprocess capture leaves Result.Error empty;
+two nm failure paths still printed Error, dropping useful diagnostics. Both
+paths now print combined Output. Fail-closed exit behavior was already intact.
+
+Accepted optional confidence improvement: controlled invalid-memory host probes
+must fail with the specific ASan, UBSan or Memcheck diagnostic and nonzero exit.
+A generic crash or unrelated tool failure cannot satisfy detection gates.
+Probe diagnostics are retained separately and marked intentionally invalid.
+
+Final evidence requirements: current binaries for all ARM variants; numerical
+timer/register witnesses; audited unstripped ELFs and identities; complete host,
+sanitizer and Memcheck transcripts; ordinary-build witness exclusion; preserve
+known-name audit and qualification limitations.
