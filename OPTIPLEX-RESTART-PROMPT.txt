@@ -1,22 +1,25 @@
 Resume development of NexRT, the small modern C++ RTOS in the rtos repository.
-I moved this project from my other computer for a memory upgrade. The restored
-layout is <handoff-destination>/rtos, ../RISCue, ../SharpTestBench and ../runtime.
-Locate the actual destination; do not assume the old Windows username or paths.
+I moved this project from my other computer for a memory upgrade. Clone
+https://github.com/jeffadickson/rtos.git and follow GIT-START-HERE.txt, or use
+the verified transfer archive and HANDOFF-START-HERE.txt. The optional RISCue
+and SharpTestBench checkouts belong next to rtos; the archive also supplies
+../runtime. Locate the actual workspace; do not assume the old username/paths.
 
 Read AGENTS.md, HANDOFF-START-HERE.txt, docs/handoff.rst, docs/dma.rst and
 docs/implementation-300.rst. Inspect git status before changing anything and
-preserve existing local changes. The last pushed baseline was
-cb797a72e9295ec3643e3a6c21decddad317a96e on main of
-https://github.com/jeffadickson/rtos.git. Local checkpoint 545f3e6 commits the DMA
-and migration implementation; subsequent local commits finalize this handoff.
-The refreshed archive contains that committed history. Its reports/rtos/head.txt
-records the exact packaged HEAD. Inspect each restored repository's status;
-RISCue and SharpTestBench retain their own histories and source snapshots.
-Do not reset these repositories or claim that the local commits are pushed.
+preserve existing local changes. Checkpoints 545f3e6 and aa63b66 commit the DMA
+and migration work; later commits add this Git-based restart route. Verify the
+current HEAD with git log/rev-parse rather than assuming a particular latest
+commit. GIT-START-HERE.txt pins the published optional dependency revisions.
+The earlier archive's reports/rtos/head.txt records its own packaged HEAD;
+that recovery snapshot predates subsequent Git handoff documentation updates.
+Do not reset these repositories or claim that future local edits are pushed.
 
-First verify the archive manifest if it has not been verified, and run the
-packaged NexRT.Handoff doctor against the restored root. Start with host, then
-all for docs/analysis/ARM/RISC-V/RTL. Resolve paths from the OptiPlex installation.
+From an archive, verify its manifest and run the packaged NexRT.Handoff doctor.
+From Git, configure with cmake --preset host, then build target
+check_dependencies to build/run the checker. Start with host prerequisites;
+check_all_dependencies also covers docs/analysis/ARM/RISC-V/RTL. Resolve paths
+from the OptiPlex installation. Git supplies source, not generated RTL libraries.
 Use CMake/Ninja and .NET 10 Native AOT for host tooling when supported. Rebuild
 host tools from source; never reuse the previous machine's CMake caches,
 native-tool source fingerprints, build directories or virtual environments.

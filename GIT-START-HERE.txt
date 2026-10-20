@@ -1,0 +1,81 @@
+NexRT: restart development from Git on the OptiPlex
+=================================================
+
+Use Ubuntu 24.04 x64 / WSL for the existing firmware and RTL workflow.
+Choose a fresh parent directory on the new computer. For example, in WSL:
+
+  mkdir -p "$HOME/src/nexrt"
+  cd "$HOME/src/nexrt"
+  git clone -c core.autocrlf=false https://github.com/jeffadickson/rtos.git rtos
+  cd rtos
+  git status --short --branch
+  git log -3 --oneline
+
+Open this rtos directory as the development workspace. Read AGENTS.md and paste
+the complete OPTIPLEX-RESTART-PROMPT.txt into the new development task.
+The source, optional DMA layer, requirements tracker, documentation, examples
+and C# dependency checker are in Git. No transfer ZIP is needed for host work.
+
+HOST DEPENDENCIES AND FIRST BUILD
+The baseline tools are Git, CMake >= 3.22, Ninja, a C++17 compiler, .NET 10 SDK,
+and clang plus zlib development files for Linux Native AOT publishing.
+
+  cmake --preset host
+  cmake --build --preset host --target check_dependencies
+  cmake --build --preset host
+  ctest --preset host
+
+The checker is built from source on this route. CMake, the compiler and .NET
+must already be available to configure/build it. The checker reports missing
+prerequisites and does not install software. The archive route described in
+HANDOFF-START-HERE.txt also supplies a standalone prebuilt checker.
+
+To exercise the optional DMA ownership layer:
+
+  cmake --preset host -DRTOS_DMA=ON -DRTOS_SYNC=ON
+  cmake --build --preset host
+  ctest --preset host
+
+Ninja publishes one C# host tool at a time by default to limit memory use.
+Keep new build directories and native-tool fingerprints local to this computer.
+Do not reuse the old machine's RTOS_PREBUILT_NATIVE_TOOLS path or CMake cache.
+
+OPTIONAL RTL DEPENDENCIES: EXACT PUBLISHED SOURCE REVISIONS
+Host tests do not require these repositories. For the RISCue RTL workflow,
+clone them next to rtos, using the same fresh parent directory:
+
+  cd ..
+  git clone -c core.autocrlf=false --branch pipeline-protection-variants https://github.com/jeffadickson/RISCue.git RISCue
+  git -C RISCue checkout --detach 83a5b9be95366518a6f1e5ee8111a96b218e54b3
+  git clone -c core.autocrlf=false --branch add-agents-md https://github.com/jeffadickson/SharpTestBench.git SharpTestBench
+  git -C SharpTestBench checkout --detach 8e31b212349a557ef74d2538ad4f71d8ee79a27c
+  cd rtos
+
+Both branches are published on GitHub. Detached checkouts pin the handoff's
+dependency source versions; create a branch before editing a dependency.
+These are engineering snapshots, not a declaration of hardware qualification.
+
+Git does not contain compiler/SDK caches, virtual environments or generated
+native bridge/cocotb libraries. Use the new machine's compatible installed
+tools, rebuild missing libraries from the dependency sources, or recover the
+selected Linux x64 runtime libraries from the verified transfer ZIP if needed.
+Do not assume that cloning the repositories also installs the RTL runtime.
+See docs/uart-demo.rst and docs/handoff.rst for the simulator contracts.
+
+Build the simulation host tool with RTOS_SIMULATION=ON when needed. Its source
+defaults to sibling RISCue/SharpTestBench checkouts. Use check_all_dependencies
+or the standalone doctor's rtl profile and explicit tool-path overrides to
+check that complete setup. Missing optional RTL tools do not block host work.
+
+DOCUMENTATION AND REQUIREMENTS
+Create a fresh documentation environment if Sphinx is not already available:
+
+  python3 -m venv build/docs-venv
+  build/docs-venv/bin/pip install -r docs/requirements.txt
+  cmake --preset host
+  cmake --build --preset host --target requirements_check docs
+
+Sphinx's third-party Python runtime/minimal conf.py is the documentation-only
+exception. All new custom automation is C# with XML documentation (XDoc).
+Read docs/dma.rst before extending DMA: the current example is a software
+backend, and the physical FPGA DMA engine has not yet been selected.

@@ -6,6 +6,22 @@ a native executable by default; managed execution is an explicit fallback.
 ``HANDOFF-START-HERE.txt`` and ``OPTIPLEX-RESTART-PROMPT.txt`` describe recovery
 and the current development state. No commit is required to preserve local work.
 
+Restart directly from Git
+-------------------------
+
+``GIT-START-HERE.txt`` provides clone commands, dependency revisions and fresh
+build steps. Clone the rtos repository, read ``AGENTS.md`` and use
+``OPTIPLEX-RESTART-PROMPT.txt`` to start a new development task. Host tests and
+the portable DMA module can be built without the optional RTL repositories.
+After configuring the host preset, ``check_dependencies`` builds and runs the
+native C# checker. Basic CMake/compiler/.NET prerequisites must already exist.
+
+For RTL work, the instructions pin published RISCue and SharpTestBench source
+revisions in sibling checkouts. Git supplies source and history; generated
+bridge/cocotb libraries, SDKs and virtual environments must be available or
+rebuilt separately. The archive remains a recovery snapshot with selected
+Linux runtime libraries. It is not updated automatically by later Git commits.
+
 Archive and recovery
 --------------------
 

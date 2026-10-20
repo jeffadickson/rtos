@@ -7,6 +7,10 @@ a small `.S` boundary preserves all registers during preemption.
 
 ## Start small
 
+To resume on another computer, follow [the Git setup instructions](GIT-START-HERE.txt)
+and use [the complete restart prompt](OPTIPLEX-RESTART-PROMPT.txt). The Git route
+includes exact published revisions for the optional RTL dependencies.
+
 Build the complete [minimal application](docs/minimal-application.rst) with the
 `nano` preset: static thread/stack storage, required timer clock, build commands,
 output files and memory inspection.
