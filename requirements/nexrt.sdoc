@@ -2057,3 +2057,29 @@ Static budget: No firmware services or RAM; intentionally invalid host probe exc
 Dependencies: NXR-152, NXR-157
 <<<
 
+[REQUIREMENT]
+UID: NXR-159
+STATUS: PartialSourceUnverified
+TITLE: Optional portable DMA staging and quarantine implementation
+STATEMENT: >>>
+An optional DMA module shall serialize thread callers over one active transfer per channel using boot-reserved exclusive staging and explicit BSP address/cache/quiescence contracts, without retaining application-buffer pointers.
+Acceptance: DMA defaults off and adds no kernel fields; TX copies before launch; RX copies only after quiescent completion; stale tickets cannot release new transfers; uncertain abort quarantines until positive stop proof; host ownership tests pass.
+Verification: Enabled host ownership model, memory tooling, cross-compilation and disabled-image size/symbol checks.
+Configuration: RTOS_DMA requires RTOS_SYNC; nexrt::dma is a separate library; polled BSP interface rather than assumed external IRQ support.
+Static budget: Per explicitly instantiated channel control plus caller-selected aligned permanent staging; no heap, mandatory worker, descriptor ring or global pool.
+Dependencies: NXR-133, NXR-134, NXR-135
+<<<
+
+[REQUIREMENT]
+UID: NXR-160
+STATUS: PartialSourceUnverified
+TITLE: Portable source handoff and dependency diagnosis
+STATEMENT: >>>
+The project shall preserve reachable Git history and current nonignored local source state in a verified portable archive and diagnose selected build dependencies through native C# tooling and CMake targets.
+Acceptance: A fixture restores staged unstaged untracked and deleted files and rejects tampering; actual handoff audit compares restored HEAD index and source hashes; dependency failures return nonzero.
+Verification: Native handoff self-test, real archive restoration, dependency doctor and strict documentation build.
+Configuration: Native AOT default with managed fallback; host docs analysis ARM RISC-V RTL profiles are explicit.
+Static budget: Host tooling only; zero firmware RAM or flash cost.
+Dependencies: NXR-159
+<<<
+

@@ -1,0 +1,63 @@
+Resume development of NexRT, the small modern C++ RTOS in the rtos repository.
+I moved this project from my other computer for a memory upgrade. The restored
+layout is <handoff-destination>/rtos, ../RISCue, ../SharpTestBench and ../runtime.
+Locate the actual destination; do not assume the old Windows username or paths.
+
+Read AGENTS.md, HANDOFF-START-HERE.txt, docs/handoff.rst, docs/dma.rst and
+docs/implementation-300.rst. Inspect git status before changing anything and
+preserve existing local changes. The last committed/pushed baseline was
+cb797a72e9295ec3643e3a6c21decddad317a96e on main of
+https://github.com/jeffadickson/rtos.git. The archive additionally contains
+UNCOMMITTED DMA and migration work. RISCue has its own existing local changes.
+Do not reset these repositories or claim that the local work is already pushed.
+
+First verify the archive manifest if it has not been verified, and run the
+packaged NexRT.Handoff doctor against the restored root. Start with host, then
+all for docs/analysis/ARM/RISC-V/RTL. Resolve paths from the OptiPlex installation.
+Use CMake/Ninja and .NET 10 Native AOT for host tooling when supported. Rebuild
+host tools from source; never reuse the previous machine's CMake caches,
+native-tool source fingerprints, build directories or virtual environments.
+The CMake targets check_dependencies and check_all_dependencies provide the
+same checks after configuration. They report dependencies, never install them.
+
+Project constraints: custom automation is C# with XML documentation (XDoc).
+Avoid custom Python scripts. Sphinx with its minimal conf.py and third-party
+runtime is the docs-only exception. Preserve the C# requirements tracker,
+StrictDoc exports, source inspection fingerprints and Sphinx user manual.
+Kernel/driver storage must remain static at boot; preserve the no-heap audit.
+Keep optional modules easy to exclude, RAM costs explicit, C++ APIs documented
+and all assembly fully explained. No imaginary qualification/hardware claims.
+
+The previous 300 implementation passes and reviews are complete; do not restart
+that count automatically. The immediate outstanding engineering task is modular
+DMA. The portable layer now exists in include/rtos_dma.hpp and src/dma.cpp, with
+tests/dma.cpp and examples/dma_polling.cpp. RTOS_DMA defaults OFF and requires
+RTOS_SYNC. It is a separate nexrt::dma library, with no mandatory global buffers,
+worker or heap. TX is copied into permanent exclusive staging; RX is copied out
+only after proven quiescence. Generation tickets reject stale completions;
+uncertain stop quarantines the channel until the backend proves it stopped.
+BSP callbacks separate CPU/bus addresses, address validation, cache maintenance,
+start/poll/stop/finish. Do not weaken these lifetime/ownership contracts.
+
+No physical DMA engine has been selected. AXI DMA, AXI CDMA and a custom AXI
+engine remain choices. The example is a software backend, not physical DMA.
+The next hardware adapter requires the FPGA engine/register map/interrupt and
+cache contracts. PCIe/SpaceVPX remains a design consideration, not implemented
+hardware. Do useful portable work first; obtain the actual engine details before
+inventing a hardware adapter. SMP, physical ARM boards, MicroBlaze and Tang Nano
+board-specific bring-up remain separate incomplete target work; verify docs.
+
+Pre-move DMA validation: 26 host-DMA checks passed, DMA ASan/UBSan and Valgrind
+checks passed, Cppcheck/clang-tidy and strict Sphinx passed. An ARM software-DMA
+example cross-linked/no-heap-audited at text 5408, data 104, BSS 1824 bytes;
+this was not a physical DMA test. DMA-disabled nano ELF was byte-identical to
+baseline, SHA256 42f44b0a19328a3672774838a8d82f6568eeb0d58b1046bb7bb6ba1375815a5e,
+text 3812, data 0, BSS 1164, plus 4096-byte configured boot stack. Reproduce
+relevant checks on this machine rather than treating historical logs as fresh.
+Adding the handoff round-trip check increases the host test count by one.
+
+Start with a fresh host build/check_dependencies/ctest, then enabled-DMA checks,
+requirements checking and strict Sphinx. Run optional tool profiles as needed.
+Retain the archive as a recovery point. Do not commit or push migration/DMA
+changes unless I request it. Continue autonomously with useful reversible work,
+provide concise status, and report actual results and any missing dependencies.

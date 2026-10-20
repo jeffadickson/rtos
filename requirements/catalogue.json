@@ -4631,5 +4631,76 @@
       "docs/host-memory.rst"
     ],
     "finding": "Hashes support consistency rather than authenticity; retained simulation/host evidence is not board qualification or certification."
+  },
+  {
+    "id": "NXR-159",
+    "title": "Optional portable DMA staging and quarantine implementation",
+    "category": "DMA",
+    "statement": "An optional DMA module shall serialize thread callers over one active transfer per channel using boot-reserved exclusive staging and explicit BSP address/cache/quiescence contracts, without retaining application-buffer pointers.",
+    "rationale": "Unknown hardware stop semantics must not expose temporary caller storage to late DMA or force DMA storage into the nano kernel.",
+    "acceptance": "DMA defaults off and adds no kernel fields; TX copies before launch; RX copies only after quiescent completion; stale tickets cannot release new transfers; uncertain abort quarantines until positive stop proof; host ownership tests pass.",
+    "verification": "Enabled host ownership model, memory tooling, cross-compilation and disabled-image size/symbol checks.",
+    "dependencies": [
+      "NXR-133",
+      "NXR-134",
+      "NXR-135"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_dma.hpp",
+      "src/dma.cpp",
+      "cmake/modules.cmake",
+      "cmake/configuration.cmake"
+    ],
+    "verification_files": [
+      "tests/dma.cpp"
+    ],
+    "planned_test": "TEST-NXR-159",
+    "configuration": "RTOS_DMA requires RTOS_SYNC; nexrt::dma is a separate library; polled BSP interface rather than assumed external IRQ support.",
+    "resource_budget": "Per explicitly instantiated channel control plus caller-selected aligned permanent staging; no heap, mandatory worker, descriptor ring or global pool.",
+    "review_iteration": 159,
+    "inspected_files": [
+      "include/rtos_dma.hpp",
+      "src/dma.cpp",
+      "cmake/modules.cmake",
+      "cmake/configuration.cmake",
+      "docs/dma.rst",
+      "docs/drivers.rst"
+    ],
+    "finding": "Portable channel layer implemented; concrete FPGA/PCIe engine, interrupt dispatch, cache operations and physical DMA qualification remain BSP work. Earlier hardware DMA roadmap requirements are not marked complete."
+  },
+  {
+    "id": "NXR-160",
+    "title": "Portable source handoff and dependency diagnosis",
+    "category": "Tooling",
+    "statement": "The project shall preserve reachable Git history and current nonignored local source state in a verified portable archive and diagnose selected build dependencies through native C# tooling and CMake targets.",
+    "rationale": "Development must continue on another computer without losing uncommitted DMA work or relying on old build caches.",
+    "acceptance": "A fixture restores staged unstaged untracked and deleted files and rejects tampering; actual handoff audit compares restored HEAD index and source hashes; dependency failures return nonzero.",
+    "verification": "Native handoff self-test, real archive restoration, dependency doctor and strict documentation build.",
+    "dependencies": [
+      "NXR-159"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "tools/NexRT.Handoff/Program.cs",
+      "tools/NexRT.Handoff/Archive.cs",
+      "tools/NexRT.Handoff/Doctor.cs",
+      "cmake/dependencies.cmake"
+    ],
+    "verification_files": [
+      "tools/NexRT.Handoff/Archive.cs"
+    ],
+    "planned_test": "TEST-NXR-160",
+    "configuration": "Native AOT default with managed fallback; host docs analysis ARM RISC-V RTL profiles are explicit.",
+    "resource_budget": "Host tooling only; zero firmware RAM or flash cost.",
+    "review_iteration": 160,
+    "inspected_files": [
+      "tools/NexRT.Handoff/Program.cs",
+      "tools/NexRT.Handoff/Archive.cs",
+      "tools/NexRT.Handoff/Doctor.cs",
+      "cmake/dependencies.cmake",
+      "docs/handoff.rst"
+    ],
+    "finding": "Sources and selected Linux runtime support are portable; compiler installations and machine credentials are excluded. Destination execution and hardware qualification remain machine-specific."
   }
 ]

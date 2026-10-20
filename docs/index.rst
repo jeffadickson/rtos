@@ -35,6 +35,7 @@ worst-case execution time, or hardware validation.
    memory
    diagnostic-overlays
    drivers
+   dma
    web
    sync-iterations
    synchronization
@@ -45,6 +46,7 @@ worst-case execution time, or hardware validation.
    reviews
    validation
    tooling
+   handoff
    footprint
    integration-history
    requirements-tracker

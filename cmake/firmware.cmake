@@ -31,6 +31,9 @@
   endif()
   target_include_directories(rtos PRIVATE ${nxr_port})
   add_library(nexrt::kernel ALIAS rtos)
+  if(RTOS_DMA)
+    target_link_libraries(rtos_dma PUBLIC rtos gcc)
+  endif()
   target_compile_options(rtos PRIVATE -Os -fstack-usage -ffunction-sections -fdata-sections)
   set(RTOS_APPLICATION ${nxr_default_application} CACHE FILEPATH "Application source")
   add_executable(demo ${RTOS_APPLICATION} ${nxr_port}/start.S)
@@ -39,6 +42,9 @@
   endif()
   target_compile_options(demo PRIVATE -fstack-usage)
   target_link_libraries(demo PRIVATE rtos gcc)
+  if(RTOS_DMA)
+    target_link_libraries(demo PRIVATE nexrt::dma)
+  endif()
   set_target_properties(demo PROPERTIES SUFFIX .elf)
   target_link_options(demo PRIVATE -nostdlib -T${CMAKE_SOURCE_DIR}/${nxr_port}/link.ld
     -Wl,--defsym=__boot_stack_bytes=${RTOS_BOOT_STACK_BYTES}

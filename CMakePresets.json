@@ -88,6 +88,7 @@
       "binaryDir": "${sourceDir}/build/nano",
       "cacheVariables": {
         "RTOS_APPLICATION": "examples/nano.cpp",
+        "RTOS_DMA": "OFF",
         "RTOS_MAX_THREADS": "1",
         "RTOS_IDLE_STACK_BYTES": "512",
         "RTOS_METRICS": "OFF",

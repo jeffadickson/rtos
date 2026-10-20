@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **158**. Catalogue SHA-256: ``b546ae2d7b067d13fc2f490fe0de4e8a2d335eda63d21f2a575ec3d8d1b3722c``.
+Reviewed requirements: **160**. Catalogue SHA-256: ``874cb0b6052109587339ffcc7e824f6c90382c3408ef8323db344fad128b717a``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -5538,4 +5538,74 @@ NXR-158 Retained evidence and controlled analyzer detection gates
 
 
 **Review finding:** Hashes support consistency rather than authenticity; retained simulation/host evidence is not board qualification or certification.
+
+NXR-159 Optional portable DMA staging and quarantine implementation
+-------------------------------------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** DMA
+
+
+**Requirement:** An optional DMA module shall serialize thread callers over one active transfer per channel using boot-reserved exclusive staging and explicit BSP address/cache/quiescence contracts, without retaining application-buffer pointers.
+
+
+**Rationale:** Unknown hardware stop semantics must not expose temporary caller storage to late DMA or force DMA storage into the nano kernel.
+
+
+**Acceptance:** DMA defaults off and adds no kernel fields; TX copies before launch; RX copies only after quiescent completion; stale tickets cannot release new transfers; uncertain abort quarantines until positive stop proof; host ownership tests pass.
+
+
+**Verification:** Enabled host ownership model, memory tooling, cross-compilation and disabled-image size/symbol checks.
+
+
+**Planned test:** TEST-NXR-159
+
+
+**Dependencies:** NXR-133, NXR-134, NXR-135
+
+
+**Configuration:** RTOS_DMA requires RTOS_SYNC; nexrt::dma is a separate library; polled BSP interface rather than assumed external IRQ support.
+
+
+**Static resource budget:** Per explicitly instantiated channel control plus caller-selected aligned permanent staging; no heap, mandatory worker, descriptor ring or global pool.
+
+
+**Review finding:** Portable channel layer implemented; concrete FPGA/PCIe engine, interrupt dispatch, cache operations and physical DMA qualification remain BSP work. Earlier hardware DMA roadmap requirements are not marked complete.
+
+NXR-160 Portable source handoff and dependency diagnosis
+--------------------------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** Tooling
+
+
+**Requirement:** The project shall preserve reachable Git history and current nonignored local source state in a verified portable archive and diagnose selected build dependencies through native C# tooling and CMake targets.
+
+
+**Rationale:** Development must continue on another computer without losing uncommitted DMA work or relying on old build caches.
+
+
+**Acceptance:** A fixture restores staged unstaged untracked and deleted files and rejects tampering; actual handoff audit compares restored HEAD index and source hashes; dependency failures return nonzero.
+
+
+**Verification:** Native handoff self-test, real archive restoration, dependency doctor and strict documentation build.
+
+
+**Planned test:** TEST-NXR-160
+
+
+**Dependencies:** NXR-159
+
+
+**Configuration:** Native AOT default with managed fallback; host docs analysis ARM RISC-V RTL profiles are explicit.
+
+
+**Static resource budget:** Host tooling only; zero firmware RAM or flash cost.
+
+
+**Review finding:** Sources and selected Linux runtime support are portable; compiler installations and machine credentials are excluded. Destination execution and hardware qualification remain machine-specific.
 

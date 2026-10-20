@@ -1,4 +1,8 @@
 #pragma once
+#ifndef RTOS_DMA
+#define RTOS_DMA 0
+#endif
+static_assert(RTOS_DMA==0 || RTOS_DMA==1);
 #include <stdint.h>
 #ifndef RTOS_MAX_THREADS
 #define RTOS_MAX_THREADS 16

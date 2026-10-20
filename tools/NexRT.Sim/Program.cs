@@ -20,12 +20,14 @@ internal static class Program
             string elf=Path.GetFullPath(args[3],root),build=Path.Combine(root,"build/sharp-demo");
             string run=Path.Combine(build,"runs",DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff"));
             Directory.CreateDirectory(run);
+            string portableCocotb=Path.GetFullPath(Path.Combine(root,"../runtime/cocotb"));
             string cocotb=Environment.GetEnvironmentVariable("NEXRT_COCOTB_ROOT")??
+                (Directory.Exists(portableCocotb)?portableCocotb:
                 Directory.GetDirectories(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),".venvs/sharptestbench/lib"),"python*")
-                    .Select(path=>Path.Combine(path,"site-packages/cocotb")).Single(Directory.Exists);
+                    .Select(path=>Path.Combine(path,"site-packages/cocotb")).Single(Directory.Exists));
             string libs=Path.Combine(cocotb,"libs"),host=Path.Combine(sharp,"build/libsharptestbench_host.so");
             string cpp=Path.Combine(cocotb,"share/lib/verilator/verilator.cpp");
-            string dotnet=Environment.GetEnvironmentVariable("DOTNET_ROOT")??"/usr/local/share/dotnet";
+            string dotnet=FindDotnetRoot();
             string fxr=Directory.GetFiles(Path.Combine(dotnet,"host/fxr"),"libhostfxr.so",SearchOption.AllDirectories)
                 .OrderByDescending(path=>Version.Parse(new DirectoryInfo(Path.GetDirectoryName(path)!).Name.Split('-')[0])).First();
             string[] names=["ft_pkg","riscue_pipeline_pkg","riscue_rvc","riscue_jump_target","riscue_execute","riscue_muldiv","riscue_pipeline_core","riscue_axi_master_bridge","riscue_axi_core"];
@@ -33,7 +35,9 @@ internal static class Program
             foreach(string file in sources.Concat([elf,host,cpp,Path.Combine(libs,"libgpi.so"),Path.Combine(libs,"libgpi_impl_verilator_vpi.so"),Path.Combine(libs,"libcocotb_bootstrap.so")]))
                 if(!File.Exists(file))throw new FileNotFoundException("Required local dependency is missing",file);
             string binary=Path.Combine(run,"firmware.bin");
-            string prefix=Environment.GetEnvironmentVariable("RISCV_TOOLCHAIN_PREFIX")??"/mnt/c/dev/RISCue/.tools/riscv/root/usr/bin/riscv64-unknown-elf-";
+            string bundledPrefix=Path.Combine(riscue,".tools/riscv/root/usr/bin/riscv64-unknown-elf-");
+            string prefix=Environment.GetEnvironmentVariable("RISCV_TOOLCHAIN_PREFIX")??
+                (File.Exists(bundledPrefix+"objcopy")?bundledPrefix:"riscv64-unknown-elf-");
             await Run(prefix+"objcopy",["-O","binary",elf,binary],root,Path.Combine(run,"objcopy.log"));
             byte[] bytes=File.ReadAllBytes(binary);
             if(bytes.Length==0||bytes.Length>0x7f00)throw new IOException("Firmware exceeds the wrapper RAM image region");
@@ -92,6 +96,19 @@ internal static class Program
             Console.WriteLine("Evidence: "+run);return 0;
         }
         catch(Exception error){Console.Error.WriteLine(error.Message);return 1;}
+    }
+
+    /// <summary>Resolves .NET hosting files from an override or the real executable on PATH.</summary>
+    private static string FindDotnetRoot()
+    {
+        string? configured=Environment.GetEnvironmentVariable("DOTNET_ROOT");
+        if(!string.IsNullOrWhiteSpace(configured))return configured;
+        foreach(string folder in (Environment.GetEnvironmentVariable("PATH")??"").Split(Path.PathSeparator))
+        {
+            string candidate=Path.Combine(folder,"dotnet");
+            if(File.Exists(candidate))return Path.GetDirectoryName(new FileInfo(candidate).ResolveLinkTarget(true)?.FullName??Path.GetFullPath(candidate))!;
+        }
+        throw new FileNotFoundException("Install .NET 10 or set DOTNET_ROOT");
     }
 
     /// <summary>Identifies exact source and executable bytes in the preserved run manifest.</summary>

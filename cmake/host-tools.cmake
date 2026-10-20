@@ -1,5 +1,12 @@
 # These executables run on the BUILD HOST, never on the firmware architecture.
 find_program(DOTNET_EXECUTABLE NAMES dotnet REQUIRED)
+# Native AOT publishers are memory-intensive. Keep fresh-machine Ninja builds
+# from launching every SDK/linker concurrently while C++ work stays parallel.
+set(RTOS_HOST_TOOL_JOBS 1 CACHE STRING "Concurrent C# host-tool publishers (Ninja)")
+if(NOT RTOS_HOST_TOOL_JOBS MATCHES "^[1-9][0-9]*$")
+  message(FATAL_ERROR "RTOS_HOST_TOOL_JOBS must be a positive integer")
+endif()
+set_property(GLOBAL APPEND PROPERTY JOB_POOLS nexrt_host_tools=${RTOS_HOST_TOOL_JOBS})
 option(RTOS_NATIVE_TOOLS "Publish and execute C# host tools as Native AOT binaries" ON)
 string(TOLOWER "${CMAKE_HOST_SYSTEM_PROCESSOR}" NXR_HOST_PROCESSOR)
 if(NXR_HOST_PROCESSOR MATCHES "^(x86_64|amd64)$")
@@ -30,7 +37,7 @@ set(RTOS_PREBUILT_NATIVE_TOOLS "" CACHE PATH "Validated build-host native tool b
 function(nexrt_add_host_tool target assembly project)
   get_filename_component(project_directory "${CMAKE_SOURCE_DIR}/${project}" DIRECTORY)
   file(GLOB tool_sources CONFIGURE_DEPENDS "${project_directory}/*.cs")
-  if(assembly STREQUAL "NexRT.ArmSim" OR assembly STREQUAL "NexRT.Sim" OR assembly STREQUAL "Rtos.Tools" OR assembly STREQUAL "NexRT.Evidence")
+  if(assembly STREQUAL "NexRT.ArmSim" OR assembly STREQUAL "NexRT.Sim" OR assembly STREQUAL "Rtos.Tools" OR assembly STREQUAL "NexRT.Evidence" OR assembly STREQUAL "NexRT.Handoff")
     list(APPEND tool_sources "${CMAKE_SOURCE_DIR}/tools/HostProcess.cs")
   endif()
   set(fingerprint_input "${NXR_HOST_RID}")
@@ -85,7 +92,8 @@ function(nexrt_add_host_tool target assembly project)
         --property:DocumentationFile=${output_directory}/${assembly}.xml
       COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/tool-fingerprints/${target}.txt" "${output}.sources"
       COMMAND ${CMAKE_COMMAND} -E touch "${output}" "${output_directory}/${assembly}.xml"
-      DEPENDS "${CMAKE_SOURCE_DIR}/${project}" ${tool_sources} "${fingerprint_file}" VERBATIM)
+      DEPENDS "${CMAKE_SOURCE_DIR}/${project}" ${tool_sources} "${fingerprint_file}"
+      JOB_POOL nexrt_host_tools VERBATIM)
     set(command "${output}")
     message(STATUS "${assembly}: Native AOT host executable (${NXR_HOST_RID})")
   else()
@@ -97,7 +105,8 @@ function(nexrt_add_host_tool target assembly project)
         --property:BaseIntermediateOutputPath=${CMAKE_BINARY_DIR}/managed-obj/${target}/
       COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/tool-fingerprints/${target}.txt" "${output}.sources"
       COMMAND ${CMAKE_COMMAND} -E touch "${output}" "${output_directory}/${assembly}.xml"
-      DEPENDS "${CMAKE_SOURCE_DIR}/${project}" ${tool_sources} "${fingerprint_file}" VERBATIM)
+      DEPENDS "${CMAKE_SOURCE_DIR}/${project}" ${tool_sources} "${fingerprint_file}"
+      JOB_POOL nexrt_host_tools VERBATIM)
     set(command "${DOTNET_EXECUTABLE};${output}")
   endif()
   add_custom_target(${target} ALL DEPENDS "${output}" "${output_directory}/${assembly}.xml" "${output}.sources")

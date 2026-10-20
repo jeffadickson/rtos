@@ -170,7 +170,8 @@ Planned shared-device and IPC contracts
 
    device-ipc-review
 
-DMA driver support remains deferred to its optional BSP roadmap. Static IPC,
+The optional portable DMA ownership layer is implemented; see :doc:`dma`.
+Engine-specific MMIO, interrupt and cache adapters remain BSP work. Static IPC,
 transaction mutexes and queued logging now have source implementations; see
 synchronization for APIs and verification limits. A general driver registry,
 external interrupt dispatch and board MMIO drivers remain integration work.

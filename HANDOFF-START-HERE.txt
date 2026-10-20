@@ -1,0 +1,64 @@
+NexRT / rtos: moving development to the OptiPlex
+================================================
+
+Copy the ZIP and its .sha256 file to the OptiPlex. Check the ZIP with
+Get-FileHash -Algorithm SHA256 on Windows, or sha256sum on Linux, and compare
+the value with the sidecar. Extract to a NEW directory. Keep the ZIP as backup.
+
+Use Ubuntu 24.04 x64 under WSL for the existing firmware/simulation workflow.
+Inside the extracted package directory, run:
+
+  chmod +x tools/linux-x64/NexRT.Handoff
+  tools/linux-x64/NexRT.Handoff verify .
+  tools/linux-x64/NexRT.Handoff restore . "$HOME/src/nexrt-optiplex"
+
+The restore destination must not already exist. It creates sibling rtos,
+RISCue and SharpTestBench repositories, retaining Git history and the current
+staged/unstaged/untracked/deleted source state. No commit or push is performed.
+If interrupted, use another fresh destination; restore is not transactional.
+
+Run the packaged doctor BEFORE configuring. From the extracted package:
+
+  tools/linux-x64/NexRT.Handoff doctor "$HOME/src/nexrt-optiplex/rtos" host
+  tools/linux-x64/NexRT.Handoff doctor "$HOME/src/nexrt-optiplex/rtos" all
+
+The second command checks optional docs, analysis, ARM/QEMU and RISC-V/RTL
+dependencies too. Missing optional tools do not prevent host-only work.
+Tool paths may differ: doctor accepts --arm-prefix, --riscv-prefix, --qemu,
+--cppcheck, --clang-tidy, --sphinx, --riscue, --sharp and --cocotb, each followed
+by a literal value. Compiler prefixes include the trailing hyphen.
+Environment equivalents are documented in docs/handoff.rst.
+
+The package includes the native Linux x64 doctor. If the machine cannot run
+that binary, use .NET 10: dotnet tools/managed/NexRT.Handoff.dll [arguments].
+Use the native executable when compatible. Neither mode installs tools.
+
+Fresh host build, from the restored rtos repository:
+
+  cmake --preset host
+  cmake --build --preset host --target check_dependencies
+  cmake --build --preset host
+  ctest --preset host
+
+To include the optional DMA ownership layer in the host checks:
+
+  cmake --preset host -DRTOS_DMA=ON -DRTOS_SYNC=ON
+  cmake --build --preset host
+  ctest --preset host
+
+Sphinx is the only Python tooling exception. Create a fresh documentation
+environment using the platform's normal venv/pip tools and docs/requirements.txt;
+do not copy a venv from the old computer. Reconfigure CMake after installing
+sphinx-build; then build target docs. See docs/handoff.rst for commands.
+
+Excluded: ignored build directories, SDK/compiler installations, package caches,
+venvs, credentials, Git hooks/config and reflog-only objects. Git bundles retain
+reachable refs/history; source snapshots retain nonignored local work. Historical
+verification evidence is included as source, not proof of this machine's setup.
+Selected existing Linux x64 cocotb/SharpTestBench runtime libraries are included
+for RTL simulation; the RTL doctor checks their shared-library dependencies.
+Rebuild those libraries for another host ABI. Do not reuse old CMake caches,
+native-tool .sources fingerprints or an RTOS_PREBUILT_NATIVE_TOOLS path.
+
+Paste OPTIPLEX-RESTART-PROMPT.txt into the development agent on the OptiPlex.
+It contains the current implementation state, constraints and next steps.
