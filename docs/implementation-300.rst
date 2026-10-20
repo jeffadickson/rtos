@@ -61,3 +61,57 @@ Passes 001-050: bounded stack observations
 048. Explicitly keep the nano preset's instrumentation disabled.
 049. Inspect source diffs and static-allocation boundaries before the checkpoint.
 050. Build, validate and commit the first checkpoint, then request panel review.
+
+Passes 051-100: panel repairs and branch coverage
+--------------------------------------------------------------------------------
+
+051. Accept public stack-API validation gaps identified by the kernel reviewer.
+052. Accept ARM initializer-section rejection gaps identified by the port reviewer.
+053. Accept process/drain timeout gaps identified by the tooling reviewer.
+054. Accept missing executed-dependency identities in UART manifests.
+055. Record all panel decisions and their disposition.
+056. Reject priority initializer subsections in the ARM linker.
+057. Reject ARM preinitializer sections.
+058. Reject ARM finalizer/destructor sections.
+059. Check boot-stack reserves in the ARM linker.
+060. Reject finalizers consistently on RV32.
+061. Recognize dotted priority-initializer symbols in the audit.
+062. Recognize reentrant newlib allocator hooks.
+063. Generalize compiler contract checks for RV32 and Cortex-M3.
+064. Enable ARM static_contract_check.
+065. Add a priority-constructor rejection fixture.
+066. Add a priority initializer-subsection fixture.
+067. Add an explicit preinitializer fixture.
+068. Add a priority preinitializer fixture.
+069. Add a finalizer rejection fixture.
+070. Extend symbol-audit self-tests.
+071. Share a bounded subprocess executor between simulation runners.
+072. Extend the deadline across process exit and both pipe drains.
+073. Capture output with cancellable fixed-size reads.
+074. Bound retained output across both channels.
+075. Clean up a still-running owned process after failure.
+076. Preserve partial diagnostic output.
+077. Use the shared executor in both runners.
+078. Include shared source in native-tool fingerprints.
+079. Link the XDoc-documented shared source into both projects.
+080. Add a normal-exit subprocess fixture.
+081. Add nonzero-exit propagation coverage.
+082. Add an execution-timeout fixture.
+083. Add a descendant-held-pipe fixture.
+084. Add an output-flood/cap fixture.
+085. Add native process self-tests to CTest with an outer timeout.
+086. Isolate managed UART verification output per run.
+087. Identify managed dependencies and runtime configuration.
+088. Identify cocotb libraries and hostfxr.
+089. Identify runtime files, .NET environment, test selector and seed.
+090. Reject dependencies changed during a UART run.
+091. Read real ARM BASEPRI in the workload.
+092. Check API restoration of an existing scheduling mask.
+093. Check preservation of a stronger interrupt mask.
+094. Check mask restoration across a suspended semaphore wait.
+095. Check timer progress while that masked thread is suspended.
+096. Observe stack state before scheduler start.
+097. Observe the live current thread with a short allowance.
+098. Add watermark-off and guard-off ARM presets.
+099. Update requirements, documentation and review dispositions.
+100. Build, validate and commit the second checkpoint, then request panel review.

@@ -1,0 +1,20 @@
+Implementation checkpoint 100
+=============================
+Passes 051-100 address the checkpoint-050 panel findings and expand actual ARM
+kernel coverage. See docs/implementation-300.rst for the numbered work record.
+
+Validation completed:
+- Native AOT host tools rebuilt with XML documentation enabled; 20/20 CTest checks.
+- Bounded process fixtures cover exit failure, timeout, output flooding, and
+  a descendant retaining redirected pipes after its parent exits.
+- ARM normal, watermark-off, and guard-off configurations: nine QEMU runs passed;
+  each delivered 20,000 messages and 20,000 semaphore handoffs.
+- ARM runs: 20261020-182156-669, 20261020-182224-449, 20261020-182317-590.
+- Real BASEPRI preservation checks include a blocking/resuming thread.
+- ARM and RV32 static contracts: eight compiler/linker fixtures each passed.
+- UART simulation run 20261020-182349-242: three workers passed, 88 timer traps,
+  88778625 simulation steps, isolated managed artifacts and dependency hashes.
+- Cppcheck, clang-tidy, strict Sphinx HTML and 153-row requirements checks passed.
+
+StrictDoc exports remain source-traced requirements, not certification evidence.
+Independent panel review follows this checkpoint commit. No hardware qualification.

@@ -53,11 +53,24 @@ packages include ``gcc-arm-none-eabi`` and ``libnewlib-dev``; the simulator is
      -DRTOS_PREBUILT_NATIVE_TOOLS=build/host/native-tools
    cmake --build --preset arm-stress --target arm_stress
 
+The ``arm-stress-no-watermark`` and ``arm-stress-no-guards`` presets exercise
+the public diagnostic branches with instrumentation or guards disabled. Configure
+them with the same toolchain, simulator and native-tool bundle settings.
+The workload checks real BASEPRI restoration, including a stronger mask retained
+across a blocking wait, plus boot and live-thread stack observations.
+``static_contract_check`` also runs ARM positive/negative compiler-linker fixtures.
+
 ``arm_sim_tool`` publishes ``NexRT.ArmSim`` as a native host executable with XDoc.
 The firmware link still runs the required allocator/constructor symbol audit.
 The runner executes QEMU three times with instruction-clock shifts 3, 4 and 5,
 varying virtual timer delivery relative to the same workload. Each subprocess has
 a 120-second wall-clock bound; timeout kills that process tree and fails the run.
+The deadline includes redirected-pipe draining, with at most two seconds of
+bounded drain cleanup. Retained output is capped at eight million characters.
+The native ``NexRT.ArmSim --self-test`` command covers normal/nonzero exits,
+execution timeout, output flooding and descendant-held pipes; CTest runs it when
+the native ARM runner is enabled. A descendant retaining a pipe after its parent
+exits cannot keep the runner waiting beyond its deadline.
 Success requires zero QEMU exit status and the exact guest ``ARM_STRESS_PASS``
 marker. Logs, QEMU version and an ELF hash are retained beneath
 ``build/arm-stress/runs/<UTC timestamp>``. ``PASS.txt`` exists only after all three

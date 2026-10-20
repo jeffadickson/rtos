@@ -1966,3 +1966,29 @@ Static budget: No target heap and no new thread-control fields; constant result 
 Dependencies: NXR-150
 <<<
 
+[REQUIREMENT]
+UID: NXR-152
+STATUS: PartialSourceUnverified
+TITLE: Bounded simulation subprocesses and dependency identities
+STATEMENT: >>>
+Simulation runners shall bound child execution and redirected-output draining, preserve bounded partial diagnostics, and identify verification/runtime dependencies before publishing passing evidence.
+Acceptance: Native process fixtures cover exit propagation, timeout, inherited pipes and output cap; UART manifests include managed/native/runtime dependencies and reject changed identities; native-tool fingerprints include shared sources.
+Verification: Native C# process fixtures and actual ARM/UART simulation reruns.
+Configuration: Native AOT C# runners with XDoc; one deadline for exit and drains, bounded cleanup and eight-million-character output cap.
+Static budget: Host-only bounded capture; no firmware RAM, heap or thread changes.
+Dependencies: NXR-149, NXR-150
+<<<
+
+[REQUIREMENT]
+UID: NXR-153
+STATUS: PartialSourceUnverified
+TITLE: Cross-port initialization and allocator rejection contracts
+STATEMENT: >>>
+Implemented firmware ports shall reject unsupported initializer, preinitializer and finalizer sections including priority subsections and run positive and negative compiler contracts for their selected ISA.
+Acceptance: Both linkers reject array subsection variants despite section GC; native audit recognizes dotted constructor and reentrant allocator names; ARM and RV32 static_contract_check run compiler-negative fixtures.
+Verification: Native C# symbol self-tests and real ARM/RV32 compiler-linker fixtures.
+Configuration: Architecture-selected static_contract_check; no default libc or libgloss linking.
+Static budget: Host fixtures only; no target heap or runtime constructor machinery.
+Dependencies: NXR-085, NXR-150
+<<<
+

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Security.Cryptography;
+using NexRT.Host;
 
 /// <summary>Runs bounded real-kernel ARM simulations with varied virtual timer timing.</summary>
 internal static class Program
@@ -9,6 +10,8 @@ internal static class Program
     {
         try
         {
+            if(args.Length==2&&args[0]=="--fixture")return await Fixture(args[1]);
+            if(args.Length==1&&args[0]=="--self-test"){await SelfTest();return 0;}
             if(args.Length!=3)throw new ArgumentException("Usage: NexRT.ArmSim QEMU FIRMWARE_ELF OUTPUT_DIRECTORY");
             string qemu=Path.GetFullPath(args[0]),elf=Path.GetFullPath(args[1]);
             if(!File.Exists(qemu)||!File.Exists(elf))throw new FileNotFoundException("Missing QEMU or firmware ELF");
@@ -29,27 +32,64 @@ internal static class Program
         catch(Exception error){Console.Error.WriteLine(error.Message);return 1;}
     }
 
+    /// <summary>Finite subprocess fixtures, run only by the native runner self-test.</summary>
+    private static async Task<int> Fixture(string mode)
+    {
+        switch(mode)
+        {
+            case "exit":Console.WriteLine("FIXTURE_OK");return 0;
+            case "error":Console.Error.WriteLine("FIXTURE_ERROR");return 7;
+            case "sleep":await Task.Delay(5000);return 0;
+            case "flood":for(;;)Console.Write(new string('x',4096));
+            case "pipe-parent":
+                var start=new ProcessStartInfo(Environment.ProcessPath!){UseShellExecute=false,CreateNoWindow=true};
+                start.ArgumentList.Add("--fixture");start.ArgumentList.Add("sleep");
+                using(var child=Process.Start(start)??throw new IOException("Cannot start pipe fixture"))
+                    Console.WriteLine("PARENT_EXIT");
+                return 0;
+            default:throw new ArgumentException("Unknown process fixture");
+        }
+    }
+
+    /// <summary>Verifies success, failure, execution timeout, output limits and descendant-held pipes.</summary>
+    private static async Task SelfTest()
+    {
+        string executable=Environment.ProcessPath??throw new IOException("Missing native process path");
+        if(Path.GetFileNameWithoutExtension(executable).Equals("dotnet",StringComparison.OrdinalIgnoreCase))
+            throw new NotSupportedException("The process-fixture self-test requires the native runner executable");
+        async Task<HostResult> Probe(string mode,TimeSpan limit,int cap=8192)
+        {
+            var start=new ProcessStartInfo(executable);start.ArgumentList.Add("--fixture");start.ArgumentList.Add(mode);
+            return await HostProcess.Run(start,limit,cap);
+        }
+        var normal=await Probe("exit",TimeSpan.FromSeconds(10));
+        if(normal.ExitCode!=0||normal.TimedOut||!normal.Output.Contains("FIXTURE_OK",StringComparison.Ordinal))throw new IOException("Normal process fixture failed");
+        var failure=await Probe("error",TimeSpan.FromSeconds(10));
+        if(failure.ExitCode!=7||!failure.Output.Contains("FIXTURE_ERROR",StringComparison.Ordinal))throw new IOException("Exit propagation fixture failed");
+        var timeout=await Probe("sleep",TimeSpan.FromMilliseconds(500));
+        if(!timeout.TimedOut)throw new IOException("Execution timeout fixture failed");
+        var flood=await Probe("flood",TimeSpan.FromSeconds(10),512);
+        if(!flood.OutputLimit||flood.Output.Length!=512)throw new IOException("Output-cap fixture failed");
+        var watch=Stopwatch.StartNew();
+        var pipes=await Probe("pipe-parent",TimeSpan.FromSeconds(2));
+        if(!pipes.TimedOut||watch.Elapsed>TimeSpan.FromSeconds(4)||!pipes.Output.Contains("PARENT_EXIT",StringComparison.Ordinal))throw new IOException("Inherited-pipe timeout fixture failed");
+        // The finite pipe-holding fixture has its own five-second lifetime; do
+        // not leave that detached fixture alive after the self-test completes.
+        await Task.Delay(5100);
+        Console.WriteLine("PASS: native process success/failure, timeout, output cap and inherited-pipe cancellation");
+    }
+
     /// <summary>Streams both output pipes, enforces a 120-second bound and verifies guest success.</summary>
     private static async Task Run(string executable,string[] arguments,string log,bool requireGuestPass)
     {
         var start=new ProcessStartInfo(executable){RedirectStandardOutput=true,RedirectStandardError=true,UseShellExecute=false};
         foreach(string argument in arguments)start.ArgumentList.Add(argument);
-        using var process=Process.Start(start)??throw new InvalidOperationException("Cannot launch QEMU");
-        var lines=new List<string>();var gate=new object();
-        async Task Drain(StreamReader reader)
-        {
-            while(await reader.ReadLineAsync() is string line)
-                lock(gate){lines.Add(line);Console.WriteLine(line);}
-        }
-        Task stdout=Drain(process.StandardOutput),stderr=Drain(process.StandardError);
-        using var timeout=new CancellationTokenSource(TimeSpan.FromSeconds(120));
-        bool timedOut=false;
-        try{await process.WaitForExitAsync(timeout.Token);}
-        catch(OperationCanceledException){timedOut=true;process.Kill(entireProcessTree:true);await process.WaitForExitAsync();}
-        await Task.WhenAll(stdout,stderr);
-        await File.WriteAllLinesAsync(log,lines);
-        if(timedOut)throw new TimeoutException("QEMU exceeded 120 seconds; see "+log);
-        if(process.ExitCode!=0||requireGuestPass&&(!lines.Contains("ARM_STRESS_PASS")||lines.Any(line=>line.StartsWith("FAIL:",StringComparison.Ordinal))))
-            throw new InvalidOperationException($"QEMU/guest failed (exit {process.ExitCode}); see {log}");
+        var result=await HostProcess.Run(start,TimeSpan.FromSeconds(120));
+        await File.WriteAllTextAsync(log,result.Output);
+        if(result.TimedOut)throw new TimeoutException("QEMU execution/output exceeded 120 seconds; see "+log);
+        if(result.OutputLimit||result.IoError is not null)throw new IOException("QEMU output failure; see "+log);
+        string[] lines=result.Output.Split('\n').Select(line=>line.TrimEnd('\r')).ToArray();
+        if(result.ExitCode!=0||requireGuestPass&&(!lines.Contains("ARM_STRESS_PASS")||lines.Any(line=>line.StartsWith("FAIL:",StringComparison.Ordinal))))
+            throw new InvalidOperationException($"QEMU/guest failed (exit {result.ExitCode}); see {log}");
     }
 }

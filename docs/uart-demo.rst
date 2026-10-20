@@ -95,7 +95,14 @@ Every run receives a new ``build/sharp-demo/runs/<UTC timestamp>`` directory.
 SharpTestBench JSON/XML results retain the checks; ``manifest.txt`` records
 firmware, model, managed test, native host and RTL source hashes plus compile
 options. Build/model logs are retained and failures propagate to CMake.
-The runner applies a 15-minute wall-clock bound per subprocess; the C# test
+Managed verification assemblies are isolated inside each run. The manifest also
+identifies managed dependencies, runtime configuration, hostfxr, cocotb libraries
+and runtime files. ``dotnet-info.log`` records the installed runtime environment.
+Dependency hashes are checked again after execution; a changed dependency rejects
+the run before updating the passing-run pointer.
+The runner applies a 15-minute wall-clock bound per subprocess, retains at most
+eight million output characters and includes pipe drains in the same deadline,
+followed by at most two seconds of drain cleanup. The C# test
 also has a finite simulation-time timeout. A source/options/tool-version hash
 controls reuse of the Verilator model, while firmware is loaded fresh each run.
 Large generated model/compiler intermediates live in the Linux-native

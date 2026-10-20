@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using NexRT.Host;
 
 namespace NexRT.Sim;
 
@@ -39,7 +40,9 @@ internal static class Program
             byte[] memory=new byte[32768];bytes.CopyTo(memory,0);
             string hex=Path.Combine(run,"firmware.hex");
             File.WriteAllLines(hex,Enumerable.Range(0,8192).Select(i=>BinaryPrimitives.ReadUInt32LittleEndian(memory.AsSpan(i*4,4)).ToString("x8")));
-            string managed=Path.Combine(build,"managed");
+            // Per-run managed output prevents a concurrent run from replacing
+            // verification assemblies while this simulator is loading them.
+            string managed=Path.Combine(run,"managed");
             await Run(Path.Combine(dotnet,"dotnet"),["build",Path.Combine(root,"sim/SharpDemo/SharpDemo.csproj"),"-c","Release","--output",managed,"-p:SharpTestBenchRoot="+sharp],root,Path.Combine(run,"managed-build.log"));
             // Large compiler intermediates belong on the Linux filesystem, not /mnt/c.
             string workspaceKey=Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(root)))[..16];
@@ -56,8 +59,18 @@ internal static class Program
                 await Run("verilator",options,root,Path.Combine(run,"model-build.log"));
                 File.WriteAllText(stamp,key);
             }
+            string runtimeRoot=Path.Combine(dotnet,"shared","Microsoft.NETCore.App");
+            string[] runtimeFiles=Directory.GetFiles(runtimeRoot,"*",SearchOption.AllDirectories)
+                .Where(file=>file.EndsWith(".dll",StringComparison.Ordinal)||file.EndsWith(".so",StringComparison.Ordinal)||
+                    file.EndsWith(".json",StringComparison.Ordinal)||Path.GetFileName(file)==".version").ToArray();
+            string[] managedFiles=Directory.GetFiles(managed).Where(file=>file.EndsWith(".dll",StringComparison.Ordinal)||file.EndsWith(".json",StringComparison.Ordinal)).ToArray();
+            var identities=sources.Concat([elf,host,executable,cpp,fxr]).Concat(managedFiles)
+                .Concat(Directory.GetFiles(libs,"*.so")).Concat(runtimeFiles)
+                .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToDictionary(file=>file,Hash,StringComparer.Ordinal);
+            await Run(Path.Combine(dotnet,"dotnet"),["--info"],root,Path.Combine(run,"dotnet-info.log"));
             File.WriteAllText(Path.Combine(run,"manifest.txt"),"PLAIN pipeline, RF_TMR=0, FI_ENABLE=0; upstream AXI bridge; plain RAM; accelerated TX UART\n"+
-                "ELF "+Hash(elf)+"\nNative host "+Hash(host)+"\nModel "+Hash(executable)+"\nManaged test "+Hash(Path.Combine(managed,"SharpDemo.dll"))+"\n"+manifest);
+                "CS_TEST_FILTER=ThreeWorkers\nCS_SEED=1\n"+
+                string.Join('\n',identities.Select(pair=>pair.Key+" "+pair.Value))+"\n"+manifest);
             var environment=new Dictionary<string,string>
             {
                 ["DOTNET_ROOT"]=dotnet,["CS_HOSTFXR"]=fxr,["CS_CONFIG"]=Path.Combine(managed,"SharpDemo.runtimeconfig.json"),
@@ -70,6 +83,8 @@ internal static class Program
                 ["CS_TEST_FILTER"]="ThreeWorkers",["CS_SEED"]="1"
             };
             await Run(executable,["+firmware="+hex],run,Path.Combine(run,"simulation.log"),environment);
+            foreach(var identity in identities)
+                if(Hash(identity.Key)!=identity.Value)throw new IOException("Simulation dependency changed during execution: "+identity.Key);
             using var results=JsonDocument.Parse(File.ReadAllText(Path.Combine(run,"results.json")));
             if(results.RootElement.GetArrayLength()!=1||results.RootElement[0].GetProperty("Status").GetString()!="passed")throw new IOException("SharpTestBench did not report exactly one passing case");
             File.WriteAllText(Path.Combine(build,"latest-run.txt"),run+"\n");
@@ -89,21 +104,11 @@ internal static class Program
         var start=new ProcessStartInfo(executable){WorkingDirectory=directory,UseShellExecute=false,RedirectStandardOutput=true,RedirectStandardError=true,CreateNoWindow=true};
         foreach(string argument in arguments)start.ArgumentList.Add(argument);
         if(environment!=null)foreach(var pair in environment)start.Environment[pair.Key]=pair.Value;
-        using var process=Process.Start(start)??throw new IOException("Cannot start "+executable);
-        var output=new StringBuilder();var gate=new object();
-        async Task Copy(StreamReader reader)
-        {
-            while(await reader.ReadLineAsync() is { } line)
-            {
-                lock(gate){output.AppendLine(line);Console.WriteLine(line);}
-            }
-        }
-        var stdout=Copy(process.StandardOutput);var stderr=Copy(process.StandardError);
-        using var timeout=new CancellationTokenSource(TimeSpan.FromMinutes(15));
-        try{await process.WaitForExitAsync(timeout.Token);await Task.WhenAll(stdout,stderr);}
-        catch(OperationCanceledException){process.Kill(entireProcessTree:true);await process.WaitForExitAsync();await Task.WhenAll(stdout,stderr);throw new TimeoutException("Wall-clock timeout: "+executable);}
-        finally{lock(gate)File.WriteAllText(log,output.ToString());}
-        if(process.ExitCode!=0)throw new IOException($"{executable} exited {process.ExitCode}; see {log}");
-        return output.ToString();
+        var result=await HostProcess.Run(start,TimeSpan.FromMinutes(15));
+        File.WriteAllText(log,result.Output);
+        if(result.TimedOut)throw new TimeoutException("Execution/output wall-clock timeout: "+executable);
+        if(result.OutputLimit||result.IoError is not null)throw new IOException("Output failure: "+executable+"; see "+log);
+        if(result.ExitCode!=0)throw new IOException($"{executable} exited {result.ExitCode}; see {log}");
+        return result.Output;
     }
 }

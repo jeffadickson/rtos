@@ -43,13 +43,12 @@
     COMMAND ${rtos_tools_COMMAND} audit
       --nm ${CMAKE_NM} --elf $<TARGET_FILE:demo>
     COMMAND ${CMAKE_SIZE} $<TARGET_FILE:demo> VERBATIM)
-  if(NOT RTOS_TARGET_ID STREQUAL "qemu-mps2-m3")
     add_custom_target(static_contract_check
     COMMAND ${rtos_tools_COMMAND} static-contract
       --cxx ${CMAKE_CXX_COMPILER} --nm ${CMAKE_NM}
       --source-root ${CMAKE_SOURCE_DIR} --build-dir ${CMAKE_BINARY_DIR}/static-contract
+      --architecture ${RTOS_TARGET_ID}
       DEPENDS rtos_tools VERBATIM)
-  endif()
 
 if(RTOS_WEB)
     add_executable(web_link_probe examples/web_probe.cpp ${nxr_port}/start.S)

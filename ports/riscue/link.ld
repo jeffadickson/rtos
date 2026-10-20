@@ -9,8 +9,10 @@ SECTIONS {
  .data : { . = ALIGN(16); PROVIDE(__global_pointer$ = . + 0x800); *(.data*) *(.sdata*) } > RAM
  .init_array : { KEEP(*(.init_array .init_array.* .ctors .ctors.*)) } > RAM
  .preinit_array : { KEEP(*(.preinit_array .preinit_array.*)) } > RAM
+ .fini_array : { KEEP(*(.fini_array .fini_array.* .dtors .dtors.*)) } > RAM
  ASSERT(SIZEOF(.init_array) == 0, "Runtime C++ constructors are unsupported; use constant initialization")
  ASSERT(SIZEOF(.preinit_array) == 0, "Runtime preinitialization is unsupported")
+ ASSERT(SIZEOF(.fini_array) == 0, "Runtime finalization is unsupported")
  .bss (NOLOAD) : { . = ALIGN(16); _bss_start = .; *(.bss*) *(.sbss*) *(COMMON) . = ALIGN(16); _bss_end = .; } > RAM
  _stack_top = ORIGIN(RAM) + LENGTH(RAM);
  _boot_stack_bottom = _stack_top - __boot_stack_bytes;

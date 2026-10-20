@@ -8,7 +8,7 @@ internal static class Program
 {
     /// <summary>Names forbidden by the project's static-only firmware policy.</summary>
     private static readonly Regex Forbidden = new(
-        @"\b(malloc|calloc|realloc|free|aligned_alloc|sbrk|_sbrk|__cxa_guard_acquire|__cxa_atexit)\b|operator (new|delete)|_GLOBAL__sub_I_|__static_initialization_and_destruction",
+        @"\b(malloc|calloc|realloc|free|aligned_alloc|memalign|valloc|pvalloc|sbrk|_sbrk|_malloc_r|_calloc_r|_realloc_r|_free_r|_memalign_r|_sbrk_r|__cxa_guard_acquire|__cxa_atexit)\b|operator (new|delete)|_GLOBAL__sub_I[._]|__cxx_global_var_init|__static_initialization_and_destruction",
         RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1));
 
     /// <summary>Dispatches audit, static-contract, or self-test commands.</summary>
@@ -26,7 +26,8 @@ internal static class Program
                     return await Audit(Required(options, "nm"), Required(options, "elf"));
                 case "static-contract":
                     await CheckContract(Required(options, "cxx"), Required(options, "nm"),
-                        Required(options, "source-root"), Required(options, "build-dir"));
+                        Required(options, "source-root"), Required(options, "build-dir"),
+                        options.GetValueOrDefault("architecture","riscue"));
                     return 0;
                 case "self-test":
                     SelfTest();
@@ -97,29 +98,39 @@ internal static class Program
     }
 
     /// <summary>Compiles real positive/negative images to verify constructor and allocator rejection.</summary>
-    private static async Task CheckContract(string cxx, string nm, string root, string directory)
+    private static async Task CheckContract(string cxx, string nm, string root, string directory,string architecture)
     {
         Directory.CreateDirectory(directory);
-        string[] flags = ["-march=rv32im_zicsr", "-mabi=ilp32", "-mno-relax", "-msmall-data-limit=0",
+        bool arm=architecture=="qemu-mps2-m3";
+        if(!arm&&architecture!="riscue")throw new ArgumentException("Unsupported static-contract architecture");
+        string[] isa=arm?["-mcpu=cortex-m3","-mthumb","-mfloat-abi=soft"]:
+            ["-march=rv32im_zicsr", "-mabi=ilp32", "-mno-relax", "-msmall-data-limit=0"];
+        string[] flags = [..isa,
             "-ffreestanding", "-fno-builtin", "-fno-exceptions", "-fno-rtti", "-nostdlib",
-            "-ffunction-sections", "-fdata-sections", "-Wl,--gc-sections,--no-relax",
-            "-T" + Path.Combine(root, "ports", "riscue", "link.ld")];
-        (string Name, string Source)[] fixtures = [
-            ("constant", "int value=3; extern \"C\" void _start() { for (;;) asm volatile(\"\" ::: \"memory\"); }"),
-            ("constructor", "volatile int input; int read() { return input; } int value=read(); extern \"C\" void _start() { for (;;) {} }"),
-            ("allocator", "extern \"C\" __attribute__((noinline)) void* malloc(unsigned) { static char pool[16]; return pool; } extern \"C\" void _start() { void* p=malloc(4); asm volatile(\"\" :: \"r\"(p) : \"memory\"); for (;;) {} }")
+            "-ffunction-sections", "-fdata-sections",arm?"-Wl,--gc-sections":"-Wl,--gc-sections,--no-relax",
+            "-T" + Path.Combine(root, "ports",arm?"arm-mps2":"riscue", "link.ld")];
+        const string entry="extern \"C\" void _start() { for (;;) asm volatile(\"\" ::: \"memory\"); }";
+        (string Name,string Source,string? Rejection)[] fixtures = [
+            ("constant", "int value=3; "+entry,null),
+            ("constructor", "volatile int input; int read() { return input; } int value=read(); "+entry,"Runtime C++ constructors are unsupported"),
+            ("priority-constructor","volatile int input; struct Object{Object(){input=7;}}; Object object __attribute__((init_priority(200))); "+entry,"Runtime C++ constructors are unsupported"),
+            ("priority-init-section","void init(){}; __attribute__((used,section(\".init_array.00200\"))) void(*hook)()=init; "+entry,"Runtime C++ constructors are unsupported"),
+            ("preinit-section","void init(){}; __attribute__((used,section(\".preinit_array\"))) void(*hook)()=init; "+entry,"Runtime preinitialization is unsupported"),
+            ("priority-preinit-section","void init(){}; __attribute__((used,section(\".preinit_array.00200\"))) void(*hook)()=init; "+entry,"Runtime preinitialization is unsupported"),
+            ("fini-section","void fini(){}; __attribute__((used,section(\".fini_array.00200\"))) void(*hook)()=fini; "+entry,"Runtime finalization is unsupported"),
+            ("allocator", "extern \"C\" __attribute__((noinline)) void* malloc(unsigned) { static char pool[16]; return pool; } extern \"C\" void _start() { void* p=malloc(4); asm volatile(\"\" :: \"r\"(p) : \"memory\"); for (;;) {} }",null)
         ];
         foreach (var fixture in fixtures)
         {
             var source = Path.Combine(directory, fixture.Name + ".cpp");
             var elf = Path.Combine(directory, fixture.Name + ".elf");
-            await File.WriteAllTextAsync(source, fixture.Source);
+            await File.WriteAllTextAsync(source,arm?fixture.Source.Replace("_start","Reset_Handler",StringComparison.Ordinal):fixture.Source);
             var compile = await Run(cxx, flags.Concat([source, "-o", elf]));
-            if (fixture.Name == "constructor")
+            if (fixture.Rejection is not null)
             {
-                if (compile.ExitCode == 0 || !compile.Error.Contains("Runtime C++ constructors are unsupported", StringComparison.Ordinal))
+                if (compile.ExitCode == 0 || !(compile.Output+compile.Error).Contains(fixture.Rejection, StringComparison.Ordinal))
                     throw new InvalidOperationException("Constructor rejection check failed:\n" + compile.Output + compile.Error);
-                Console.WriteLine("PASS: runtime constructor rejected by linker, even with section GC");
+                Console.WriteLine("PASS: "+fixture.Name+" rejected by linker, even with section GC");
                 continue;
             }
             if (compile.ExitCode != 0) throw new InvalidOperationException(compile.Output + compile.Error);
@@ -138,7 +149,8 @@ internal static class Program
     private static void SelfTest()
     {
         string[] rejected = ["0000 T malloc", "U free", "T operator new(unsigned long)",
-            "T operator delete[](void*)", "t _GLOBAL__sub_I_main", "U __cxa_guard_acquire"];
+            "T operator delete[](void*)", "t _GLOBAL__sub_I_main", "t _GLOBAL__sub_I.00200_main", "t __cxx_global_var_init", "U __cxa_guard_acquire",
+            "U _malloc_r","U _calloc_r","U _realloc_r","U _free_r","U _memalign_r","U _sbrk_r","U aligned_alloc","U memalign","U valloc","U pvalloc"];
         foreach (var symbol in rejected)
             if (Violations(symbol).Length != 1) throw new InvalidOperationException("Missed forbidden symbol: " + symbol);
         if (Violations("T my_malloc_counter\nT free_slots\nT rtos::snapshot()\nT memset").Length != 0)

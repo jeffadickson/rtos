@@ -24,6 +24,10 @@ void report(const char* text){(void)host_call(4,text);}
 }
 [[noreturn]] void fail(const char* message){report("FAIL: ");report(message);report("\n");finish(1);}
 void check(bool condition,const char* message){if(!condition)fail(message);}
+/// Read the actual Cortex-M scheduling mask, not a host critical-depth model.
+uint32_t read_mask(){uint32_t value;asm volatile("mrs %0, basepri":"=r"(value));return value;}
+/// Test-only privileged mask changes; SVC priority zero remains callable.
+void write_mask(uint32_t value){asm volatile("msr basepri, %0\ndsb\nisb"::"r"(value):"memory");}
 void number(uint32_t value){
     char text[12]{};unsigned at=10;
     do{text[--at]=char('0'+value%10);value/=10;}while(value);
@@ -125,6 +129,17 @@ void token_worker(void* tag){
 }
 void coordinator(void*){
     report("ARM stress: real Cortex-M3 kernel, static queues/semaphores/mutexes\n");
+    check(read_mask()==0,"initial thread mask");
+    rtos::StackUsage masked{};
+    write_mask(0x80);
+    check(rtos::stack_usage(threads[0],masked,4)&&read_mask()==0x80,"API restored masked caller");
+    write_mask(0x40);
+    check(rtos::stack_usage(threads[0],masked,4)&&read_mask()==0x40,"API weakened stronger mask");
+    const auto masked_before=rtos::ticks();
+    check(empty.acquire(2)==rtos::Result::timeout&&read_mask()==0x40,"mask restoration across suspension");
+    check(uint32_t(rtos::ticks()-masked_before)>=2,"timer did not progress on peers");
+    write_mask(0);
+    check(read_mask()==0,"test mask unwind");
     // Exercise finite-timeout paths before any producer can supply resources.
     Message unchanged{9,8,7};
     check(timeout_fifo.receive(unchanged,2)==rtos::Result::timeout&&unchanged.value==7,"empty FIFO timeout");
@@ -173,16 +188,23 @@ void coordinator(void*){
     rtos::StackUsage invalid{};invalid.used_bytes=123;
     check(!rtos::stack_usage(unregistered,invalid)&&invalid.used_bytes==123,"unknown stack identity");
     rtos::StackUsage zero{};
-    check(rtos::stack_usage(*rows[0].id,zero,0)&&zero.watermark_enabled&&!zero.complete&&zero.inspected_bytes==0,"zero scan budget");
+    check(rtos::stack_usage(*rows[0].id,zero,0)&&zero.watermark_enabled==bool(RTOS_STACK_WATERMARK)&&!zero.complete&&zero.inspected_bytes==0,"zero scan budget");
     check(rtos::stack_usage(*rows[0].id,zero,3)&&zero.inspected_bytes==0,"subword scan budget");
     for(unsigned i=0;i<10;++i){
         rtos::StackUsage usage{};
         check(rtos::stack_usage(*rows[i].id,usage,rows[i].stack_bytes),"stack observation identity");
-        check(usage.watermark_enabled&&usage.complete&&usage.guard_ok,"stack observation completeness");
+        check(usage.guard_ok&&usage.capacity_bytes==rows[i].stack_bytes,"stack metadata");
+#if RTOS_STACK_WATERMARK
+        check(usage.watermark_enabled&&usage.complete,"stack observation completeness");
         check(usage.used_bytes>=72&&usage.used_bytes+usage.untouched_bytes==usage.capacity_bytes,"stack observation conservation");
+#else
+        check(!usage.watermark_enabled&&!usage.complete&&usage.used_bytes==0&&usage.untouched_bytes==0&&usage.inspected_bytes==0,"disabled stack metadata");
+#endif
         report("STACK: id=");number(i);report(" used=");number(uint32_t(usage.used_bytes));
-        report(" capacity=");number(uint32_t(usage.capacity_bytes));report("\n");
+        report(" capacity=");number(uint32_t(usage.capacity_bytes));report(" enabled=");number(usage.watermark_enabled);report("\n");
     }
+    rtos::StackUsage live{};
+    check(rtos::stack_usage(threads[8],live,4)&&live.inspected_bytes<=4,"live short-budget observation");
     report("PASS: messages=");number(consumed);report(" token_handoffs=");number(2*rounds);
     report(" ticks=");number(info.ticks);report(" cpu_rounds=");number(cpu_rounds);report("\n");
     report("ARM_STRESS_PASS\n");finish(0);
@@ -197,5 +219,12 @@ int main(){
         void* argument=(i==1||i==4)?reinterpret_cast<void*>(uintptr_t(1)):nullptr;
         check(rtos::create(threads[i],entries[i],argument,priorities[i],stacks[i],"stress"),"thread registration");
     }
+    rtos::StackUsage boot{};
+    check(rtos::stack_usage(threads[0],boot,2048)&&boot.capacity_bytes==2048,"boot stack observation");
+#if RTOS_STACK_WATERMARK
+    check(boot.watermark_enabled&&boot.complete&&boot.used_bytes>=72,"boot frame paint");
+#else
+    check(!boot.watermark_enabled&&boot.used_bytes==0,"boot disabled paint");
+#endif
     rtos::start(25000000,1000);
 }

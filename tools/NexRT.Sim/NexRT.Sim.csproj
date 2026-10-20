@@ -4,4 +4,4 @@
   <TreatWarningsAsErrors>true</TreatWarningsAsErrors><GenerateDocumentationFile>true</GenerateDocumentationFile>
   <IsAotCompatible>true</IsAotCompatible><JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
   <DefaultItemExcludes>$(DefaultItemExcludes);**/bin/**;**/obj/**</DefaultItemExcludes>
-</PropertyGroup></Project>
+</PropertyGroup><ItemGroup><Compile Include="../HostProcess.cs" Link="HostProcess.cs" /></ItemGroup></Project>

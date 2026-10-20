@@ -7,6 +7,18 @@
   },
   "configurePresets": [
     {
+      "name": "arm-stress-no-watermark",
+      "inherits": "arm-stress",
+      "binaryDir": "${sourceDir}/build/arm-stress-no-watermark",
+      "cacheVariables": { "RTOS_STACK_WATERMARK": "OFF" }
+    },
+    {
+      "name": "arm-stress-no-guards",
+      "inherits": "arm-stress",
+      "binaryDir": "${sourceDir}/build/arm-stress-no-guards",
+      "cacheVariables": { "RTOS_STACK_GUARD": "OFF" }
+    },
+    {
       "name": "arm-stress",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/arm-stress",
@@ -129,6 +141,8 @@
     }
   ],
   "buildPresets": [
+    { "name": "arm-stress-no-watermark", "configurePreset": "arm-stress-no-watermark" },
+    { "name": "arm-stress-no-guards", "configurePreset": "arm-stress-no-guards" },
     {
       "name": "arm-stress",
       "configurePreset": "arm-stress"

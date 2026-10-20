@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **151**. Catalogue SHA-256: ``2feea584944094177ba007d9e7f1878b0371d2932f5d6d131ea2e43162da5ecc``.
+Reviewed requirements: **153**. Catalogue SHA-256: ``f783de4bc653e583bfc7716625d1a43e1bf267097966aba10660b455038a0b64``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -5293,4 +5293,74 @@ NXR-151 Opt-in bounded stack watermark observations
 
 
 **Review finding:** Watermark scans are separate from ordinary snapshots and dispatch. Paint collisions and unwritten reserved frames remain documented limits; full scans require an explicit interrupt-latency allowance.
+
+NXR-152 Bounded simulation subprocesses and dependency identities
+-----------------------------------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** Verification
+
+
+**Requirement:** Simulation runners shall bound child execution and redirected-output draining, preserve bounded partial diagnostics, and identify verification/runtime dependencies before publishing passing evidence.
+
+
+**Rationale:** A child exit does not close descendant-held pipes and a main-assembly hash does not identify its dependencies.
+
+
+**Acceptance:** Native process fixtures cover exit propagation, timeout, inherited pipes and output cap; UART manifests include managed/native/runtime dependencies and reject changed identities; native-tool fingerprints include shared sources.
+
+
+**Verification:** Native C# process fixtures and actual ARM/UART simulation reruns.
+
+
+**Planned test:** TEST-NXR-152
+
+
+**Dependencies:** NXR-149, NXR-150
+
+
+**Configuration:** Native AOT C# runners with XDoc; one deadline for exit and drains, bounded cleanup and eight-million-character output cap.
+
+
+**Static resource budget:** Host-only bounded capture; no firmware RAM, heap or thread changes.
+
+
+**Review finding:** Panel-050 timeout and dependency-identity findings are addressed in shared orchestration and per-run managed outputs; ignored raw evidence still needs final packaging.
+
+NXR-153 Cross-port initialization and allocator rejection contracts
+-------------------------------------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** Memory
+
+
+**Requirement:** Implemented firmware ports shall reject unsupported initializer, preinitializer and finalizer sections including priority subsections and run positive and negative compiler contracts for their selected ISA.
+
+
+**Rationale:** Silent orphan initializer sections and incomplete symbol patterns undermine constant-initialization policy.
+
+
+**Acceptance:** Both linkers reject array subsection variants despite section GC; native audit recognizes dotted constructor and reentrant allocator names; ARM and RV32 static_contract_check run compiler-negative fixtures.
+
+
+**Verification:** Native C# symbol self-tests and real ARM/RV32 compiler-linker fixtures.
+
+
+**Planned test:** TEST-NXR-153
+
+
+**Dependencies:** NXR-085, NXR-150
+
+
+**Configuration:** Architecture-selected static_contract_check; no default libc or libgloss linking.
+
+
+**Static resource budget:** Host fixtures only; no target heap or runtime constructor machinery.
+
+
+**Review finding:** Panel-050 ARM linker hole is repaired with wildcard retention and explicit assertions; the symbol audit is a complementary known-name check rather than proof against renamed allocators.
 
