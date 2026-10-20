@@ -10,13 +10,16 @@
 using namespace rtos;
 namespace {
 uint32_t seed,random_state,step,action;
+size_t capacity_context;
 Thread caller;
 uint32_t next(){random_state^=random_state<<13;random_state^=random_state>>17;random_state^=random_state<<5;return random_state;}
 void require(bool condition,const char* message){
-    if(!condition){fprintf(stderr,"IPC_RANDOM_FAIL seed=%u step=%u action=%u: %s\n",seed,step,action,message);abort();}
+    if(!condition){fprintf(stderr,"IPC_RANDOM_FAIL seed=%u capacity=%u state=%u step=%u action=%u: %s\n",
+        seed,unsigned(capacity_context),random_state,step,action,message);abort();}
 }
 /// The reference FIFO shifts values; it shares no ring-index logic with Queue.
 template<size_t Capacity> void campaign(){
+    capacity_context=Capacity;
     Queue<uint32_t,Capacity> queue;
     Semaphore semaphore(0,7);EventFlags events;AtomicU32 atomic;
     uint32_t values[Capacity]{},tokens=0,event_bits=0,word=0;

@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **156**. Catalogue SHA-256: ``d69f0a7fd175f91159f27a084ae944fdd9e3d23e274ac9085e5d0578868dc8f5``.
+Reviewed requirements: **157**. Catalogue SHA-256: ``a12b16e0eb756cd75aa3b9a7c728e0205a99740e7427bfe0a07b7421909d0ccf``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -5468,4 +5468,39 @@ NXR-156 Reproducible IPC models and discriminating ARM witnesses
 
 
 **Review finding:** Panel150 test-discrimination findings addressed; host checks are single-CPU models, not SMP or hardware evidence.
+
+NXR-157 Optional host memory analysis and fail-closed symbol audits
+-------------------------------------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** Verification
+
+
+**Requirement:** Native C++ host fixtures shall support optional ASan/UBSan and separate Valgrind Memcheck execution; firmware name audits shall reject empty or stripped symbol evidence and bound compiler/audit subprocesses.
+
+
+**Rationale:** Static analysis and target symbol checks do not expose all host memory defects, while absent symbols cannot support a name-based no-heap claim.
+
+
+**Acceptance:** Separate presets instrument native C++ or add finite Memcheck variants; both reject firmware configurations; stripped compiler fixture and symbol-presence self-tests pass; tool subprocess failures remain failures.
+
+
+**Verification:** Actual sanitizer/Memcheck CTest and ARM/RV32 compiler contracts.
+
+
+**Planned test:** TEST-NXR-157
+
+
+**Dependencies:** NXR-085, NXR-152, NXR-156
+
+
+**Configuration:** CMake native checks and XDoc C# bounded executor; no custom Python tooling.
+
+
+**Static resource budget:** No target heap, RAM fields or runtime instrumentation; host model results do not qualify firmware.
+
+
+**Review finding:** Known-symbol audit remains a limited check against recognizable allocation paths, not proof against arbitrary renamed/custom allocators.
 

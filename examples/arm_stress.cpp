@@ -188,6 +188,8 @@ void coordinator(void*){
     check(initial_low>0xff000000u&&counter_wrapped,"initial counter preload/rollover not witnessed");
 #endif
     check(counter_seen&&!counter_bad,"extended counter lost monotonicity");
+    report("WITNESS: live_hits=");number(live_window_hits);report(" first_elapsed=");number(first_elapsed);
+    report(" initial_low=");number(initial_low);report(" epoch_seen=");number(counter_wrapped);report("\n");
     report("PASS: masked timer catch-up and counter continuity\n");
     check(read_mask()==0,"initial thread mask");
     rtos::StackUsage masked{};

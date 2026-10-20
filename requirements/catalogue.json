@@ -4559,5 +4559,42 @@
       "docs/arm-canaries.rst"
     ],
     "finding": "Panel150 test-discrimination findings addressed; host checks are single-CPU models, not SMP or hardware evidence."
+  },
+  {
+    "id": "NXR-157",
+    "title": "Optional host memory analysis and fail-closed symbol audits",
+    "category": "Verification",
+    "statement": "Native C\u002B\u002B host fixtures shall support optional ASan/UBSan and separate Valgrind Memcheck execution; firmware name audits shall reject empty or stripped symbol evidence and bound compiler/audit subprocesses.",
+    "rationale": "Static analysis and target symbol checks do not expose all host memory defects, while absent symbols cannot support a name-based no-heap claim.",
+    "acceptance": "Separate presets instrument native C\u002B\u002B or add finite Memcheck variants; both reject firmware configurations; stripped compiler fixture and symbol-presence self-tests pass; tool subprocess failures remain failures.",
+    "verification": "Actual sanitizer/Memcheck CTest and ARM/RV32 compiler contracts.",
+    "dependencies": [
+      "NXR-085",
+      "NXR-152",
+      "NXR-156"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "cmake/host-memory.cmake",
+      "cmake/host-tests.cmake",
+      "tools/Rtos.Tools/Program.cs",
+      "tools/HostProcess.cs"
+    ],
+    "verification_files": [
+      "tools/Rtos.Tools/Program.cs",
+      "tests/ipc_random.cpp"
+    ],
+    "planned_test": "TEST-NXR-157",
+    "configuration": "CMake native checks and XDoc C# bounded executor; no custom Python tooling.",
+    "resource_budget": "No target heap, RAM fields or runtime instrumentation; host model results do not qualify firmware.",
+    "review_iteration": 157,
+    "inspected_files": [
+      "cmake/host-memory.cmake",
+      "cmake/host-tests.cmake",
+      "tools/Rtos.Tools/Program.cs",
+      "tools/HostProcess.cs",
+      "docs/host-memory.rst"
+    ],
+    "finding": "Known-symbol audit remains a limited check against recognizable allocation paths, not proof against arbitrary renamed/custom allocators."
   }
 ]

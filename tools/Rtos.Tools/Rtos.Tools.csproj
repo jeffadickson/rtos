@@ -10,4 +10,5 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
+  <ItemGroup><Compile Include="../HostProcess.cs" Link="HostProcess.cs" /></ItemGroup>
 </Project>

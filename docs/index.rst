@@ -19,6 +19,7 @@ worst-case execution time, or hardware validation.
    arm-stress
    arm-canaries
    ipc-stress
+   host-memory
    how-it-works
    getting-started
    architecture

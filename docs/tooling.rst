@@ -6,7 +6,8 @@ policy is recorded in AGENTS.md. Sphinx is the third-party documentation-only
 Python exception, with its minimal docs/conf.py configuration.
 
 The .NET 10 projects are ``tools/Rtos.Tools``, ``tools/NexRT.Requirements``,
-``tools/NexRT.Configure`` and ``tools/NexRT.Workbench``. CMake publishes native executables by default and
+``tools/NexRT.Configure``, ``tools/NexRT.Workbench``, ``tools/NexRT.ArmSim``
+and ``tools/NexRT.Sim``. CMake publishes native executables by default and
 emits XDoc XML beside each executable. Compiler, AOT and linker warnings are
 errors. The .NET SDK is needed to build the tools; the native executables run
 without the .NET runtime. SDK and platform prerequisites must be installed.
@@ -32,7 +33,8 @@ static-contract command compiles positive and negative firmware fixtures for
 constant initialization, constructor rejection and allocator rejection.
 The self-test checks symbol boundaries, paths with spaces and option errors.
 Processes use argument lists without shell interpolation, with both output
-streams drained.
+streams drained. Firmware audit/compiler invocations and simulation runners
+share bounded capture; see :doc:`host-memory` and :doc:`arm-stress`.
 
 The configurator generates deterministic CMake initial caches from
 ``config/system.json``. Its tests check capacities, topology, readiness and

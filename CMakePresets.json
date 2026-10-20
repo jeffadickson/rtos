@@ -7,6 +7,18 @@
   },
   "configurePresets": [
     {
+      "name": "host-asan",
+      "inherits": "host",
+      "binaryDir": "${sourceDir}/build/host-asan",
+      "cacheVariables": { "RTOS_HOST_SANITIZERS": "ON", "CMAKE_CXX_COMPILER": "clang++" }
+    },
+    {
+      "name": "host-valgrind",
+      "inherits": "host",
+      "binaryDir": "${sourceDir}/build/host-valgrind",
+      "cacheVariables": { "RTOS_HOST_VALGRIND": "ON" }
+    },
+    {
       "name": "arm-stress-wrap",
       "inherits": "arm-stress",
       "binaryDir": "${sourceDir}/build/arm-stress-wrap",
@@ -154,6 +166,8 @@
     }
   ],
   "buildPresets": [
+    { "name": "host-asan", "configurePreset": "host-asan" },
+    { "name": "host-valgrind", "configurePreset": "host-valgrind" },
     { "name": "arm-stress-wrap", "configurePreset": "arm-stress-wrap" },
     { "name": "arm-stress-fast", "configurePreset": "arm-stress-fast" },
     { "name": "arm-stress-no-watermark", "configurePreset": "arm-stress-no-watermark" },
@@ -196,6 +210,8 @@
     }
   ],
   "testPresets": [
+    { "name": "host-asan", "configurePreset": "host-asan", "output": { "outputOnFailure": true } },
+    { "name": "host-valgrind", "configurePreset": "host-valgrind", "filter": { "include": { "label": "memcheck" } }, "output": { "outputOnFailure": true } },
     {
       "name": "host",
       "configurePreset": "host",

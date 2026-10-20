@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using NexRT.Host;
 
 namespace Rtos.Tools;
 
@@ -72,21 +73,25 @@ internal static class Program
             CreateNoWindow = true
         };
         foreach (var argument in arguments) start.ArgumentList.Add(argument);
-        using var process = Process.Start(start) ?? throw new InvalidOperationException($"Could not start {executable}.");
-        var output = process.StandardOutput.ReadToEndAsync();
-        var error = process.StandardError.ReadToEndAsync();
-        await process.WaitForExitAsync();
-        return new Result(process.ExitCode, await output, await error);
+        var result=await HostProcess.Run(start,TimeSpan.FromSeconds(120));
+        if(result.TimedOut||result.OutputLimit||result.IoError is not null)
+            throw new IOException($"Tool execution/capture failed: {executable}\n{result.Output}");
+        return new Result(result.ExitCode,result.Output,"");
     }
 
     /// <summary>Finds known heap and dynamic-initialization symbols in demangled nm output.</summary>
     private static string[] Violations(string symbols) => symbols.Split('\n').Where(line => Forbidden.IsMatch(line)).ToArray();
+
+    /// <summary>Requires a defined symbol; stripped/empty listings cannot support the name audit.</summary>
+    private static bool HasDefinedSymbols(string symbols)=>Regex.IsMatch(symbols,
+        @"(?m)^[ \t]*[0-9a-fA-F]+[ \t]+[A-Za-z][ \t]+\S",RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
 
     /// <summary>Checks an image and preserves failures from nm rather than treating empty output as a pass.</summary>
     private static async Task<int> Audit(string nm, string elf)
     {
         var result = await Run(nm, ["-C", elf]);
         if (result.ExitCode != 0) throw new InvalidOperationException($"nm failed ({result.ExitCode}): {result.Error}");
+        if(!HasDefinedSymbols(result.Output))throw new IOException("Static-only audit requires an unstripped image with defined symbols");
         var bad = Violations(result.Output);
         if (bad.Length != 0)
         {
@@ -112,6 +117,7 @@ internal static class Program
         const string entry="extern \"C\" void _start() { for (;;) asm volatile(\"\" ::: \"memory\"); }";
         (string Name,string Source,string? Rejection)[] fixtures = [
             ("constant", "int value=3; "+entry,null),
+            ("stripped",entry,null),
             ("constructor", "volatile int input; int read() { return input; } int value=read(); "+entry,"Runtime C++ constructors are unsupported"),
             ("priority-constructor","volatile int input; struct Object{Object(){input=7;}}; Object object __attribute__((init_priority(200))); "+entry,"Runtime C++ constructors are unsupported"),
             ("priority-init-section","void init(){}; __attribute__((used,section(\".init_array.00200\"))) void(*hook)()=init; "+entry,"Runtime C++ constructors are unsupported"),
@@ -125,7 +131,7 @@ internal static class Program
             var source = Path.Combine(directory, fixture.Name + ".cpp");
             var elf = Path.Combine(directory, fixture.Name + ".elf");
             await File.WriteAllTextAsync(source,arm?fixture.Source.Replace("_start","Reset_Handler",StringComparison.Ordinal):fixture.Source);
-            var compile = await Run(cxx, flags.Concat([source, "-o", elf]));
+            var compile = await Run(cxx, flags.Concat(fixture.Name=="stripped"?["-s",source,"-o",elf]:[source,"-o",elf]));
             if (fixture.Rejection is not null)
             {
                 if (compile.ExitCode == 0 || !(compile.Output+compile.Error).Contains(fixture.Rejection, StringComparison.Ordinal))
@@ -136,6 +142,11 @@ internal static class Program
             if (compile.ExitCode != 0) throw new InvalidOperationException(compile.Output + compile.Error);
             var symbols = await Run(nm, ["-C", elf]);
             if (symbols.ExitCode != 0) throw new InvalidOperationException("nm failed: " + symbols.Error);
+            if(fixture.Name=="stripped"){
+                if(HasDefinedSymbols(symbols.Output))throw new IOException("Stripped fixture retained defined symbols");
+                Console.WriteLine("PASS: stripped image rejected as unauditable");continue;
+            }
+            if(!HasDefinedSymbols(symbols.Output))throw new IOException("Compiler fixture produced no defined symbols");
             var bad = Violations(symbols.Output);
             if (fixture.Name == "constant" && bad.Length != 0)
                 throw new InvalidOperationException("Constant initialization unexpectedly rejected.");
@@ -148,6 +159,9 @@ internal static class Program
     /// <summary>Checks audit boundary cases and command parsing without external dependencies.</summary>
     private static void SelfTest()
     {
+        if(HasDefinedSymbols("")||HasDefinedSymbols(" U memcpy\n U memset")||
+           !HasDefinedSymbols("00000000 T Reset_Handler\n00000100 b storage"))
+            throw new IOException("Defined-symbol presence boundary failed");
         string[] rejected = ["0000 T malloc", "U free", "T operator new(unsigned long)",
             "T operator delete[](void*)", "t _GLOBAL__sub_I_main", "t _GLOBAL__sub_I.00200_main", "t __cxx_global_var_init", "U __cxa_guard_acquire",
             "U _malloc_r","U _calloc_r","U _realloc_r","U _free_r","U _memalign_r","U _sbrk_r","U aligned_alloc","U memalign","U valloc","U pvalloc"];

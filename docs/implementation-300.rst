@@ -223,3 +223,57 @@ Passes 151-200: discriminating witnesses and IPC campaigns
 198. Regenerate source-traced requirements views.
 199. Inspect diffs before building.
 200. Build, validate and commit, then request the panel review.
+
+Passes 201-250: host memory analysis and audit boundaries
+--------------------------------------------------------------------------------
+
+201. Close panel200 with no new correctness defects.
+202. Preserve full-suite transcripts separately from focused reruns.
+203. Include capacity and PRNG state in random failure diagnostics.
+204. Emit numerical ARM witness values.
+205. Record panel decisions and deferred coverage.
+206. Bound audit/compiler subprocess execution and drains.
+207. Preserve literal argument-list invocation.
+208. Reject timeout, capture errors and output overflow.
+209. Fingerprint shared audit-tool process sources.
+210. Link shared tooling with XDoc.
+211. Reject empty nm listings.
+212. Reject undefined-only symbol listings.
+213. Compile a stripped-image rejection fixture.
+214. Retain a constant-initialization positive fixture.
+215. Check defined-symbol presence boundaries.
+216. Add optional ASan/UBSan host instrumentation.
+217. Restrict sanitizer compiler/platform configuration.
+218. Retain frame pointers for diagnostics.
+219. Make sanitizer findings nonrecovering.
+220. Reject firmware instrumentation through host options.
+221. Add native C++ Memcheck variants.
+222. Fail on memory errors and relevant leak kinds.
+223. Separate sanitizer and Valgrind build directories.
+224. Support relocated Valgrind support files.
+225. Add repeatable memory-check presets.
+226. Add every fixed IPC seed to Memcheck.
+227. Bound native fixture execution.
+228. Exclude C# runtimes from native C++ Memcheck variants.
+229. Document host/target evidence distinctions.
+230. Add a source-traced memory-analysis requirement.
+231. Cover memory primitives with memory tooling.
+232. Cover scheduler and static-storage fixtures.
+233. Cover semaphore and event fixtures.
+234. Cover queues and atomic operations.
+235. Cover mutex inheritance.
+236. Cover queued logging.
+237. Cover timeout and wrap boundaries.
+238. Cover public APIs and stack observation.
+239. Cover seeded IPC and waiter ordering.
+240. Inspect diagnostic RAM costs and ordinary-build exclusions.
+241. Inspect analyzer opt-in behavior.
+242. Inspect sanitizer/Valgrind isolation.
+243. Inspect symbol-presence checks before forbidden-name checks.
+244. Inspect diagnostic preservation on compiler failure.
+245. Inspect native shared-source fingerprinting.
+246. Update tooling and memory-analysis chapters.
+247. Update this numbered work ledger.
+248. Regenerate requirements views.
+249. Inspect source diffs before building.
+250. Build, validate memory checks/contracts, commit and request panel review.

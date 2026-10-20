@@ -1,4 +1,16 @@
 # Host-only verification. Firmware consumers do not depend on these model libraries.
+function(rtos_memcheck target name)
+  if(RTOS_HOST_VALGRIND)
+    add_test(NAME memcheck_${name} COMMAND ${NXR_VALGRIND_EXECUTABLE}
+      --tool=memcheck --error-exitcode=99 --leak-check=full --show-leak-kinds=all
+      --errors-for-leak-kinds=definite,indirect,possible --track-origins=yes
+      $<TARGET_FILE:${target}> ${ARGN})
+    set_tests_properties(memcheck_${name} PROPERTIES TIMEOUT 120 LABELS memcheck)
+    if(NXR_VALGRIND_LIB)
+      set_tests_properties(memcheck_${name} PROPERTIES ENVIRONMENT "VALGRIND_LIB=${NXR_VALGRIND_LIB}")
+    endif()
+  endif()
+endfunction()
 function(rtos_host_warnings target)
   if(MSVC)
     target_compile_options(${target} PRIVATE /W4 /WX /UNDEBUG)
@@ -25,6 +37,8 @@ function(rtos_host_test target)
   endif()
   rtos_host_warnings(${target})
   add_test(NAME ${T_NAME} COMMAND ${target})
+  set_tests_properties(${T_NAME} PROPERTIES TIMEOUT 120)
+  rtos_memcheck(${target} ${T_NAME})
 endfunction()
 
 # Build the shared synchronization model once, instead of recompiling it per fixture.
@@ -65,5 +79,7 @@ rtos_host_test(stack_watermark_test NAME stack_watermark SOURCES tests/stack_wat
 rtos_host_test(ipc_random_test NAME ipc_random_seed_1 SYNC SOURCES tests/ipc_random.cpp LIBRARIES rtos_sync_model)
 foreach(seed IN ITEMS 42 3735928559 4294967295)
   add_test(NAME ipc_random_seed_${seed} COMMAND ipc_random_test ${seed})
+  set_tests_properties(ipc_random_seed_${seed} PROPERTIES TIMEOUT 120)
+  rtos_memcheck(ipc_random_test ipc_random_seed_${seed} ${seed})
 endforeach()
 rtos_host_test(ipc_wait_order_test NAME ipc_wait_order SYNC SOURCES tests/ipc_wait_order.cpp LIBRARIES rtos_sync_model)

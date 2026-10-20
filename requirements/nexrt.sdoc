@@ -2031,3 +2031,16 @@ Static budget: No heap or TCB growth in ordinary firmware; stress-only observer 
 Dependencies: NXR-154, NXR-155
 <<<
 
+[REQUIREMENT]
+UID: NXR-157
+STATUS: PartialSourceUnverified
+TITLE: Optional host memory analysis and fail-closed symbol audits
+STATEMENT: >>>
+Native C++ host fixtures shall support optional ASan/UBSan and separate Valgrind Memcheck execution; firmware name audits shall reject empty or stripped symbol evidence and bound compiler/audit subprocesses.
+Acceptance: Separate presets instrument native C++ or add finite Memcheck variants; both reject firmware configurations; stripped compiler fixture and symbol-presence self-tests pass; tool subprocess failures remain failures.
+Verification: Actual sanitizer/Memcheck CTest and ARM/RV32 compiler contracts.
+Configuration: CMake native checks and XDoc C# bounded executor; no custom Python tooling.
+Static budget: No target heap, RAM fields or runtime instrumentation; host model results do not qualify firmware.
+Dependencies: NXR-085, NXR-152, NXR-156
+<<<
+
