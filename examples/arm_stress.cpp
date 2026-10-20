@@ -6,6 +6,10 @@
 extern "C" uint32_t rtos_arm_callee_canary(uint32_t inject);
 extern "C" uint32_t rtos_arm_irq_canary(uint32_t inject);
 extern "C" uint32_t rtos_arm_padding_canary();
+extern "C" char rtos_arm_irq_live_begin[],rtos_arm_irq_live_end[];
+#if !RTOS_ARM_STRESS_WITNESS
+#error "ARM stress requires validation witnesses; ordinary applications leave them disabled"
+#endif
 /// Called only with an aligned stack by the assembly callee-saved harness.
 extern "C" void rtos_arm_canary_park(){(void)rtos::sleep_for(2);}
 #ifndef RTOS_STRESS_ROUNDS
@@ -48,12 +52,19 @@ static rtos::Stack<2048> stacks[9];
 static rtos::Queue<Message,RTOS_STRESS_QUEUE_CAPACITY> fifo;
 static rtos::Queue<Message,2> timeout_fifo;
 static rtos::Semaphore owner_go(0,1),high_go(0,1),medium_go(0,1);
+static rtos::Semaphore masked_waiter_go(0,1);
 static rtos::Semaphore ping(1,1),pong(0,1),empty(0,1);
 static rtos::EventFlags phase,completed;
 static rtos::Mutex inheritance,counts;
 static rtos::AtomicU32 inherited,inheritance_done,stop_cpu;
 static uint32_t shared{},produced{},consumed{},cpu_rounds{};
 constexpr uint32_t begin_stress=1,owner_locked=2,high_done=4;
+constexpr uint32_t masked_waiter_ready=128,masked_waiter_done=256;
+// ISR-only writes, thread observations; no thread waits or kernel calls in hooks.
+static volatile uint32_t live_window_hits{},first_elapsed{};
+static volatile bool catchup_pending{},counter_seen{},counter_bad{},counter_wrapped{};
+static volatile uint32_t initial_low{};
+static uint64_t previous_counter{}; // Accessed only by serialized time_now callbacks.
 
 /// Lowest-priority owner must inherit the blocked high-priority waiter's priority.
 void low_owner(void*){
@@ -68,6 +79,10 @@ void low_owner(void*){
     check(inheritance.unlock()==rtos::Result::ok,"owner unlock");
 }
 void high_waiter(void*){
+    check(masked_waiter_go.acquire(1000)==rtos::Result::ok,"masked waiter start");
+    check(phase.set(masked_waiter_ready)==rtos::Result::ok,"masked waiter ready");
+    check(empty.acquire(3)==rtos::Result::timeout,"masked waiter expiry");
+    check(phase.set(masked_waiter_done)==rtos::Result::ok,"masked waiter completion");
     check(high_go.acquire(1000)==rtos::Result::ok,"high start");
     check(inheritance.lock(100)==rtos::Result::ok,"priority inversion timeout");
     ++shared;
@@ -140,27 +155,39 @@ void coordinator(void*){
     check(rtos_arm_callee_canary(0)==1,"callee-saved register canary");
     check(rtos_arm_callee_canary(1)==0,"callee canary negative probe");
     check(rtos_arm_irq_canary(1)==0,"IRQ canary negative probe");
+    check(rtos_arm_irq_canary(2)==0,"NZCV negative probe");
+    live_window_hits=0; // Only the positive call may satisfy its live-window witness.
     const auto canary_before=rtos::ticks();
     check(rtos_arm_irq_canary(0)==1,"interrupt register/NZCV canary");
     check(rtos::ticks()!=canary_before,"IRQ canary did not span a tick");
+    check(live_window_hits>0,"no IRQ inside live register window");
     check(rtos_arm_padding_canary()==1,"PSP alignment padding");
     report("PASS: register canaries, negative probes, PSP alignment padding\n");
     // CMSDK counter progresses even while BASEPRI masks SysTick. Five complete
     // periods must be accounted on the next tick, rather than one pending bit.
     const uint32_t period=25000000u/RTOS_TICK_HZ;
-    const auto catchup_before=rtos::ticks();
+    uint32_t ready_bits=0;
+    check(masked_waiter_go.release()==rtos::Result::ok,"masked waiter release");
+    check(phase.wait_any(masked_waiter_ready,ready_bits,100)==rtos::Result::ok,"masked waiter enrollment");
+    check(rtos::sleep_for(1)&&empty.snapshot().waiters==1,"masked waiter did not block");
     write_mask(0x80);
+    const auto catchup_before=rtos::ticks();
     const auto* timer=reinterpret_cast<volatile uint32_t*>(0x40000004);
     const uint32_t counter_before=*timer;
     while(uint32_t(counter_before-*timer)<period*5u)asm volatile("nop");
     check(rtos::ticks()==catchup_before,"masked timer tick delivered");
+    first_elapsed=0;catchup_pending=true;
     write_mask(0);
-    while(uint32_t(rtos::ticks()-catchup_before)<5u){
+    while(catchup_pending){
         check(uint32_t(counter_before-*timer)<period*20u,"timer catch-up deadline");
     }
+    check(first_elapsed>=5,"first handler did not account missed periods");
+    check(empty.snapshot().waiters==0,"catch-up did not expire blocked peer");
+    check(phase.wait_any(masked_waiter_done,ready_bits,100)==rtos::Result::ok,"expired peer did not resume");
 #if RTOS_ARM_TIMER_INITIAL < 1000000
-    check(*timer>1000000u,"initial timer rollover not crossed");
+    check(initial_low>0xff000000u&&counter_wrapped,"initial counter preload/rollover not witnessed");
 #endif
+    check(counter_seen&&!counter_bad,"extended counter lost monotonicity");
     report("PASS: masked timer catch-up and counter continuity\n");
     check(read_mask()==0,"initial thread mask");
     rtos::StackUsage masked{};
@@ -242,6 +269,20 @@ void coordinator(void*){
     report(" ticks=");number(info.ticks);report(" cpu_rounds=");number(cpu_rounds);report("\n");
     report("ARM_STRESS_PASS\n");finish(0);
 }
+}
+/// Stress-only observer: frame slot16 is stacked PC after the software prefix.
+extern "C" void rtos_arm_stress_tick(const uint32_t* frame,uint64_t elapsed){
+    const auto pc=uintptr_t(frame[16]);
+    if(pc>=reinterpret_cast<uintptr_t>(rtos_arm_irq_live_begin)&&
+       pc<reinterpret_cast<uintptr_t>(rtos_arm_irq_live_end))++live_window_hits;
+    if(catchup_pending){first_elapsed=uint32_t(elapsed);catchup_pending=false;}
+}
+/// Serialized timer observation validates preload, extension and monotonicity.
+extern "C" void rtos_arm_stress_counter(uint64_t extended,uint32_t low){
+    if(!counter_seen){initial_low=low;counter_seen=true;}
+    else if(extended<previous_counter)counter_bad=true;
+    if(extended>>32)counter_wrapped=true;
+    previous_counter=extended;
 }
 /// All unexpected exceptions terminate the simulator with a distinct failure.
 extern "C" [[noreturn]] void rtos_arm_fault(){fail("unexpected ARM exception/main return");}

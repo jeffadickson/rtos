@@ -75,15 +75,27 @@ rtos_arm_irq_canary:
  ldr r12,=0x1c1c1c1c
  ldr lr,=0xeeeeeeee
  ldr r0,[sp,#60]
- cbz r0,.Lirq_flags
+ cmp r0,#1
+ bne .Lirq_flags
  eor r7,r7,#1               /* Negative probe must fail comparison. */
 .Lirq_flags:
+ cmp r0,#2
+ beq .Lirq_bad_flags
  movs r0,#0
  subs r0,r0,#1              /* Expected NZCV=1000; no C calls until snapshot. */
+ b .Lirq_ready
+.Lirq_bad_flags:
+ movs r0,#0
+ adds r0,r0,#1              /* NZCV=0000; independent flags-negative probe. */
+.Lirq_ready:
  ldr r0,=0x10101010          /* Non-flag-setting reload of the canary. */
+.global rtos_arm_irq_live_begin
+rtos_arm_irq_live_begin:
  .rept 64
  nop
  .endr
+.global rtos_arm_irq_live_end
+rtos_arm_irq_live_end:
  stmia sp,{r0-r12,lr}       /* Does not change flags; snapshot all 14 canaries. */
  mrs r0,apsr
  str r0,[sp,#56]

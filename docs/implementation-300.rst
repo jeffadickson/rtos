@@ -169,3 +169,57 @@ Passes 101-150: register, timer and process boundaries
 148. Regenerate requirements and StrictDoc-format views.
 149. Inspect diffs and no-heap boundaries.
 150. Build, validate and commit, then request independent panel review.
+
+Passes 151-200: discriminating witnesses and IPC campaigns
+--------------------------------------------------------------------------------
+
+151. Accept catch-up discrimination and masking-baseline findings.
+152. Sample the baseline only after masking.
+153. Observe the first handler's elapsed count.
+154. Require bulk accounting rather than repeated single ticks.
+155. Add an optional interrupted-PC witness.
+156. Require interruption in the live register window.
+157. Inject an independent NZCV mismatch.
+158. Observe the initial near-wrap counter word.
+159. Check monotonic extended time and an observed epoch.
+160. Default witness storage and calls OFF outside stress presets.
+161. Add a peer blocked before the masked interval.
+162. Check catch-up removes its wait enrollment.
+163. Check its resumed result is timeout.
+164. Add reproducible fixed-seed IPC stress.
+165. Add a shifting-array FIFO oracle.
+166. Exercise capacities one, three and eight.
+167. Check FIFO order and empty-output preservation.
+168. Add token conservation as an independent scalar oracle.
+169. Check semaphore maximum overflow.
+170. Add sticky-event reference state.
+171. Check any/all waits and consumption.
+172. Check atomic fetch and exchange prior values.
+173. Check successful compare/exchange.
+174. Check mismatch updates expected without changing the word.
+175. Exercise ISR/thread context boundaries.
+176. Report seed, step and action on randomized failures.
+177. Add four seeds to CTest.
+178. Enroll three waiters in all permutations.
+179. Predict priority/FIFO grant order independently.
+180. Change a blocked waiter's priority before granting.
+181. Cross tick wrap in waiter deadlines.
+182. Require payload pointer detachment on timeout.
+183. Supply late tokens/messages after expiry.
+184. Cover all 27 priority assignments.
+185. Cover all six enrollment orders.
+186. Combine timeout and priority-change variants.
+187. Check critical balance after every campaign.
+188. Document host-model verification limits.
+189. Document stronger ARM observers and catch-up checks.
+190. Record panel repairs in requirements and review notes.
+191. Inspect reference-state storage and heap boundaries.
+192. Make kernel mask comments portable across both ports.
+193. Document atomic load/store serialization.
+194. Document exchange/bit-operation return values.
+195. Inspect ordinary-build exclusion of witnesses.
+196. Inspect timeout and unchanged-output assertions.
+197. Inspect finite campaign bounds and repeatability.
+198. Regenerate source-traced requirements views.
+199. Inspect diffs before building.
+200. Build, validate and commit, then request the panel review.

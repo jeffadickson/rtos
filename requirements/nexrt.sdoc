@@ -2018,3 +2018,16 @@ Static budget: No dynamic firmware storage; variant queue capacity fixed at comp
 Dependencies: NXR-150
 <<<
 
+[REQUIREMENT]
+UID: NXR-156
+STATUS: PartialSourceUnverified
+TITLE: Reproducible IPC models and discriminating ARM witnesses
+STATEMENT: >>>
+IPC verification shall include reproducible reference-state campaigns, exhaustive three-waiter ordering variants, and ARM witnesses that distinguish first-handler catch-up and live-window interruption.
+Acceptance: Four seeds cover 600000 operations at three capacities;1296 waiter campaigns cover priorities, ties, expiry and changes; ARM records live-window PC, first elapsed count, preload and extended-time continuity.
+Verification: Host CTest and actual ARM QEMU campaigns with retained logs.
+Configuration: Fixed-capacity host oracles; optional ARM stress witness hooks default off outside stress presets.
+Static budget: No heap or TCB growth in ordinary firmware; stress-only observer state documented.
+Dependencies: NXR-154, NXR-155
+<<<
+

@@ -37,6 +37,7 @@
       "toolchainFile": "${sourceDir}/cmake/arm-mps2-toolchain.cmake",
       "cacheVariables": {
         "RTOS_TARGET_ID": "qemu-mps2-m3",
+        "RTOS_ARM_STRESS_WITNESS": "ON",
         "RTOS_STACK_WATERMARK": "ON",
         "RTOS_APPLICATION": "examples/arm_stress.cpp",
         "CMAKE_BUILD_TYPE": "MinSizeRel",

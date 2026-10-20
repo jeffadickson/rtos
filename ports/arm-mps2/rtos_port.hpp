@@ -11,6 +11,9 @@
 #endif
 static_assert(RTOS_ARM_TIMER_INITIAL>0 && RTOS_ARM_TIMER_INITIAL<=UINT32_MAX);
 extern "C" uint32_t arm_vectors[];
+#if RTOS_ARM_STRESS_WITNESS
+extern "C" void rtos_arm_stress_counter(uint64_t extended,uint32_t low);
+#endif
 namespace rtos::port {
 using InterruptState=uint32_t;
 /// Save BASEPRI and mask priority 0x80 and below, preserving a stricter mask.
@@ -34,6 +37,9 @@ inline uint64_t time_now(){
     const uint32_t low=UINT32_MAX-*reinterpret_cast<volatile uint32_t*>(0x40000004);
     if(low<last_counter)counter_epoch+=uint64_t(1)<<32;
     last_counter=low;
+#if RTOS_ARM_STRESS_WITNESS
+    rtos_arm_stress_counter(counter_epoch|low,low);
+#endif
     return counter_epoch|low;
 }
 /// Rearm SysTick to the absolute deadline, including catch-up after late delivery.

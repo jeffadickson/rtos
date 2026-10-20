@@ -4519,5 +4519,45 @@
       "docs/arm-canaries.rst"
     ],
     "finding": "Counter extension still requires serialized reads more often than a full 32-bit period; no hardware timing guarantee."
+  },
+  {
+    "id": "NXR-156",
+    "title": "Reproducible IPC models and discriminating ARM witnesses",
+    "category": "Verification",
+    "statement": "IPC verification shall include reproducible reference-state campaigns, exhaustive three-waiter ordering variants, and ARM witnesses that distinguish first-handler catch-up and live-window interruption.",
+    "rationale": "A passing throughput test may miss order, detachment or interrupt-window failures; weak catch-up tests can pass single-tick accounting.",
+    "acceptance": "Four seeds cover 600000 operations at three capacities;1296 waiter campaigns cover priorities, ties, expiry and changes; ARM records live-window PC, first elapsed count, preload and extended-time continuity.",
+    "verification": "Host CTest and actual ARM QEMU campaigns with retained logs.",
+    "dependencies": [
+      "NXR-154",
+      "NXR-155"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "tests/ipc_random.cpp",
+      "tests/ipc_wait_order.cpp",
+      "examples/arm_stress.cpp",
+      "ports/arm-mps2/canaries.S",
+      "src/kernel.cpp"
+    ],
+    "verification_files": [
+      "tests/ipc_random.cpp",
+      "tests/ipc_wait_order.cpp",
+      "examples/arm_stress.cpp"
+    ],
+    "planned_test": "TEST-NXR-156",
+    "configuration": "Fixed-capacity host oracles; optional ARM stress witness hooks default off outside stress presets.",
+    "resource_budget": "No heap or TCB growth in ordinary firmware; stress-only observer state documented.",
+    "review_iteration": 156,
+    "inspected_files": [
+      "tests/ipc_random.cpp",
+      "tests/ipc_wait_order.cpp",
+      "examples/arm_stress.cpp",
+      "ports/arm-mps2/canaries.S",
+      "src/kernel.cpp",
+      "docs/ipc-stress.rst",
+      "docs/arm-canaries.rst"
+    ],
+    "finding": "Panel150 test-discrimination findings addressed; host checks are single-CPU models, not SMP or hardware evidence."
   }
 ]

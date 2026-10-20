@@ -103,7 +103,8 @@ bool create(Thread& t, Entry e, void* arg, uint8_t priority, void* stack, size_t
 void yield() { if (running) port::reschedule(); }
 bool sleep_for(Tick delay) {
     if (!running || delay > 0x7fffffffu) return false;
-    // The saved context may retain MIE=0; this lock restores prior MIE after resume.
+    // A suspended context retains its port mask; restore the caller's prior mask
+    // after resume (RISC-V MIE or Cortex-M BASEPRI).
     Lock lock;
     if (delay) { current->wake=scheduler.now+delay; current->state=State::sleeping; }
     yield();
@@ -175,8 +176,13 @@ bool stack_usage(const Thread& thread,StackUsage& output,size_t budget_bytes){
     output=result;return true;
 }
 }
+#if defined(RTOS_ARM_STRESS_WITNESS) && RTOS_ARM_STRESS_WITNESS
+/// Validation hook runs only after assembly has saved the full integer context.
+extern "C" void rtos_arm_stress_tick(const uint32_t* frame,uint64_t elapsed);
+#endif
 extern "C" uint32_t* rtos_trap(uint32_t* frame, uint32_t cause) {
-    // Called only by context.S after all integer state is saved and MIE is clear.
+    // Called only by context.S after integer state is saved and the port has
+    // serialized scheduling interrupts (RISC-V MIE or Cortex-M BASEPRI).
     // Return a selected frame pointer; assembly changes sp after this call unwinds.
 #if RTOS_SYNC
     handling_interrupt=true;
@@ -191,6 +197,9 @@ extern "C" uint32_t* rtos_trap(uint32_t* frame, uint32_t cause) {
         const auto elapsed=rtos::detail::elapsed_ticks(now,deadline,period);
         // Fail closed if masking exceeded the wrap-safe sleep comparison horizon.
         if (elapsed > 0x7fffffffu) stop();
+#if defined(RTOS_ARM_STRESS_WITNESS) && RTOS_ARM_STRESS_WITNESS
+        rtos_arm_stress_tick(frame,elapsed);
+#endif
         deadline+=elapsed*period; scheduler.advance(static_cast<rtos::Tick>(elapsed));
         arm();
     } else stop();

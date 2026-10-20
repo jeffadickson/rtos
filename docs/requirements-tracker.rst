@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **155**. Catalogue SHA-256: ``a1b20aa563c24a7b684e3adcfa18a6459c6e6bd91241fdb49ee840f7f1f55dde``.
+Reviewed requirements: **156**. Catalogue SHA-256: ``d69f0a7fd175f91159f27a084ae944fdd9e3d23e274ac9085e5d0578868dc8f5``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -5433,4 +5433,39 @@ NXR-155 ARM timer catch-up and rollover variants
 
 
 **Review finding:** Counter extension still requires serialized reads more often than a full 32-bit period; no hardware timing guarantee.
+
+NXR-156 Reproducible IPC models and discriminating ARM witnesses
+----------------------------------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** Verification
+
+
+**Requirement:** IPC verification shall include reproducible reference-state campaigns, exhaustive three-waiter ordering variants, and ARM witnesses that distinguish first-handler catch-up and live-window interruption.
+
+
+**Rationale:** A passing throughput test may miss order, detachment or interrupt-window failures; weak catch-up tests can pass single-tick accounting.
+
+
+**Acceptance:** Four seeds cover 600000 operations at three capacities;1296 waiter campaigns cover priorities, ties, expiry and changes; ARM records live-window PC, first elapsed count, preload and extended-time continuity.
+
+
+**Verification:** Host CTest and actual ARM QEMU campaigns with retained logs.
+
+
+**Planned test:** TEST-NXR-156
+
+
+**Dependencies:** NXR-154, NXR-155
+
+
+**Configuration:** Fixed-capacity host oracles; optional ARM stress witness hooks default off outside stress presets.
+
+
+**Static resource budget:** No heap or TCB growth in ordinary firmware; stress-only observer state documented.
+
+
+**Review finding:** Panel150 test-discrimination findings addressed; host checks are single-CPU models, not SMP or hardware evidence.
 

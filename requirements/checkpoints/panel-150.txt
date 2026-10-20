@@ -1,0 +1,20 @@
+Panel after checkpoint150 (d7669a1)
+=================================
+Independent automated kernel, port and assurance reviewers; read-only inspection.
+No production kernel defect was found. All nine retained ARM runs passed.
+Assurance closed synchronous-forwarding finding and accepted its regression.
+
+Accepted validation defects:
+- Sampling ticks before masking permits a legitimate-tick false failure.
+- Five tick advances within twenty periods does not prove bulk accounting in
+  the first timer handler; repeated single-tick deliveries could satisfy it.
+Repairs: mask before baselines, record first handler elapsed count through a
+stress-only hook and require at least five. Also expire an already blocked peer.
+
+Accepted coverage gaps:
+- Require a stacked PC inside the live register/NZCV window.
+- Add independent NZCV-negative injection.
+- Observe initial near-wrap low word and monotonic extended-time epoch.
+All witness calls/storage are optional and disabled in ordinary target builds.
+
+Next: reproducible IPC state machines and priority/FIFO wait ordering.

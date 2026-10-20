@@ -62,3 +62,8 @@ rtos_host_test(sync_edges_test NAME synchronization_edges SYNC SOURCES tests/syn
 rtos_host_test(sync_deadlines_test NAME synchronization_deadlines SYNC SOURCES tests/sync_deadlines.cpp LIBRARIES rtos_sync_model)
 rtos_host_test(public_api_test NAME ipc_public_api SYNC SOURCES tests/public_api.cpp LIBRARIES rtos_sync_model)
 rtos_host_test(stack_watermark_test NAME stack_watermark SOURCES tests/stack_watermark.cpp)
+rtos_host_test(ipc_random_test NAME ipc_random_seed_1 SYNC SOURCES tests/ipc_random.cpp LIBRARIES rtos_sync_model)
+foreach(seed IN ITEMS 42 3735928559 4294967295)
+  add_test(NAME ipc_random_seed_${seed} COMMAND ipc_random_test ${seed})
+endforeach()
+rtos_host_test(ipc_wait_order_test NAME ipc_wait_order SYNC SOURCES tests/ipc_wait_order.cpp LIBRARIES rtos_sync_model)

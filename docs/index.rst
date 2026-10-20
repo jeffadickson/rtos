@@ -18,6 +18,7 @@ worst-case execution time, or hardware validation.
    uart-demo
    arm-stress
    arm-canaries
+   ipc-stress
    how-it-works
    getting-started
    architecture

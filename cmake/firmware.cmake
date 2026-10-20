@@ -12,6 +12,8 @@
     target_compile_definitions(rtos_options INTERFACE RTOS_ARM_TIMER_INITIAL=${RTOS_ARM_TIMER_INITIAL}u)
     set(RTOS_STRESS_QUEUE_CAPACITY "8" CACHE STRING "ARM stress copied-message queue slots")
     rtos_decimal(RTOS_STRESS_QUEUE_CAPACITY 1 64)
+    option(RTOS_ARM_STRESS_WITNESS "Validation-only timer and interrupted-PC observations" OFF)
+    target_compile_definitions(rtos_options INTERFACE RTOS_ARM_STRESS_WITNESS=$<BOOL:${RTOS_ARM_STRESS_WITNESS}>)
   else()
     set(nxr_port ports/riscue)
     set(nxr_default_application examples/blink.cpp)

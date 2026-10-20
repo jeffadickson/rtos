@@ -20,12 +20,16 @@ giving an aligned 112-byte total. Scratch offsets 0..55 contain r0-r12 and LR;
 56 contains APSR, 60 the injection flag, and 64 the loop count. It repeatedly
 seeds fourteen distinct registers, sets NZCV to 1000, executes 64 NOPs without
 calling C, and snapshots registers and flags before comparisons alter them.
-The application requires tick advancement across the positive 10,000-loop call.
+The application requires tick advancement across the positive 10,000-loop call
+and a stress-only handler witness whose stacked PC falls in the half-open
+``rtos_arm_irq_live_begin`` / ``rtos_arm_irq_live_end`` NOP region.
 This covers interrupt-only preservation; it does not claim FP or Q-flag testing.
 
 Both functions return one for intact state and zero for a mismatch. The
 application separately requires zero when an r7 bit is intentionally flipped,
-then one for a positive call. A guest crash, timeout or nonzero process exit
+then one for a positive call. A separate input value of two injects incorrect
+NZCV without changing a register, and must also return zero.
+A guest crash, timeout or nonzero process exit
 cannot substitute for successful fault detection.
 
 Alignment contract
@@ -42,17 +46,28 @@ Timer variations
 --------------------------------------------------------------------------------
 
 The workload masks SysTick for five periods while reading the independent
-CMSDK timer. Logical ticks must stay fixed while masked, then catch up by at
-least five after restoration, within a twenty-period counter deadline.
+CMSDK timer. The baseline is sampled after masking, avoiding a tick-phase race.
+Logical ticks must stay fixed while masked. A stress-only hook records the
+first post-mask timer handler's computed elapsed count, which must be at least
+five. Repeated single-tick interrupts cannot satisfy that check. A peer already
+blocked on a three-tick semaphore wait must be detached and resume with timeout.
+The entire recovery has a twenty-period counter deadline.
 This tests elapsed-period accounting rather than assuming every tick edge queues
 an interrupt. It does not measure hardware interrupt latency.
 
 ``arm-stress-wrap`` starts the countdown at 256 but leaves RELOAD at UINT32_MAX.
-The workload checks that this initial rollover was crossed. Short repeated
+Serialized observations require an initial low word near UINT32_MAX, a subsequent
+extended-time epoch, and nondecreasing extended values. An ignored preload
+therefore cannot satisfy the near-wrap test. Short repeated
 reloads would invalidate the counter-extension modulus and are not used.
 ``arm-stress-fast`` uses 2000 Hz and a three-slot message queue to vary timing
 and ring wrap. Configure these like ``arm-stress``, with the same compiler,
 QEMU path and prebuilt native tools; build the respective ``arm_stress`` target.
+
+``RTOS_ARM_STRESS_WITNESS`` defaults OFF and is ON in stress presets. It adds
+observer calls and small validation state only to those images. The callbacks
+do not block, call kernel APIs, or modify scheduling decisions. Ordinary target
+builds retain neither these hooks nor their storage.
 
 .. literalinclude:: ../ports/arm-mps2/canaries.S
    :language: text

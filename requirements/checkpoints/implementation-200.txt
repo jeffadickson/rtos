@@ -1,0 +1,27 @@
+Implementation checkpoint 200
+=============================
+Passes151-200 repair panel150's validation discrimination and add IPC reference
+campaigns. No production scheduler/IPC algorithm or thread-control storage changed.
+
+Validation:
+- Host build: 25/25 CTest checks passed.
+- Four fixed seeds, 50000 operations at each of three capacities: 600000 state
+  transitions checked against independent FIFO/token/event/word reference state.
+- 1296 priority/FIFO waiter campaigns passed, including timeout wrap, late supply,
+  payload detachment and blocked priority changes.
+- Cppcheck, clang-tidy and strict Sphinx passed. A template-argument printf
+  diagnostic was resolved by explicit unsigned conversion, without suppression;
+  all four randomized fixtures passed again after that change.
+- ARM witnesses record interruption inside the positive live register window,
+  first-handler elapsed accounting, actual preload/epoch and monotonic time.
+  A blocked peer expires during masking and resumes with timeout.
+- The positive live-window hit counter is reset after all negative probes;
+  all ARM variants are rerun after that isolation repair.
+- All fifteen final ARM runs passed: normal20261020-185631-780,
+  wrap20261020-185835-964, fast20261020-185941-155,
+  watermark-off20261020-190002-208, guard-off20261020-190032-345.
+- RV32 nano remains text3812/data0/BSS1164; UART text9196/data748/BSS5536.
+  Both static-only ELF audits pass; witnesses are absent from ordinary builds.
+
+Requirements exports:156 source-traced records,96 planned; no qualification claims.
+Independent panel review follows this checkpoint commit.
