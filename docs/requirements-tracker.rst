@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **153**. Catalogue SHA-256: ``f783de4bc653e583bfc7716625d1a43e1bf267097966aba10660b455038a0b64``.
+Reviewed requirements: **155**. Catalogue SHA-256: ``a1b20aa563c24a7b684e3adcfa18a6459c6e6bd91241fdb49ee840f7f1f55dde``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -5363,4 +5363,74 @@ NXR-153 Cross-port initialization and allocator rejection contracts
 
 
 **Review finding:** Panel-050 ARM linker hole is repaired with wildcard retention and explicit assertions; the symbol audit is a complementary known-name check rather than proof against renamed allocators.
+
+NXR-154 ARM register and alignment validation
+---------------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** Verification
+
+
+**Requirement:** The Cortex-M3 simulation stress shall check callee-saved state across blocking SVC and integer register plus NZCV state across interrupt-only regions, including injected mismatch detection and PSP padding.
+
+
+**Rationale:** Arithmetic workloads do not explicitly exercise every saved register or the exception alignment flag.
+
+
+**Acceptance:** Distinct canaries pass, injected r7 mismatch returns zero, ticks progress in the positive interrupt harness, and four-byte PSP alignment produces the hardware padding flag.
+
+
+**Verification:** Three QEMU timer shifts per configured stress image.
+
+
+**Planned test:** TEST-NXR-154
+
+
+**Dependencies:** NXR-150
+
+
+**Configuration:** Assembly harnesses preserve AAPCS caller state and avoid C calls on a deliberately misaligned stack.
+
+
+**Static resource budget:** No heap; validation-only stack frames removed from ordinary images when unreferenced.
+
+
+**Review finding:** Simulation coverage only, not MCU qualification or complete instruction-state proof.
+
+NXR-155 ARM timer catch-up and rollover variants
+------------------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** Verification
+
+
+**Requirement:** ARM simulation shall exercise masked multi-period timer catch-up, an initial 32-bit counter rollover with unchanged reload modulus, and varied queue capacity and tick rate.
+
+
+**Rationale:** Pending IRQ bits do not count missed periods and short timer reloads break software wrap extension.
+
+
+**Acceptance:** Ticks remain unchanged while masked then catch up within a counter deadline; near-wrap and faster-tick presets pass finite message and semaphore workloads.
+
+
+**Verification:** QEMU normal, near-wrap and faster-tick runs with retained logs.
+
+
+**Planned test:** TEST-NXR-155
+
+
+**Dependencies:** NXR-150
+
+
+**Configuration:** CMSDK timer initial value configurable separately from full 32-bit reload; stress follows configured tick rate.
+
+
+**Static resource budget:** No dynamic firmware storage; variant queue capacity fixed at compilation.
+
+
+**Review finding:** Counter extension still requires serialized reads more often than a full 32-bit period; no hardware timing guarantee.
 

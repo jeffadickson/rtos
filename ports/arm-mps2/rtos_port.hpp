@@ -6,6 +6,10 @@
  */
 #include <stddef.h>
 #include <stdint.h>
+#ifndef RTOS_ARM_TIMER_INITIAL
+#define RTOS_ARM_TIMER_INITIAL UINT32_MAX
+#endif
+static_assert(RTOS_ARM_TIMER_INITIAL>0 && RTOS_ARM_TIMER_INITIAL<=UINT32_MAX);
 extern "C" uint32_t arm_vectors[];
 namespace rtos::port {
 using InterruptState=uint32_t;
@@ -54,11 +58,14 @@ inline uint32_t* initialize_context(void* stack,size_t bytes,void(*entry)()){
 }
 /// This BSP owns the vector table, CMSDK timer zero and SysTick exclusively.
 inline void install_vector(){
+    // AAPCS handler calls require 8-byte MSP alignment, including interrupted
+    // leaf assembly with a four-byte-aligned PSP. Hardware records padding in xPSR.
+    *reinterpret_cast<volatile uint32_t*>(0xe000ed14)|=0x200;
     *reinterpret_cast<volatile uint32_t*>(0xe000ed08)=reinterpret_cast<uintptr_t>(arm_vectors);
     *reinterpret_cast<volatile uint8_t*>(0xe000ed1f)=0; // SVC priority zero.
     *reinterpret_cast<volatile uint8_t*>(0xe000ed23)=0x80; // SysTick priority.
     auto* timer=reinterpret_cast<volatile uint32_t*>(0x40000000);
-    timer[0]=0;timer[2]=UINT32_MAX;timer[0]=1;
+    timer[0]=0;timer[2]=UINT32_MAX;timer[1]=RTOS_ARM_TIMER_INITIAL;timer[0]=1;
 }
 inline void enable_timer(){} // arm() enables SysTick; BASEPRI holds it until dispatch.
 /// Synchronous SVC works with BASEPRI=0x80. Calling with PRIMASK set is unsupported.

@@ -3,8 +3,16 @@
  * Semihosting is a simulation report/exit channel, not a production driver.
  */
 #include "rtos_ipc.hpp"
+extern "C" uint32_t rtos_arm_callee_canary(uint32_t inject);
+extern "C" uint32_t rtos_arm_irq_canary(uint32_t inject);
+extern "C" uint32_t rtos_arm_padding_canary();
+/// Called only with an aligned stack by the assembly callee-saved harness.
+extern "C" void rtos_arm_canary_park(){(void)rtos::sleep_for(2);}
 #ifndef RTOS_STRESS_ROUNDS
 #define RTOS_STRESS_ROUNDS 10000
+#endif
+#ifndef RTOS_STRESS_QUEUE_CAPACITY
+#define RTOS_STRESS_QUEUE_CAPACITY 8
 #endif
 namespace {
 constexpr uint32_t rounds=RTOS_STRESS_ROUNDS;
@@ -37,7 +45,7 @@ struct Message {uint32_t producer,sequence,value;};
 static rtos::Thread threads[9];
 static rtos::Thread unregistered;
 static rtos::Stack<2048> stacks[9];
-static rtos::Queue<Message,8> fifo;
+static rtos::Queue<Message,RTOS_STRESS_QUEUE_CAPACITY> fifo;
 static rtos::Queue<Message,2> timeout_fifo;
 static rtos::Semaphore owner_go(0,1),high_go(0,1),medium_go(0,1);
 static rtos::Semaphore ping(1,1),pong(0,1),empty(0,1);
@@ -129,6 +137,31 @@ void token_worker(void* tag){
 }
 void coordinator(void*){
     report("ARM stress: real Cortex-M3 kernel, static queues/semaphores/mutexes\n");
+    check(rtos_arm_callee_canary(0)==1,"callee-saved register canary");
+    check(rtos_arm_callee_canary(1)==0,"callee canary negative probe");
+    check(rtos_arm_irq_canary(1)==0,"IRQ canary negative probe");
+    const auto canary_before=rtos::ticks();
+    check(rtos_arm_irq_canary(0)==1,"interrupt register/NZCV canary");
+    check(rtos::ticks()!=canary_before,"IRQ canary did not span a tick");
+    check(rtos_arm_padding_canary()==1,"PSP alignment padding");
+    report("PASS: register canaries, negative probes, PSP alignment padding\n");
+    // CMSDK counter progresses even while BASEPRI masks SysTick. Five complete
+    // periods must be accounted on the next tick, rather than one pending bit.
+    const uint32_t period=25000000u/RTOS_TICK_HZ;
+    const auto catchup_before=rtos::ticks();
+    write_mask(0x80);
+    const auto* timer=reinterpret_cast<volatile uint32_t*>(0x40000004);
+    const uint32_t counter_before=*timer;
+    while(uint32_t(counter_before-*timer)<period*5u)asm volatile("nop");
+    check(rtos::ticks()==catchup_before,"masked timer tick delivered");
+    write_mask(0);
+    while(uint32_t(rtos::ticks()-catchup_before)<5u){
+        check(uint32_t(counter_before-*timer)<period*20u,"timer catch-up deadline");
+    }
+#if RTOS_ARM_TIMER_INITIAL < 1000000
+    check(*timer>1000000u,"initial timer rollover not crossed");
+#endif
+    report("PASS: masked timer catch-up and counter continuity\n");
     check(read_mask()==0,"initial thread mask");
     rtos::StackUsage masked{};
     write_mask(0x80);
@@ -226,5 +259,5 @@ int main(){
 #else
     check(!boot.watermark_enabled&&boot.used_bytes==0,"boot disabled paint");
 #endif
-    rtos::start(25000000,1000);
+    rtos::start(25000000,RTOS_TICK_HZ);
 }

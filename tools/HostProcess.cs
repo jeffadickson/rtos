@@ -33,7 +33,9 @@ internal static class HostProcess
                     lock(gate)
                     {
                         int accepted=Math.Min(count,maximumCharacters-output.Length);
-                        output.Append(buffer,0,accepted);Console.Write(buffer,0,accepted);
+                        // Never forward synchronously: the runner's own output consumer
+                        // may stop reading. Capture must remain cancellable independently.
+                        output.Append(buffer,0,accepted);
                         if(accepted!=count){limit=true;deadline.Cancel();}
                     }
                     deadline.Token.ThrowIfCancellationRequested();

@@ -4454,5 +4454,70 @@
       "cmake/firmware.cmake"
     ],
     "finding": "Panel-050 ARM linker hole is repaired with wildcard retention and explicit assertions; the symbol audit is a complementary known-name check rather than proof against renamed allocators."
+  },
+  {
+    "id": "NXR-154",
+    "title": "ARM register and alignment validation",
+    "category": "Verification",
+    "statement": "The Cortex-M3 simulation stress shall check callee-saved state across blocking SVC and integer register plus NZCV state across interrupt-only regions, including injected mismatch detection and PSP padding.",
+    "rationale": "Arithmetic workloads do not explicitly exercise every saved register or the exception alignment flag.",
+    "acceptance": "Distinct canaries pass, injected r7 mismatch returns zero, ticks progress in the positive interrupt harness, and four-byte PSP alignment produces the hardware padding flag.",
+    "verification": "Three QEMU timer shifts per configured stress image.",
+    "dependencies": [
+      "NXR-150"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "ports/arm-mps2/canaries.S",
+      "ports/arm-mps2/rtos_port.hpp",
+      "examples/arm_stress.cpp"
+    ],
+    "verification_files": [
+      "examples/arm_stress.cpp"
+    ],
+    "planned_test": "TEST-NXR-154",
+    "configuration": "Assembly harnesses preserve AAPCS caller state and avoid C calls on a deliberately misaligned stack.",
+    "resource_budget": "No heap; validation-only stack frames removed from ordinary images when unreferenced.",
+    "review_iteration": 154,
+    "inspected_files": [
+      "ports/arm-mps2/canaries.S",
+      "ports/arm-mps2/rtos_port.hpp",
+      "examples/arm_stress.cpp",
+      "docs/arm-canaries.rst"
+    ],
+    "finding": "Simulation coverage only, not MCU qualification or complete instruction-state proof."
+  },
+  {
+    "id": "NXR-155",
+    "title": "ARM timer catch-up and rollover variants",
+    "category": "Verification",
+    "statement": "ARM simulation shall exercise masked multi-period timer catch-up, an initial 32-bit counter rollover with unchanged reload modulus, and varied queue capacity and tick rate.",
+    "rationale": "Pending IRQ bits do not count missed periods and short timer reloads break software wrap extension.",
+    "acceptance": "Ticks remain unchanged while masked then catch up within a counter deadline; near-wrap and faster-tick presets pass finite message and semaphore workloads.",
+    "verification": "QEMU normal, near-wrap and faster-tick runs with retained logs.",
+    "dependencies": [
+      "NXR-150"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "ports/arm-mps2/rtos_port.hpp",
+      "examples/arm_stress.cpp",
+      "cmake/firmware.cmake"
+    ],
+    "verification_files": [
+      "examples/arm_stress.cpp"
+    ],
+    "planned_test": "TEST-NXR-155",
+    "configuration": "CMSDK timer initial value configurable separately from full 32-bit reload; stress follows configured tick rate.",
+    "resource_budget": "No dynamic firmware storage; variant queue capacity fixed at compilation.",
+    "review_iteration": 155,
+    "inspected_files": [
+      "ports/arm-mps2/rtos_port.hpp",
+      "examples/arm_stress.cpp",
+      "CMakePresets.json",
+      "cmake/firmware.cmake",
+      "docs/arm-canaries.rst"
+    ],
+    "finding": "Counter extension still requires serialized reads more often than a full 32-bit period; no hardware timing guarantee."
   }
 ]

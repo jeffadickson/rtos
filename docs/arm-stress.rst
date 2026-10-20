@@ -64,7 +64,11 @@ across a blocking wait, plus boot and live-thread stack observations.
 The firmware link still runs the required allocator/constructor symbol audit.
 The runner executes QEMU three times with instruction-clock shifts 3, 4 and 5,
 varying virtual timer delivery relative to the same workload. Each subprocess has
-a 120-second wall-clock bound; timeout kills that process tree and fails the run.
+a 120-second wall-clock bound. Timeout fails the run and attempts to kill the
+owned process tree while its parent is alive. Orphans whose parent already
+exited may outlive the runner; pipe cancellation still bounds the runner's wait.
+Output is captured into bounded logs without synchronous console forwarding,
+so an unread outer console pipe cannot block capture cancellation.
 The deadline includes redirected-pipe draining, with at most two seconds of
 bounded drain cleanup. Retained output is capped at eight million characters.
 The native ``NexRT.ArmSim --self-test`` command covers normal/nonzero exits,

@@ -17,6 +17,7 @@ worst-case execution time, or hardware validation.
    minimal-application
    uart-demo
    arm-stress
+   arm-canaries
    how-it-works
    getting-started
    architecture

@@ -7,6 +7,18 @@
   },
   "configurePresets": [
     {
+      "name": "arm-stress-wrap",
+      "inherits": "arm-stress",
+      "binaryDir": "${sourceDir}/build/arm-stress-wrap",
+      "cacheVariables": { "RTOS_ARM_TIMER_INITIAL": "256" }
+    },
+    {
+      "name": "arm-stress-fast",
+      "inherits": "arm-stress",
+      "binaryDir": "${sourceDir}/build/arm-stress-fast",
+      "cacheVariables": { "RTOS_TICK_HZ": "2000", "RTOS_STRESS_QUEUE_CAPACITY": "3" }
+    },
+    {
       "name": "arm-stress-no-watermark",
       "inherits": "arm-stress",
       "binaryDir": "${sourceDir}/build/arm-stress-no-watermark",
@@ -141,6 +153,8 @@
     }
   ],
   "buildPresets": [
+    { "name": "arm-stress-wrap", "configurePreset": "arm-stress-wrap" },
+    { "name": "arm-stress-fast", "configurePreset": "arm-stress-fast" },
     { "name": "arm-stress-no-watermark", "configurePreset": "arm-stress-no-watermark" },
     { "name": "arm-stress-no-guards", "configurePreset": "arm-stress-no-guards" },
     {

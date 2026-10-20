@@ -70,7 +70,7 @@ Passes 051-100: panel repairs and branch coverage
 053. Accept process/drain timeout gaps identified by the tooling reviewer.
 054. Accept missing executed-dependency identities in UART manifests.
 055. Record all panel decisions and their disposition.
-056. Reject priority initializer subsections in the ARM linker.
+056. Make ARM priority initializer matching explicit and add regression coverage.
 057. Reject ARM preinitializer sections.
 058. Reject ARM finalizer/destructor sections.
 059. Check boot-stack reserves in the ARM linker.
@@ -115,3 +115,57 @@ Passes 051-100: panel repairs and branch coverage
 098. Add watermark-off and guard-off ARM presets.
 099. Update requirements, documentation and review dispositions.
 100. Build, validate and commit the second checkpoint, then request panel review.
+
+Passes 101-150: register, timer and process boundaries
+--------------------------------------------------------------------------------
+
+101. Accept the panel's synchronous console forwarding defect.
+102. Accept the orphan-process documentation limitation.
+103. Close the prior stack API validation requests with retained evidence.
+104. Select register and timer boundary coverage.
+105. Correct the priority-constructor work record.
+106. Remove blocking live-console forwarding from capture.
+107. Add an unread outer-pipe regression fixture.
+108. Preserve bounded output in logs without live forwarding.
+109. Qualify process-tree termination guarantees.
+110. Record the independent panel decisions.
+111. Separate blocking-call and interrupt-only ABI contracts.
+112. Add distinct r4-r11 canaries across SVC and sleep.
+113. Inject a callee-saved register mismatch.
+114. Add interrupt-only r0-r12 and LR canaries.
+115. Snapshot and check NZCV before comparison alters flags.
+116. Require timer progress across the positive canary loop.
+117. Restore caller ABI state in each harness.
+118. Exercise a four-byte-aligned PSP.
+119. Check the hardware xPSR padding flag.
+120. Explicitly enable exception stack alignment.
+121. Configure the initial CMSDK count separately.
+122. Preserve the full 32-bit reload modulus.
+123. Add a near-rollover preset.
+124. Check initial rollover was crossed.
+125. Mask SysTick across five periods.
+126. Check elapsed-tick catch-up after restoration.
+127. Bound catch-up by the independent counter.
+128. Configure stress queue capacity.
+129. Use the configured stress tick rate.
+130. Add faster-tick and three-slot queue variation.
+131. Validate new CMake numeric values.
+132. Document canary stack layouts.
+133. Document register coverage and ABI limits.
+134. Distinguish negative probes from positive results.
+135. Document padding observation timing.
+136. Document timer ownership and limits.
+137. Document simulation presets.
+138. Add register and timer requirements.
+139. Update Sphinx navigation and the work ledger.
+140. Inspect firmware storage costs and removal of unused harnesses.
+141. Check reservations and restore paths.
+142. Check NZCV snapshot instruction ordering.
+143. Check initial counter value versus reload modulus.
+144. Hash QEMU alongside firmware in ARM manifests.
+145. Reject changed inputs before publishing ARM success.
+146. Require explicit register and timer coverage records.
+147. Update the process fixture result description.
+148. Regenerate requirements and StrictDoc-format views.
+149. Inspect diffs and no-heap boundaries.
+150. Build, validate and commit, then request independent panel review.
