@@ -12,10 +12,14 @@ int main() {
     memmove(bytes,bytes+1,5);
     const unsigned char left[]{1,2,3,4,5,5};
     assert(memcmp(bytes,left,6)==0);
+    // Deliberately verify the C memset unsigned-char conversion contract.
+    // cppcheck-suppress memsetValueOutOfRange
     assert(memset(bytes,0x1ff,3)==bytes);
     assert(bytes[0]==255 && bytes[2]==255 && bytes[3]==4);
     assert(memcpy(bytes,right,6)==bytes && memcmp(bytes,right,6)==0);
     assert(memcmp(bytes,left,6)<0 && memcmp(left,bytes,6)>0);
     memmove(bytes,bytes,6); assert(memcmp(bytes,right,6)==0);
+    // Deliberately verify that a zero-length operation preserves the buffer.
+    // cppcheck-suppress memsetZeroBytes
     memset(bytes,0,0); assert(bytes[0]==1);
 }

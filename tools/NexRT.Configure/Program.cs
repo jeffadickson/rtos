@@ -51,7 +51,9 @@ internal static class Program
         if(c.SchemaVersion!=1||c.Targets.Length is <1 or >64||c.Profiles.Length is <1 or >32) throw new InvalidDataException("Unsupported schema/count.");
         if(c.Targets.Select(t=>t.Id).Distinct().Count()!=c.Targets.Length||c.Profiles.Select(p=>p.Id).Distinct().Count()!=c.Profiles.Length) throw new InvalidDataException("Duplicate identity.");
         foreach(var t in c.Targets)
-            if(!Id(t.Id)||t.PhysicalCpuLimit is <1 or >64||t.Status is not("planned" or "provisional" or "cross-built")||t.FirmwareReady!=(t.Id=="riscue"&&t.Status=="cross-built")) throw new InvalidDataException("Invalid target/readiness.");
+            if(!Id(t.Id)||t.PhysicalCpuLimit is <1 or >64||t.Status is not("planned" or "provisional" or "cross-built" or "simulation-bringup")||
+               t.FirmwareReady!=((t.Id=="riscue"&&t.Status=="cross-built")||(t.Id=="qemu-mps2-m3"&&t.Status=="simulation-bringup")))
+                throw new InvalidDataException("Invalid target/readiness.");
         foreach(var p in c.Profiles)
             if(!Id(p.Id)||p.MaxThreads is <1 or >255||p.TickHz is <1 or >1000000||p.IdleStackBytes is <512 or >1048576||p.IdleStackBytes%16!=0||p.Logging&&!p.Sync) throw new InvalidDataException("Invalid profile capacity or logging dependency.");
     }

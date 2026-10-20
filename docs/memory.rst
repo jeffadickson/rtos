@@ -50,7 +50,10 @@ Memory map
 
 The default linker script uses RAM from zero through ``0x7eff``, keeps firmware
 below the RISCue mailbox at ``0x7f00``, and reserves 4 KiB at the top of this
-region for boot stack use. Application/idle stacks occupy BSS within the linked
+region for boot stack use by default. ``RTOS_BOOT_STACK_BYTES`` selects a
+16-byte-aligned reserve from 512 through 32512 bytes; the linker also rejects
+any overlap with the image. The lower bound is a configuration constraint,
+not a qualified safe stack size. Application/idle stacks occupy BSS within the linked
 image; they are separate from that boot reserve. A link-time assertion rejects
 images that consume the reserve. This single RAM image has an RWX load segment;
 there is no memory-permission isolation on this machine-mode port.
@@ -65,6 +68,37 @@ Static storage budget is::
 
 Use sizeof(Thread) from the exact build, since metrics alter its layout.
 The example does not link a network stack or reserve DMA rings.
+
+Reducing the boot reserve
+-------------------------
+
+The default remains 4096 bytes. Configure, for example,
+``-DRTOS_BOOT_STACK_BYTES=1024`` only after analyzing your startup path.
+The native footprint tool reads ``_stack_top`` and ``_boot_stack_bottom`` from
+the unstripped ELF, so a custom reserve is counted rather than assumed.
+Missing symbols fail measurement instead of silently reporting 4096 bytes.
+
+The current nano compiler reports 16 bytes for ``main``, 48 for ``create``,
+32 for ``Scheduler::conflicts``, 48 for ``start`` and 32 for ``rtos_trap``.
+These are individual function frames, not a complete bound. The first dispatch
+also places a 144-byte assembly trap frame on the boot stack while main/start
+remain active. Inspect disassembly, compiler helper calls and all boot-time
+application/driver initialization before choosing a smaller reserve. Validate
+on hardware with a maximum-use workload; future compiler/settings changes
+require renewed analysis. No 1024-byte stack qualification is implied.
+
+The 19 October 2026 cross-link comparison used the same nano sources, RV32
+compiler and options with only this reserve changed. Code/constants remained
+3812 bytes and BSS remained 1164 bytes. A 4096-byte reserve committed 9072
+bytes of RAM; a 1024-byte reserve committed 6000 bytes. Both final images
+passed the static-only allocation audit. The reduced-reserve ELF identity
+and section totals are retained in ``site/footprint-small-boot.json``;
+the canonical footprint and HTML introduction continue to use the default
+reserve. These are linked capacity measurements, not observed stack maxima.
+
+Runtime traps use the interrupted thread stack. A smaller boot reserve cannot
+replace adequate per-thread stack sizing. Optional ground-linked diagnostics
+and QSPI boot/XIP are described in :doc:`diagnostic-overlays`.
 
 Driver ownership
 ----------------

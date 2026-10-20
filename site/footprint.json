@@ -7,5 +7,5 @@
   "bootReserve": 4096,
   "committedRam": 9072,
   "imageBytes": 3812,
-  "elfSha256": "1748f24060236e3df48f224bfedf043fddd41dc0ecc9d25d22e922e898d2f346"
+  "elfSha256": "42f44b0a19328a3672774838a8d82f6568eeb0d58b1046bb7bb6ba1375815a5e"
 }

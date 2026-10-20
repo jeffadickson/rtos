@@ -1,5 +1,6 @@
 #include "scheduler.hpp"
 #include "rtos_port.hpp"
+#include "rtos/detail/stack_watermark.hpp"
 #if RTOS_SYNC
 #include "rtos_sync.hpp"
 #include "rtos_mutex.hpp"
@@ -41,6 +42,9 @@ bool guard_ok(const rtos::Thread& t) {
 void initialize(rtos::Thread& t, rtos::Entry e, void* arg, uint8_t priority,
                 void* stack, size_t bytes, const char* name) {
     // No allocation or runtime constructors. context.S owns the exact frame layout.
+#if RTOS_STACK_WATERMARK
+    rtos::detail::paint_stack(static_cast<uint32_t*>(stack),bytes/sizeof(uint32_t));
+#endif
     auto* frame=rtos::port::initialize_context(stack,bytes,&rtos_entry);
     t.context=frame; t.entry=e; t.argument=arg; t.priority=priority; t.state=rtos::State::ready;
 #if RTOS_SYNC
@@ -150,6 +154,25 @@ SystemInfo snapshot(ThreadInfo* output, size_t capacity) {
         ++result.written_threads;
     }
     return result;
+}
+bool stack_usage(const Thread& thread,StackUsage& output,size_t budget_bytes){
+    Lock lock;
+    if(!scheduler.contains(thread)&&!(running && &thread==&idle_thread))return false;
+    StackUsage result{};
+    result.capacity_bytes=thread.stack_bytes;result.guard_ok=guard_ok(thread);
+#if RTOS_STACK_WATERMARK
+    result.watermark_enabled=true;
+    constexpr size_t guard_words=RTOS_STACK_GUARD?1:0;
+    const auto* words=reinterpret_cast<const volatile uint32_t*>(thread.stack_begin);
+    const auto scan=detail::scan_stack(words+guard_words,thread.stack_bytes/4-guard_words,budget_bytes/4);
+    result.inspected_bytes=scan.read_words*4;
+    result.untouched_bytes=scan.untouched_words*4;
+    result.used_bytes=thread.stack_bytes-result.untouched_bytes;
+    result.complete=scan.complete;
+#else
+    (void)budget_bytes;
+#endif
+    output=result;return true;
 }
 }
 extern "C" uint32_t* rtos_trap(uint32_t* frame, uint32_t cause) {

@@ -42,6 +42,62 @@ feature dependencies. CTest runs both configuration commands. No firmware is
 compiled by these guard checks. See :doc:`platforms`. The requirements tracker validates
 traceability and generates views; see :doc:`requirements-process`.
 
+Optional C++ analyzers
+----------------------
+
+Install the native Cppcheck and clang-tidy executables on the build host, then
+reconfigure CMake so it can discover them. On Ubuntu these are the ``cppcheck``
+and ``clang-tidy`` packages. No Python analyzer runner is used. For custom
+locations, set ``NXR_CPPCHECK_EXECUTABLE`` and ``NXR_CLANG_TIDY_EXECUTABLE`` to
+absolute executable paths at configure time.
+
+.. code-block:: sh
+
+   cmake --preset host
+   cmake --build --preset host --target cppcheck
+   cmake --build --preset host --target clang_tidy
+   # Run both:
+   cmake --build --preset host --target cpp_analysis
+
+These targets are opt-in and do not build or change firmware. Each prints its
+tool version, then reads the active build's ``compile_commands.json`` for
+include paths, definitions and language options. Use Ninja or Makefiles; other
+generators and missing executables cause an explicit failure when requested.
+Ordinary builds do not require either analyzer. Retain the console output and
+tool versions for review; the targets do not apply fixes or create suppressions.
+
+Cppcheck enables errors, warnings, performance and portability diagnostics;
+reported findings fail the target with exit code 1. clang-tidy uses the checked-in
+``.clang-tidy`` correctness profile, including core/C++/Unix path analysis,
+selected bug-prone checks, null-pointer modernization and override checks.
+All emitted warnings are errors. Project headers are checked through configured
+C++ translation units, including host test fixtures. Disabled features and
+sources absent from that build are outside its coverage: run each relevant
+configuration rather than treating one host profile as the complete kernel.
+
+The same targets are available in firmware presets. For RV32, clang-tidy is
+given ``--target=riscv32-unknown-elf`` and Cppcheck uses its ``unix32`` integer
+and pointer model. The QEMU Cortex-M3 preset uses ``--target=arm-none-eabi``
+and the same Cppcheck 32-bit model. Firmware definitions come from that preset, including the
+selected application. Cppcheck's platform model does not emulate the RISCue CPU.
+Standalone assembly is excluded from clang-tidy's source list; neither analyzer
+qualifies context switching, interrupt interleavings, MMIO, latency or stack
+capacity. The linked ELF allocation audit remains a separate required check.
+
+Start with the checked-in profile and review each finding. Any future inline
+Cppcheck suppression or clang-tidy ``NOLINT`` needs a narrow scope and documented
+reason; do not disable a diagnostic globally just to clear an existing finding.
+The initial integration uses Cppcheck 2.13.0 and clang-tidy 18.1.3;
+release qualification still needs pinned tool versions and retained evidence.
+
+The initial scoped exceptions are recorded in
+``config/cppcheck-suppressions.txt`` and adjacent source comments. Host fixtures
+deliberately call operations inside assertions, which their CMake targets force
+on; memory fixtures deliberately exercise zero-length memset and byte conversion.
+The Ethernet descriptor is deliberately copied. Cppcheck 2.13 short-literal
+bounds reports in web/logging code ignore its terminating-NUL exits. Re-review these
+exceptions when their code/contracts or analyzer versions change.
+
 Native AOT execution
 --------------------
 
@@ -50,6 +106,8 @@ all four tools under ``build/<preset>/native-tools/<assembly>/<assembly>``.
 Each individual ``rtos_tools``, ``requirements_tool``, ``configure_tool`` and ``workbench_tool``
 target also builds its native executable. Output and intermediates are isolated
 between build directories, so firmware presets can build independently.
+With ``RTOS_ARM_SIMULATION=ON``, ``arm_sim_tool`` adds the native
+``NexRT.ArmSim`` QEMU runner; see :doc:`arm-stress`.
 
 The runtime identifier is selected from the build host OS and CPU, even during
 firmware cross-compilation. This Linux x64 host produces Linux x64 tools, not

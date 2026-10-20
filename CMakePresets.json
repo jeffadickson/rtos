@@ -7,6 +7,45 @@
   },
   "configurePresets": [
     {
+      "name": "arm-stress",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/arm-stress",
+      "toolchainFile": "${sourceDir}/cmake/arm-mps2-toolchain.cmake",
+      "cacheVariables": {
+        "RTOS_TARGET_ID": "qemu-mps2-m3",
+        "RTOS_STACK_WATERMARK": "ON",
+        "RTOS_APPLICATION": "examples/arm_stress.cpp",
+        "CMAKE_BUILD_TYPE": "MinSizeRel",
+        "RTOS_BUILD_FIRMWARE": "ON",
+        "RTOS_ARM_SIMULATION": "ON",
+        "RTOS_MAX_THREADS": "9",
+        "RTOS_IDLE_STACK_BYTES": "1024",
+        "RTOS_BOOT_STACK_BYTES": "4096",
+        "RTOS_SYNC": "ON",
+        "RTOS_LOGGING": "ON",
+        "RTOS_ETHERNET": "OFF",
+        "RTOS_WEB": "OFF"
+      }
+    },
+    {
+      "name": "uart",
+      "inherits": "riscue",
+      "binaryDir": "${sourceDir}/build/uart",
+      "cacheVariables": {
+        "RTOS_APPLICATION": "examples/axi_uart_threads.cpp",
+        "RTOS_MAX_THREADS": "3",
+        "RTOS_IDLE_STACK_BYTES": "512",
+        "RTOS_BOOT_STACK_BYTES": "4096",
+        "RTOS_METRICS": "ON",
+        "RTOS_STACK_GUARD": "ON",
+        "RTOS_ROUND_ROBIN": "ON",
+        "RTOS_SYNC": "ON",
+        "RTOS_LOGGING": "ON",
+        "RTOS_WEB": "OFF",
+        "RTOS_ETHERNET": "OFF"
+      }
+    },
+    {
       "name": "nano",
       "inherits": "riscue",
       "binaryDir": "${sourceDir}/build/nano",
@@ -16,6 +55,7 @@
         "RTOS_IDLE_STACK_BYTES": "512",
         "RTOS_METRICS": "OFF",
         "RTOS_STACK_GUARD": "OFF",
+        "RTOS_STACK_WATERMARK": "OFF",
         "RTOS_ROUND_ROBIN": "OFF",
         "RTOS_ETHERNET": "OFF",
         "RTOS_WEB": "OFF",
@@ -89,6 +129,14 @@
     }
   ],
   "buildPresets": [
+    {
+      "name": "arm-stress",
+      "configurePreset": "arm-stress"
+    },
+    {
+      "name": "uart",
+      "configurePreset": "uart"
+    },
     {
       "name": "nano",
       "configurePreset": "nano"

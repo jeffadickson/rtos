@@ -178,11 +178,47 @@ internal static class Program
         int table=checked((int)U32(32)),entry=U16(46),count=U16(48);if(entry<40||count==0||table<0||(long)table+(long)entry*count>b.Length)throw new IOException("Bad ELF section table");
         long code=0,data=0,zero=0,low=long.MaxValue,high=0;
         for(int i=0;i<count;i++){int p=checked(table+i*entry);uint type=U32(p+4),flags=U32(p+8),address=U32(p+12),size=U32(p+20);if((flags&2)==0||size==0)continue;low=Math.Min(low,address);high=Math.Max(high,(long)address+size);if(type==8)zero+=size;else if((flags&1)!=0)data+=size;else code+=size;}
-        if(low==long.MaxValue||low!=0||high>0x7f00-4096)throw new IOException("Unexpected RISCue allocation/map");
-        var footprint=new Footprint(code,data,zero,high-low,high-low-code-data-zero,4096,high-low+4096,code+data,Hash(path));
+        long stackTop=LinkerSymbol(b,table,entry,count,"_stack_top");
+        long stackBottom=LinkerSymbol(b,table,entry,count,"_boot_stack_bottom");
+        long reserve=stackTop-stackBottom;
+        if(low==long.MaxValue||low!=0||stackTop!=0x7f00||reserve<512||reserve>stackTop||(reserve&15)!=0||high>stackBottom)throw new IOException("Unexpected RISCue allocation/map");
+        var footprint=new Footprint(code,data,zero,high-low,high-low-code-data-zero,reserve,high-low+reserve,code+data,Hash(path));
         Directory.CreateDirectory("site");File.WriteAllText("site/footprint.json",JsonSerializer.Serialize(footprint,WorkJson.Default.Footprint)+"\n");
-        File.WriteAllText("docs/footprint.rst",$"Measured minimal configuration\n==============================\n\nMeasured from ``{path}``; ELF SHA256 ``{footprint.ElfSha256}``.\n\n* Code and read-only data: **{code} bytes**.\n* Initialized writable data: **{data} bytes**.\n* BSS: **{zero} bytes**, including both512-byte thread/idle stacks.\n* Allocated RAM span: **{high-low} bytes**, including alignment.\n* Reserved boot/trap stack: **4096 bytes**.\n* Total committed RISCue RAM: **{footprint.CommittedRam} bytes**.\n* Loadable code and initialized data: **{footprint.ImageBytes} bytes**.\n\nRISCue executes code from RAM, so RAM includes code, not just data+BSS.\nThis is the one-thread nano example; web, Ethernet, storage, metrics, guards\nand synchronization are OFF. Host tools, HTML assets and debug sections are\nexcluded. These figures do not prove worst-case stack safety or board execution.\n");
+        File.WriteAllText("docs/footprint.rst",$"Measured minimal configuration\n==============================\n\nMeasured from ``{path}``; ELF SHA256 ``{footprint.ElfSha256}``.\n\n* Code and read-only data: **{code} bytes**.\n* Initialized writable data: **{data} bytes**.\n* BSS: **{zero} bytes**, including both512-byte thread/idle stacks.\n* Allocated RAM span: **{high-low} bytes**, including alignment.\n* Reserved boot stack, read from linker symbols: **{reserve} bytes**.\n* Total committed RISCue RAM: **{footprint.CommittedRam} bytes**.\n* Loadable code and initialized data: **{footprint.ImageBytes} bytes**.\n\nRISCue executes code from RAM, so RAM includes code, not just data+BSS.\nThis is the one-thread nano example; web, Ethernet, storage, metrics, guards\nand synchronization are OFF. Host tools, HTML assets and debug sections are\nexcluded. These figures do not prove worst-case stack safety or board execution.\n");
         Console.WriteLine($"Measured image={footprint.ImageBytes}, allocated={footprint.AllocatedSpan}, committed RAM={footprint.CommittedRam} bytes.");
+    }
+    /// <summary>Reads an exact defined ELF32 linker symbol; stripped or malformed measurement inputs fail closed.</summary>
+    private static uint LinkerSymbol(byte[] image,int table,int entry,int count,string name)
+    {
+        uint Word(int p)=>BinaryPrimitives.ReadUInt32LittleEndian(image.AsSpan(p,4));
+        void Extent(uint offset,uint bytes)
+        {
+            if((ulong)offset+bytes>(ulong)image.Length)throw new IOException("Bad ELF symbol/string extent");
+        }
+        uint? value=null;
+        for(int i=0;i<count;i++)
+        {
+            int section=checked(table+i*entry);
+            if(Word(section+4)!=2)continue; // SHT_SYMTAB, not a runtime dynamic-symbol dependency.
+            uint offset=Word(section+16),bytes=Word(section+20),link=Word(section+24),stride=Word(section+36);
+            if(link>=count||stride<16||bytes%stride!=0)throw new IOException("Bad ELF symbol table");
+            Extent(offset,bytes);
+            int strings=checked(table+(int)link*entry);
+            if(Word(strings+4)!=3)throw new IOException("Bad ELF string table");
+            uint textOffset=Word(strings+16),textBytes=Word(strings+20);Extent(textOffset,textBytes);
+            for(ulong at=offset;at<(ulong)offset+bytes;at+=stride)
+            {
+                int symbol=checked((int)at);uint text=Word(symbol);
+                if(text>=textBytes)throw new IOException("Bad ELF symbol name");
+                var tail=image.AsSpan(checked((int)((ulong)textOffset+text)),checked((int)(textBytes-text)));
+                int end=tail.IndexOf((byte)0);
+                if(end<0)throw new IOException("Unterminated ELF symbol name");
+                if(!tail[..end].SequenceEqual(Encoding.ASCII.GetBytes(name)))continue;
+                if(BinaryPrimitives.ReadUInt16LittleEndian(image.AsSpan(symbol+14,2))==0||value.HasValue)throw new IOException("Undefined/duplicate linker symbol: "+name);
+                value=Word(symbol+4);
+            }
+        }
+        return value??throw new IOException("Missing linker symbol: "+name);
     }
     /// <summary>Builds a standalone HTML introduction from the measured report and authored template.</summary>
     private static void Site()

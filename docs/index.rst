@@ -15,6 +15,8 @@ worst-case execution time, or hardware validation.
 
    simple-start
    minimal-application
+   uart-demo
+   arm-stress
    how-it-works
    getting-started
    architecture
@@ -25,13 +27,16 @@ worst-case execution time, or hardware validation.
    port-bringup
    api
    metrics
+   stack-observations
    memory
+   diagnostic-overlays
    drivers
    web
    sync-iterations
    synchronization
    simplicity-iterations
    correctness-iterations
+   implementation-300
    verification
    reviews
    validation

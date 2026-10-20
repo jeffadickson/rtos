@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <SharpTestBenchRoot Condition="'$(SharpTestBenchRoot)' == ''">/mnt/c/dev/SharpTestBench</SharpTestBenchRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(SharpTestBenchRoot)/src/SharpTestBench/SharpTestBench.csproj" />
+  </ItemGroup>
+</Project>

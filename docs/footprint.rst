@@ -1,13 +1,13 @@
 Measured minimal configuration
 ==============================
 
-Measured from ``build/nano/demo.elf``; ELF SHA256 ``1748f24060236e3df48f224bfedf043fddd41dc0ecc9d25d22e922e898d2f346``.
+Measured from ``build/nano/demo.elf``; ELF SHA256 ``42f44b0a19328a3672774838a8d82f6568eeb0d58b1046bb7bb6ba1375815a5e``.
 
 * Code and read-only data: **3812 bytes**.
 * Initialized writable data: **0 bytes**.
 * BSS: **1164 bytes**, including both512-byte thread/idle stacks.
 * Allocated RAM span: **4976 bytes**, including alignment.
-* Reserved boot/trap stack: **4096 bytes**.
+* Reserved boot stack, read from linker symbols: **4096 bytes**.
 * Total committed RISCue RAM: **9072 bytes**.
 * Loadable code and initialized data: **3812 bytes**.
 

@@ -2,6 +2,9 @@
 namespace rtos::web {
 namespace {
 size_t length(const char* text,size_t max){if(!text)return max;size_t n=0;while(n<max&&text[n])++n;return n;}
+// Cppcheck 2.13 extrapolates the bound past short literals; short-circuit NUL
+// checks stop both scans at their terminator. Re-review on analyzer upgrade.
+// cppcheck-suppress arrayIndexOutOfBoundsCond
 bool equal(const char* a,const char* b){size_t i=0;for(;i<96&&a[i]&&b[i];++i)if(a[i]!=b[i])return false;return i<96&&a[i]==b[i];}
 char lower(char c){return c>='A'&&c<='Z'?char(c+32):c;}
 bool name(const char* a,const char* b){size_t i=0;while(a[i]&&b[i]){if(lower(a[i])!=b[i])return false;++i;}return a[i]==b[i];}
@@ -36,6 +39,9 @@ Result Session::feed(Bytes input,size_t& consumed){consumed=0;if(!input.valid())
 Result Session::pump(Write write,void* context,size_t budget){if(!write)return Result::invalid;if(state_==State::done)return Result::ok;if(state_!=State::responding)return Result::busy;for(unsigned calls=0;calls<16&&budget;++calls){bool headers=header_sent_<header_size_;size_t remaining=headers?header_size_-header_sent_:(head_?0:body_.size-body_sent_);if(!remaining){state_=State::done;return Result::ok;}size_t n=remaining<budget?remaining:budget;if(n>1024)n=1024;const uint8_t* data=headers?reinterpret_cast<const uint8_t*>(header_)+header_sent_:body_.data+body_sent_;int accepted=write(context,data,n);if(accepted<0||size_t(accepted)>n){state_=State::failed;static_storage::saturate(stats_.errors);return Result::invalid;}if(!accepted){static_storage::saturate(stats_.busy);return Result::busy;}if(headers)header_sent_+=size_t(accepted);else body_sent_+=size_t(accepted);budget-=size_t(accepted);for(int i=0;i<accepted;++i)static_storage::saturate(stats_.sent);}if(header_sent_==header_size_&&(head_||body_sent_==body_.size)){state_=State::done;return Result::ok;}return Result::busy;}
 Result Session::expire(uint64_t now){if(state_==State::done)return Result::ok;if(now>=deadline_){state_=State::failed;static_storage::saturate(stats_.errors);return Result::timeout;}return Result::busy;}
 void JsonWriter::byte(char ch){if(used_>=destination_.size){failed_=true;return;}destination_.data[used_++]=uint8_t(ch);}
+// Short string literals return at NUL before any later index is read. Cppcheck
+// 2.13 incorrectly extrapolates to index 127; re-review on analyzer upgrade.
+// cppcheck-suppress arrayIndexOutOfBounds
 void JsonWriter::text(const char* value){if(!value){failed_=true;return;}for(size_t i=0;i<128;++i){if(!value[i])return;byte(value[i]);}failed_=true;}
 void JsonWriter::quoted(Bytes value){if(!value.valid()||value.size>96){failed_=true;return;}byte('"');const char* hex="0123456789abcdef";for(size_t i=0;i<value.size;++i){uint8_t c=value.data[i];if(c=='"'||c=='\\'){byte('\\');byte(char(c));}else if(c<32||c>=127){text("\\u00");byte(hex[c>>4]);byte(hex[c&15]);}else byte(char(c));}byte('"');}
 void JsonWriter::unsigned_number(uint64_t value){char digits[20];unsigned n=0;do{digits[n++]=char('0'+value%10);value/=10;}while(value);while(n)byte(digits[--n]);}

@@ -1,5 +1,7 @@
 #include "rtos_ethernet.hpp"
 namespace rtos::net {
+// The callback descriptor is intentionally copied into boot-static driver state.
+// cppcheck-suppress passedByValue
 bool Ethernet::initialize(Mac mac, Input input, void* context) {
     if (initialized_ || !mac.receive || !mac.transmit || !mac.link_up || !input) return false;
     mac_=mac; input_=input; stack_context_=context; initialized_=true; return true;

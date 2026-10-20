@@ -1168,7 +1168,7 @@ STATEMENT: >>>
 Release profiles shall run pinned open-source C++ analyzers with target-correct definitions and fail on selected unsuppressed findings or analyzer failure.
 Acceptance: RV32 options recorded; defect fixture fails gate; clean fixture passes; narrow suppressions include reason/reviewer/expiry; missing tool fails; assembly limits stated.
 Verification: Defect, missing-tool, wrong-definition, suppression-expiry fixtures.
-Configuration: Pinned Clang analyzer; reviewed Cppcheck/clang-tidy profiles when adopted.
+Configuration: Opt-in cppcheck, clang_tidy and cpp_analysis CMake targets; compile database per preset; reviewed .clang-tidy profile and scoped Cppcheck suppressions. Release tool pinning remains planned.
 Static budget: Bounded host time/output; no firmware cost.
 Dependencies: NXR-077, NXR-078, NXR-085
 <<<
@@ -1873,5 +1873,96 @@ Verification: Native configuration self-tests, incomplete-template rejection and
 Configuration: Staged Tang Nano RISCue and classic MicroBlaze; firmware remains disabled.
 Static budget: Host metadata only; no runtime allocation or guessed hardware register map.
 Dependencies: NXR-101, NXR-107, NXR-108
+<<<
+
+[REQUIREMENT]
+UID: NXR-145
+STATUS: PartialSourceUnverified
+TITLE: Explicit boot-stack RAM budget
+STATEMENT: >>>
+The RISCue build shall expose a validated boot-stack reserve and derive the footprint reserve from final linker symbols.
+Acceptance: Default remains 4096 bytes; reject malformed, unaligned or out-of-range settings and image overlap; footprint rejects missing symbols and counts the actual reserve; document startup and first-trap call-chain analysis.
+Verification: Default and reduced-reserve cross-links, invalid configuration rejection, footprint comparison and later board stack qualification.
+Configuration: RTOS_BOOT_STACK_BYTES decimal 512..32512 aligned 16; default 4096.
+Static budget: No new runtime storage; reserved boot stack is explicit and separate from thread stacks.
+Dependencies: NXR-142
+<<<
+
+[REQUIREMENT]
+UID: NXR-146
+STATUS: Planned
+TITLE: Ground-linked diagnostic packages
+STATEMENT: >>>
+The optional diagnostic service shall accept ground-linked flat images for a boot-reserved execution slot without target ELF parsing or symbol resolution.
+Acceptance: Ground tool uses exact firmware ID, ISA, ABI and slot address; rejects unresolved relocations and unsupported runtime features; manifest bounds entry, initialized data and BSS; moving the slot requires relinking or ground relocation.
+Verification: Future native C# packager checks, malformed package cases, exact-slot linking and qualified target execution.
+Configuration: Optional default-off service; fixed address and capacity; native C# XDoc ground tooling.
+Static budget: Fixed slot includes code/constants/data/BSS; no heap or runtime thread registration.
+Dependencies: NXR-144
+<<<
+
+[REQUIREMENT]
+UID: NXR-147
+STATUS: Planned
+TITLE: Diagnostic activation and ownership
+STATEMENT: >>>
+The diagnostic worker shall validate and publish uploaded code only while the reserved slot is quiescent and board execution coherency is established.
+Acceptance: Precreated worker and scratch capacity; bounded authenticated transfer according to mission policy; digest alone is not authentication; no retained overlay callbacks; explicit states; cache publication hook required; failed transfers stay inactive; hung-code recovery uses qualified watchdog/reset.
+Verification: Future transfer state-machine and stale-reference checks, cache publication review and hardware fault recovery exercises.
+Configuration: One optional permanent worker and slot; default off; no forced concurrent unload.
+Static budget: Fixed worker stack/control, bounded receiver state/buffer; avoid a second full image buffer.
+Dependencies: NXR-146
+<<<
+
+[REQUIREMENT]
+UID: NXR-148
+STATUS: Planned
+TITLE: Board-qualified QSPI boot and XIP
+STATEMENT: >>>
+A QSPI boot target shall distinguish flash storage with RAM copy from memory-mapped execute-in-place and declare its actual startup and flash-busy contract.
+Acceptance: Verify reset path, instruction-fetch mapping, flash mode, cache/latency and erase/program behavior; XIP linker separates load and execution addresses and startup copies writable data; code required during flash busy resides in safe memory; publish measured RAM only after cross-link and board validation.
+Verification: Future board memory-map review, boot/data-copy execution, flash-busy interrupt exercises and measured footprint.
+Configuration: Board-specific optional boot/XIP adapter; existing flat RAM remains supported.
+Static budget: Writable data and stacks remain in RAM; account bootstrap, RAM handlers and controller buffers explicitly.
+Dependencies: NXR-144
+<<<
+
+[REQUIREMENT]
+UID: NXR-149
+STATUS: PartialSourceUnverified
+TITLE: Three-worker PLAIN RISCue AXI UART simulation
+STATEMENT: >>>
+The project shall provide a static three-worker UART demo executing actual firmware on the existing PLAIN RISCue AXI core with C# SharpTestBench serial verification.
+Acceptance: Equal-priority workers retain independent arithmetic state; first records show all workers began during non-yielding work; decode physical UART bits and verify repeated per-thread sequence/results; detect fatal/unexpected traps; preserve exact source and binary identities; use no custom Python tooling.
+Verification: Native C# runner, actual RV32 cross-build/allocation audit, Verilator execution and SharpTestBench UART arithmetic/preemption checks.
+Configuration: Optional RTOS_SIMULATION host tools; uart firmware preset with SYNC, LOGGING, METRICS, guards and round robin; PLAIN CPU and ordinary simulation RAM.
+Static budget: Three permanent 1536-byte worker stacks, 512-byte idle stack, fixed logger and 4096-byte boot reserve; measure the larger final demo separately from nano.
+Dependencies: NXR-140, NXR-142
+<<<
+
+[REQUIREMENT]
+UID: NXR-150
+STATUS: PartialSourceUnverified
+TITLE: Bounded Cortex-M3 real-kernel IPC stress
+STATEMENT: >>>
+The project shall provide a boot-static Cortex-M3 simulation port and bounded stress campaign exercising actual thread context switches, FIFO messages, semaphore handoffs, timeouts and priority-inheriting mutexes.
+Acceptance: Execute QEMU MPS2 AN385 with three virtual timer timings; verify message sequence/payload conservation, token conservation, contention, low-owner priority donation, CPU-load preemption, finite deadlines and stack sentinels; fail on timeout, guest failure or missing success marker; retain logs and firmware hash.
+Verification: Native C# runner, Cortex-M3 firmware link and no-heap audit, three QEMU guest runs and existing host regressions.
+Configuration: Optional RTOS_ARM_SIMULATION; arm-stress preset with SYNC, metrics, guards and round robin; one privileged Cortex-M3 with SVC/SysTick and no external IRQ dispatch.
+Static budget: Nine permanent 2048-byte application stacks, 1024-byte idle stack, eight-slot FIFO, fixed synchronization objects and 4096-byte exception/boot reserve; no target heap.
+Dependencies: NXR-090, NXR-140, NXR-142
+<<<
+
+[REQUIREMENT]
+UID: NXR-151
+STATUS: PartialSourceUnverified
+TITLE: Opt-in bounded stack watermark observations
+STATEMENT: >>>
+The kernel shall provide opt-in boot stack painting and explicit budgeted stack observations without adding per-thread storage or scanning in scheduling paths.
+Acceptance: Paint before context creation; scan at most floor(budget_bytes/4) words plus a separate guard check; reject unregistered identities without output mutation; report disabled and incomplete observations explicitly; cover bounds and ARM worker stacks.
+Verification: Host scanner boundary matrix, ARM real-stack observations, no-heap audit and feature-off cross-build.
+Configuration: RTOS_STACK_WATERMARK defaults off; explicit stack_usage scan budget defaults to 256 bytes.
+Static budget: No target heap and no new thread-control fields; constant result storage; scan work bounded by caller budget and registered extent.
+Dependencies: NXR-150
 <<<
 

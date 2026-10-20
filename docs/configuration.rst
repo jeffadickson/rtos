@@ -26,6 +26,9 @@ hexadecimal. Every configured capacity still has to fit the selected board's RAM
    * - ``RTOS_IDLE_STACK_BYTES``
      - 1024
      - At least 512 bytes; multiple of 16.
+   * - ``RTOS_BOOT_STACK_BYTES``
+     - 4096
+     - RISCue boot reserve, 512..32512 bytes, multiple of 16; qualify reductions for the startup workload.
    * - ``RTOS_ROUND_ROBIN``
      - ON
      - Rotate equal priorities on timer interrupts; yield always rotates.

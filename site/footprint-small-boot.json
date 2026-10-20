@@ -1,0 +1,11 @@
+{
+  "codeAndReadOnly": 3812,
+  "initializedData": 0,
+  "zeroFill": 1164,
+  "allocatedSpan": 4976,
+  "padding": 0,
+  "bootReserve": 1024,
+  "committedRam": 6000,
+  "imageBytes": 3812,
+  "elfSha256": "0597250739081ff9a264c854ccd22fb790fa4c8b0f629945b721beceec7ba4b7"
+}

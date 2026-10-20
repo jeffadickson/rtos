@@ -41,8 +41,8 @@ Module boundaries
   timer MMIO, interrupt masking and trap classification. Context assembly and
   startup remain in the architecture port. The scheduler has no inline assembly.
 * Board support must own clocks, pins, memory map, interrupt routing, console,
-  reset and MAC/PHY. Future IPC, VFS, shell, network stack and drivers remain
-  separately budgeted optional modules; they are requirements, not linked code.
+  reset and MAC/PHY. Static IPC is implemented; VFS, shell, network stack and
+  additional drivers remain separately budgeted optional modules.
 
 The extraction is an initial port boundary, not a claim of a completed generic
 32/64-bit port ABI. Thread context storage and the trap callback currently use
@@ -52,7 +52,9 @@ frame offsets and public-layout compatibility tests before implementation.
 Researched targets and status
 -----------------------------
 
-Only RISCue currently cross-builds. No profile has board/RTL execution evidence.
+RISCue cross-builds and has PLAIN-core UART RTL simulation evidence; see
+:doc:`uart-demo`. The separate QEMU Cortex-M3 simulation BSP is described in
+:doc:`arm-stress`. Neither establishes physical board qualification.
 Every other entry is a planned port: configuration can be generated and inspected,
 but CMake deliberately rejects firmware generation before compiler selection.
 No ARM or MicroBlaze assembly is substituted with RISC-V instructions.
@@ -66,7 +68,11 @@ No ARM or MicroBlaze assembly is substituted with RISC-V instructions.
      - Port work and scope
    * - riscue
      - RV32IM + Zicsr
-     - Existing cross-build; one machine-mode hart; target execution pending.
+     - One machine-mode hart; PLAIN RTL UART demo; hardware qualification pending.
+   * - qemu-mps2-m3
+     - Cortex-M3
+     - Dedicated QEMU AN385 simulation BSP with SVC/SysTick, BASEPRI and integer
+       PSP frames. This is not a VORAGO or Zynq board port.
    * - vorago-va108xx
      - Cortex-M0
      - Provisional interpretation of "virago". PendSV/SVC, NVIC, timer,

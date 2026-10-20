@@ -12,7 +12,7 @@ Reset and linker assumptions
 The loader places code, constants and initialized data at their linked RAM
 addresses. Startup does not copy data from ROM, invoke runtime constructors,
 initialize TLS or supply argc/argv. The linker rejects constructor sections,
-aligns BSS bounds and stack top to 16 bytes, and reserves the upper 4096 bytes
+aligns BSS bounds and stack top to 16 bytes, and by default reserves the upper 4096 bytes
 for bootstrap stack use. Reset must already enter machine mode with writable
 RAM accessible. Board boot policy must hold other harts out. Faults before vector
 installation have no recovery handler.

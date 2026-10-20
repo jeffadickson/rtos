@@ -57,7 +57,9 @@ checks and can run Clang Static Analyzer checks as well.
 `Clang Static Analyzer <https://clang.llvm.org/docs/ClangStaticAnalyzer.html>`_
 provides path-sensitive defect analysis.
 
-The recommended tool profile combines Cppcheck and clang-tidy/Clang Static
+The CMake ``cppcheck``, ``clang_tidy`` and combined ``cpp_analysis`` targets
+now provide optional checks. See :doc:`tooling` for commands and scope.
+The release tool profile should combine Cppcheck and clang-tidy/Clang Static
 Analyzer, with a pinned version, reviewed check list, recorded findings, and
 narrowly justified suppressions. Use the correct target, includes, definitions
 and compile_commands.json; native test settings alone do not describe RV32

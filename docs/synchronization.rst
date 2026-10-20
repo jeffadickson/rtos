@@ -11,6 +11,9 @@ peripheral interrupt dispatch is still absent: ISR entry points are tested with
 the host context model and require a board port that invokes them from a supported
 handler. They do not enable UART interrupts by themselves.
 
+For a real-kernel ARM simulation campaign covering blocking FIFO/semaphore
+operations, timeouts, mutex contention and timer preemption, see :doc:`arm-stress`.
+
 Set RTOS_SYNC=ON for queues, mutexes, semaphores, event flags and AtomicU32.
 Set RTOS_LOGGING=ON as well for the formatter/logger. Logging requires sync.
 Both default off; nano excludes both. Unused functions are removed by firmware

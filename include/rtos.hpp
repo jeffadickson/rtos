@@ -106,4 +106,22 @@ struct SystemInfo {
  * borrowed, not copied. Disabled metrics return zero counters, not fake usage.
  */
 SystemInfo snapshot(ThreadInfo* output, size_t capacity);
+/** @brief Explicit stack-paint observation, separate from ordinary snapshots.
+ * used_bytes includes the guard reservation and initial context frame; with an
+ * incomplete scan it is an upper estimate of the paint-derived use. Paint can
+ * match real data and does not prove headroom or account for untouched reserved
+ * stack frames. inspected_bytes excludes the separate one-word guard check.
+ */
+struct StackUsage {
+    size_t capacity_bytes{},inspected_bytes{},untouched_bytes{},used_bytes{};
+    bool watermark_enabled{},complete{},guard_ok{};
+};
+/** @brief Inspect a registered stack under the local interrupt mask.
+ * At most floor(budget_bytes/4) paint words plus one guard word are read. No
+ * allocation, scheduling or rescan is hidden in this call. The default 256-byte
+ * budget can produce an incomplete observation. Full scans require an explicit
+ * larger budget and corresponding interrupt-latency allowance. Invalid identities
+ * leave output unchanged. Disabled watermarking returns metadata with zero usage.
+ */
+bool stack_usage(const Thread&,StackUsage& output,size_t budget_bytes=256);
 }

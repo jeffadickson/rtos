@@ -33,6 +33,9 @@ FormatResult format_log(char* output,size_t capacity,const char* format,va_list 
         }else if(longs){return {};
         }else if(ch=='s'){
             const char* text=va_arg(arguments,const char*);if(!text)text="(null)";
+            // Cppcheck 2.13 extrapolates "(null)" to index 95 despite its NUL
+            // terminator stopping the scan. Re-review on analyzer upgrade.
+            // cppcheck-suppress arrayIndexOutOfBoundsCond
             size_t n=0;for(;n<96&&text[n];++n)buffer.put(text[n]);
             if(n==96)buffer.truncated=true;
         }else if(ch=='c')buffer.put(char(va_arg(arguments,int)));

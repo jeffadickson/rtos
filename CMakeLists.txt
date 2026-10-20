@@ -14,7 +14,7 @@ add_library(nexrt::options ALIAS rtos_options)
 foreach(key MAX_THREADS TICK_HZ IDLE_STACK_BYTES MTIME_ADDRESS MTIMECMP_ADDRESS IPC_MAX_MESSAGE_BYTES MAX_HELD_MUTEXES)
   target_compile_definitions(rtos_options INTERFACE RTOS_${key}=${RTOS_${key}})
 endforeach()
-foreach(key ROUND_ROBIN METRICS STACK_GUARD SYNC LOGGING)
+foreach(key ROUND_ROBIN METRICS STACK_GUARD STACK_WATERMARK SYNC LOGGING)
   target_compile_definitions(rtos_options INTERFACE RTOS_${key}=$<BOOL:${RTOS_${key}}>)
 endforeach()
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -54,3 +54,19 @@ nexrt_add_host_tool(workbench_tool NexRT.Workbench tools/NexRT.Workbench/NexRT.W
 if(RTOS_NATIVE_TOOLS)
   add_dependencies(native_tools workbench_tool)
 endif()
+
+option(RTOS_SIMULATION "Build native C# RISCue/SharpTestBench simulation tooling" OFF)
+if(RTOS_SIMULATION)
+  nexrt_add_host_tool(simulation_tool NexRT.Sim tools/NexRT.Sim/NexRT.Sim.csproj)
+  if(RTOS_NATIVE_TOOLS)
+    add_dependencies(native_tools simulation_tool)
+  endif()
+  set(RISCUE_SOURCE_DIR /mnt/c/dev/RISCue CACHE PATH "Existing RISCue checkout for simulation")
+  set(SHARPTESTBENCH_SOURCE_DIR /mnt/c/dev/SharpTestBench CACHE PATH "Existing SharpTestBench checkout")
+  set(RTOS_SIM_ELF ${CMAKE_SOURCE_DIR}/build/uart/demo.elf CACHE FILEPATH "Firmware for UART simulation")
+  add_custom_target(sharp_demo
+    COMMAND ${simulation_tool_COMMAND} ${CMAKE_SOURCE_DIR} ${RISCUE_SOURCE_DIR} ${SHARPTESTBENCH_SOURCE_DIR} ${RTOS_SIM_ELF}
+    DEPENDS simulation_tool USES_TERMINAL VERBATIM)
+endif()
+
+include(cmake/arm-simulation.cmake)

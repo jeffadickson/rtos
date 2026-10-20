@@ -1,0 +1,5 @@
+# Host fixtures intentionally perform operations inside assert; host-tests.cmake
+# enforces -UNDEBUG (/UNDEBUG). These exceptions never cover production sources.
+# Reviewed for this integration; re-review if assertion flags or test policy change.
+assertWithSideEffect:*/tests/*.cpp
+assignmentInAssert:*/tests/*.cpp

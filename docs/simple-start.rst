@@ -4,6 +4,8 @@ Start with three patterns
 The kernel stays small by enabling only the services the application uses.
 For most applications, start with threads, copied messages, and queued output.
 Keep DMA, PCIe, networking and board bring-up separate from the first application.
+The starter uses project-owned startup and bounded output; :ref:`libgloss-overview`
+explains where newlib/libgloss would fit if C-library compatibility is added.
 
 Use one include
 --------------------------------------------------------------------------------
