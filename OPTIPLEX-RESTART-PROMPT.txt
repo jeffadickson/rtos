@@ -5,11 +5,14 @@ Locate the actual destination; do not assume the old Windows username or paths.
 
 Read AGENTS.md, HANDOFF-START-HERE.txt, docs/handoff.rst, docs/dma.rst and
 docs/implementation-300.rst. Inspect git status before changing anything and
-preserve existing local changes. The last committed/pushed baseline was
+preserve existing local changes. The last pushed baseline was
 cb797a72e9295ec3643e3a6c21decddad317a96e on main of
-https://github.com/jeffadickson/rtos.git. The archive additionally contains
-UNCOMMITTED DMA and migration work. RISCue has its own existing local changes.
-Do not reset these repositories or claim that the local work is already pushed.
+https://github.com/jeffadickson/rtos.git. Local checkpoint 545f3e6 commits the DMA
+and migration implementation; subsequent local commits finalize this handoff.
+The refreshed archive contains that committed history. Its reports/rtos/head.txt
+records the exact packaged HEAD. Inspect each restored repository's status;
+RISCue and SharpTestBench retain their own histories and source snapshots.
+Do not reset these repositories or claim that the local commits are pushed.
 
 First verify the archive manifest if it has not been verified, and run the
 packaged NexRT.Handoff doctor against the restored root. Start with host, then
