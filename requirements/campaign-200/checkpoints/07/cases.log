@@ -1,0 +1,10 @@
+61	NXR-140	embedded NUL is part of length-delimited output
+62	NXR-140	string data is never reparsed as format
+63	NXR-140	escaped percent followed by conversion
+64	NXR-140	wide-character modifier rejected without argument read
+65	NXR-140	wide-string modifier rejected without pointer read
+66	NXR-140	length-qualified pointer rejected
+67	NXR-140	unsupported conversion after text publishes nothing
+68	NXR-140	format exact capacity leaves trailing sentinel
+69	NXR-130	diagnostic increment saturates rather than wrapping
+70	NXR-140	invalid format remains invalid after output fills

@@ -4047,7 +4047,8 @@
     ],
     "verification_files": [
       "tests/log.cpp",
-      "tests/log_edges.cpp"
+      "tests/log_edges.cpp",
+      "tests/campaign/batch_07.cpp"
     ],
     "planned_test": "TEST-NXR-140",
     "configuration": "RTOS_LOGGING requires RTOS_SYNC; fixed logger depth and record size.",
@@ -4061,7 +4062,7 @@
       "include/rtos/detail/wait_queue.hpp",
       "tests/log_edges.cpp"
     ],
-    "finding": "Correctness pass adds host regressions for deadline ordering, wait cleanup, multiple owner-dead waiters, formatter bounds and concurrent logger producers as applicable. Source and host-model evidence does not qualify target interrupts, UART, SMP or timing."
+    "finding": "Directed host acceptance covers embedded-NUL records, nonrecursive format data, invalid modifier rejection and exact-capacity bounds; target stack/timing and all backend qualifications remain open."
   },
   {
     "id": "NXR-141",

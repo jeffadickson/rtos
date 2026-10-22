@@ -59,3 +59,13 @@ iteration	requirement	acceptance	scope	result	source_sha256
 58	NXR-121	zero service budget leaves queue intact	host-acceptance	passed	211575625e265a6cfa289fab17d24bad61577b73e88601b5e07b81445a7e81aa
 59	NXR-121	truncated record is explicitly reported	host-acceptance	passed	211575625e265a6cfa289fab17d24bad61577b73e88601b5e07b81445a7e81aa
 60	NXR-121	queued UART rejects ISR service and formatting	host-acceptance	passed	211575625e265a6cfa289fab17d24bad61577b73e88601b5e07b81445a7e81aa
+61	NXR-140	embedded NUL is part of length-delimited output	host-acceptance	passed	34b78bf5d51cf2b1e28e503728441d1080cc3387944a99ddef000d1f21d7ef53
+62	NXR-140	string data is never reparsed as format	host-acceptance	passed	34b78bf5d51cf2b1e28e503728441d1080cc3387944a99ddef000d1f21d7ef53
+63	NXR-140	escaped percent followed by conversion	host-acceptance	passed	34b78bf5d51cf2b1e28e503728441d1080cc3387944a99ddef000d1f21d7ef53
+64	NXR-140	wide-character modifier rejected without argument read	host-acceptance	passed	34b78bf5d51cf2b1e28e503728441d1080cc3387944a99ddef000d1f21d7ef53
+65	NXR-140	wide-string modifier rejected without pointer read	host-acceptance	passed	34b78bf5d51cf2b1e28e503728441d1080cc3387944a99ddef000d1f21d7ef53
+66	NXR-140	length-qualified pointer rejected	host-acceptance	passed	34b78bf5d51cf2b1e28e503728441d1080cc3387944a99ddef000d1f21d7ef53
+67	NXR-140	unsupported conversion after text publishes nothing	host-acceptance	passed	34b78bf5d51cf2b1e28e503728441d1080cc3387944a99ddef000d1f21d7ef53
+68	NXR-140	format exact capacity leaves trailing sentinel	host-acceptance	passed	34b78bf5d51cf2b1e28e503728441d1080cc3387944a99ddef000d1f21d7ef53
+69	NXR-130	diagnostic increment saturates rather than wrapping	host-acceptance	passed	34b78bf5d51cf2b1e28e503728441d1080cc3387944a99ddef000d1f21d7ef53
+70	NXR-140	invalid format remains invalid after output fills	host-acceptance	passed	34b78bf5d51cf2b1e28e503728441d1080cc3387944a99ddef000d1f21d7ef53

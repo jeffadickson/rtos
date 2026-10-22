@@ -116,6 +116,7 @@
   "tests/campaign/batch_04.cpp": "960f94bbab5b6ad2c20f1e0bfdcd4e1959b92268f73ea2561a080ab74845e5c5",
   "tests/campaign/batch_05.cpp": "630332456f6dd01ac7b3098b8a84bda41b5e9b823cb7dd32982a78ebe47bb167",
   "tests/campaign/batch_06.cpp": "211575625e265a6cfa289fab17d24bad61577b73e88601b5e07b81445a7e81aa",
+  "tests/campaign/batch_07.cpp": "34b78bf5d51cf2b1e28e503728441d1080cc3387944a99ddef000d1f21d7ef53",
   "tests/dma.cpp": "3da346399db6b1beb8770d8b84b31d3d12ba2510eff2e668fa1a2e0bf69c7f47",
   "tests/ethernet.cpp": "67fa4260a61cb20a6d3f3048f872c904049b5a8873dc4ae315cf4326e79515a5",
   "tests/hal.cpp": "462cc06d9aaaca48dcfcbc7cc26749ee9c644f9b8e5c15f389b0e4eb322e2539",

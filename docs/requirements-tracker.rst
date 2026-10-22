@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **160**. Catalogue SHA-256: ``4e56758eb86061f8b796e837fe5d2a94e08a2dda4aed84e3065011580c19096b``.
+Reviewed requirements: **160**. Catalogue SHA-256: ``23185dad9ac930e57ad0540e91e2d65a52eab8cfe2192083b408456b0132a6a8``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -4907,7 +4907,7 @@ NXR-140 Bounded queued printf formatting
 **Static resource budget:** RV32 Logger of 8 records with 64 message bytes occupies 720 bytes in the measured example; private formatter consumes reserved thread stack space.
 
 
-**Review finding:** Correctness pass adds host regressions for deadline ordering, wait cleanup, multiple owner-dead waiters, formatter bounds and concurrent logger producers as applicable. Source and host-model evidence does not qualify target interrupts, UART, SMP or timing.
+**Review finding:** Directed host acceptance covers embedded-NUL records, nonrecursive format data, invalid modifier rejection and exact-capacity bounds; target stack/timing and all backend qualifications remain open.
 
 NXR-141 Simple application starting surface
 -------------------------------------------
