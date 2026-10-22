@@ -239,7 +239,7 @@ Dependencies: NXR-016, NXR-017
 
 [REQUIREMENT]
 UID: NXR-019
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Counting and binary semaphores
 STATEMENT: >>>
 Static semaphores shall enforce maximum count and offer try, timed, blocking take and bounded thread/ISR release with overflow results.

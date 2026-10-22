@@ -1,0 +1,10 @@
+121	NXR-019	zero semaphore maximum is invalid
+122	NXR-019	initial tokens above maximum stay invalid
+123	NXR-019	UINT32_MAX maximum supports last token
+124	NXR-019	binary semaphore overflow loses no token
+125	NXR-019	invalid wait does not consume available token
+126	NXR-019	ISR-only release rejects ordinary thread
+127	NXR-019	ISR release rejects stopped scheduler
+128	NXR-019	ISR handoff wakes waiter without accumulating count
+129	NXR-019	release after timeout retains a usable token
+130	NXR-019	thread acquire from ISR leaves count unchanged

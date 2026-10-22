@@ -520,9 +520,14 @@
       "NXR-014",
       "NXR-020"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_sync.hpp",
+      "src/sync.cpp"
+    ],
+    "verification_files": [
+      "tests/campaign/batch_13.cpp"
+    ],
     "planned_test": "SEMAPHORE-BOUNDARIES",
     "configuration": "Optional boot counts/max; binary maximum 1.",
     "resource_budget": "Fixed records and one wait membership/thread.",
@@ -532,7 +537,7 @@
       "src/scheduler.hpp",
       "docs/architecture.rst"
     ],
-    "finding": "Existing wake logic handles sleeping only; no counting object or ISR release exists."
+    "finding": "Static counting/binary semaphore implementation now has host acceptance for invalid bounds, full-width maxima, overflow conservation, IRQ handoff and timeout recovery. Physical interrupt dispatch and timing remain unqualified."
   },
   {
     "id": "NXR-020",

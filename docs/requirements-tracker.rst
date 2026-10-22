@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **160**. Catalogue SHA-256: ``d39c5f8b87472a8c369ba179f499163b54062f91a1493327b59f7da3c1dc733b``.
+Reviewed requirements: **160**. Catalogue SHA-256: ``b4d2fff045233b41288bbc4155da43a12ea3719477033f2bf770b5499553d1d6``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -642,7 +642,7 @@ NXR-018 Mutex deadlock and owner termination
 NXR-019 Counting and binary semaphores
 --------------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** Synchronization
@@ -672,7 +672,7 @@ NXR-019 Counting and binary semaphores
 **Static resource budget:** Fixed records and one wait membership/thread.
 
 
-**Review finding:** Existing wake logic handles sleeping only; no counting object or ISR release exists.
+**Review finding:** Static counting/binary semaphore implementation now has host acceptance for invalid bounds, full-width maxima, overflow conservation, IRQ handoff and timeout recovery. Physical interrupt dispatch and timing remain unqualified.
 
 NXR-020 Atomic bounded wait lifecycle
 -------------------------------------

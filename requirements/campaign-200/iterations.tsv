@@ -119,3 +119,13 @@ iteration	requirement	acceptance	scope	result	source_sha256
 118	NXR-020	sender timeout never admits stale stack value	host-acceptance	passed	54dae7ba9a3a28c995a5f23c67e76b3a9e99b831504c89d288bcbda34f2f153f
 119	NXR-020	timeout expiration handles tick wrap	host-acceptance	passed	54dae7ba9a3a28c995a5f23c67e76b3a9e99b831504c89d288bcbda34f2f153f
 120	NXR-130	timeout diagnostic differs from empty observation	host-acceptance	passed	54dae7ba9a3a28c995a5f23c67e76b3a9e99b831504c89d288bcbda34f2f153f
+121	NXR-019	zero semaphore maximum is invalid	host-acceptance	passed	2732b4eb9f87e00c651a2d2f2cf5351a8e32185617ba51c89c1b1aaafcdf05ac
+122	NXR-019	initial tokens above maximum stay invalid	host-acceptance	passed	2732b4eb9f87e00c651a2d2f2cf5351a8e32185617ba51c89c1b1aaafcdf05ac
+123	NXR-019	UINT32_MAX maximum supports last token	host-acceptance	passed	2732b4eb9f87e00c651a2d2f2cf5351a8e32185617ba51c89c1b1aaafcdf05ac
+124	NXR-019	binary semaphore overflow loses no token	host-acceptance	passed	2732b4eb9f87e00c651a2d2f2cf5351a8e32185617ba51c89c1b1aaafcdf05ac
+125	NXR-019	invalid wait does not consume available token	host-acceptance	passed	2732b4eb9f87e00c651a2d2f2cf5351a8e32185617ba51c89c1b1aaafcdf05ac
+126	NXR-019	ISR-only release rejects ordinary thread	host-acceptance	passed	2732b4eb9f87e00c651a2d2f2cf5351a8e32185617ba51c89c1b1aaafcdf05ac
+127	NXR-019	ISR release rejects stopped scheduler	host-acceptance	passed	2732b4eb9f87e00c651a2d2f2cf5351a8e32185617ba51c89c1b1aaafcdf05ac
+128	NXR-019	ISR handoff wakes waiter without accumulating count	host-acceptance	passed	2732b4eb9f87e00c651a2d2f2cf5351a8e32185617ba51c89c1b1aaafcdf05ac
+129	NXR-019	release after timeout retains a usable token	host-acceptance	passed	2732b4eb9f87e00c651a2d2f2cf5351a8e32185617ba51c89c1b1aaafcdf05ac
+130	NXR-019	thread acquire from ISR leaves count unchanged	host-acceptance	passed	2732b4eb9f87e00c651a2d2f2cf5351a8e32185617ba51c89c1b1aaafcdf05ac
