@@ -169,3 +169,13 @@ iteration	requirement	acceptance	scope	result	source_sha256
 168	NXR-132	binary NUL survives queued transport	host-acceptance	passed	11b839db31b9f4e7ca7d6881a5928ebc663de297427ec46e982492c9493bd5f2
 169	NXR-140	vprintf preserves caller va-list for repeated use	host-acceptance	passed	11b839db31b9f4e7ca7d6881a5928ebc663de297427ec46e982492c9493bd5f2
 170	NXR-140	invalid format never consumes record capacity	host-acceptance	passed	11b839db31b9f4e7ca7d6881a5928ebc663de297427ec46e982492c9493bd5f2
+171	NXR-134	unbound TX call preserves caller ticket	host-acceptance	passed	1d49350c374830d12bd168ba142c002f439ab7cd1f21682f33ad02d04a67ff25
+172	NXR-134	RX entry rejects a TX channel	host-acceptance	passed	1d49350c374830d12bd168ba142c002f439ab7cd1f21682f33ad02d04a67ff25
+173	NXR-134	TX entry rejects an RX channel	host-acceptance	passed	1d49350c374830d12bd168ba142c002f439ab7cd1f21682f33ad02d04a67ff25
+174	NXR-134	zero ticket never reaches completion backend	host-acceptance	passed	1d49350c374830d12bd168ba142c002f439ab7cd1f21682f33ad02d04a67ff25
+175	NXR-134	stale cancel cannot stop active transfer	host-acceptance	passed	1d49350c374830d12bd168ba142c002f439ab7cd1f21682f33ad02d04a67ff25
+176	NXR-134	TX source cannot overlap its output ticket	host-acceptance	passed	1d49350c374830d12bd168ba142c002f439ab7cd1f21682f33ad02d04a67ff25
+177	NXR-134	collect byte-count output cannot alias staging	host-acceptance	passed	1d49350c374830d12bd168ba142c002f439ab7cd1f21682f33ad02d04a67ff25
+178	NXR-134	diagnostic snapshot cannot overwrite staging	host-acceptance	passed	1d49350c374830d12bd168ba142c002f439ab7cd1f21682f33ad02d04a67ff25
+179	NXR-134	failed launch generation is never reused	host-acceptance	passed	1d49350c374830d12bd168ba142c002f439ab7cd1f21682f33ad02d04a67ff25
+180	NXR-134	cancel completed transfer does not finish cache twice	host-acceptance	passed	1d49350c374830d12bd168ba142c002f439ab7cd1f21682f33ad02d04a67ff25
