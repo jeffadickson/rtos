@@ -1,0 +1,10 @@
+151	NXR-004	strict priority admits priority 255
+152	NXR-004	blocked highest priority never dispatches
+153	NXR-005	three equal-priority peers rotate FIFO
+154	NXR-005	no-rotate keeps previous equal-priority thread
+155	NXR-004	priority donation controls dispatch
+156	NXR-009	wake at exact deadline becomes ready
+157	NXR-009	sleep wrap deadline waits through zero
+158	NXR-010	timer catch-up counts exact deadline once
+159	NXR-003	adjacent storage ranges do not overlap
+160	NXR-003	range overlap handles top address without addition overflow

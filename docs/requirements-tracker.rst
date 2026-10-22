@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **160**. Catalogue SHA-256: ``0ed7d8f37abf27870b4753a405d913e6e4e7a7a9d777a20e5fdd8c9795608bb7``.
+Reviewed requirements: **160**. Catalogue SHA-256: ``919d0eb68a25a04f5b4328879df3e26023bb1f05833a6901db99a3219caf19cc``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -182,7 +182,7 @@ NXR-005 Equal-priority fairness
 **Static resource budget:** Existing registry and one cursor; no extra allocations.
 
 
-**Review finding:** pick supports retention and cursor rotation; trap forces ECALL rotation independently of timer slicing.
+**Review finding:** A new three-peer partial-registry regression exposed capacity-dependent initial tie ordering. Initial cursor now selects slot zero independently of configured capacity; red/green host evidence retained, target fairness timing still unqualified.
 
 NXR-006 Priority changes
 ------------------------

@@ -144,7 +144,8 @@
     ],
     "verification_files": [
       "tests/scheduler.cpp",
-      "tests/thread_stress.cpp"
+      "tests/thread_stress.cpp",
+      "tests/campaign/batch_16.cpp"
     ],
     "planned_test": "SCHED-ROTATION",
     "configuration": "RTOS_ROUND_ROBIN = 0 or 1.",
@@ -156,7 +157,7 @@
       "tests/scheduler.cpp",
       "tests/thread_stress.cpp"
     ],
-    "finding": "pick supports retention and cursor rotation; trap forces ECALL rotation independently of timer slicing."
+    "finding": "A new three-peer partial-registry regression exposed capacity-dependent initial tie ordering. Initial cursor now selects slot zero independently of configured capacity; red/green host evidence retained, target fairness timing still unqualified."
   },
   {
     "id": "NXR-006",

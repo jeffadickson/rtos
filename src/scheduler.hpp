@@ -19,7 +19,9 @@ struct Scheduler {
 #endif
     }
     Thread* threads[capacity]{};
-    unsigned count{}, cursor{capacity - 1};
+    // Before the first pick, unsigned wrap makes cursor+1 select slot zero.
+    // capacity-1 incorrectly rotates the first tie when count != capacity.
+    unsigned count{}, cursor{static_cast<unsigned>(-1)};
     Tick now{};
     bool contains(const Thread& t) const {
         for (unsigned i=0; i<count; ++i) if (threads[i] == &t) return true;
