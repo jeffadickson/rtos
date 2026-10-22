@@ -1,0 +1,10 @@
+31	NXR-117	read-only register performs one word read
+32	NXR-117	read-only write never reaches bus
+33	NXR-117	write-only read preserves caller output
+34	NXR-117	write-only exact value and address
+35	NXR-117	read-write masked update preserves unrelated bits
+36	NXR-117	unaligned read fails unchanged
+37	NXR-117	unaligned writes have no bus effect
+38	NXR-117	W1C writes only requested clear bits
+39	NXR-117	W1C refuses destructive read-modify-write
+40	NXR-117	read-only update never reads side-effect register

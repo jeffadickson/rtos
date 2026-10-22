@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **160**. Catalogue SHA-256: ``661334afd88802f42d3763e34f4c22a9a766e07e4211f7f7899b950a191be441``.
+Reviewed requirements: **160**. Catalogue SHA-256: ``92bcbdbd0476eca3f1eb8b45c3140e1d42db462e2c5a5a0503341c048c248b4c``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -4072,7 +4072,7 @@ NXR-116 Bounded priority inheritance
 NXR-117 Typed MMIO access contracts
 -----------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** Drivers
@@ -4102,7 +4102,7 @@ NXR-117 Typed MMIO access contracts
 **Static resource budget:** Compile-time register descriptors plus bounded validation; no heap.
 
 
-**Review finding:** Reviews 021-025 distinguish typed volatile register access from verified hardware ordering and register semantics.
+**Review finding:** Typed read/write/W1C permissions, alignment failures and no-RMW policies now have host bus-observation tests. BSP ordering, bus faults and target access qualification remain open.
 
 NXR-118 Race-free completion wait
 ---------------------------------

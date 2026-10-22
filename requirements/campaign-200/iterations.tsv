@@ -29,3 +29,13 @@ iteration	requirement	acceptance	scope	result	source_sha256
 28	NXR-073	ISR capture restores nested mask	host-acceptance	passed	bab16ce8ea274386b72455febc728c3897ee5ffb77d5a0856d914332a8c0dbab
 29	NXR-073	independent record instances	host-acceptance	passed	bab16ce8ea274386b72455febc728c3897ee5ffb77d5a0856d914332a8c0dbab
 30	NXR-073	capture never asks scheduler to run	host-acceptance	passed	bab16ce8ea274386b72455febc728c3897ee5ffb77d5a0856d914332a8c0dbab
+31	NXR-117	read-only register performs one word read	host-acceptance	passed	960f94bbab5b6ad2c20f1e0bfdcd4e1959b92268f73ea2561a080ab74845e5c5
+32	NXR-117	read-only write never reaches bus	host-acceptance	passed	960f94bbab5b6ad2c20f1e0bfdcd4e1959b92268f73ea2561a080ab74845e5c5
+33	NXR-117	write-only read preserves caller output	host-acceptance	passed	960f94bbab5b6ad2c20f1e0bfdcd4e1959b92268f73ea2561a080ab74845e5c5
+34	NXR-117	write-only exact value and address	host-acceptance	passed	960f94bbab5b6ad2c20f1e0bfdcd4e1959b92268f73ea2561a080ab74845e5c5
+35	NXR-117	read-write masked update preserves unrelated bits	host-acceptance	passed	960f94bbab5b6ad2c20f1e0bfdcd4e1959b92268f73ea2561a080ab74845e5c5
+36	NXR-117	unaligned read fails unchanged	host-acceptance	passed	960f94bbab5b6ad2c20f1e0bfdcd4e1959b92268f73ea2561a080ab74845e5c5
+37	NXR-117	unaligned writes have no bus effect	host-acceptance	passed	960f94bbab5b6ad2c20f1e0bfdcd4e1959b92268f73ea2561a080ab74845e5c5
+38	NXR-117	W1C writes only requested clear bits	host-acceptance	passed	960f94bbab5b6ad2c20f1e0bfdcd4e1959b92268f73ea2561a080ab74845e5c5
+39	NXR-117	W1C refuses destructive read-modify-write	host-acceptance	passed	960f94bbab5b6ad2c20f1e0bfdcd4e1959b92268f73ea2561a080ab74845e5c5
+40	NXR-117	read-only update never reads side-effect register	host-acceptance	passed	960f94bbab5b6ad2c20f1e0bfdcd4e1959b92268f73ea2561a080ab74845e5c5

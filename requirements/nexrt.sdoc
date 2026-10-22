@@ -1513,7 +1513,7 @@ Dependencies: NXR-001
 
 [REQUIREMENT]
 UID: NXR-117
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Typed MMIO access contracts
 STATEMENT: >>>
 The port and driver framework shall validate register aperture, width and alignment and define ordering, endian and side-effect semantics for MMIO.

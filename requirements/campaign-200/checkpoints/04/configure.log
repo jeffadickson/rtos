@@ -1,0 +1,10 @@
+-- Rtos.Tools: Native AOT host executable (linux-x64)
+-- NexRT.Evidence: Native AOT host executable (linux-x64)
+-- NexRT.Handoff: Native AOT host executable (linux-x64)
+-- NexRT.Requirements: Native AOT host executable (linux-x64)
+-- NexRT.Configure: Native AOT host executable (linux-x64)
+-- NexRT.Workbench: Native AOT host executable (linux-x64)
+-- NexRT.Sim: Native AOT host executable (linux-x64)
+-- Configuring done (1.1s)
+-- Generating done (0.1s)
+-- Build files have been written to: /home/jeffd/src/nexrt/rtos/build/host

@@ -3256,9 +3256,13 @@
     "dependencies": [
       "NXR-114"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_mmio.hpp"
+    ],
+    "verification_files": [
+      "tests/campaign/batch_04.cpp"
+    ],
     "planned_test": "TEST-NXR-117",
     "configuration": "Per-device register map and per-port ordering hooks.",
     "resource_budget": "Compile-time register descriptors plus bounded validation; no heap.",
@@ -3267,7 +3271,7 @@
       "docs/drivers.rst",
       "docs/device-ipc-review.rst"
     ],
-    "finding": "Reviews 021-025 distinguish typed volatile register access from verified hardware ordering and register semantics."
+    "finding": "Typed read/write/W1C permissions, alignment failures and no-RMW policies now have host bus-observation tests. BSP ordering, bus faults and target access qualification remain open."
   },
   {
     "id": "NXR-118",
