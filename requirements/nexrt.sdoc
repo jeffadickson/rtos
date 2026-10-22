@@ -148,7 +148,7 @@ Dependencies: NXR-010
 
 [REQUIREMENT]
 UID: NXR-012
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Absolute periodic release
 STATEMENT: >>>
 The kernel shall provide absolute sleep and a static periodic helper advancing from prior intended deadlines with missed-release reporting.

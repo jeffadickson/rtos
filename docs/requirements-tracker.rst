@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **160**. Catalogue SHA-256: ``f3db667766517341768615696abecb4d415c3822140ba76a97feecc30990b891``.
+Reviewed requirements: **160**. Catalogue SHA-256: ``45d7d91873717bde6f431ef18c1a9f1350a05cd3a635f4aae14d84b34264e670``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -397,7 +397,7 @@ NXR-011 Timer MMIO integrity
 NXR-012 Absolute periodic release
 ---------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** Time
@@ -427,7 +427,7 @@ NXR-012 Absolute periodic release
 **Static resource budget:** Fixed state per boot-created periodic activity.
 
 
-**Review finding:** Only relative sleep exists; tick-boundary rounding does not supply a drift-free release grid.
+**Review finding:** Release-grid helper now has directed wrap, overrun and invalid-period acceptance tests. Absolute kernel sleep and target timing qualification remain open.
 
 NXR-013 Interrupt-state restoration
 -----------------------------------

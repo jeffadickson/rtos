@@ -1,0 +1,1 @@
+NXR-012	include/rtos_periodic.hpp	tests/campaign/batch_01.cpp	Release-grid helper now has directed wrap, overrun and invalid-period acceptance tests. Absolute kernel sleep and target timing qualification remain open.

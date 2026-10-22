@@ -1,0 +1,11 @@
+iteration	requirement	acceptance	scope	result	source_sha256
+1	NXR-012	zero period preserves deadline and output	host-acceptance	passed	3c1f7171ce5aa54c6247c90e2836fd6494452236fec8142fc8f634bf52591e8a
+2	NXR-012	half-range period rejected	host-acceptance	passed	3c1f7171ce5aa54c6247c90e2836fd6494452236fec8142fc8f634bf52591e8a
+3	NXR-012	before release preserves grid	host-acceptance	passed	3c1f7171ce5aa54c6247c90e2836fd6494452236fec8142fc8f634bf52591e8a
+4	NXR-012	exact release advances one period	host-acceptance	passed	3c1f7171ce5aa54c6247c90e2836fd6494452236fec8142fc8f634bf52591e8a
+5	NXR-012	short overrun keeps original grid	host-acceptance	passed	3c1f7171ce5aa54c6247c90e2836fd6494452236fec8142fc8f634bf52591e8a
+6	NXR-012	multiple releases count misses	host-acceptance	passed	3c1f7171ce5aa54c6247c90e2836fd6494452236fec8142fc8f634bf52591e8a
+7	NXR-012	deadline wraps across uint32 boundary	host-acceptance	passed	3c1f7171ce5aa54c6247c90e2836fd6494452236fec8142fc8f634bf52591e8a
+8	NXR-012	late release after wrap counts misses	host-acceptance	passed	3c1f7171ce5aa54c6247c90e2836fd6494452236fec8142fc8f634bf52591e8a
+9	NXR-012	miss counter saturates	host-acceptance	passed	3c1f7171ce5aa54c6247c90e2836fd6494452236fec8142fc8f634bf52591e8a
+10	NXR-012	ambiguous half-range observation rejected unchanged	host-acceptance	passed	3c1f7171ce5aa54c6247c90e2836fd6494452236fec8142fc8f634bf52591e8a

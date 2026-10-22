@@ -337,9 +337,13 @@
     "dependencies": [
       "NXR-009"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_periodic.hpp"
+    ],
+    "verification_files": [
+      "tests/campaign/batch_01.cpp"
+    ],
     "planned_test": "TIME-PERIODIC",
     "configuration": "Optional helper; period 1..INT32_MAX; saturating miss counter.",
     "resource_budget": "Fixed state per boot-created periodic activity.",
@@ -349,7 +353,7 @@
       "docs/api.rst",
       "docs/architecture.rst"
     ],
-    "finding": "Only relative sleep exists; tick-boundary rounding does not supply a drift-free release grid."
+    "finding": "Release-grid helper now has directed wrap, overrun and invalid-period acceptance tests. Absolute kernel sleep and target timing qualification remain open."
   },
   {
     "id": "NXR-013",
