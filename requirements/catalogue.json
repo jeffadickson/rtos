@@ -3845,9 +3845,14 @@
       "NXR-119",
       "NXR-131"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_dma.hpp",
+      "src/dma.cpp"
+    ],
+    "verification_files": [
+      "tests/campaign/batch_08.cpp"
+    ],
     "planned_test": "TEST-NXR-133",
     "configuration": "Proposed RTOS_DMA optional, off in nano; actual engine selected by BSP.",
     "resource_budget": "Static channel state and explicit buffer capacities/alignment; report exact target costs.",
@@ -3856,7 +3861,7 @@
       "docs/device-ipc-review.rst",
       "docs/drivers.rst"
     ],
-    "finding": "Roadmap now includes a later simple DMA BSP driver; earlier deferral still applies to the initial IPC/device phase."
+    "finding": "Portable DMA staging implementation and host binding-rejection tests now linked. A real FPGA DMA engine, IRQ integration and board fault/timing qualification remain open."
   },
   {
     "id": "NXR-134",
@@ -3895,9 +3900,14 @@
       "NXR-117",
       "NXR-133"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_dma.hpp",
+      "src/dma.cpp"
+    ],
+    "verification_files": [
+      "tests/campaign/batch_08.cpp"
+    ],
     "planned_test": "TEST-NXR-135",
     "configuration": "Selected engine and memory-region manifest; coherent or maintained buffers explicit.",
     "resource_budget": "Static aligned regions and mapping metadata; cache-line padding reported.",
@@ -3906,7 +3916,7 @@
       "docs/device-ipc-review.rst",
       "docs/drivers.rst"
     ],
-    "finding": "DMA addresses cannot be inferred from C\u002B\u002B pointers; real BSP memory topology is still unknown."
+    "finding": "Host tests enforce cache-line capacity, alignment, bus windows, CPU range and channel-metadata isolation; real cache-maintenance and bus-address qualification remain BSP obligations."
   },
   {
     "id": "NXR-136",

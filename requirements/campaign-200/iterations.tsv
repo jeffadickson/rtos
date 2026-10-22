@@ -69,3 +69,13 @@ iteration	requirement	acceptance	scope	result	source_sha256
 68	NXR-140	format exact capacity leaves trailing sentinel	host-acceptance	passed	34b78bf5d51cf2b1e28e503728441d1080cc3387944a99ddef000d1f21d7ef53
 69	NXR-130	diagnostic increment saturates rather than wrapping	host-acceptance	passed	34b78bf5d51cf2b1e28e503728441d1080cc3387944a99ddef000d1f21d7ef53
 70	NXR-140	invalid format remains invalid after output fills	host-acceptance	passed	34b78bf5d51cf2b1e28e503728441d1080cc3387944a99ddef000d1f21d7ef53
+71	NXR-135	DMA rejects null CPU staging	host-acceptance	passed	9e327f3506aa9616e3608886b69fcf5f87453a6beeb4cbcc578fef0fa8386785
+72	NXR-135	DMA rejects empty staging allocation	host-acceptance	passed	9e327f3506aa9616e3608886b69fcf5f87453a6beeb4cbcc578fef0fa8386785
+73	NXR-135	DMA rejects zero alignment	host-acceptance	passed	9e327f3506aa9616e3608886b69fcf5f87453a6beeb4cbcc578fef0fa8386785
+74	NXR-135	DMA rejects non-power-of-two alignment	host-acceptance	passed	9e327f3506aa9616e3608886b69fcf5f87453a6beeb4cbcc578fef0fa8386785
+75	NXR-135	DMA rejects partial cache-line capacity	host-acceptance	passed	9e327f3506aa9616e3608886b69fcf5f87453a6beeb4cbcc578fef0fa8386785
+76	NXR-135	DMA backend window denial preserves uninitialized state	host-acceptance	passed	9e327f3506aa9616e3608886b69fcf5f87453a6beeb4cbcc578fef0fa8386785
+77	NXR-133	DMA missing stop proof callback rejected	host-acceptance	passed	9e327f3506aa9616e3608886b69fcf5f87453a6beeb4cbcc578fef0fa8386785
+78	NXR-133	DMA invalid direction rejected	host-acceptance	passed	9e327f3506aa9616e3608886b69fcf5f87453a6beeb4cbcc578fef0fa8386785
+79	NXR-135	DMA rejects unaligned bus address	host-acceptance	passed	9e327f3506aa9616e3608886b69fcf5f87453a6beeb4cbcc578fef0fa8386785
+80	NXR-134	DMA staging cannot overlap channel metadata	host-acceptance	passed	9e327f3506aa9616e3608886b69fcf5f87453a6beeb4cbcc578fef0fa8386785

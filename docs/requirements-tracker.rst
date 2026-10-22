@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **160**. Catalogue SHA-256: ``23185dad9ac930e57ad0540e91e2d65a52eab8cfe2192083b408456b0132a6a8``.
+Reviewed requirements: **160**. Catalogue SHA-256: ``dea39035aedb2ed7ae896162e9ef16c1bf39b4c5615975aca729599d0e81b914``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -4632,7 +4632,7 @@ NXR-132 Small bounded logging and documentation
 NXR-133 Optional simple FPGA DMA driver
 ---------------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** DMA
@@ -4662,7 +4662,7 @@ NXR-133 Optional simple FPGA DMA driver
 **Static resource budget:** Static channel state and explicit buffer capacities/alignment; report exact target costs.
 
 
-**Review finding:** Roadmap now includes a later simple DMA BSP driver; earlier deferral still applies to the initial IPC/device phase.
+**Review finding:** Portable DMA staging implementation and host binding-rejection tests now linked. A real FPGA DMA engine, IRQ integration and board fault/timing qualification remain open.
 
 NXR-134 DMA buffer ownership and quiescence
 -------------------------------------------
@@ -4702,7 +4702,7 @@ NXR-134 DMA buffer ownership and quiescence
 NXR-135 DMA address and cache contract
 --------------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** DMA
@@ -4732,7 +4732,7 @@ NXR-135 DMA address and cache contract
 **Static resource budget:** Static aligned regions and mapping metadata; cache-line padding reported.
 
 
-**Review finding:** DMA addresses cannot be inferred from C++ pointers; real BSP memory topology is still unknown.
+**Review finding:** Host tests enforce cache-line capacity, alignment, bus windows, CPU range and channel-metadata isolation; real cache-maintenance and bus-address qualification remain BSP obligations.
 
 NXR-136 Conditional SpaceVPX PCIe transport
 -------------------------------------------

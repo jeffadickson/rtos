@@ -1,0 +1,10 @@
+71	NXR-135	DMA rejects null CPU staging
+72	NXR-135	DMA rejects empty staging allocation
+73	NXR-135	DMA rejects zero alignment
+74	NXR-135	DMA rejects non-power-of-two alignment
+75	NXR-135	DMA rejects partial cache-line capacity
+76	NXR-135	DMA backend window denial preserves uninitialized state
+77	NXR-133	DMA missing stop proof callback rejected
+78	NXR-133	DMA invalid direction rejected
+79	NXR-135	DMA rejects unaligned bus address
+80	NXR-134	DMA staging cannot overlap channel metadata

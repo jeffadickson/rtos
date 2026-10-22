@@ -1721,7 +1721,7 @@ Dependencies: NXR-002, NXR-131
 
 [REQUIREMENT]
 UID: NXR-133
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Optional simple FPGA DMA driver
 STATEMENT: >>>
 The BSP shall optionally support one selected FPGA DMA engine after interrupt and IPC prerequisites, with one active transfer per channel and fixed aligned buffers.
@@ -1747,7 +1747,7 @@ Dependencies: NXR-133, NXR-120, NXR-129
 
 [REQUIREMENT]
 UID: NXR-135
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: DMA address and cache contract
 STATEMENT: >>>
 The BSP shall define DMA-reachable bus address ranges, width, alignment, cache maintenance and ordering independently from CPU virtual or physical pointer representation.
