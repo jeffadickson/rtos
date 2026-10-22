@@ -4,34 +4,21 @@
  * No board address or clock is inferred by this example.
  */
 #include "rtos_ipc.hpp"
+#include "rtos_uart.hpp"
 
 namespace {
 static rtos::Thread threads[3];
 static rtos::Stack<1536> stacks[3];
-static rtos::Logger<8,64> console;
+static rtos::AxiUartTx uart(0x10000000);
+static rtos::QueuedUart<8,64> console(uart);
 static rtos::AtomicU32 started;
-constexpr uintptr_t uart_base=0x10000000;
-
-/** @brief Nonblocking single-owner TX adapter; bytes are consumed synchronously.
- * UARTLite-compatible TX/status offsets only. The wrapper implements no RX or IRQ.
- * This uncached, one-outstanding AXI integration preserves MMIO ordering; other
- * boards must supply their own device ordering/cache policy.
- */
-int uart_write(void*,const char* bytes,size_t length) {
-    auto& status=*reinterpret_cast<volatile uint32_t*>(uart_base+8);
-    auto& transmit=*reinterpret_cast<volatile uint32_t*>(uart_base+4);
-    size_t sent=0;
-    while(sent<length && !(status&8u))
-        transmit=static_cast<unsigned char>(bytes[sent++]);
-    return static_cast<int>(sent);
-}
 
 /** @brief Worker three owns draining; all workers may publish copied records. */
 void drain_console() {
     for(;;) {
         const auto info=console.snapshot();
         if(!info.pending && !info.queue.depth) return;
-        (void)console.drain(uart_write,nullptr,64);
+        (void)console.service(64);
     }
 }
 
@@ -49,7 +36,7 @@ void work(void* argument) {
         for(uint32_t i=0;i<count;++i) value=value*1664525u+1013904223u+id;
         const auto mask=started.load();
         for(;;) {
-            const auto result=console.printf("thread=%u round=%u value=%u mask=%u\n",
+            const auto result=console.printf("hello from thread %u round=%u value=%u mask=%u\n",
                 static_cast<unsigned>(id),static_cast<unsigned>(round),
                 static_cast<unsigned>(value),static_cast<unsigned>(mask));
             if(result.result==rtos::Result::ok) break;

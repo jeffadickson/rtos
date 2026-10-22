@@ -1,0 +1,40 @@
+2026-10-21 follow-up acceleration investigation
+
+Host reports Intel i5-10505, six physical cores/twelve logical CPUs, AVX2,
+POPCNT, BMI1/BMI2 and PCLMULQDQ. No unsupported host instructions enabled in
+the default portable build.
+
+Compared default -O3 with a separate -O3 -march=native + interprocedural
+optimization build. Three sequential 100-million-boundary runs per build,
+ordered baseline/native, native/baseline, baseline/native:
+ baseline host seconds: 1.982986260, 2.175106697, 2.205590357
+ native   host seconds: 2.042324273, 2.135742090, 2.174093394
+No consistent material advantage demonstrated. Shared host; not an isolated
+benchmark. Architectural reported state matched for each run: 982 target ticks,
+65 jobs, same worker/mode/dispatch counts, zero failure. Native architecture
+checks and all 71 external RTL fixtures passed. No default flags changed.
+
+8-host-second perf sample: 1549 samples, no lost samples. This perf build did
+not resolve ELF symbols; profile-report.txt retains raw ELF-relative addresses.
+Disassembly maps the leading sampled location 0xa927 to decode-cache length
+comparison in Machine::step. Several other leading addresses are also inside
+fetch/decode/dispatch. This is evidence to investigate that path, not a measured
+percentage for all decoding or proof that a SIMD instruction would help.
+
+Candidate work: richer decoded blocks, direct linking, profile-guided code
+layout and deadline budgeting. Explicit intrinsics should target demonstrated
+hot operations (e.g. carry-less multiply) with CPU-feature dispatch and a tested
+portable fallback. Inline assembly is not justified by this sample.
+
+Hardware test concept (not implemented or programmed): one RISC-V hart executes
+the actual RTOS/test; report bounded binary summaries at about 1 Hz through a
+nonblocking static buffer. Prefer UART DMA to an external USB/serial bridge
+where available, or bounded native USB servicing. Record build/profile, seed,
+uptime, jobs/checks, progress counters, guard failures, checksum mismatches,
+reset reason and transport sequence/CRC. Keep a static recent-event ring and a
+sticky first-failure record with mcause/mepc/mtval/mstatus and test identifiers.
+Report backpressure/drop counts; a disconnected host must not stall the test.
+Use independent correctness checks; a rolling checksum alone is not an oracle.
+Measure reporting CPU/interrupt cost against reporting-disabled operation.
+Commercial silicon validates the RTOS and its HAL port; validating the RISCue
+RTL implementation and ECC/TMR syndromes requires that design on an FPGA.

@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "SharpTestBench/0.8.0-alpha": {
+        "runtime": {
+          "SharpTestBench.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "SharpTestBench/0.8.0-alpha": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

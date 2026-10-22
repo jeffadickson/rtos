@@ -91,6 +91,9 @@ One operation is active per channel. ``transmit`` copies input before launch;
 failure. Completion must prove that the engine has finished all bus accesses.
 After cache completion, ``collect`` copies a completed RX result into a caller
 buffer, or retires TX with null output and zero capacity. A short RX is allowed.
+An RX completion may contain zero bytes; collect it with null output and zero
+capacity if desired. TX completion must report the entire requested length;
+a short TX follows the device-error stop/quarantine policy.
 Insufficient output capacity preserves caller output/count and the completed
 result, allowing retry. Successful collection releases the channel.
 
@@ -146,8 +149,17 @@ Verification
 The enabled host fixture uses a simulated adapter to check cache/launch ordering,
 bus/CPU address separation, copied TX lifetime, RX output preservation, stale
 generation handling, contention, failed launch, abort uncertainty, recovery and
-invalid completion sizes. Sanitizer/Memcheck builds include it when DMA is
+invalid completion sizes, short TX completion, empty RX collection and fault
+quarantine with current-ticket-only recovery. Sanitizer/Memcheck builds include it when DMA is
 enabled. These checks exercise the ownership implementation, not an FPGA engine.
+
+The fixture also alternates submitting and supervising host-model threads over
+256 transfers, including repeated uncertain stops and recovery for TX and RX.
+Prepare, start, poll, stop and finish callbacks attempt every runtime API from
+both the owning thread and another thread. All attempts must return ``busy``
+without changing output arguments. Each retired transfer must finish cache
+ownership exactly once and leave no thread holding the channel mutex. This
+checks serialized callback contention; it does not create simultaneous threads.
 
 .. literalinclude:: ../include/rtos_dma.hpp
    :language: cpp

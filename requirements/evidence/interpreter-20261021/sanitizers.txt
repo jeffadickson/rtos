@@ -1,0 +1,8 @@
+Internal ctest changing into directory: /home/jeffd/src/nexrt/rtos/build/interpreter-sanitize
+Test project /home/jeffd/src/nexrt/rtos/build/interpreter-sanitize
+    Start 1: rv_architecture
+1/1 Test #1: rv_architecture ..................   Passed    0.08 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.08 sec

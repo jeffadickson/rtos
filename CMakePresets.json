@@ -7,6 +7,51 @@
   },
   "configurePresets": [
     {
+      "name": "atomic-baseline",
+      "inherits": "riscue",
+      "binaryDir": "${sourceDir}/build/atomic-baseline",
+      "cacheVariables": {
+        "RTOS_APPLICATION": "examples/atomic_stress.cpp",
+        "RTOS_SYNC": "ON",
+        "RTOS_ZAAMO": "OFF",
+        "RTOS_ZAAMO_CAPABLE_RAM": "OFF",
+        "RTOS_DMA": "OFF",
+        "RTOS_LOGGING": "OFF",
+        "RTOS_ETHERNET": "OFF",
+        "RTOS_WEB": "OFF",
+        "RTOS_MAX_THREADS": "4",
+        "RTOS_IDLE_STACK_BYTES": "1024",
+        "RTOS_STACK_GUARD": "ON",
+        "RTOS_ROUND_ROBIN": "ON"
+      }
+    },
+    {
+      "name": "atomic-zaamo",
+      "inherits": "atomic-baseline",
+      "binaryDir": "${sourceDir}/build/atomic-zaamo",
+      "cacheVariables": { "RTOS_ZAAMO": "ON", "RTOS_ZAAMO_CAPABLE_RAM": "ON" }
+    },
+    {
+      "name": "overnight-stress",
+      "inherits": "riscue",
+      "binaryDir": "${sourceDir}/build/overnight-stress",
+      "cacheVariables": {
+        "RTOS_APPLICATION": "examples/overnight_stress.cpp",
+        "RTOS_SOAK_CLOCK_HZ": "100000000",
+        "RTOS_MAX_THREADS": "6",
+        "RTOS_SYNC": "ON",
+        "RTOS_DMA": "OFF",
+        "RTOS_LOGGING": "OFF",
+        "RTOS_ETHERNET": "OFF",
+        "RTOS_WEB": "OFF",
+        "RTOS_METRICS": "ON",
+        "RTOS_STACK_GUARD": "ON",
+        "RTOS_STACK_WATERMARK": "ON",
+        "RTOS_ROUND_ROBIN": "ON",
+        "RTOS_IDLE_STACK_BYTES": "1024"
+      }
+    },
+    {
       "name": "host-asan",
       "inherits": "host",
       "binaryDir": "${sourceDir}/build/host-asan",
@@ -52,7 +97,7 @@
         "RTOS_ARM_STRESS_WITNESS": "ON",
         "RTOS_STACK_WATERMARK": "ON",
         "RTOS_APPLICATION": "examples/arm_stress.cpp",
-        "CMAKE_BUILD_TYPE": "MinSizeRel",
+        "CMAKE_BUILD_TYPE": "Release",
         "RTOS_BUILD_FIRMWARE": "ON",
         "RTOS_ARM_SIMULATION": "ON",
         "RTOS_MAX_THREADS": "9",
@@ -107,7 +152,7 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/host",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Release"
       }
     },
     {
@@ -127,7 +172,7 @@
       "binaryDir": "${sourceDir}/build/riscue",
       "toolchainFile": "${sourceDir}/cmake/riscue-toolchain.cmake",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "MinSizeRel",
+        "CMAKE_BUILD_TYPE": "Release",
         "RTOS_BUILD_FIRMWARE": "ON"
       }
     },
@@ -167,6 +212,9 @@
     }
   ],
   "buildPresets": [
+    { "name": "atomic-baseline", "configurePreset": "atomic-baseline" },
+    { "name": "atomic-zaamo", "configurePreset": "atomic-zaamo" },
+    { "name": "overnight-stress", "configurePreset": "overnight-stress" },
     { "name": "host-asan", "configurePreset": "host-asan" },
     { "name": "host-valgrind", "configurePreset": "host-valgrind" },
     { "name": "arm-stress-wrap", "configurePreset": "arm-stress-wrap" },

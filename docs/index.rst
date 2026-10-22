@@ -19,11 +19,15 @@ worst-case execution time, or hardware validation.
    arm-stress
    arm-canaries
    ipc-stress
+   overnight-stress
    host-memory
    evidence
    how-it-works
    getting-started
    architecture
+   hal
+   hardware-atomics
+   instruction-model
    assembly-port
    source-reference
    configuration

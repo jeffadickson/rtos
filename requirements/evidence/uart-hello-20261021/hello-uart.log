@@ -1,0 +1,13 @@
+hello from thread 1 round=1 value=678856385 mask=7
+hello from thread 2 round=1 value=3771517842 mask=7
+hello from thread 3 round=1 value=2569212003 mask=7
+hello from thread 1 round=2 value=3742680769 mask=7
+hello from thread 2 round=2 value=214104978 mask=7
+hello from thread 3 round=2 value=980496483 mask=7
+hello from thread 1 round=3 value=632489665 mask=7
+hello from thread 2 round=3 value=79244178 mask=7
+hello from thread 1 round=4 value=4233184961 mask=7
+hello from thread 3 round=3 value=3820965987 mask=7
+hello from thread 1 round=5 value=1659864769 mask=7
+hello from thread 2 round=4 value=3366935442 mask=7
+hello from thread 3 round=4 value=2500685923 mask=7

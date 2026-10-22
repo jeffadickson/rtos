@@ -124,8 +124,10 @@ Atomic words
 
 AtomicU32 supplies load, store, exchange, compare_exchange, fetch_add, fetch_or
 and fetch_and. compare_exchange updates expected on mismatch; fetch_add wraps
-unsigned arithmetic. These operate on ordinary RAM under short interrupt masking,
-without requiring the RISC-V A extension or libatomic. They are not C++ standard
+unsigned arithmetic. By default these operate on ordinary RAM under short interrupt masking,
+without requiring the RISC-V A extension or libatomic. The default-off
+:doc:`hardware-atomics` backend substitutes RISCue Zaamo word RMWs where available;
+load and compare-exchange still use local interrupt masking. They are not C++ standard
 atomics, lock-free operations, MMIO helpers, DMA coherence or multicore locks.
 All access must use the object; no raw aliasing. Port compiler barriers protect
 publication across supported kernel/interrupt contexts on this hart.

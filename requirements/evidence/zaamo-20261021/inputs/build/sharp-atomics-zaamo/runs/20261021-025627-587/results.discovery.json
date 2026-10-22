@@ -1,0 +1,15 @@
+{
+  "SchemaVersion": 1,
+  "Tests": [
+    {
+      "Name": "Atomics",
+      "QualifiedName": "Entry.Atomics",
+      "Stage": 0,
+      "CaseIndex": 0,
+      "Seed": 1,
+      "TimeoutSteps": 20000000000,
+      "Skip": false,
+      "Simulators": []
+    }
+  ]
+}

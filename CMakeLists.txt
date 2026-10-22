@@ -17,7 +17,7 @@ add_library(nexrt::options ALIAS rtos_options)
 foreach(key MAX_THREADS TICK_HZ IDLE_STACK_BYTES MTIME_ADDRESS MTIMECMP_ADDRESS IPC_MAX_MESSAGE_BYTES MAX_HELD_MUTEXES)
   target_compile_definitions(rtos_options INTERFACE RTOS_${key}=${RTOS_${key}})
 endforeach()
-foreach(key ROUND_ROBIN METRICS STACK_GUARD STACK_WATERMARK SYNC LOGGING DMA)
+foreach(key ROUND_ROBIN METRICS STACK_GUARD STACK_WATERMARK SYNC LOGGING DMA ZAAMO)
   target_compile_definitions(rtos_options INTERFACE RTOS_${key}=$<BOOL:${RTOS_${key}}>)
 endforeach()
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -29,6 +29,10 @@ if(RTOS_BUILD_FIRMWARE)
 else()
   enable_testing()
   include(cmake/host-tests.cmake)
+  option(RTOS_INTERPRETER "Build the C++20 RISC-V instruction model" OFF)
+  if(RTOS_INTERPRETER)
+    add_subdirectory(sim/interpreter)
+  endif()
 endif()
 find_program(SPHINX_EXECUTABLE NAMES sphinx-build
   HINTS ${CMAKE_SOURCE_DIR}/build/docs-venv/bin ${CMAKE_SOURCE_DIR}/build/docs-venv/Scripts)
@@ -70,6 +74,20 @@ if(RTOS_SIMULATION)
   add_custom_target(sharp_demo
     COMMAND ${simulation_tool_COMMAND} ${CMAKE_SOURCE_DIR} ${RISCUE_SOURCE_DIR} ${SHARPTESTBENCH_SOURCE_DIR} ${RTOS_SIM_ELF}
     DEPENDS simulation_tool USES_TERMINAL VERBATIM)
+  set(RTOS_SOAK_ELF ${CMAKE_SOURCE_DIR}/build/overnight-stress/demo.elf CACHE FILEPATH "Firmware for the randomized overnight simulation")
+  foreach(mode prepare-soak smoke soak)
+    string(REPLACE "-" "_" target_mode "${mode}")
+    add_custom_target(sharp_${target_mode}
+      COMMAND ${simulation_tool_COMMAND} ${CMAKE_SOURCE_DIR} ${RISCUE_SOURCE_DIR} ${SHARPTESTBENCH_SOURCE_DIR} ${RTOS_SOAK_ELF} --${mode}
+      DEPENDS simulation_tool USES_TERMINAL VERBATIM)
+  endforeach()
+  set(RISCUE_ZAAMO_SOURCE_DIR "${CMAKE_SOURCE_DIR}/../RISCue-Zaamo" CACHE PATH "Separate source snapshot with optional Zaamo support")
+  foreach(variant baseline zaamo)
+    add_custom_target(sharp_atomics_${variant}
+      COMMAND ${simulation_tool_COMMAND} ${CMAKE_SOURCE_DIR} ${RISCUE_ZAAMO_SOURCE_DIR} ${SHARPTESTBENCH_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/build/atomic-${variant}/demo.elf --atomics-${variant}
+      DEPENDS simulation_tool USES_TERMINAL VERBATIM)
+  endforeach()
 endif()
 
 include(cmake/arm-simulation.cmake)

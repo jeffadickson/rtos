@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "SharpDemo/1.0.0": {
+        "dependencies": {
+          "SharpTestBench": "0.8.0-alpha"
+        },
+        "runtime": {
+          "SharpDemo.dll": {}
+        }
+      },
+      "SharpTestBench/0.8.0-alpha": {
+        "runtime": {
+          "SharpTestBench.dll": {
+            "assemblyVersion": "0.8.0.0",
+            "fileVersion": "0.8.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "SharpDemo/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SharpTestBench/0.8.0-alpha": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

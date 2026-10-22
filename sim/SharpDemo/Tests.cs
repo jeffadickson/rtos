@@ -3,7 +3,7 @@ using System.Text;
 using SharpTestBench;
 
 /// <summary>Runs actual RISCue firmware and checks bytes decoded from the UART pin.</summary>
-public static class Entry
+public static partial class Entry
 {
     /// <summary>Native bridge entry; discovery and execution stay on the simulator thread.</summary>
     [UnmanagedCallersOnly]
@@ -59,11 +59,12 @@ public static class Entry
             string[] fields=text.Split(' ');
             uint Field(int at,string name)
             {
-                if(fields.Length!=4||!fields[at].StartsWith(name+"=",StringComparison.Ordinal)||
+                if(fields.Length!=7||!fields[at].StartsWith(name+"=",StringComparison.Ordinal)||
                    !uint.TryParse(fields[at].AsSpan(name.Length+1),out uint value))throw new Exception("Bad record: "+text);
                 return value;
             }
-            uint id=Field(0,"thread"),round=Field(1,"round"),actual=Field(2,"value"),mask=Field(3,"mask");
+            if(fields.Length!=7||fields[0]!="hello"||fields[1]!="from"||fields[2]!="thread"||!uint.TryParse(fields[3],out uint id))throw new Exception("Bad greeting: "+text);
+            uint round=Field(4,"round"),actual=Field(5,"value"),mask=Field(6,"mask");
             if(id is <1 or >3||round!=rounds[id-1]+1||mask!=7)throw new Exception("Worker order/preemption mismatch: "+text);
             uint expected=values[id-1];
             for(int i=0;i<(round==1?30000:4096);i++)expected=unchecked(expected*1664525+1013904223+id);

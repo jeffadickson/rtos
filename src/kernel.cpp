@@ -1,5 +1,8 @@
 #include "scheduler.hpp"
-#include "rtos_port.hpp"
+#include "rtos_hal.hpp"
+#if RTOS_ZAAMO
+#include "rtos_hal_atomic.hpp"
+#endif
 #include "rtos/detail/stack_watermark.hpp"
 #if RTOS_SYNC
 #include "rtos_sync.hpp"
@@ -21,15 +24,15 @@ uint64_t deadline;
 uint64_t boot_time, last_account;
 #endif
 constexpr uint32_t guard_value = 0x51accede;
-using rtos::port::time_now;
-void arm() { rtos::port::arm(deadline); }
+using rtos::hal::time_now;
+void arm() { rtos::hal::arm(deadline); }
 struct Lock {
-    rtos::port::InterruptState previous;
-    Lock() : previous(rtos::port::mask_interrupts()) {}
-    ~Lock() { rtos::port::restore_interrupts(previous); }
+    rtos::hal::InterruptState previous;
+    Lock() : previous(rtos::hal::mask_interrupts()) {}
+    ~Lock() { rtos::hal::restore_interrupts(previous); }
 };
-[[noreturn]] void stop() { rtos::port::halt(); }
-void idle(void*) { for(;;) rtos::port::idle(); }
+[[noreturn]] void stop() { rtos::hal::halt(); }
+void idle(void*) { for(;;) rtos::hal::idle(); }
 // Every synthesized frame enters here; returning application entries finish via exit().
 extern "C" [[noreturn]] void rtos_entry() { current->entry(current->argument); rtos::exit(); }
 bool guard_ok(const rtos::Thread& t) {
@@ -45,7 +48,7 @@ void initialize(rtos::Thread& t, rtos::Entry e, void* arg, uint8_t priority,
 #if RTOS_STACK_WATERMARK
     rtos::detail::paint_stack(static_cast<uint32_t*>(stack),bytes/sizeof(uint32_t));
 #endif
-    auto* frame=rtos::port::initialize_context(stack,bytes,&rtos_entry);
+    auto* frame=rtos::hal::initialize_context(stack,bytes,&rtos_entry);
     t.context=frame; t.entry=e; t.argument=arg; t.priority=priority; t.state=rtos::State::ready;
 #if RTOS_SYNC
     t.effective_priority=priority;
@@ -83,24 +86,27 @@ bool create(Thread& t, Entry e, void* arg, uint8_t priority, void* stack, size_t
 [[noreturn]] void start(uint32_t hz, uint32_t tick_hz) {
     // First dispatch runs from the boot stack with current==nullptr. Its bootstrap
     // frame is discarded; application stacks already hold synthesized entry frames.
-    (void)port::mask_interrupts();
+    (void)hal::mask_interrupts();
     if (running || !tick_hz || hz < tick_hz ||
         scheduler.conflicts(reinterpret_cast<uintptr_t>(idle_stack.words),sizeof(idle_stack)) ||
         scheduler.conflicts(reinterpret_cast<uintptr_t>(&idle_thread),sizeof(idle_thread))) stop();
     initialize(idle_thread,idle,nullptr,0,idle_stack.words,sizeof(idle_stack),"idle");
     period=hz/tick_hz; clock_hz=hz;
     running=true;
-    port::install_vector();
+    hal::install_vector();
+#if RTOS_ZAAMO
+    if(!hal::atomic::available())stop();
+#endif
     const auto now=time_now();
 #if RTOS_METRICS
     boot_time=last_account=now;
 #endif
     deadline=now+period; arm();
-    port::enable_timer();
-    port::reschedule();
+    hal::enable_timer();
+    hal::reschedule();
     stop();
 }
-void yield() { if (running) port::reschedule(); }
+void yield() { if (running) hal::reschedule(); }
 bool sleep_for(Tick delay) {
     if (!running || delay > 0x7fffffffu) return false;
     // A suspended context retains its port mask; restore the caller's prior mask
@@ -191,8 +197,8 @@ extern "C" uint32_t* rtos_trap(uint32_t* frame, uint32_t cause) {
         current->context=frame;
         if (!guard_ok(*current)) stop();
     }
-    if (rtos::port::is_yield(cause)) rtos::port::resume_after_yield(frame);
-    else if (rtos::port::is_tick(cause)) {
+    if (rtos::hal::is_yield(cause)) rtos::hal::resume_after_yield(frame);
+    else if (rtos::hal::is_tick(cause)) {
         const auto now=time_now();
         const auto elapsed=rtos::detail::elapsed_ticks(now,deadline,period);
         // Fail closed if masking exceeded the wrap-safe sleep comparison horizon.
@@ -207,7 +213,7 @@ extern "C" uint32_t* rtos_trap(uint32_t* frame, uint32_t cause) {
     // Account trap work to the interrupted thread; restore/entry overhead belongs to the next.
     account(time_now());
 #endif
-    auto* next=scheduler.pick(current, rtos::port::is_yield(cause) || RTOS_ROUND_ROBIN);
+    auto* next=scheduler.pick(current, rtos::hal::is_yield(cause) || RTOS_ROUND_ROBIN);
     if (!next) next=&idle_thread;
     if (!guard_ok(*next)) stop();
 #if RTOS_METRICS
@@ -222,13 +228,13 @@ extern "C" uint32_t* rtos_trap(uint32_t* frame, uint32_t cause) {
 
 #if RTOS_SYNC
 namespace rtos::detail {
-CriticalState critical_enter(){return port::mask_interrupts();}
-void critical_leave(CriticalState state){port::restore_interrupts(static_cast<port::InterruptState>(state));}
+CriticalState critical_enter(){return hal::mask_interrupts();}
+void critical_leave(CriticalState state){hal::restore_interrupts(static_cast<hal::InterruptState>(state));}
 Thread* calling_thread(){return running&&!handling_interrupt&&current!=&idle_thread?current:nullptr;}
 bool interrupt_context(){return handling_interrupt;}
 bool synchronization_running(){return running;}
 Tick synchronization_now(){return scheduler.now;}
-void park_thread(){port::reschedule();}
-void schedule_ready(){if(running&&!handling_interrupt)port::reschedule();}
+void park_thread(){hal::reschedule();}
+void schedule_ready(){if(running&&!handling_interrupt)hal::reschedule();}
 }
 #endif

@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **160**. Catalogue SHA-256: ``874cb0b6052109587339ffcc7e824f6c90382c3408ef8323db344fad128b717a``.
+Reviewed requirements: **160**. Catalogue SHA-256: ``f3db667766517341768615696abecb4d415c3822140ba76a97feecc30990b891``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -147,7 +147,7 @@ NXR-004 Strict priority dispatch
 **Static resource budget:** At most RTOS_MAX_THREADS candidates per selection.
 
 
-**Review finding:** pick compares one priority field and trap provides separate idle; effective/base separation is not implemented.
+**Review finding:** pick uses effective priority when synchronization is enabled; seeded host lifecycle campaigns check highest-ready selection against independent state and an unwrapped clock. Target wakeup/idle qualification remains separate.
 
 NXR-005 Equal-priority fairness
 -------------------------------
@@ -4848,7 +4848,7 @@ NXR-139 Single-hart atomic RAM words
 **Category:** Synchronization
 
 
-**Requirement:** The kernel shall provide interrupt-serialized 32-bit RAM load, store, exchange, compare-exchange, fetch-add and bitwise fetch operations without libatomic or heap dependencies.
+**Requirement:** The kernel shall provide 32-bit RAM load, store, exchange, compare-exchange, fetch-add and bitwise fetch operations with interrupt serialization by default, and an independent default-off RISCue Zaamo word-RMW backend, without libatomic or heap dependencies.
 
 
 **Rationale:** Support small shared counters and flags on RV32 without the A extension.
@@ -4857,7 +4857,7 @@ NXR-139 Single-hart atomic RAM words
 **Acceptance:** All access uses the object; compare mismatch updates expected; unsigned addition wraps; nested critical state restores correctly; documentation excludes MMIO, DMA and SMP semantics; native target allocator audit remains clean.
 
 
-**Verification:** Host operation fixtures, RV32 cross-link and future target interrupt-interleaving qualification.
+**Verification:** Host operation/HAL fixtures and matched baseline/Zaamo real-kernel RTL runs with ticket, bit-ownership, exchange-history, compare-exchange, interrupt and guard checks; physical target qualification remains separate.
 
 
 **Planned test:** TEST-NXR-139
@@ -4866,13 +4866,13 @@ NXR-139 Single-hart atomic RAM words
 **Dependencies:** NXR-002, NXR-128
 
 
-**Configuration:** RTOS_SYNC; current single-hart port only.
+**Configuration:** RTOS_SYNC; current single-hart ports. RTOS_ZAAMO defaults OFF and requires RISCue firmware plus explicit atomic-capable RAM; separate matched baseline and feature builds.
 
 
 **Static resource budget:** One 32-bit word plus alignment; bounded interrupt masking and no runtime allocation.
 
 
-**Review finding:** Simplicity pass retains existing service contracts, moves wait internals behind an application header, adds named event waits, and reduces formatter scratch. Host model and cross-link evidence do not qualify external interrupts, UART, SMP or target timing.
+**Review finding:** Default API remains single-CPU. Optional RMW HAL emits reviewed aqrl word AMOs without LR/SC; load/CAS retain local critical sections. Both matched native-RAM RTL runs passed exact totals and guard checks; cross-master ordering, physical timing and SMP remain outside this evidence.
 
 NXR-140 Bounded queued printf formatting
 ----------------------------------------

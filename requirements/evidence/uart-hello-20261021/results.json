@@ -1,0 +1,14 @@
+[
+  {
+    "Name": "ThreeWorkers",
+    "Status": "passed",
+    "Seed": 3,
+    "StartStep": 1,
+    "EndStep": 84463186,
+    "Seconds": 21.0254014,
+    "Error": null,
+    "QualifiedName": "Entry.ThreeWorkers",
+    "Stage": 0,
+    "CaseIndex": 0
+  }
+]

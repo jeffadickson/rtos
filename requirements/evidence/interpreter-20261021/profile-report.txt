@@ -1,0 +1,123 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 1K of event 'cycles:Pu'
+# Event count (approx.): 24194737347
+#
+# Overhead  Command   Shared Object         Symbol                
+# ........  ........  ....................  ......................
+#
+     5.06%  nexrt-rv  nexrt-rv              [.] 0x000000000000a927
+            |
+            ---0x57c77bd48927
+
+     2.24%  nexrt-rv  nexrt-rv              [.] 0x000000000000ab18
+            |
+            ---0x57c77bd48b18
+
+     2.14%  nexrt-rv  nexrt-rv              [.] 0x000000000000ab22
+            |
+            ---0x57c77bd48b22
+
+     2.11%  nexrt-rv  nexrt-rv              [.] 0x000000000000ac49
+            |
+            ---0x57c77bd48c49
+
+     1.96%  nexrt-rv  nexrt-rv              [.] 0x000000000000a9f8
+            |
+            ---0x57c77bd489f8
+
+     1.75%  nexrt-rv  nexrt-rv              [.] 0x000000000000a9b5
+            |
+            ---0x57c77bd489b5
+
+     1.72%  nexrt-rv  nexrt-rv              [.] 0x000000000000ac31
+            |
+            ---0x57c77bd48c31
+
+     1.54%  nexrt-rv  nexrt-rv              [.] 0x000000000000a96d
+            |
+            ---0x57c77bd4896d
+
+     1.51%  nexrt-rv  nexrt-rv              [.] 0x000000000000a94f
+            |
+            ---0x57c77bd4894f
+
+     1.46%  nexrt-rv  nexrt-rv              [.] 0x000000000000a6d2
+            |
+            ---0x57c77bd486d2
+
+     1.44%  nexrt-rv  nexrt-rv              [.] 0x000000000000a5eb
+            |
+            ---0x57c77bd485eb
+
+     1.36%  nexrt-rv  nexrt-rv              [.] 0x000000000000a961
+            |
+            ---0x57c77bd48961
+
+     1.33%  nexrt-rv  nexrt-rv              [.] 0x000000000000a9c5
+            |
+            ---0x57c77bd489c5
+
+     1.28%  nexrt-rv  nexrt-rv              [.] 0x000000000000aed1
+            |
+            ---0x57c77bd48ed1
+
+     1.23%  nexrt-rv  nexrt-rv              [.] 0x000000000000bd3a
+            |
+            ---0x57c77bd49d3a
+
+     1.19%  nexrt-rv  nexrt-rv              [.] 0x000000000000a5ad
+            |
+            ---0x57c77bd485ad
+
+     1.19%  nexrt-rv  nexrt-rv              [.] 0x000000000000a4dd
+            |
+            ---0x57c77bd484dd
+
+     1.17%  nexrt-rv  nexrt-rv              [.] 0x000000000000ad53
+            |
+            ---0x57c77bd48d53
+
+     1.13%  nexrt-rv  nexrt-rv              [.] 0x000000000000a4b0
+            |
+            ---0x57c77bd484b0
+               0x77e800000001
+
+     1.10%  nexrt-rv  nexrt-rv              [.] 0x000000000000a97a
+            |
+            ---0x57c77bd4897a
+
+     1.09%  nexrt-rv  nexrt-rv              [.] 0x000000000000a4ba
+            |
+            ---0x57c77bd484ba
+               0x77e800000001
+
+     1.08%  nexrt-rv  nexrt-rv              [.] 0x000000000000a51a
+            |
+            ---0x57c77bd4851a
+
+     1.08%  nexrt-rv  nexrt-rv              [.] 0x000000000000a9a4
+            |
+            ---0x57c77bd489a4
+
+     1.05%  nexrt-rv  nexrt-rv              [.] 0x000000000000ad7e
+            |
+            ---0x57c77bd48d7e
+
+     1.05%  nexrt-rv  nexrt-rv              [.] 0x000000000000bdb0
+            |
+            ---0x57c77bd49db0
+               0x77e800000001
+
+     1.04%  nexrt-rv  nexrt-rv              [.] 0x000000000000a912
+            |
+            ---0x57c77bd48912
+
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

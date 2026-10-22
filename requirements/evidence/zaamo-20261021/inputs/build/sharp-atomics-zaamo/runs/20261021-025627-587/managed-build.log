@@ -1,0 +1,10 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  SharpTestBench -> /home/jeffd/src/nexrt/rtos/build/sharp-atomics-zaamo/runs/20261021-025627-587/managed/SharpTestBench.dll
+  SharpDemo -> /home/jeffd/src/nexrt/rtos/build/sharp-atomics-zaamo/runs/20261021-025627-587/managed/SharpDemo.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.61

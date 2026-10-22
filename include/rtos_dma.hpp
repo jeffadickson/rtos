@@ -45,6 +45,8 @@ class Channel {
     Backend backend_{};Buffer buffer_{};Direction direction_{Direction::transmit};
     State state_{State::uninitialized};uint32_t generation_{};size_t requested_{},transferred_{};
     Status begin(const void*,size_t,Ticket&);
+    /// Stop/drain before cache completion; uncertainty always retains ownership.
+    bool quiesce(State);
     bool matches(Ticket ticket)const{return ticket.generation&&ticket.generation==generation_&&state_!=State::idle&&state_!=State::uninitialized;}
     void release(){state_=State::idle;requested_=transferred_=0;}
 public:

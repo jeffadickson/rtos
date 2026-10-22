@@ -13,8 +13,9 @@ internal static class HostProcess
     /// <param name="start">Literal executable/argument list; streams are redirected here.</param>
     /// <param name="duration">Wall-clock execution and drain budget.</param>
     /// <param name="maximumCharacters">Maximum retained output across both channels.</param>
+    /// <param name="onStarted">Optional bounded callback to record the owned child PID.</param>
     /// <returns>Captured outcome; timeout includes descendants retaining inherited pipes.</returns>
-    public static async Task<HostResult> Run(ProcessStartInfo start,TimeSpan duration,int maximumCharacters=8_000_000)
+    public static async Task<HostResult> Run(ProcessStartInfo start,TimeSpan duration,int maximumCharacters=8_000_000,Action<int>? onStarted=null)
     {
         if(duration<=TimeSpan.Zero||maximumCharacters<1)throw new ArgumentOutOfRangeException(nameof(duration));
         start.UseShellExecute=false;start.CreateNoWindow=true;
@@ -47,7 +48,7 @@ internal static class HostProcess
         }
         Task stdout=Drain(process.StandardOutput),stderr=Drain(process.StandardError);
         bool timedOut=false;
-        try{await Task.WhenAll(process.WaitForExitAsync(deadline.Token),stdout,stderr).WaitAsync(deadline.Token);}
+        try{onStarted?.Invoke(process.Id);await Task.WhenAll(process.WaitForExitAsync(deadline.Token),stdout,stderr).WaitAsync(deadline.Token);}
         catch(OperationCanceledException)when(deadline.IsCancellationRequested){timedOut=!limit&&ioError is null;}
         finally
         {

@@ -10,6 +10,14 @@ Capacities and tick rates use positive decimal integers without leading zeroes;
 expressions and lists are rejected during configuration. Timer addresses may use
 hexadecimal. Every configured capacity still has to fit the selected board's RAM.
 
+The supplied host and firmware presets select ``Release``. With the supported
+GNU/Clang toolchains this uses ``-O3`` for kernel, optional modules and application
+code; no kernel-specific ``-Os`` override is applied. Host test assertions remain
+enabled at this optimization level. Reconfigure existing build directories with
+their preset before rebuilding. Inspect ``compile_commands.json`` in the build
+directory for the actual per-file compiler flags. An explicitly selected build
+type or custom compiler flags can change the optimization level.
+
 .. list-table:: Implemented configuration
    :header-rows: 1
    :widths: 28 15 57

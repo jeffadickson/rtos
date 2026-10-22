@@ -1,0 +1,14 @@
+[
+  {
+    "Name": "Atomics",
+    "Status": "passed",
+    "Seed": 1,
+    "StartStep": 1,
+    "EndStep": 17523102,
+    "Seconds": 3.0048365,
+    "Error": null,
+    "QualifiedName": "Entry.Atomics",
+    "Stage": 0,
+    "CaseIndex": 0
+  }
+]

@@ -35,6 +35,21 @@ before hardware use; no achieved FPGA frequency is inferred.
 Worker behavior
 ---------------
 
+The current demo prints ``hello from thread 1``, ``hello from thread 2`` and
+``hello from thread 3``, followed by round, arithmetic result and started mask.
+``include/rtos_uart.hpp`` provides the reusable ``QueuedUart`` driver and the
+TX-only ``AxiUartTx`` register adapter. The queue is independent of ARM/RISC-V;
+an ARM BSP using this AXI peripheral must provide the correct device mapping
+and ordering. It does not substitute an AXI UART for the Cortex-M3 CMSDK UART.
+
+Each producer formats privately and publishes a copied record. A permanent
+service owner drains it; partial transmission retains the pending record until
+its last byte is accepted. Queue-full returns ``Result::full`` and the demo
+retries with yield. The adapter never waits for a full UART to become ready.
+Do not bypass the queue with direct register writes from another thread.
+The driver's ``service`` budget bounds each call, and its mutex protects drain
+state without masking interrupts during device access.
+
 Three boot-registered workers have equal priority 2 and individual 1536-byte
 stacks. Idle has a separate 512-byte stack. Round robin is enabled. Each worker
 retains a distinct 32-bit arithmetic state and publishes its ID, round number,
@@ -125,8 +140,31 @@ boot reserve gives **19584 bytes of committed RAM**. This includes all three
 worker stacks, idle, logger and enabled kernel state. ELF/debug container bytes
 and the host simulator are excluded. Rebuild and inspect the map after changes.
 
-Recorded simulation
--------------------
+Current driver verification
+---------------------------
+
+Run ``20261021-152915-688`` passed ``Entry.ThreeWorkers`` with the extracted
+queued UART driver and greeting prefix. The test decoded ten complete records,
+at least three from each worker, independently checked every arithmetic result
+and consecutive round number, and observed 83 machine timer traps. No malformed
+record, unexpected trap or fatal CPU fault occurred. This bounded RTL run took
+21.03 host seconds. Firmware and simulator C++ were built at ``-O3``; the
+simulator used C++20. The existing overnight stress run was left unchanged.
+
+Evidence is retained in ``requirements/evidence/uart-hello-20261021``. The host
+``queued_uart`` test additionally exercises full queues, device backpressure,
+one-byte partial writes and producer record boundaries. The fast interpreter
+also executes this ELF and displays its committed TX bytes as ``[uart]`` lines;
+its immediate sink does not model physical baud timing or TX backpressure.
+
+.. literalinclude:: ../requirements/evidence/uart-hello-20261021/uart.log
+   :language: text
+
+Historical simulation
+---------------------
+
+The following historical transcript predates the greeting prefix and reusable
+driver extraction. Rebuild/run the current demo for current execution evidence.
 
 Run ``20261020-004955-899`` passed SharpTestBench ``Entry.ThreeWorkers``
 with seed 1 after 88,778,625 simulation steps. Each worker completed at least

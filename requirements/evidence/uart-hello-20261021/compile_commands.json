@@ -1,0 +1,50 @@
+[
+{
+  "directory": "/home/jeffd/src/nexrt/rtos/build/uart",
+  "command": "/usr/bin/riscv64-unknown-elf-g++ -DRTOS_DMA=0 -DRTOS_IDLE_STACK_BYTES=512 -DRTOS_IPC_MAX_MESSAGE_BYTES=128 -DRTOS_LOGGING=1 -DRTOS_MAX_HELD_MUTEXES=8 -DRTOS_MAX_THREADS=3 -DRTOS_METRICS=1 -DRTOS_MTIMECMP_ADDRESS=0x02004000 -DRTOS_MTIME_ADDRESS=0x0200bff8 -DRTOS_ROUND_ROBIN=1 -DRTOS_STACK_GUARD=1 -DRTOS_STACK_WATERMARK=0 -DRTOS_SYNC=1 -DRTOS_TICK_HZ=1000 -DRTOS_ZAAMO=0 -I/home/jeffd/src/nexrt/rtos/ports/riscue -I/home/jeffd/src/nexrt/rtos/include -I/home/jeffd/src/nexrt/rtos/src -march=rv32im_zicsr -mabi=ilp32 -mcmodel=medlow -mno-relax -msmall-data-limit=0 -ffreestanding -fno-builtin -fno-pic -fno-stack-protector -fno-exceptions -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit -O3 -DNDEBUG -std=c++17 -fstack-usage -ffunction-sections -fdata-sections -Wall -Wextra -Werror -o CMakeFiles/rtos.dir/src/kernel.cpp.obj -c /home/jeffd/src/nexrt/rtos/src/kernel.cpp",
+  "file": "/home/jeffd/src/nexrt/rtos/src/kernel.cpp",
+  "output": "CMakeFiles/rtos.dir/src/kernel.cpp.obj"
+},
+{
+  "directory": "/home/jeffd/src/nexrt/rtos/build/uart",
+  "command": "/usr/bin/riscv64-unknown-elf-g++ -DRTOS_DMA=0 -DRTOS_IDLE_STACK_BYTES=512 -DRTOS_IPC_MAX_MESSAGE_BYTES=128 -DRTOS_LOGGING=1 -DRTOS_MAX_HELD_MUTEXES=8 -DRTOS_MAX_THREADS=3 -DRTOS_METRICS=1 -DRTOS_MTIMECMP_ADDRESS=0x02004000 -DRTOS_MTIME_ADDRESS=0x0200bff8 -DRTOS_ROUND_ROBIN=1 -DRTOS_STACK_GUARD=1 -DRTOS_STACK_WATERMARK=0 -DRTOS_SYNC=1 -DRTOS_TICK_HZ=1000 -DRTOS_ZAAMO=0 -I/home/jeffd/src/nexrt/rtos/ports/riscue -I/home/jeffd/src/nexrt/rtos/include -I/home/jeffd/src/nexrt/rtos/src -march=rv32im_zicsr -mabi=ilp32 -mcmodel=medlow -mno-relax -msmall-data-limit=0 -ffreestanding -fno-builtin -fno-pic -fno-stack-protector -fno-exceptions -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit -O3 -DNDEBUG -std=c++17 -fstack-usage -ffunction-sections -fdata-sections -Wall -Wextra -Werror -o CMakeFiles/rtos.dir/src/memory.cpp.obj -c /home/jeffd/src/nexrt/rtos/src/memory.cpp",
+  "file": "/home/jeffd/src/nexrt/rtos/src/memory.cpp",
+  "output": "CMakeFiles/rtos.dir/src/memory.cpp.obj"
+},
+{
+  "directory": "/home/jeffd/src/nexrt/rtos/build/uart",
+  "command": "/usr/bin/riscv64-unknown-elf-gcc -DRTOS_DMA=0 -DRTOS_IDLE_STACK_BYTES=512 -DRTOS_IPC_MAX_MESSAGE_BYTES=128 -DRTOS_LOGGING=1 -DRTOS_MAX_HELD_MUTEXES=8 -DRTOS_MAX_THREADS=3 -DRTOS_METRICS=1 -DRTOS_MTIMECMP_ADDRESS=0x02004000 -DRTOS_MTIME_ADDRESS=0x0200bff8 -DRTOS_ROUND_ROBIN=1 -DRTOS_STACK_GUARD=1 -DRTOS_STACK_WATERMARK=0 -DRTOS_SYNC=1 -DRTOS_TICK_HZ=1000 -DRTOS_ZAAMO=0 -I/home/jeffd/src/nexrt/rtos/ports/riscue -I/home/jeffd/src/nexrt/rtos/include -I/home/jeffd/src/nexrt/rtos/src -march=rv32im_zicsr -mabi=ilp32 -mcmodel=medlow -mno-relax -msmall-data-limit=0 -ffreestanding -fno-builtin -fno-pic -fno-stack-protector -O3 -DNDEBUG -fstack-usage -ffunction-sections -fdata-sections -Wall -Wextra -Werror -o CMakeFiles/rtos.dir/ports/riscue/context.S.obj -c /home/jeffd/src/nexrt/rtos/ports/riscue/context.S",
+  "file": "/home/jeffd/src/nexrt/rtos/ports/riscue/context.S",
+  "output": "CMakeFiles/rtos.dir/ports/riscue/context.S.obj"
+},
+{
+  "directory": "/home/jeffd/src/nexrt/rtos/build/uart",
+  "command": "/usr/bin/riscv64-unknown-elf-g++ -DRTOS_DMA=0 -DRTOS_IDLE_STACK_BYTES=512 -DRTOS_IPC_MAX_MESSAGE_BYTES=128 -DRTOS_LOGGING=1 -DRTOS_MAX_HELD_MUTEXES=8 -DRTOS_MAX_THREADS=3 -DRTOS_METRICS=1 -DRTOS_MTIMECMP_ADDRESS=0x02004000 -DRTOS_MTIME_ADDRESS=0x0200bff8 -DRTOS_ROUND_ROBIN=1 -DRTOS_STACK_GUARD=1 -DRTOS_STACK_WATERMARK=0 -DRTOS_SYNC=1 -DRTOS_TICK_HZ=1000 -DRTOS_ZAAMO=0 -I/home/jeffd/src/nexrt/rtos/ports/riscue -I/home/jeffd/src/nexrt/rtos/include -I/home/jeffd/src/nexrt/rtos/src -march=rv32im_zicsr -mabi=ilp32 -mcmodel=medlow -mno-relax -msmall-data-limit=0 -ffreestanding -fno-builtin -fno-pic -fno-stack-protector -fno-exceptions -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit -O3 -DNDEBUG -std=c++17 -fstack-usage -ffunction-sections -fdata-sections -Wall -Wextra -Werror -o CMakeFiles/rtos.dir/src/sync.cpp.obj -c /home/jeffd/src/nexrt/rtos/src/sync.cpp",
+  "file": "/home/jeffd/src/nexrt/rtos/src/sync.cpp",
+  "output": "CMakeFiles/rtos.dir/src/sync.cpp.obj"
+},
+{
+  "directory": "/home/jeffd/src/nexrt/rtos/build/uart",
+  "command": "/usr/bin/riscv64-unknown-elf-g++ -DRTOS_DMA=0 -DRTOS_IDLE_STACK_BYTES=512 -DRTOS_IPC_MAX_MESSAGE_BYTES=128 -DRTOS_LOGGING=1 -DRTOS_MAX_HELD_MUTEXES=8 -DRTOS_MAX_THREADS=3 -DRTOS_METRICS=1 -DRTOS_MTIMECMP_ADDRESS=0x02004000 -DRTOS_MTIME_ADDRESS=0x0200bff8 -DRTOS_ROUND_ROBIN=1 -DRTOS_STACK_GUARD=1 -DRTOS_STACK_WATERMARK=0 -DRTOS_SYNC=1 -DRTOS_TICK_HZ=1000 -DRTOS_ZAAMO=0 -I/home/jeffd/src/nexrt/rtos/ports/riscue -I/home/jeffd/src/nexrt/rtos/include -I/home/jeffd/src/nexrt/rtos/src -march=rv32im_zicsr -mabi=ilp32 -mcmodel=medlow -mno-relax -msmall-data-limit=0 -ffreestanding -fno-builtin -fno-pic -fno-stack-protector -fno-exceptions -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit -O3 -DNDEBUG -std=c++17 -fstack-usage -ffunction-sections -fdata-sections -Wall -Wextra -Werror -o CMakeFiles/rtos.dir/src/mutex.cpp.obj -c /home/jeffd/src/nexrt/rtos/src/mutex.cpp",
+  "file": "/home/jeffd/src/nexrt/rtos/src/mutex.cpp",
+  "output": "CMakeFiles/rtos.dir/src/mutex.cpp.obj"
+},
+{
+  "directory": "/home/jeffd/src/nexrt/rtos/build/uart",
+  "command": "/usr/bin/riscv64-unknown-elf-g++ -DRTOS_DMA=0 -DRTOS_IDLE_STACK_BYTES=512 -DRTOS_IPC_MAX_MESSAGE_BYTES=128 -DRTOS_LOGGING=1 -DRTOS_MAX_HELD_MUTEXES=8 -DRTOS_MAX_THREADS=3 -DRTOS_METRICS=1 -DRTOS_MTIMECMP_ADDRESS=0x02004000 -DRTOS_MTIME_ADDRESS=0x0200bff8 -DRTOS_ROUND_ROBIN=1 -DRTOS_STACK_GUARD=1 -DRTOS_STACK_WATERMARK=0 -DRTOS_SYNC=1 -DRTOS_TICK_HZ=1000 -DRTOS_ZAAMO=0 -I/home/jeffd/src/nexrt/rtos/ports/riscue -I/home/jeffd/src/nexrt/rtos/include -I/home/jeffd/src/nexrt/rtos/src -march=rv32im_zicsr -mabi=ilp32 -mcmodel=medlow -mno-relax -msmall-data-limit=0 -ffreestanding -fno-builtin -fno-pic -fno-stack-protector -fno-exceptions -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit -O3 -DNDEBUG -std=c++17 -fstack-usage -ffunction-sections -fdata-sections -Wall -Wextra -Werror -o CMakeFiles/rtos.dir/src/log.cpp.obj -c /home/jeffd/src/nexrt/rtos/src/log.cpp",
+  "file": "/home/jeffd/src/nexrt/rtos/src/log.cpp",
+  "output": "CMakeFiles/rtos.dir/src/log.cpp.obj"
+},
+{
+  "directory": "/home/jeffd/src/nexrt/rtos/build/uart",
+  "command": "/usr/bin/riscv64-unknown-elf-g++ -DRTOS_DMA=0 -DRTOS_IDLE_STACK_BYTES=512 -DRTOS_IPC_MAX_MESSAGE_BYTES=128 -DRTOS_LOGGING=1 -DRTOS_MAX_HELD_MUTEXES=8 -DRTOS_MAX_THREADS=3 -DRTOS_METRICS=1 -DRTOS_MTIMECMP_ADDRESS=0x02004000 -DRTOS_MTIME_ADDRESS=0x0200bff8 -DRTOS_ROUND_ROBIN=1 -DRTOS_STACK_GUARD=1 -DRTOS_STACK_WATERMARK=0 -DRTOS_SYNC=1 -DRTOS_TICK_HZ=1000 -DRTOS_ZAAMO=0 -I/home/jeffd/src/nexrt/rtos/include -I/home/jeffd/src/nexrt/rtos/src -march=rv32im_zicsr -mabi=ilp32 -mcmodel=medlow -mno-relax -msmall-data-limit=0 -ffreestanding -fno-builtin -fno-pic -fno-stack-protector -fno-exceptions -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit -O3 -DNDEBUG -std=c++17 -fstack-usage -Wall -Wextra -Werror -o CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj -c /home/jeffd/src/nexrt/rtos/examples/axi_uart_threads.cpp",
+  "file": "/home/jeffd/src/nexrt/rtos/examples/axi_uart_threads.cpp",
+  "output": "CMakeFiles/demo.dir/examples/axi_uart_threads.cpp.obj"
+},
+{
+  "directory": "/home/jeffd/src/nexrt/rtos/build/uart",
+  "command": "/usr/bin/riscv64-unknown-elf-gcc -DRTOS_DMA=0 -DRTOS_IDLE_STACK_BYTES=512 -DRTOS_IPC_MAX_MESSAGE_BYTES=128 -DRTOS_LOGGING=1 -DRTOS_MAX_HELD_MUTEXES=8 -DRTOS_MAX_THREADS=3 -DRTOS_METRICS=1 -DRTOS_MTIMECMP_ADDRESS=0x02004000 -DRTOS_MTIME_ADDRESS=0x0200bff8 -DRTOS_ROUND_ROBIN=1 -DRTOS_STACK_GUARD=1 -DRTOS_STACK_WATERMARK=0 -DRTOS_SYNC=1 -DRTOS_TICK_HZ=1000 -DRTOS_ZAAMO=0 -I/home/jeffd/src/nexrt/rtos/include -I/home/jeffd/src/nexrt/rtos/src -march=rv32im_zicsr -mabi=ilp32 -mcmodel=medlow -mno-relax -msmall-data-limit=0 -ffreestanding -fno-builtin -fno-pic -fno-stack-protector -O3 -DNDEBUG -fstack-usage -Wall -Wextra -Werror -o CMakeFiles/demo.dir/ports/riscue/start.S.obj -c /home/jeffd/src/nexrt/rtos/ports/riscue/start.S",
+  "file": "/home/jeffd/src/nexrt/rtos/ports/riscue/start.S",
+  "output": "CMakeFiles/demo.dir/ports/riscue/start.S.obj"
+}
+]

@@ -1,0 +1,186 @@
+[
+  {
+    "symbol": "Vtop___024root___ico_comb__TOP__2(Vtop___024root*)",
+    "percent": 33.19526862408919
+  },
+  {
+    "symbol": "Vtop___024root___nba_comb__TOP__1(Vtop___024root*)",
+    "percent": 10.598473847671622
+  },
+  {
+    "symbol": "Vtop___024root___eval_triggers_vec__act(Vtop___024root*)",
+    "percent": 6.6768908900617285
+  },
+  {
+    "symbol": "VL_MULS_WWW(int, unsigned int*, unsigned int const*, unsigned int const*) [clone .constprop.0] [clone .isra.0]",
+    "percent": 5.814514019300369
+  },
+  {
+    "symbol": "VerilatedVpiImp::moveFutureCbs()",
+    "percent": 4.955061438277169
+  },
+  {
+    "symbol": "Vtop___024root___ico_sequent__TOP__0(Vtop___024root*)",
+    "percent": 4.793012888369749
+  },
+  {
+    "symbol": "Vtop___024root___nba_sequent__TOP__3(Vtop___024root*)",
+    "percent": 3.9575539425904926
+  },
+  {
+    "symbol": "libc.so.6",
+    "percent": 2.872793611048612
+  },
+  {
+    "symbol": "Vtop___024root___ico_comb__TOP__1(Vtop___024root*)",
+    "percent": 2.6805790579336537
+  },
+  {
+    "symbol": "Vtop___024root___ico_comb__TOP__0(Vtop___024root*)",
+    "percent": 2.3982133281836506
+  },
+  {
+    "symbol": "Vtop___024root___nba_comb__TOP__2(Vtop___024root*)",
+    "percent": 1.9895183693105443
+  },
+  {
+    "symbol": "VlDelayScheduler::resume()",
+    "percent": 1.7026334262055534
+  },
+  {
+    "symbol": "Vtop___024root___nba_sequent__TOP__5(Vtop___024root*)",
+    "percent": 1.6168199990480123
+  },
+  {
+    "symbol": "libstdc\u002B\u002B.so.6.0.33",
+    "percent": 1.3043144863782024
+  },
+  {
+    "symbol": "Vtop___024root___trigger_anySet__act(VlUnpacked\u003Cunsigned long, 1ul\u003E const\u0026)",
+    "percent": 1.273834437875914
+  },
+  {
+    "symbol": "VlTriggerScheduler::resume(char const*)",
+    "percent": 0.9957423498632335
+  },
+  {
+    "symbol": "VerilatedVpi::callCbs(unsigned int)",
+    "percent": 0.9881188505380585
+  },
+  {
+    "symbol": "Vtop___024root___eval_initial__TOP__Vtiming__1(Vtop___024root___eval_initial__TOP__Vtiming__1(Vtop___024root*)::_Z46Vtop___024root___eval_initial__TOP__Vtiming__1P14Vtop___024root.Frame*) [clone .actor]",
+    "percent": 0.9690502079514463
+  },
+  {
+    "symbol": "VerilatedVpiImp::callValueCbs()",
+    "percent": 0.868739816804053
+  },
+  {
+    "symbol": "sc_time_stamp()",
+    "percent": 0.8630168381792163
+  },
+  {
+    "symbol": "Vtop___024root___eval_triggers_vec__ico(Vtop___024root*)",
+    "percent": 0.832655483961558
+  },
+  {
+    "symbol": "Vtop___024root___eval_act(Vtop___024root*)",
+    "percent": 0.8142097397061514
+  },
+  {
+    "symbol": "std::__cxx11::_List_base\u003CVerilatedVpiPutHolder, std::allocator\u003CVerilatedVpiPutHolder\u003E \u003E::_M_clear()",
+    "percent": 0.6765521314674684
+  },
+  {
+    "symbol": "Vtop___024root___eval(Vtop___024root*)",
+    "percent": 0.6752766180678569
+  },
+  {
+    "symbol": "Vtop___024root___nba_sequent__TOP__2(Vtop___024root*)",
+    "percent": 0.6450757181979788
+  },
+  {
+    "symbol": "main",
+    "percent": 0.6258228182742539
+  },
+  {
+    "symbol": "VerilatedVpi::callTimedCbs()",
+    "percent": 0.5984853871881869
+  },
+  {
+    "symbol": "Vtop___024root___eval_phase__act(Vtop___024root*)",
+    "percent": 0.5506707315390034
+  },
+  {
+    "symbol": "Vtop___024root___eval_phase__ico(Vtop___024root*)",
+    "percent": 0.4432636702860316
+  },
+  {
+    "symbol": "Vtop___024root___trigger_anySet__ico(VlUnpacked\u003Cunsigned long, 2ul\u003E const\u0026)",
+    "percent": 0.35277957246236413
+  },
+  {
+    "symbol": "libgpi_impl_verilator_vpi.so",
+    "percent": 0.243973043434503
+  },
+  {
+    "symbol": "deleted",
+    "percent": 0.2438882899926932
+  },
+  {
+    "symbol": "VlDeleter::deleteAll()",
+    "percent": 0.23745637694671126
+  },
+  {
+    "symbol": "Vtop___024root___eval_nba(Vtop___024root*)",
+    "percent": 0.23275055062198782
+  },
+  {
+    "symbol": "Vtop::eval_step()",
+    "percent": 0.2313580695794595
+  },
+  {
+    "symbol": "VlDelayScheduler::nextTimeSlot() const",
+    "percent": 0.22918404266516676
+  },
+  {
+    "symbol": "Verilated::threadContextp()",
+    "percent": 0.2213900251376544
+  },
+  {
+    "symbol": "VerilatedThreadMsgQueue::flush(VerilatedEvalMsgQueue*)",
+    "percent": 0.2135747822502243
+  },
+  {
+    "symbol": "libcoreclr.so",
+    "percent": 0.20818361483005152
+  },
+  {
+    "symbol": "libcocotb_bootstrap.so",
+    "percent": 0.2033848088490702
+  },
+  {
+    "symbol": "VerilatedVpi::cbNextDeadline()",
+    "percent": 0.19251415628509252
+  },
+  {
+    "symbol": "VlCoroutineHandle::resume()",
+    "percent": 0.19003971221242905
+  },
+  {
+    "symbol": "VlTriggerScheduler::ready(char const*)",
+    "percent": 0.186840442448281
+  },
+  {
+    "symbol": "VlDelayScheduler::delay(unsigned long, std::shared_ptr\u003CVlProcess\u003E, char const*, int)::Awaitable::await_suspend(std::__n4861::coroutine_handle\u003Cvoid\u003E)",
+    "percent": 0.18256993333235252
+  },
+  {
+    "symbol": "ld-linux-x86-64.so.2",
+    "percent": 0.13430981645430876
+  },
+  {
+    "symbol": "Vtop___024root___eval_ico(Vtop___024root*)",
+    "percent": 0.11964003412869403
+  }
+]

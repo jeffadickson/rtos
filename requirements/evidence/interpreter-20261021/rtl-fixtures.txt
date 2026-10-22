@@ -1,0 +1,1 @@
+PASS 71 independent RTL firmware fixtures

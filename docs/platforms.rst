@@ -34,6 +34,10 @@ No profile introduces runtime allocation or runtime module loading.
 Module boundaries
 -----------------
 
+The processor HAL contract and provider-selection rules are documented in
+:doc:`hal`. Optional ISA features and simulation runners are independent of
+that kernel interface.
+
 * ``nexrt::options`` carries shared public compile definitions and include paths.
 * ``nexrt::kernel`` is the firmware scheduler/runtime, mandatory in firmware.
 * ``nexrt::ethernet`` is independently selectable with ``RTOS_ETHERNET``.

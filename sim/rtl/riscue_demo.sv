@@ -51,6 +51,11 @@ module riscue_demo;
   .m_axi_araddr(araddr),.m_axi_arvalid(arvalid),.m_axi_arready(arready),
   .m_axi_rdata(rdata),.m_axi_rresp(rresp),.m_axi_rvalid(rvalid),.m_axi_rready(rready));
  nexrt_demo_axi_bus bus(.*);
+ // Simulation-only read port. It observes RAM without issuing CPU bus traffic.
+ logic [31:0] monitor_address=0;
+ wire [31:0] monitor_data;
+ assign monitor_data=(monitor_address<32768 && monitor_address[1:0]==0)
+   ?bus.ram[monitor_address[14:2]]:32'hffffffff;
 endmodule
 
 // Independent AW/W latches: AXI address and data need not arrive together.

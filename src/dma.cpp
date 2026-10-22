@@ -49,6 +49,11 @@ Status Channel::receive(size_t bytes,Ticket& ticket){
     if(direction_!=Direction::receive)return Status::invalid;
     return begin(nullptr,bytes,ticket);
 }
+bool Channel::quiesce(State stopped){
+    if(!backend_.stop(backend_.context)){state_=State::quarantined;return false;}
+    backend_.finish(backend_.context,direction_,buffer_,requested_);
+    state_=stopped;return true;
+}
 Status Channel::poll(Ticket ticket){
     LockGuard guard(mutex_);if(!guard.owns_lock())return lock_failure(guard.result());
     if(!matches(ticket))return Status::stale;
@@ -60,8 +65,7 @@ Status Channel::poll(Ticket ticket){
     if(completion.progress==Progress::pending)return Status::pending;
     if(completion.progress!=Progress::completed||completion.bytes>requested_||
        (direction_==Direction::transmit&&completion.bytes!=requested_)){
-        if(!backend_.stop(backend_.context)){state_=State::quarantined;return Status::quarantined;}
-        backend_.finish(backend_.context,direction_,buffer_,requested_);state_=State::failed;return Status::device_error;
+        return quiesce(State::failed)?Status::device_error:Status::quarantined;
     }
     backend_.finish(backend_.context,direction_,buffer_,requested_);
     transferred_=completion.bytes;state_=State::completed;return Status::ok;
@@ -86,18 +90,15 @@ Status Channel::cancel(Ticket ticket){
     LockGuard guard(mutex_);if(!guard.owns_lock())return lock_failure(guard.result());
     if(!matches(ticket))return Status::stale;
     if(state_==State::quarantined)return Status::quarantined;
-    if(state_==State::active){
-        if(!backend_.stop(backend_.context)){state_=State::quarantined;return Status::quarantined;}
-        backend_.finish(backend_.context,direction_,buffer_,requested_);
-    }
+    if(state_==State::active&&!quiesce(State::idle))return Status::quarantined;
     release();return Status::cancelled;
 }
 Status Channel::recover(Ticket ticket){
     LockGuard guard(mutex_);if(!guard.owns_lock())return lock_failure(guard.result());
     if(!matches(ticket))return Status::stale;
     if(state_!=State::quarantined)return Status::invalid;
-    if(!backend_.stop(backend_.context))return Status::quarantined;
-    backend_.finish(backend_.context,direction_,buffer_,requested_);release();return Status::ok;
+    if(!quiesce(State::idle))return Status::quarantined;
+    release();return Status::ok;
 }
 Status Channel::snapshot(Snapshot& output){
     LockGuard guard(mutex_);if(!guard.owns_lock())return lock_failure(guard.result());

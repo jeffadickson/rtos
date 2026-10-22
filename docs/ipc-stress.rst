@@ -28,3 +28,20 @@ establishes SMP safety, worst-case timing, DMA coherence or hardware qualificati
 The ordinary host build includes both fixtures. ``ctest --preset host`` runs
 the fixed seeds and waiter permutations. Assertions remain enabled in host
 fixtures even when using an optimized build.
+
+Thread lifecycle stress
+--------------------------------------------------------------------------------
+
+``thread_stress_test`` runs the same four fixed seeds, each with 128 campaigns
+of 512 state transitions (262,144 transitions across the suite). Up to eight
+registered threads alternate ready/sleeping states, change priorities, cross
+tick wrap and retire permanently within each campaign. An independent 64-bit
+clock predicts wakeups without using the scheduler's modular deadline comparison.
+Each selection must choose a registered ready thread at the highest priority;
+nonrotating selection must retain an eligible current thread. Stable equal-priority
+phases require every thread to run exactly once per round, and all-finished
+phases must remain idle after time advances. Storage is fixed and failures report
+seed, PRNG state, campaign and step. Reproduce with
+``build/host/thread_stress_test 42``. These are host scheduler checks, not real
+context switches or concurrent CPU execution. The memory-check presets include
+every fixed seed.

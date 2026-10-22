@@ -1,0 +1,37 @@
+{
+  "scope": "Sequential 60-host-second trials; shared host and live overnight run remain active. 1 ns resolution, 10 ns clock period. Short trials are not a full soak or an isolated performance claim.",
+  "runs": [
+    {
+      "label": "o2",
+      "run": "/home/jeffd/src/nexrt/rtos/build/sim-o3/workspace/build/sharp-soak/runs/20261021-145821-091",
+      "wallSeconds": 60.0167348,
+      "simNanoseconds": 195518262,
+      "cyclesPerHostSecond": 325772.9075924337,
+      "steadyCyclesPerHostSecond": 267860.00813968474,
+      "jobs": 13,
+      "outcome": "wall_limit_reached"
+    },
+    {
+      "label": "o3",
+      "run": "/home/jeffd/src/nexrt/rtos/build/sim-o3/workspace/build/sharp-soak/runs/20261021-145924-178",
+      "wallSeconds": 60.0185285,
+      "simNanoseconds": 185153681,
+      "cyclesPerHostSecond": 308494.20275273826,
+      "steadyCyclesPerHostSecond": 333275.38317456277,
+      "jobs": 13,
+      "outcome": "wall_limit_reached"
+    },
+    {
+      "label": "narrow",
+      "run": "/home/jeffd/src/nexrt/rtos/build/sim-o3/narrow-workspace/build/sharp-soak/runs/20261021-150030-433",
+      "wallSeconds": 60.00194,
+      "simNanoseconds": 419312710,
+      "cyclesPerHostSecond": 698831.9211012177,
+      "steadyCyclesPerHostSecond": 693339.3961685703,
+      "jobs": 27,
+      "outcome": "wall_limit_reached"
+    }
+  ],
+  "liveRun": "20261021-080124-473",
+  "liveProcessUntouched": true
+}

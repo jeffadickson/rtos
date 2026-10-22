@@ -1,4 +1,8 @@
 #pragma once
+#ifndef RTOS_ZAAMO
+#define RTOS_ZAAMO 0
+#endif
+static_assert(RTOS_ZAAMO==0||RTOS_ZAAMO==1);
 #ifndef RTOS_DMA
 #define RTOS_DMA 0
 #endif

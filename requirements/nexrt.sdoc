@@ -1802,10 +1802,10 @@ UID: NXR-139
 STATUS: PartialSourceUnverified
 TITLE: Single-hart atomic RAM words
 STATEMENT: >>>
-The kernel shall provide interrupt-serialized 32-bit RAM load, store, exchange, compare-exchange, fetch-add and bitwise fetch operations without libatomic or heap dependencies.
+The kernel shall provide 32-bit RAM load, store, exchange, compare-exchange, fetch-add and bitwise fetch operations with interrupt serialization by default, and an independent default-off RISCue Zaamo word-RMW backend, without libatomic or heap dependencies.
 Acceptance: All access uses the object; compare mismatch updates expected; unsigned addition wraps; nested critical state restores correctly; documentation excludes MMIO, DMA and SMP semantics; native target allocator audit remains clean.
-Verification: Host operation fixtures, RV32 cross-link and future target interrupt-interleaving qualification.
-Configuration: RTOS_SYNC; current single-hart port only.
+Verification: Host operation/HAL fixtures and matched baseline/Zaamo real-kernel RTL runs with ticket, bit-ownership, exchange-history, compare-exchange, interrupt and guard checks; physical target qualification remains separate.
+Configuration: RTOS_SYNC; current single-hart ports. RTOS_ZAAMO defaults OFF and requires RISCue firmware plus explicit atomic-capable RAM; separate matched baseline and feature builds.
 Static budget: One 32-bit word plus alignment; bounded interrupt masking and no runtime allocation.
 Dependencies: NXR-002, NXR-128
 <<<
