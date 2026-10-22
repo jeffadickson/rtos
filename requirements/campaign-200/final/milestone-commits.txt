@@ -1,0 +1,21 @@
+3bdb452 Requirements campaign 191-200: verified acceptance milestone
+8547621 Requirements campaign 181-190: verified acceptance milestone
+2705f21 Requirements campaign 171-180: verified acceptance milestone
+690b548 Requirements campaign 161-170: verified acceptance milestone
+39e9e44 Requirements campaign 151-160: verified acceptance milestone
+d08d6ac Requirements campaign 141-150: verified acceptance milestone
+9e4783f Requirements campaign 131-140: verified acceptance milestone
+b4b0e8a Requirements campaign 121-130: verified acceptance milestone
+1344dd2 Requirements campaign 111-120: verified acceptance milestone
+c2daad7 Requirements campaign 101-110: verified acceptance milestone
+e40694f Requirements campaign 091-100: verified acceptance milestone
+a79ff0d Requirements campaign 081-090: verified acceptance milestone
+8980e10 Requirements campaign 071-080: verified acceptance milestone
+3cb5104 Requirements campaign 061-070: verified acceptance milestone
+5fbfb55 Requirements campaign 051-060: verified acceptance milestone
+221a004 Requirements campaign 041-050: verified acceptance milestone
+9514b0d Requirements campaign 031-040: verified acceptance milestone
+971ba5e Requirements campaign 021-030: verified acceptance milestone
+3c94e6e Requirements campaign 011-020: verified acceptance milestone
+1e34287 Requirements campaign 001-010: verified acceptance milestone
+c08b4d5 Checkpoint verified HAL, DMA, instruction model and queued UART baseline

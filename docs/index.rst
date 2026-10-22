@@ -55,6 +55,7 @@ worst-case execution time, or hardware validation.
    integration-history
    requirements-tracker
    requirements-process
+   requirements-campaign
 
 Scope and status
 ----------------
