@@ -1175,7 +1175,7 @@ Dependencies: NXR-077, NXR-078, NXR-085
 
 [REQUIREMENT]
 UID: NXR-091
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Host reference-model tests
 STATEMENT: >>>
 Pure scheduler, wait, pool and parser logic shall be compared with independent finite models.

@@ -1,0 +1,122 @@
+Internal ctest changing into directory: /home/jeffd/src/nexrt/rtos/build/host
+Test project /home/jeffd/src/nexrt/rtos/build/host
+      Start  1: tooling
+ 1/54 Test  #1: tooling ..........................   Passed    0.01 sec
+      Start  2: evidence_tool
+ 2/54 Test  #2: evidence_tool ....................   Passed    0.03 sec
+      Start  3: memory
+ 3/54 Test  #3: memory ...........................   Passed    0.00 sec
+      Start  4: scheduler
+ 4/54 Test  #4: scheduler ........................   Passed    0.00 sec
+      Start  5: ethernet
+ 5/54 Test  #5: ethernet .........................   Passed    0.00 sec
+      Start  6: web
+ 6/54 Test  #6: web ..............................   Passed    0.00 sec
+      Start  7: static_storage
+ 7/54 Test  #7: static_storage ...................   Passed    0.00 sec
+      Start  8: synchronization
+ 8/54 Test  #8: synchronization ..................   Passed    0.00 sec
+      Start  9: ipc_queue_atomic
+ 9/54 Test  #9: ipc_queue_atomic .................   Passed    0.01 sec
+      Start 10: mutex_inheritance
+10/54 Test #10: mutex_inheritance ................   Passed    0.00 sec
+      Start 11: queued_printf
+11/54 Test #11: queued_printf ....................   Passed    0.01 sec
+      Start 12: queued_uart
+12/54 Test #12: queued_uart ......................   Passed    0.00 sec
+      Start 13: requirement_campaign_01
+13/54 Test #13: requirement_campaign_01 ..........   Passed    0.01 sec
+      Start 14: requirement_campaign_02
+14/54 Test #14: requirement_campaign_02 ..........   Passed    0.00 sec
+      Start 15: requirement_campaign_03
+15/54 Test #15: requirement_campaign_03 ..........   Passed    0.01 sec
+      Start 16: requirement_campaign_04
+16/54 Test #16: requirement_campaign_04 ..........   Passed    0.00 sec
+      Start 17: requirement_campaign_05
+17/54 Test #17: requirement_campaign_05 ..........   Passed    0.01 sec
+      Start 18: requirement_campaign_06
+18/54 Test #18: requirement_campaign_06 ..........   Passed    0.01 sec
+      Start 19: requirement_campaign_07
+19/54 Test #19: requirement_campaign_07 ..........   Passed    0.00 sec
+      Start 20: requirement_campaign_08
+20/54 Test #20: requirement_campaign_08 ..........   Passed    0.01 sec
+      Start 21: requirement_campaign_09
+21/54 Test #21: requirement_campaign_09 ..........   Passed    0.01 sec
+      Start 22: requirement_campaign_10
+22/54 Test #22: requirement_campaign_10 ..........   Passed    0.01 sec
+      Start 23: requirement_campaign_11
+23/54 Test #23: requirement_campaign_11 ..........   Passed    0.00 sec
+      Start 24: requirement_campaign_12
+24/54 Test #24: requirement_campaign_12 ..........   Passed    0.01 sec
+      Start 25: requirement_campaign_13
+25/54 Test #25: requirement_campaign_13 ..........   Passed    0.00 sec
+      Start 26: requirement_campaign_14
+26/54 Test #26: requirement_campaign_14 ..........   Passed    0.00 sec
+      Start 27: requirement_campaign_15
+27/54 Test #27: requirement_campaign_15 ..........   Passed    0.00 sec
+      Start 28: requirement_campaign_16
+28/54 Test #28: requirement_campaign_16 ..........   Passed    0.01 sec
+      Start 29: requirement_campaign_17
+29/54 Test #29: requirement_campaign_17 ..........   Passed    0.01 sec
+      Start 30: requirement_campaign_18
+30/54 Test #30: requirement_campaign_18 ..........   Passed    0.00 sec
+      Start 31: requirement_campaign_19
+31/54 Test #31: requirement_campaign_19 ..........Subprocess aborted***Exception:   0.03 sec
+RUN 181 NXR-091 valid flat executable segment loads
+RUN 182 NXR-091 non-power-of-two ELF segment alignment rejected
+campaign_19: /home/jeffd/src/nexrt/rtos/tests/campaign/batch_19.cpp:5: void case_182(): Assertion `!f.accepts()' failed.
+
+      Start 32: queued_printf_edges
+32/54 Test #32: queued_printf_edges ..............   Passed    0.01 sec
+      Start 33: synchronization_edges
+33/54 Test #33: synchronization_edges ............   Passed    0.01 sec
+      Start 34: synchronization_deadlines
+34/54 Test #34: synchronization_deadlines ........   Passed    0.01 sec
+      Start 35: ipc_public_api
+35/54 Test #35: ipc_public_api ...................   Passed    0.00 sec
+      Start 36: stack_watermark
+36/54 Test #36: stack_watermark ..................   Passed    0.00 sec
+      Start 37: processor_hal
+37/54 Test #37: processor_hal ....................   Passed    0.00 sec
+      Start 38: hardware_atomic_hal_model
+38/54 Test #38: hardware_atomic_hal_model ........   Passed    0.00 sec
+      Start 39: dma_ownership
+39/54 Test #39: dma_ownership ....................   Passed    0.01 sec
+      Start 40: ipc_random_seed_1
+40/54 Test #40: ipc_random_seed_1 ................   Passed    0.01 sec
+      Start 41: ipc_random_seed_42
+41/54 Test #41: ipc_random_seed_42 ...............   Passed    0.01 sec
+      Start 42: ipc_random_seed_3735928559
+42/54 Test #42: ipc_random_seed_3735928559 .......   Passed    0.01 sec
+      Start 43: ipc_random_seed_4294967295
+43/54 Test #43: ipc_random_seed_4294967295 .......   Passed    0.02 sec
+      Start 44: ipc_wait_order
+44/54 Test #44: ipc_wait_order ...................   Passed    0.01 sec
+      Start 45: thread_stress_seed_1
+45/54 Test #45: thread_stress_seed_1 .............   Passed    0.02 sec
+      Start 46: thread_stress_seed_42
+46/54 Test #46: thread_stress_seed_42 ............   Passed    0.01 sec
+      Start 47: thread_stress_seed_3735928559
+47/54 Test #47: thread_stress_seed_3735928559 ....   Passed    0.03 sec
+      Start 48: thread_stress_seed_4294967295
+48/54 Test #48: thread_stress_seed_4294967295 ....   Passed    0.02 sec
+      Start 49: requirements_tracker
+49/54 Test #49: requirements_tracker .............   Passed    0.08 sec
+      Start 50: requirements_negative
+50/54 Test #50: requirements_negative ............   Passed    0.04 sec
+      Start 51: configuration
+51/54 Test #51: configuration ....................   Passed    0.02 sec
+      Start 52: configuration_cmake
+52/54 Test #52: configuration_cmake ..............   Passed    1.08 sec
+      Start 53: handoff_roundtrip
+53/54 Test #53: handoff_roundtrip ................   Passed    0.32 sec
+      Start 54: rv_architecture
+54/54 Test #54: rv_architecture ..................   Passed    0.02 sec
+
+98% tests passed, 1 tests failed out of 54
+
+Total Test time (real) =   1.99 sec
+
+The following tests FAILED:
+	 31 - requirement_campaign_19 (Subprocess aborted)
+Errors while running CTest

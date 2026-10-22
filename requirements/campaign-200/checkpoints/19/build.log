@@ -1,0 +1,9 @@
+[0/2] Re-checking globbed directories...
+[1/7] cd /home/jeffd/src/nexrt/rtos/build/host && /home/jeffd/src/nexrt/rtos/build/host/native-tools/NexRT.Requirements/NexRT.Requirements check /home/jeffd/src/nexrt/rtos
+Tracker check passed: 160 substantive review iterations; 78 planned; no runtime verification claims.
+[2/7] Building CXX object sim/interpreter/CMakeFiles/nexrt_rv_model.dir/elf.cpp.o
+[3/7] Linking CXX static library sim/interpreter/libnexrt_rv_model.a
+[4/7] Linking CXX executable campaign_19
+[5/7] Linking CXX executable sim/interpreter/nexrt-rv
+[6/7] Building CXX object sim/interpreter/CMakeFiles/nexrt-rv-tests.dir/tests.cpp.o
+[7/7] Linking CXX executable sim/interpreter/nexrt-rv-tests

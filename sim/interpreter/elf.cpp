@@ -22,16 +22,23 @@ Image::Image(const std::filesystem::path& path,Machine& machine) {
     if(phsize!=32||!phnum)throw std::runtime_error("Unsupported ELF program-header layout");
     range(ph,uint64_t(phnum)*phsize);
     std::vector<std::pair<uint64_t,uint64_t>> intervals;
+    bool executable_entry=false;
     for(uint32_t i=0;i<phnum;i++){
         const uint64_t h=uint64_t(ph)+uint64_t(i)*phsize;if(u32(h)!=1)continue;
         const uint32_t offset=u32(h+4),address=u32(h+8),physical=u32(h+12),files=u32(h+16),memory=u32(h+20);
+        const uint32_t flags=u32(h+24),alignment=u32(h+28);
+        // ELF permits 0/1 for no alignment constraint. Larger values must be
+        // powers of two and the file/virtual offsets must be congruent.
+        if(alignment>1&&((alignment&(alignment-1))||((address-offset)&(alignment-1))))
+            throw std::runtime_error("Invalid ELF load-segment alignment");
         if(files>memory||uint64_t(address)+memory>machine.ram.size()||physical!=address)throw std::runtime_error("ELF segment does not fit the flat target RAM");
         range(offset,files);
         // Reject ambiguous overlap instead of silently changing loader order.
         if(memory){for(auto [lo,hi]:intervals)if(address<hi&&uint64_t(address)+memory>lo)throw std::runtime_error("Overlapping ELF load segments");intervals.emplace_back(address,uint64_t(address)+memory);}
+        if((flags&1)&&entry>=address&&uint64_t(entry)<uint64_t(address)+memory)executable_entry=true;
         std::fill_n(machine.ram.data()+address,memory,0);std::copy_n(data.data()+offset,files,machine.ram.data()+address);
     }
-    if(entry>=machine.ram.size()||(entry&(machine.profile.compressed?1u:3u)))throw std::runtime_error("Invalid ELF entry point");
+    if(!executable_entry||entry>=machine.ram.size()||(entry&(machine.profile.compressed?1u:3u)))throw std::runtime_error("Invalid ELF executable entry point");
     if(shnum){
         if(shsize!=40)throw std::runtime_error("Unsupported ELF section layout");
         range(sh,uint64_t(shnum)*shsize);

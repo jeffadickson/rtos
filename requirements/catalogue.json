@@ -2534,9 +2534,14 @@
       "NXR-037",
       "NXR-060"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "sim/interpreter/machine.cpp",
+      "sim/interpreter/elf.cpp"
+    ],
+    "verification_files": [
+      "tests/campaign/batch_19.cpp"
+    ],
     "planned_test": "TEST-NXR-091",
     "configuration": "Finite state/seed/sequence limits.",
     "resource_budget": "Host bounded states; production unchanged.",
@@ -2547,7 +2552,7 @@
       "tests/memory.cpp",
       "docs/verification.rst"
     ],
-    "finding": "Hand-picked helper assertions exist; independent wait/pool/parser models are absent."
+    "finding": "Instruction-model host acceptance now checks malformed executable alignment and entry ownership, alongside existing directed architectural tests. Independent ISA certification and hardware timing are not claimed."
   },
   {
     "id": "NXR-092",

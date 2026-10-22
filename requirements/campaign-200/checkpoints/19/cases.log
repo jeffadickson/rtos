@@ -1,0 +1,10 @@
+181	NXR-091	valid flat executable segment loads
+182	NXR-091	non-power-of-two ELF segment alignment rejected
+183	NXR-091	ELF segment offset-address incongruence rejected
+184	NXR-091	entry outside loaded segments rejected
+185	NXR-091	entry in nonexecutable segment rejected
+186	NXR-091	image without loadable segment rejected
+187	NXR-091	empty loadable segment cannot establish entry
+188	NXR-091	overlapping load segments rejected
+189	NXR-091	file segment larger than memory rejected
+190	NXR-091	IALIGN32 entry mismatch rejected

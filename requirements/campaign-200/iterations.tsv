@@ -179,3 +179,13 @@ iteration	requirement	acceptance	scope	result	source_sha256
 178	NXR-134	diagnostic snapshot cannot overwrite staging	host-acceptance	passed	1d49350c374830d12bd168ba142c002f439ab7cd1f21682f33ad02d04a67ff25
 179	NXR-134	failed launch generation is never reused	host-acceptance	passed	1d49350c374830d12bd168ba142c002f439ab7cd1f21682f33ad02d04a67ff25
 180	NXR-134	cancel completed transfer does not finish cache twice	host-acceptance	passed	1d49350c374830d12bd168ba142c002f439ab7cd1f21682f33ad02d04a67ff25
+181	NXR-091	valid flat executable segment loads	host-acceptance	passed	3626c7a0c3b4b1eaaca0fa4d387852cbca8b23983405c236fd360b63b607e12a
+182	NXR-091	non-power-of-two ELF segment alignment rejected	host-acceptance	passed	3626c7a0c3b4b1eaaca0fa4d387852cbca8b23983405c236fd360b63b607e12a
+183	NXR-091	ELF segment offset-address incongruence rejected	host-acceptance	passed	3626c7a0c3b4b1eaaca0fa4d387852cbca8b23983405c236fd360b63b607e12a
+184	NXR-091	entry outside loaded segments rejected	host-acceptance	passed	3626c7a0c3b4b1eaaca0fa4d387852cbca8b23983405c236fd360b63b607e12a
+185	NXR-091	entry in nonexecutable segment rejected	host-acceptance	passed	3626c7a0c3b4b1eaaca0fa4d387852cbca8b23983405c236fd360b63b607e12a
+186	NXR-091	image without loadable segment rejected	host-acceptance	passed	3626c7a0c3b4b1eaaca0fa4d387852cbca8b23983405c236fd360b63b607e12a
+187	NXR-091	empty loadable segment cannot establish entry	host-acceptance	passed	3626c7a0c3b4b1eaaca0fa4d387852cbca8b23983405c236fd360b63b607e12a
+188	NXR-091	overlapping load segments rejected	host-acceptance	passed	3626c7a0c3b4b1eaaca0fa4d387852cbca8b23983405c236fd360b63b607e12a
+189	NXR-091	file segment larger than memory rejected	host-acceptance	passed	3626c7a0c3b4b1eaaca0fa4d387852cbca8b23983405c236fd360b63b607e12a
+190	NXR-091	IALIGN32 entry mismatch rejected	host-acceptance	passed	3626c7a0c3b4b1eaaca0fa4d387852cbca8b23983405c236fd360b63b607e12a

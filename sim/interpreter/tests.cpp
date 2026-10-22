@@ -152,6 +152,7 @@ void compressed(){
 void elf(){
     std::vector<uint8_t> bytes(88);auto w16=[&](size_t o,uint32_t v){bytes[o]=uint8_t(v);bytes[o+1]=uint8_t(v>>8);};auto w32=[&](size_t o,uint32_t v){for(unsigned i=0;i<4;i++)bytes[o+i]=uint8_t(v>>(8*i));};
     bytes[0]=0x7f;bytes[1]='E';bytes[2]='L';bytes[3]='F';bytes[4]=1;bytes[5]=1;bytes[6]=1;w16(16,2);w16(18,243);w32(20,1);w32(28,52);w16(40,52);w16(42,32);w16(44,1);w32(52,1);w32(56,84);w32(68,4);w32(72,16);w32(84,0x00700193);
+    w32(76,5); // PF_R | PF_X: entry must belong to loaded executable memory.
     const auto file=std::filesystem::current_path()/"rv-test-fixture.elf";auto save=[&](){std::ofstream out(file,std::ios::binary);out.write(reinterpret_cast<const char*>(bytes.data()),std::streamsize(bytes.size()));};save();
     Machine m;std::fill(m.ram.begin(),m.ram.end(),0xa5);Image good(file,m);m.step();need(m.x[3]==7&&m.peek32(4)==0&&m.ram[16]==0xa5,"ELF PT_LOAD and BSS");
     bytes[5]=2;save();bool rejected=false;try{Image bad(file,m);}catch(const std::runtime_error&){rejected=true;}need(rejected,"ELF endian rejection");bytes[5]=1;w32(72,0xffffffff);save();rejected=false;try{Image bad(file,m);}catch(const std::runtime_error&){rejected=true;}need(rejected,"ELF segment overflow rejection");std::filesystem::remove(file);
