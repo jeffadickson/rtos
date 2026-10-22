@@ -200,7 +200,7 @@ Dependencies: NXR-014, NXR-020
 
 [REQUIREMENT]
 UID: NXR-016
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Static mutex ownership
 STATEMENT: >>>
 Boot-initialized mutexes shall enforce a single owner, reject non-owner unlock and provide nonrecursive try, timed and blocking acquisition.
@@ -213,7 +213,7 @@ Dependencies: NXR-001, NXR-009, NXR-020
 
 [REQUIREMENT]
 UID: NXR-017
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Transitive priority inheritance
 STATEMENT: >>>
 Mutex contention shall raise effective priorities to active donation maxima, propagate through bounded chains and recompute when donations end.
@@ -226,7 +226,7 @@ Dependencies: NXR-004, NXR-016
 
 [REQUIREMENT]
 UID: NXR-018
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Mutex deadlock and owner termination
 STATEMENT: >>>
 Mutex acquisition shall detect wait-for cycles before blocking, and owner exit shall fault deterministically without silently releasing ownership.

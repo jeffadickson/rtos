@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **160**. Catalogue SHA-256: ``08470317957a3a294a4db6483b78bcbdfd4a29a3813668ed6b802b97e9f718cb``.
+Reviewed requirements: **160**. Catalogue SHA-256: ``0ed7d8f37abf27870b4753a405d913e6e4e7a7a9d777a20e5fdd8c9795608bb7``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -537,7 +537,7 @@ NXR-015 Deferred interrupt work
 NXR-016 Static mutex ownership
 ------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** Synchronization
@@ -567,12 +567,12 @@ NXR-016 Static mutex ownership
 **Static resource budget:** One owner/control record per mutex; bounded thread waiters.
 
 
-**Review finding:** No mutex API exists; synchronization remains explicitly a future extension.
+**Review finding:** Static mutex ownership, bounded attachment, foreign unlock and scoped failure now have host acceptance evidence; target latency and board qualification remain open.
 
 NXR-017 Transitive priority inheritance
 ---------------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** Synchronization
@@ -602,12 +602,12 @@ NXR-017 Transitive priority inheritance
 **Static resource budget:** Traversal bounded by thread/mutex capacities; static graph storage.
 
 
-**Review finding:** Thread has one priority and no donation/ownership graph; transitive inheritance is absent.
+**Review finding:** Existing transitive-inheritance implementation is linked to host inheritance tests plus donation-before-park and handoff restoration acceptance; target timing remains unqualified.
 
 NXR-018 Mutex deadlock and owner termination
 --------------------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** Synchronization
@@ -637,7 +637,7 @@ NXR-018 Mutex deadlock and owner termination
 **Static resource budget:** At most RTOS_MAX_THREADS search nodes; fixed fault storage.
 
 
-**Review finding:** exit unconditionally marks finished without owned-object validation; mutex owner termination needs an explicit policy.
+**Review finding:** Deadlock rejection, abandoned owner quarantine and explicit quiescent recovery now have linked host evidence; hardware-device recovery proof remains caller/BSP work.
 
 NXR-019 Counting and binary semaphores
 --------------------------------------

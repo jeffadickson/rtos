@@ -1,0 +1,10 @@
+141	NXR-016	mutex ownership metadata released together
+142	NXR-018	recursive finite wait rejected before enrollment
+143	NXR-016	nonblocking contention does not donate priority
+144	NXR-016	foreign unlock leaves ownership intact
+145	NXR-018	recovery cannot steal live ownership
+146	NXR-018	owner termination quarantines mutex
+147	NXR-018	explicit quiescent recovery permits reacquisition
+148	NXR-016	failed guard never unlocks another owner
+149	NXR-016	mutex ownership budget enforced without partial attachment
+150	NXR-017	priority donation precedes park and unwinds on handoff

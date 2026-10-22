@@ -443,9 +443,14 @@
       "NXR-009",
       "NXR-020"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_mutex.hpp",
+      "src/mutex.cpp"
+    ],
+    "verification_files": [
+      "tests/campaign/batch_15.cpp"
+    ],
     "planned_test": "MUTEX-OWNERSHIP",
     "configuration": "Optional fixed mutex capacity; nonrecursive initially.",
     "resource_budget": "One owner/control record per mutex; bounded thread waiters.",
@@ -454,7 +459,7 @@
       "include/rtos.hpp",
       "docs/architecture.rst"
     ],
-    "finding": "No mutex API exists; synchronization remains explicitly a future extension."
+    "finding": "Static mutex ownership, bounded attachment, foreign unlock and scoped failure now have host acceptance evidence; target latency and board qualification remain open."
   },
   {
     "id": "NXR-017",
@@ -468,9 +473,15 @@
       "NXR-004",
       "NXR-016"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_mutex.hpp",
+      "src/mutex.cpp"
+    ],
+    "verification_files": [
+      "tests/mutex.cpp",
+      "tests/campaign/batch_15.cpp"
+    ],
     "planned_test": "MUTEX-INHERITANCE",
     "configuration": "Mutex inheritance with priorities 0..255.",
     "resource_budget": "Traversal bounded by thread/mutex capacities; static graph storage.",
@@ -480,7 +491,7 @@
       "src/scheduler.hpp",
       "src/kernel.cpp"
     ],
-    "finding": "Thread has one priority and no donation/ownership graph; transitive inheritance is absent."
+    "finding": "Existing transitive-inheritance implementation is linked to host inheritance tests plus donation-before-park and handoff restoration acceptance; target timing remains unqualified."
   },
   {
     "id": "NXR-018",
@@ -494,9 +505,15 @@
       "NXR-016",
       "NXR-017"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_mutex.hpp",
+      "src/mutex.cpp"
+    ],
+    "verification_files": [
+      "tests/mutex.cpp",
+      "tests/campaign/batch_15.cpp"
+    ],
     "planned_test": "MUTEX-LIFECYCLE",
     "configuration": "Documented deadlock error and owner-exit fault policy.",
     "resource_budget": "At most RTOS_MAX_THREADS search nodes; fixed fault storage.",
@@ -505,7 +522,7 @@
       "src/kernel.cpp",
       "docs/api.rst"
     ],
-    "finding": "exit unconditionally marks finished without owned-object validation; mutex owner termination needs an explicit policy."
+    "finding": "Deadlock rejection, abandoned owner quarantine and explicit quiescent recovery now have linked host evidence; hardware-device recovery proof remains caller/BSP work."
   },
   {
     "id": "NXR-019",
