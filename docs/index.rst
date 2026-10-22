@@ -20,6 +20,7 @@ worst-case execution time, or hardware validation.
    arm-canaries
    ipc-stress
    overnight-stress
+   hardware-in-loop
    host-memory
    evidence
    how-it-works
