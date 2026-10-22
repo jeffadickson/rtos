@@ -584,9 +584,14 @@
       "NXR-014",
       "NXR-020"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_sync.hpp",
+      "src/sync.cpp"
+    ],
+    "verification_files": [
+      "tests/campaign/batch_14.cpp"
+    ],
     "planned_test": "EVENT-FLAGS",
     "configuration": "RTOS_EVENT_BITS = 1..32; boot reserved mask; priority/FIFO waiter order; explicit clear-on-exit.",
     "resource_budget": "Fixed flag/control record per group; bounded thread waiters.",
@@ -595,7 +600,7 @@
       "include/rtos.hpp",
       "docs/architecture.rst"
     ],
-    "finding": "No event group API exists; sleep arithmetic alone does not specify consumption semantics. Builder 25 resolved previously unspecified consumption and waiter ordering policies."
+    "finding": "Static event flags now have directed host acceptance for any/all consumption, coalescing, invalid waits, ISR boundaries and consumer versus broadcast ordering. Hardware ISR/preemption timing remains unqualified."
   },
   {
     "id": "NXR-022",

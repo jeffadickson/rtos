@@ -1,0 +1,10 @@
+131	NXR-021	wait-any observes all currently matched bits
+132	NXR-021	wait-all partial availability does not consume
+133	NXR-021	consuming wait preserves bits outside mask
+134	NXR-021	clear removes only requested stored bits
+135	NXR-021	zero set and clear preserve event storage
+136	NXR-021	zero wait mask preserves observed value
+137	NXR-021	invalid timeout does not consume available events
+138	NXR-021	thread event operations reject ISR context
+139	NXR-021	repeated event sets coalesce instead of counting
+140	NXR-126	broadcast waiter survives earlier consuming waiter

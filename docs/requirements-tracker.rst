@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **160**. Catalogue SHA-256: ``b4d2fff045233b41288bbc4155da43a12ea3719477033f2bf770b5499553d1d6``.
+Reviewed requirements: **160**. Catalogue SHA-256: ``08470317957a3a294a4db6483b78bcbdfd4a29a3813668ed6b802b97e9f718cb``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -712,7 +712,7 @@ NXR-020 Atomic bounded wait lifecycle
 NXR-021 Event flags semantics
 -----------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** Synchronization
@@ -742,7 +742,7 @@ NXR-021 Event flags semantics
 **Static resource budget:** Fixed flag/control record per group; bounded thread waiters.
 
 
-**Review finding:** No event group API exists; sleep arithmetic alone does not specify consumption semantics. Builder 25 resolved previously unspecified consumption and waiter ordering policies.
+**Review finding:** Static event flags now have directed host acceptance for any/all consumption, coalescing, invalid waits, ISR boundaries and consumer versus broadcast ordering. Hardware ISR/preemption timing remains unqualified.
 
 NXR-022 Typed fixed-capacity queues
 -----------------------------------

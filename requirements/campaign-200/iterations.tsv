@@ -129,3 +129,13 @@ iteration	requirement	acceptance	scope	result	source_sha256
 128	NXR-019	ISR handoff wakes waiter without accumulating count	host-acceptance	passed	2732b4eb9f87e00c651a2d2f2cf5351a8e32185617ba51c89c1b1aaafcdf05ac
 129	NXR-019	release after timeout retains a usable token	host-acceptance	passed	2732b4eb9f87e00c651a2d2f2cf5351a8e32185617ba51c89c1b1aaafcdf05ac
 130	NXR-019	thread acquire from ISR leaves count unchanged	host-acceptance	passed	2732b4eb9f87e00c651a2d2f2cf5351a8e32185617ba51c89c1b1aaafcdf05ac
+131	NXR-021	wait-any observes all currently matched bits	host-acceptance	passed	4e4fa7bfc39c6b30c7173568263f9bbcbb58da44c8816f9ffa65222837d8dcbf
+132	NXR-021	wait-all partial availability does not consume	host-acceptance	passed	4e4fa7bfc39c6b30c7173568263f9bbcbb58da44c8816f9ffa65222837d8dcbf
+133	NXR-021	consuming wait preserves bits outside mask	host-acceptance	passed	4e4fa7bfc39c6b30c7173568263f9bbcbb58da44c8816f9ffa65222837d8dcbf
+134	NXR-021	clear removes only requested stored bits	host-acceptance	passed	4e4fa7bfc39c6b30c7173568263f9bbcbb58da44c8816f9ffa65222837d8dcbf
+135	NXR-021	zero set and clear preserve event storage	host-acceptance	passed	4e4fa7bfc39c6b30c7173568263f9bbcbb58da44c8816f9ffa65222837d8dcbf
+136	NXR-021	zero wait mask preserves observed value	host-acceptance	passed	4e4fa7bfc39c6b30c7173568263f9bbcbb58da44c8816f9ffa65222837d8dcbf
+137	NXR-021	invalid timeout does not consume available events	host-acceptance	passed	4e4fa7bfc39c6b30c7173568263f9bbcbb58da44c8816f9ffa65222837d8dcbf
+138	NXR-021	thread event operations reject ISR context	host-acceptance	passed	4e4fa7bfc39c6b30c7173568263f9bbcbb58da44c8816f9ffa65222837d8dcbf
+139	NXR-021	repeated event sets coalesce instead of counting	host-acceptance	passed	4e4fa7bfc39c6b30c7173568263f9bbcbb58da44c8816f9ffa65222837d8dcbf
+140	NXR-126	broadcast waiter survives earlier consuming waiter	host-acceptance	passed	4e4fa7bfc39c6b30c7173568263f9bbcbb58da44c8816f9ffa65222837d8dcbf

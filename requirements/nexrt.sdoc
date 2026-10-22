@@ -265,7 +265,7 @@ Dependencies: NXR-001, NXR-004, NXR-009
 
 [REQUIREMENT]
 UID: NXR-021
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Event flags semantics
 STATEMENT: >>>
 Enabled event groups shall support a configured width of 1..32 bits, a boot-declared reserved-bit mask, any/all waits, and optional clear-on-exit evaluated in descending effective priority with FIFO ordering among equal-priority waiters.
