@@ -5,7 +5,7 @@
 #include <unordered_map>
 
 namespace nexrt::rv {
-/// Checked ELF32 little-endian RISC-V load and named diagnostic symbols.
+/// Checked ELF32 little-endian RISC-V load and global/weak diagnostic symbols.
 /// Program segments initialize RAM as a trusted boot operation, outside PMP.
 struct Image {
     uint32_t entry=0;

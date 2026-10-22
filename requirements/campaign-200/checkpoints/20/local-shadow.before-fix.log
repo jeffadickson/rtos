@@ -1,0 +1,2 @@
+RUN 195 NXR-091 local duplicate cannot hide global diagnostic identity
+campaign_20: /home/jeffd/src/nexrt/rtos/tests/campaign/batch_20.cpp:19: void case_195(): Assertion `image.symbols.at("status").address==4' failed.

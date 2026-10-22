@@ -49,13 +49,23 @@ Image::Image(const std::filesystem::path& path,Machine& machine) {
             if(stride!=16||size%stride||link>=shnum)throw std::runtime_error("Invalid ELF symbol table");
             range(offset,size);
             const uint64_t strings=uint64_t(sh)+uint64_t(link)*shsize;
+            if(u32(strings+4)!=3)throw std::runtime_error("ELF symbol names require a string-table section");
             const uint32_t names=u32(strings+16),nameSize=u32(strings+20);range(names,nameSize);
             for(uint32_t k=0;k<size;k+=stride){
                 const uint64_t symbol=uint64_t(offset)+k;const uint32_t name=u32(symbol);
                 if(name>=nameSize)throw std::runtime_error("ELF symbol name outside string table");
                 auto begin=data.begin()+names+name,end=data.begin()+names+nameSize;
                 auto zero=std::find(begin,end,uint8_t(0));if(zero==end)throw std::runtime_error("Unterminated ELF symbol name");
-                if(begin!=zero&&u16(symbol+14)!=0)symbols.emplace(std::string(begin,zero),Symbol{u32(symbol+4),u32(symbol+8)});
+                // Diagnostic lookup is an external-name contract. Local symbols
+                // may legally share a spelling across translation units and must
+                // never hide the firmware's global status/clock definitions.
+                const unsigned binding=data[size_t(symbol+12)]>>4;
+                if(begin!=zero&&u16(symbol+14)!=0&&(binding==1||binding==2)){
+                    const Symbol definition{u32(symbol+4),u32(symbol+8)};
+                    const auto [found,inserted]=symbols.emplace(std::string(begin,zero),definition);
+                    if(!inserted&&(found->second.address!=definition.address||found->second.size!=definition.size))
+                        throw std::runtime_error("Conflicting ELF global diagnostic symbol");
+                }
             }
         }
     }

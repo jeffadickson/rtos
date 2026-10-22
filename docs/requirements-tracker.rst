@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **160**. Catalogue SHA-256: ``bb417d37d131887bce57ab22406f5a876ad756045a39dea015cabbf8a17d4a8f``.
+Reviewed requirements: **160**. Catalogue SHA-256: ``7e54edfa9da1076cee092fe55d6df48126560100fffaf8fa31d06a2ed935a50d``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -3192,7 +3192,7 @@ NXR-091 Host reference-model tests
 **Static resource budget:** Host bounded states; production unchanged.
 
 
-**Review finding:** Instruction-model host acceptance now checks malformed executable alignment and entry ownership, alongside existing directed architectural tests. Independent ISA certification and hardware timing are not claimed.
+**Review finding:** Host architectural models now have authored malformed-segment and diagnostic-symbol acceptance tests, including executable-entry ownership, proper string tables and global identity. Independent ISA and target timing qualification remain open.
 
 NXR-092 Sanitizer and input-fuzz profiles
 -----------------------------------------

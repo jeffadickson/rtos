@@ -1,0 +1,13 @@
+[0/2] Re-checking globbed directories...
+[1/11] Building CXX object CMakeFiles/campaign_19.dir/tests/campaign/batch_19.cpp.o
+[2/11] cd /home/jeffd/src/nexrt/rtos/build/host && /home/jeffd/src/nexrt/rtos/build/host/native-tools/NexRT.Requirements/NexRT.Requirements check /home/jeffd/src/nexrt/rtos
+Tracker check passed: 160 substantive review iterations; 78 planned; no runtime verification claims.
+[3/11] Building CXX object CMakeFiles/campaign_20.dir/tests/campaign/batch_20.cpp.o
+[4/11] Building CXX object sim/interpreter/CMakeFiles/nexrt_rv_model.dir/elf.cpp.o
+[5/11] Linking CXX static library sim/interpreter/libnexrt_rv_model.a
+[6/11] Linking CXX executable campaign_19
+[7/11] Linking CXX executable campaign_20
+[8/11] Building CXX object sim/interpreter/CMakeFiles/nexrt-rv.dir/main.cpp.o
+[9/11] Linking CXX executable sim/interpreter/nexrt-rv
+[10/11] Building CXX object sim/interpreter/CMakeFiles/nexrt-rv-tests.dir/tests.cpp.o
+[11/11] Linking CXX executable sim/interpreter/nexrt-rv-tests

@@ -1,0 +1,2 @@
+RUN 196 NXR-091 conflicting global diagnostic definitions rejected
+campaign_20: /home/jeffd/src/nexrt/rtos/tests/campaign/batch_20.cpp:20: void case_196(): Assertion `!f.accepts()' failed.

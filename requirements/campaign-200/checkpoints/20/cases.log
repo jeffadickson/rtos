@@ -1,0 +1,10 @@
+191	NXR-091	global diagnostic symbol has checked address and size
+192	NXR-091	symbol name table must actually be STRTAB
+193	NXR-091	symbol section must contain complete entries
+194	NXR-091	symbol name must terminate inside string table
+195	NXR-091	local duplicate cannot hide global diagnostic identity
+196	NXR-091	conflicting global diagnostic definitions rejected
+197	NXR-091	identical repeated global symbol accepted
+198	NXR-091	undefined diagnostic symbol not exported
+199	NXR-091	symbol string-table link out of range rejected
+200	NXR-091	symbol name offset outside string table rejected

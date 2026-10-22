@@ -2540,7 +2540,8 @@
       "sim/interpreter/elf.cpp"
     ],
     "verification_files": [
-      "tests/campaign/batch_19.cpp"
+      "tests/campaign/batch_19.cpp",
+      "tests/campaign/batch_20.cpp"
     ],
     "planned_test": "TEST-NXR-091",
     "configuration": "Finite state/seed/sequence limits.",
@@ -2552,7 +2553,7 @@
       "tests/memory.cpp",
       "docs/verification.rst"
     ],
-    "finding": "Instruction-model host acceptance now checks malformed executable alignment and entry ownership, alongside existing directed architectural tests. Independent ISA certification and hardware timing are not claimed."
+    "finding": "Host architectural models now have authored malformed-segment and diagnostic-symbol acceptance tests, including executable-entry ownership, proper string tables and global identity. Independent ISA and target timing qualification remain open."
   },
   {
     "id": "NXR-092",

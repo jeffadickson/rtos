@@ -189,3 +189,13 @@ iteration	requirement	acceptance	scope	result	source_sha256
 188	NXR-091	overlapping load segments rejected	host-acceptance	passed	3626c7a0c3b4b1eaaca0fa4d387852cbca8b23983405c236fd360b63b607e12a
 189	NXR-091	file segment larger than memory rejected	host-acceptance	passed	3626c7a0c3b4b1eaaca0fa4d387852cbca8b23983405c236fd360b63b607e12a
 190	NXR-091	IALIGN32 entry mismatch rejected	host-acceptance	passed	3626c7a0c3b4b1eaaca0fa4d387852cbca8b23983405c236fd360b63b607e12a
+191	NXR-091	global diagnostic symbol has checked address and size	host-acceptance	passed	35c70baae3664f995c89df66d6eb77c445cf74735e124acff7fd4d56fcd8217a
+192	NXR-091	symbol name table must actually be STRTAB	host-acceptance	passed	35c70baae3664f995c89df66d6eb77c445cf74735e124acff7fd4d56fcd8217a
+193	NXR-091	symbol section must contain complete entries	host-acceptance	passed	35c70baae3664f995c89df66d6eb77c445cf74735e124acff7fd4d56fcd8217a
+194	NXR-091	symbol name must terminate inside string table	host-acceptance	passed	35c70baae3664f995c89df66d6eb77c445cf74735e124acff7fd4d56fcd8217a
+195	NXR-091	local duplicate cannot hide global diagnostic identity	host-acceptance	passed	35c70baae3664f995c89df66d6eb77c445cf74735e124acff7fd4d56fcd8217a
+196	NXR-091	conflicting global diagnostic definitions rejected	host-acceptance	passed	35c70baae3664f995c89df66d6eb77c445cf74735e124acff7fd4d56fcd8217a
+197	NXR-091	identical repeated global symbol accepted	host-acceptance	passed	35c70baae3664f995c89df66d6eb77c445cf74735e124acff7fd4d56fcd8217a
+198	NXR-091	undefined diagnostic symbol not exported	host-acceptance	passed	35c70baae3664f995c89df66d6eb77c445cf74735e124acff7fd4d56fcd8217a
+199	NXR-091	symbol string-table link out of range rejected	host-acceptance	passed	35c70baae3664f995c89df66d6eb77c445cf74735e124acff7fd4d56fcd8217a
+200	NXR-091	symbol name offset outside string table rejected	host-acceptance	passed	35c70baae3664f995c89df66d6eb77c445cf74735e124acff7fd4d56fcd8217a
