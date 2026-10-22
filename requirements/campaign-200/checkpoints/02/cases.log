@@ -1,0 +1,10 @@
+11	NXR-072	empty trace preserves output
+12	NXR-072	binary event round trip
+13	NXR-072	trace FIFO order
+14	NXR-072	full trace drops new event
+15	NXR-072	drop is visible in snapshot
+16	NXR-072	drained slots can wrap
+17	NXR-072	ISR trace restores nested mask
+18	NXR-072	trace publication copies caller data
+19	NXR-072	trace does not request scheduling
+20	NXR-072	drop history survives draining

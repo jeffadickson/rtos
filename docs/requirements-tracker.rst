@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **160**. Catalogue SHA-256: ``45d7d91873717bde6f431ef18c1a9f1350a05cd3a635f4aae14d84b34264e670``.
+Reviewed requirements: **160**. Catalogue SHA-256: ``0385173494675f6e35f79fac0cb6af99ca1a5ec95c8a0684d6a9ccf6dff0ed4a``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -2497,7 +2497,7 @@ NXR-071 Incremental stack high-water sampling
 NXR-072 Fixed execution trace ring
 ----------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** Diagnostics
@@ -2527,7 +2527,7 @@ NXR-072 Fixed execution trace ring
 **Static resource budget:** Exact ring bytes and fixed indices/counters.
 
 
-**Review finding:** Trace ring is backlog only; current trap emits no events.
+**Review finding:** Fixed binary ring now has FIFO, overflow, copy and ISR-mask host acceptance tests; target timing, trace selection policy and WCET remain unqualified.
 
 NXR-073 Bounded retained fault record
 -------------------------------------

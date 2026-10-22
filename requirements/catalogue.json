@@ -1952,9 +1952,13 @@
       "NXR-011",
       "NXR-025"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_trace.hpp"
+    ],
+    "verification_files": [
+      "tests/campaign/batch_02.cpp"
+    ],
     "planned_test": "TEST-NXR-072",
     "configuration": "Optional fixed event width, capacity and mask.",
     "resource_budget": "Exact ring bytes and fixed indices/counters.",
@@ -1964,7 +1968,7 @@
       "docs/configuration.rst",
       "docs/memory.rst"
     ],
-    "finding": "Trace ring is backlog only; current trap emits no events."
+    "finding": "Fixed binary ring now has FIFO, overflow, copy and ISR-mask host acceptance tests; target timing, trace selection policy and WCET remain unqualified."
   },
   {
     "id": "NXR-073",

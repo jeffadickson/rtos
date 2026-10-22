@@ -9,3 +9,13 @@ iteration	requirement	acceptance	scope	result	source_sha256
 8	NXR-012	late release after wrap counts misses	host-acceptance	passed	3c1f7171ce5aa54c6247c90e2836fd6494452236fec8142fc8f634bf52591e8a
 9	NXR-012	miss counter saturates	host-acceptance	passed	3c1f7171ce5aa54c6247c90e2836fd6494452236fec8142fc8f634bf52591e8a
 10	NXR-012	ambiguous half-range observation rejected unchanged	host-acceptance	passed	3c1f7171ce5aa54c6247c90e2836fd6494452236fec8142fc8f634bf52591e8a
+11	NXR-072	empty trace preserves output	host-acceptance	passed	ec7fe85b47c95f0426905afdc2b1936036e08f56e3773a71045473831d55c1c8
+12	NXR-072	binary event round trip	host-acceptance	passed	ec7fe85b47c95f0426905afdc2b1936036e08f56e3773a71045473831d55c1c8
+13	NXR-072	trace FIFO order	host-acceptance	passed	ec7fe85b47c95f0426905afdc2b1936036e08f56e3773a71045473831d55c1c8
+14	NXR-072	full trace drops new event	host-acceptance	passed	ec7fe85b47c95f0426905afdc2b1936036e08f56e3773a71045473831d55c1c8
+15	NXR-072	drop is visible in snapshot	host-acceptance	passed	ec7fe85b47c95f0426905afdc2b1936036e08f56e3773a71045473831d55c1c8
+16	NXR-072	drained slots can wrap	host-acceptance	passed	ec7fe85b47c95f0426905afdc2b1936036e08f56e3773a71045473831d55c1c8
+17	NXR-072	ISR trace restores nested mask	host-acceptance	passed	ec7fe85b47c95f0426905afdc2b1936036e08f56e3773a71045473831d55c1c8
+18	NXR-072	trace publication copies caller data	host-acceptance	passed	ec7fe85b47c95f0426905afdc2b1936036e08f56e3773a71045473831d55c1c8
+19	NXR-072	trace does not request scheduling	host-acceptance	passed	ec7fe85b47c95f0426905afdc2b1936036e08f56e3773a71045473831d55c1c8
+20	NXR-072	drop history survives draining	host-acceptance	passed	ec7fe85b47c95f0426905afdc2b1936036e08f56e3773a71045473831d55c1c8

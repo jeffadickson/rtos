@@ -928,7 +928,7 @@ Dependencies: NXR-003, NXR-007, NXR-068
 
 [REQUIREMENT]
 UID: NXR-072
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Fixed execution trace ring
 STATEMENT: >>>
 Optional tracing shall append fixed timestamped events to a boot ring with bounded writes, overwrite-oldest and lost-event counts.
