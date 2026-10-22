@@ -3882,7 +3882,8 @@
       "src/dma.cpp"
     ],
     "verification_files": [
-      "tests/campaign/batch_09.cpp"
+      "tests/campaign/batch_09.cpp",
+      "tests/campaign/batch_10.cpp"
     ],
     "planned_test": "TEST-NXR-134",
     "configuration": "Per-engine bounded completion/reset policy; no generic cancellation promise.",
@@ -3891,7 +3892,7 @@
     "inspected_files": [
       "docs/device-ipc-review.rst"
     ],
-    "finding": "Directed host acceptance now checks short/zero receive results, generation identity, output aliasing and single cache completion. Physical DMA quiescence and board cache/IRQ qualification remain open."
+    "finding": "Host acceptance covers receive alias/copy rules plus failed stop quarantine, repeated recovery, malformed completion and unpublished failed-launch tickets. Real engine quiescence and target cache/IRQ timing remain unqualified."
   },
   {
     "id": "NXR-135",

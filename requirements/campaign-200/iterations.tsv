@@ -89,3 +89,13 @@ iteration	requirement	acceptance	scope	result	source_sha256
 88	NXR-134	null nonempty RX destination rejected	host-acceptance	passed	c0732c05d31ea4b6179cc38a17bd28eea77bea997553db784a3b102938211e58
 89	NXR-134	stale RX hardware generation cannot finish ownership	host-acceptance	passed	c0732c05d31ea4b6179cc38a17bd28eea77bea997553db784a3b102938211e58
 90	NXR-134	repeated completed RX polling finishes cache once	host-acceptance	passed	c0732c05d31ea4b6179cc38a17bd28eea77bea997553db784a3b102938211e58
+91	NXR-134	uncertain cancel quarantines without cache finish	host-acceptance	passed	790eda680a77121e7f979f811665f1fc13d0f283cf92edecaa1e6a4fbf8bc5cf
+92	NXR-134	quarantine rejects new transfer without modifying ticket	host-acceptance	passed	790eda680a77121e7f979f811665f1fc13d0f283cf92edecaa1e6a4fbf8bc5cf
+93	NXR-134	failed recovery retains hardware ownership	host-acceptance	passed	790eda680a77121e7f979f811665f1fc13d0f283cf92edecaa1e6a4fbf8bc5cf
+94	NXR-134	successful recovery finishes once then retires ticket	host-acceptance	passed	790eda680a77121e7f979f811665f1fc13d0f283cf92edecaa1e6a4fbf8bc5cf
+95	NXR-134	quarantine collection preserves byte output	host-acceptance	passed	790eda680a77121e7f979f811665f1fc13d0f283cf92edecaa1e6a4fbf8bc5cf
+96	NXR-134	stale recovery ticket never calls stop	host-acceptance	passed	790eda680a77121e7f979f811665f1fc13d0f283cf92edecaa1e6a4fbf8bc5cf
+97	NXR-134	short TX completion requires stop proof	host-acceptance	passed	790eda680a77121e7f979f811665f1fc13d0f283cf92edecaa1e6a4fbf8bc5cf
+98	NXR-134	oversized completion cannot release staging without stop	host-acceptance	passed	790eda680a77121e7f979f811665f1fc13d0f283cf92edecaa1e6a4fbf8bc5cf
+99	NXR-134	invalid completion enum fails closed	host-acceptance	passed	790eda680a77121e7f979f811665f1fc13d0f283cf92edecaa1e6a4fbf8bc5cf
+100	NXR-134	failed launch does not publish ticket	host-acceptance	passed	790eda680a77121e7f979f811665f1fc13d0f283cf92edecaa1e6a4fbf8bc5cf

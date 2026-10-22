@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **160**. Catalogue SHA-256: ``c448f6d2dab6904ff3de80fbc347d7064647ac86627222201c248604e8ee0c15``.
+Reviewed requirements: **160**. Catalogue SHA-256: ``1771ef020553b25942d79e8bc836f1114032e054d2e05de22a983db0d31700e3``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -4697,7 +4697,7 @@ NXR-134 DMA buffer ownership and quiescence
 **Static resource budget:** Fixed ownership/generation and quarantine state; retained buffers remain charged to static budget.
 
 
-**Review finding:** Directed host acceptance now checks short/zero receive results, generation identity, output aliasing and single cache completion. Physical DMA quiescence and board cache/IRQ qualification remain open.
+**Review finding:** Host acceptance covers receive alias/copy rules plus failed stop quarantine, repeated recovery, malformed completion and unpublished failed-launch tickets. Real engine quiescence and target cache/IRQ timing remain unqualified.
 
 NXR-135 DMA address and cache contract
 --------------------------------------

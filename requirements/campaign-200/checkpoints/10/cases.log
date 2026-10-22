@@ -1,0 +1,10 @@
+91	NXR-134	uncertain cancel quarantines without cache finish
+92	NXR-134	quarantine rejects new transfer without modifying ticket
+93	NXR-134	failed recovery retains hardware ownership
+94	NXR-134	successful recovery finishes once then retires ticket
+95	NXR-134	quarantine collection preserves byte output
+96	NXR-134	stale recovery ticket never calls stop
+97	NXR-134	short TX completion requires stop proof
+98	NXR-134	oversized completion cannot release staging without stop
+99	NXR-134	invalid completion enum fails closed
+100	NXR-134	failed launch does not publish ticket
