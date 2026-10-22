@@ -1106,9 +1106,13 @@
       "NXR-015",
       "NXR-027"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_uart.hpp"
+    ],
+    "verification_files": [
+      "tests/campaign/batch_05.cpp"
+    ],
     "planned_test": "TEST-NXR-041",
     "configuration": "Optional UART instances; fixed ring bytes, baud and framing selected at boot.",
     "resource_budget": "Fixed per-instance rings/control state; ISR work capped at configured bytes per interrupt.",
@@ -1117,7 +1121,7 @@
       "docs/drivers.rst",
       "docs/configuration.rst"
     ],
-    "finding": "Driver inventory proposes UART rings and loopback tests; no UART implementation exists."
+    "finding": "TX now rejects null input, unrepresentable counts, unaligned and overflowing register ranges before MMIO; directed host tests cover bounded writes. RX, interrupts and physical timeout handling remain open."
   },
   {
     "id": "NXR-042",

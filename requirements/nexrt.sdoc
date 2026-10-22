@@ -525,7 +525,7 @@ Dependencies: NXR-006, NXR-026, NXR-036, NXR-038
 
 [REQUIREMENT]
 UID: NXR-041
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: UART bounded transport
 STATEMENT: >>>
 The UART driver shall use fixed RX/TX rings, expose nonblocking/deadline transfers and defer interrupt processing through approved bounded paths.

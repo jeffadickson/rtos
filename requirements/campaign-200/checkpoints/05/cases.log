@@ -1,0 +1,10 @@
+41	NXR-041	empty UART write avoids invalid device address
+42	NXR-041	null nonempty UART source rejected
+43	NXR-041	unaligned UART base rejected before MMIO
+44	NXR-041	overflowing UART register range rejected
+45	NXR-041	unrepresentable UART count rejected before source read
+46	NXR-041	UART high-bit byte remains unsigned
+47	NXR-041	full UART accepts no bytes
+48	NXR-041	TXFULL flag controls admission without idle flag
+49	NXR-041	TX write never changes status or RX register
+50	NXR-041	ready transport returns exact multi-byte count

@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **160**. Catalogue SHA-256: ``92bcbdbd0476eca3f1eb8b45c3140e1d42db462e2c5a5a0503341c048c248b4c``.
+Reviewed requirements: **160**. Catalogue SHA-256: ``e7e7dfb66acc55fd2be90eb24f28be13b1cbcc976496adf7986c9aa3fa028e42``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -1412,7 +1412,7 @@ NXR-040 Bounded diagnostic commands
 NXR-041 UART bounded transport
 ------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** Drivers
@@ -1442,7 +1442,7 @@ NXR-041 UART bounded transport
 **Static resource budget:** Fixed per-instance rings/control state; ISR work capped at configured bytes per interrupt.
 
 
-**Review finding:** Driver inventory proposes UART rings and loopback tests; no UART implementation exists.
+**Review finding:** TX now rejects null input, unrepresentable counts, unaligned and overflowing register ranges before MMIO; directed host tests cover bounded writes. RX, interrupts and physical timeout handling remain open.
 
 NXR-042 Console routing and fault output
 ----------------------------------------

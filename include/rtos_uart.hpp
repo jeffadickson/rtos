@@ -5,6 +5,7 @@
  * Requires RTOS_SYNC and RTOS_LOGGING. No allocation or interrupt-time formatting.
  */
 #include "rtos_log.hpp"
+#include <limits.h>
 
 namespace rtos {
 /** @brief TX-only AXI UARTLite register adapter, with no hardware initialization.
@@ -23,6 +24,10 @@ public:
      * Interrupts stay enabled, allowing normal scheduler preemption during TX.
      */
     int write(const char* text,size_t size){
+        // Validate before forming device references. Empty writes never touch
+        // hardware; malformed pointer/count/address inputs must not fault MMIO.
+        if(!size)return 0;
+        if(!text||size>INT_MAX||(base_&3)||base_>UINTPTR_MAX-8)return -1;
         auto& status=*reinterpret_cast<volatile uint32_t*>(base_+8);
         auto& tx=*reinterpret_cast<volatile uint32_t*>(base_+4);
         size_t sent=0;

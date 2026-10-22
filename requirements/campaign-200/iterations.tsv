@@ -39,3 +39,13 @@ iteration	requirement	acceptance	scope	result	source_sha256
 38	NXR-117	W1C writes only requested clear bits	host-acceptance	passed	960f94bbab5b6ad2c20f1e0bfdcd4e1959b92268f73ea2561a080ab74845e5c5
 39	NXR-117	W1C refuses destructive read-modify-write	host-acceptance	passed	960f94bbab5b6ad2c20f1e0bfdcd4e1959b92268f73ea2561a080ab74845e5c5
 40	NXR-117	read-only update never reads side-effect register	host-acceptance	passed	960f94bbab5b6ad2c20f1e0bfdcd4e1959b92268f73ea2561a080ab74845e5c5
+41	NXR-041	empty UART write avoids invalid device address	host-acceptance	passed	630332456f6dd01ac7b3098b8a84bda41b5e9b823cb7dd32982a78ebe47bb167
+42	NXR-041	null nonempty UART source rejected	host-acceptance	passed	630332456f6dd01ac7b3098b8a84bda41b5e9b823cb7dd32982a78ebe47bb167
+43	NXR-041	unaligned UART base rejected before MMIO	host-acceptance	passed	630332456f6dd01ac7b3098b8a84bda41b5e9b823cb7dd32982a78ebe47bb167
+44	NXR-041	overflowing UART register range rejected	host-acceptance	passed	630332456f6dd01ac7b3098b8a84bda41b5e9b823cb7dd32982a78ebe47bb167
+45	NXR-041	unrepresentable UART count rejected before source read	host-acceptance	passed	630332456f6dd01ac7b3098b8a84bda41b5e9b823cb7dd32982a78ebe47bb167
+46	NXR-041	UART high-bit byte remains unsigned	host-acceptance	passed	630332456f6dd01ac7b3098b8a84bda41b5e9b823cb7dd32982a78ebe47bb167
+47	NXR-041	full UART accepts no bytes	host-acceptance	passed	630332456f6dd01ac7b3098b8a84bda41b5e9b823cb7dd32982a78ebe47bb167
+48	NXR-041	TXFULL flag controls admission without idle flag	host-acceptance	passed	630332456f6dd01ac7b3098b8a84bda41b5e9b823cb7dd32982a78ebe47bb167
+49	NXR-041	TX write never changes status or RX register	host-acceptance	passed	630332456f6dd01ac7b3098b8a84bda41b5e9b823cb7dd32982a78ebe47bb167
+50	NXR-041	ready transport returns exact multi-byte count	host-acceptance	passed	630332456f6dd01ac7b3098b8a84bda41b5e9b823cb7dd32982a78ebe47bb167

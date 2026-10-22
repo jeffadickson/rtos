@@ -1,0 +1,86 @@
+Internal ctest changing into directory: /home/jeffd/src/nexrt/rtos/build/host
+Test project /home/jeffd/src/nexrt/rtos/build/host
+      Start  1: tooling
+ 1/40 Test  #1: tooling ..........................   Passed    0.02 sec
+      Start  2: evidence_tool
+ 2/40 Test  #2: evidence_tool ....................   Passed    0.04 sec
+      Start  3: memory
+ 3/40 Test  #3: memory ...........................   Passed    0.00 sec
+      Start  4: scheduler
+ 4/40 Test  #4: scheduler ........................   Passed    0.00 sec
+      Start  5: ethernet
+ 5/40 Test  #5: ethernet .........................   Passed    0.00 sec
+      Start  6: web
+ 6/40 Test  #6: web ..............................   Passed    0.00 sec
+      Start  7: static_storage
+ 7/40 Test  #7: static_storage ...................   Passed    0.00 sec
+      Start  8: synchronization
+ 8/40 Test  #8: synchronization ..................   Passed    0.00 sec
+      Start  9: ipc_queue_atomic
+ 9/40 Test  #9: ipc_queue_atomic .................   Passed    0.00 sec
+      Start 10: mutex_inheritance
+10/40 Test #10: mutex_inheritance ................   Passed    0.00 sec
+      Start 11: queued_printf
+11/40 Test #11: queued_printf ....................   Passed    0.00 sec
+      Start 12: queued_uart
+12/40 Test #12: queued_uart ......................   Passed    0.00 sec
+      Start 13: requirement_campaign_01
+13/40 Test #13: requirement_campaign_01 ..........   Passed    0.00 sec
+      Start 14: requirement_campaign_02
+14/40 Test #14: requirement_campaign_02 ..........   Passed    0.00 sec
+      Start 15: requirement_campaign_03
+15/40 Test #15: requirement_campaign_03 ..........   Passed    0.00 sec
+      Start 16: requirement_campaign_04
+16/40 Test #16: requirement_campaign_04 ..........   Passed    0.00 sec
+      Start 17: requirement_campaign_05
+17/40 Test #17: requirement_campaign_05 ..........   Passed    0.00 sec
+      Start 18: queued_printf_edges
+18/40 Test #18: queued_printf_edges ..............   Passed    0.00 sec
+      Start 19: synchronization_edges
+19/40 Test #19: synchronization_edges ............   Passed    0.00 sec
+      Start 20: synchronization_deadlines
+20/40 Test #20: synchronization_deadlines ........   Passed    0.00 sec
+      Start 21: ipc_public_api
+21/40 Test #21: ipc_public_api ...................   Passed    0.00 sec
+      Start 22: stack_watermark
+22/40 Test #22: stack_watermark ..................   Passed    0.00 sec
+      Start 23: processor_hal
+23/40 Test #23: processor_hal ....................   Passed    0.00 sec
+      Start 24: hardware_atomic_hal_model
+24/40 Test #24: hardware_atomic_hal_model ........   Passed    0.00 sec
+      Start 25: dma_ownership
+25/40 Test #25: dma_ownership ....................   Passed    0.00 sec
+      Start 26: ipc_random_seed_1
+26/40 Test #26: ipc_random_seed_1 ................   Passed    0.01 sec
+      Start 27: ipc_random_seed_42
+27/40 Test #27: ipc_random_seed_42 ...............   Passed    0.01 sec
+      Start 28: ipc_random_seed_3735928559
+28/40 Test #28: ipc_random_seed_3735928559 .......   Passed    0.01 sec
+      Start 29: ipc_random_seed_4294967295
+29/40 Test #29: ipc_random_seed_4294967295 .......   Passed    0.01 sec
+      Start 30: ipc_wait_order
+30/40 Test #30: ipc_wait_order ...................   Passed    0.00 sec
+      Start 31: thread_stress_seed_1
+31/40 Test #31: thread_stress_seed_1 .............   Passed    0.01 sec
+      Start 32: thread_stress_seed_42
+32/40 Test #32: thread_stress_seed_42 ............   Passed    0.01 sec
+      Start 33: thread_stress_seed_3735928559
+33/40 Test #33: thread_stress_seed_3735928559 ....   Passed    0.01 sec
+      Start 34: thread_stress_seed_4294967295
+34/40 Test #34: thread_stress_seed_4294967295 ....   Passed    0.01 sec
+      Start 35: requirements_tracker
+35/40 Test #35: requirements_tracker .............   Passed    0.05 sec
+      Start 36: requirements_negative
+36/40 Test #36: requirements_negative ............   Passed    0.03 sec
+      Start 37: configuration
+37/40 Test #37: configuration ....................   Passed    0.02 sec
+      Start 38: configuration_cmake
+38/40 Test #38: configuration_cmake ..............   Passed    0.95 sec
+      Start 39: handoff_roundtrip
+39/40 Test #39: handoff_roundtrip ................   Passed    0.27 sec
+      Start 40: rv_architecture
+40/40 Test #40: rv_architecture ..................   Passed    0.02 sec
+
+100% tests passed, 0 tests failed out of 40
+
+Total Test time (real) =   1.62 sec
