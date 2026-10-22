@@ -49,3 +49,13 @@ iteration	requirement	acceptance	scope	result	source_sha256
 48	NXR-041	TXFULL flag controls admission without idle flag	host-acceptance	passed	630332456f6dd01ac7b3098b8a84bda41b5e9b823cb7dd32982a78ebe47bb167
 49	NXR-041	TX write never changes status or RX register	host-acceptance	passed	630332456f6dd01ac7b3098b8a84bda41b5e9b823cb7dd32982a78ebe47bb167
 50	NXR-041	ready transport returns exact multi-byte count	host-acceptance	passed	630332456f6dd01ac7b3098b8a84bda41b5e9b823cb7dd32982a78ebe47bb167
+51	NXR-121	queued UART copies reusable producer buffer	host-acceptance	passed	211575625e265a6cfa289fab17d24bad61577b73e88601b5e07b81445a7e81aa
+52	NXR-121	queued UART full record is rejected whole	host-acceptance	passed	211575625e265a6cfa289fab17d24bad61577b73e88601b5e07b81445a7e81aa
+53	NXR-121	blocked transport retains record offset	host-acceptance	passed	211575625e265a6cfa289fab17d24bad61577b73e88601b5e07b81445a7e81aa
+54	NXR-121	byte budget limits each service	host-acceptance	passed	211575625e265a6cfa289fab17d24bad61577b73e88601b5e07b81445a7e81aa
+55	NXR-121	negative transport result preserves pending record	host-acceptance	passed	211575625e265a6cfa289fab17d24bad61577b73e88601b5e07b81445a7e81aa
+56	NXR-121	transport recovery continues original record	host-acceptance	passed	211575625e265a6cfa289fab17d24bad61577b73e88601b5e07b81445a7e81aa
+57	NXR-121	null producer input rejected without record	host-acceptance	passed	211575625e265a6cfa289fab17d24bad61577b73e88601b5e07b81445a7e81aa
+58	NXR-121	zero service budget leaves queue intact	host-acceptance	passed	211575625e265a6cfa289fab17d24bad61577b73e88601b5e07b81445a7e81aa
+59	NXR-121	truncated record is explicitly reported	host-acceptance	passed	211575625e265a6cfa289fab17d24bad61577b73e88601b5e07b81445a7e81aa
+60	NXR-121	queued UART rejects ISR service and formatting	host-acceptance	passed	211575625e265a6cfa289fab17d24bad61577b73e88601b5e07b81445a7e81aa

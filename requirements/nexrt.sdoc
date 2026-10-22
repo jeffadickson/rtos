@@ -1565,7 +1565,7 @@ Dependencies: NXR-117, NXR-118
 
 [REQUIREMENT]
 UID: NXR-121
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Optional queued device service
 STATEMENT: >>>
 The driver framework shall optionally serialize slow operations through a statically provisioned request queue and worker with explicit data lifetime and cancellation rules.

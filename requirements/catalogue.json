@@ -3366,9 +3366,14 @@
       "NXR-122",
       "NXR-128"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_uart.hpp",
+      "include/rtos_log.hpp"
+    ],
+    "verification_files": [
+      "tests/campaign/batch_06.cpp"
+    ],
     "planned_test": "TEST-NXR-121",
     "configuration": "Optional worker, capacity and FIFO or priority policy.",
     "resource_budget": "Fixed request storage plus explicit worker control block and stack.",
@@ -3377,7 +3382,7 @@
       "docs/drivers.rst",
       "docs/device-ipc-review.rst"
     ],
-    "finding": "Reviews 041-045 define an optional service model with no mandatory per-device thread and no DMA support."
+    "finding": "Queued UART service now has host acceptance for producer copies, admission failure, partial writes, budgets, transport error recovery and ISR rejection. Board ownership and hardware timing remain unqualified."
   },
   {
     "id": "NXR-122",

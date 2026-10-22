@@ -1,0 +1,10 @@
+51	NXR-121	queued UART copies reusable producer buffer
+52	NXR-121	queued UART full record is rejected whole
+53	NXR-121	blocked transport retains record offset
+54	NXR-121	byte budget limits each service
+55	NXR-121	negative transport result preserves pending record
+56	NXR-121	transport recovery continues original record
+57	NXR-121	null producer input rejected without record
+58	NXR-121	zero service budget leaves queue intact
+59	NXR-121	truncated record is explicitly reported
+60	NXR-121	queued UART rejects ISR service and formatting

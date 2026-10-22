@@ -1,0 +1,7 @@
+[0/2] Re-checking globbed directories...
+[1/5] Building CXX object CMakeFiles/campaign_06.dir/src/log.cpp.o
+[2/5] Building CXX object CMakeFiles/campaign_06.dir/src/dma.cpp.o
+[3/5] cd /home/jeffd/src/nexrt/rtos/build/host && /home/jeffd/src/nexrt/rtos/build/host/native-tools/NexRT.Requirements/NexRT.Requirements check /home/jeffd/src/nexrt/rtos
+Tracker check passed: 160 substantive review iterations; 90 planned; no runtime verification claims.
+[4/5] Building CXX object CMakeFiles/campaign_06.dir/tests/campaign/batch_06.cpp.o
+[5/5] Linking CXX executable campaign_06

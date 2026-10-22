@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **160**. Catalogue SHA-256: ``e7e7dfb66acc55fd2be90eb24f28be13b1cbcc976496adf7986c9aa3fa028e42``.
+Reviewed requirements: **160**. Catalogue SHA-256: ``4e56758eb86061f8b796e837fe5d2a94e08a2dda4aed84e3065011580c19096b``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -4212,7 +4212,7 @@ NXR-120 AXI timeout and fault isolation
 NXR-121 Optional queued device service
 --------------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** Drivers
@@ -4242,7 +4242,7 @@ NXR-121 Optional queued device service
 **Static resource budget:** Fixed request storage plus explicit worker control block and stack.
 
 
-**Review finding:** Reviews 041-045 define an optional service model with no mandatory per-device thread and no DMA support.
+**Review finding:** Queued UART service now has host acceptance for producer copies, admission failure, partial writes, budgets, transport error recovery and ISR rejection. Board ownership and hardware timing remain unqualified.
 
 NXR-122 Typed static message queue
 ----------------------------------
