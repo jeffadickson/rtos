@@ -80,9 +80,12 @@ Small wire protocol
 
 Version 1 uses a byte stream (USB CDC ACM or UART bridge), little-endian fields,
 COBS encoding and a zero-byte frame delimiter. No native C/C++ struct layout is
-sent. The decoded packet is a 40-byte header, 0..192 payload bytes and a four-byte
-CRC-32C. The maximum decoded size is 236 bytes; COBS plus delimiter needs at most
-238 bytes, fitting a fixed 256-byte frame slot.
+sent. The current proposal is exactly 512 decoded bytes: a 40-byte header,
+468-byte payload region and a four-byte CRC-32C. Unused payload bytes are zero.
+COBS plus delimiter needs at most 516 bytes; use 576-byte frame slots where
+64-byte allocation alignment is useful. This replaces the earlier unimplemented
+236-byte proposal; no compatibility with that draft is asserted. USB transfer
+and serial-read boundaries do not define these logical packet boundaries.
 
 .. list-table:: Fixed header, byte offsets
    :header-rows: 1
@@ -104,7 +107,7 @@ CRC-32C. The maximum decoded size is 236 bytes; COBS plus delimiter needs at mos
      - Flags, zero in version 1
    * - 8
      - 2
-     - Payload length, at most 192
+     - Meaningful payload length, at most 468; remainder is zero padding
    * - 10
      - 2
      - Reserved, zero
@@ -118,7 +121,7 @@ CRC-32C. The maximum decoded size is 236 bytes; COBS plus delimiter needs at mos
      - 8
      - Device boot identity
 
-CRC-32C covers the decoded header and payload, excludes its own field, and is
+CRC-32C covers all 508 preceding decoded bytes including padding, excludes its own field, and is
 stored little-endian before COBS encoding. Use reflected polynomial
 ``0x82f63b78``, initial state ``0xffffffff`` and final XOR ``0xffffffff``.
 The ASCII bytes ``123456789`` must yield ``0xe3069283``. This CRC detects accidental
@@ -156,14 +159,16 @@ device; changing seed/configuration requires another run identity.
 The manager drains reports continuously. STATUS is lossy with explicit sequence
 gaps/drop counters. FAULT and RESULT stay latched until acknowledged; retries
 are paced and bounded per service call. ACK payloads distinguish command results
-from acknowledgements of device reports, identifying the report packet sequence.
+from acknowledgements of device reports. A fault/result has a stable logical
+report ID; ACK identifies that ID plus boot/run/session identity. Retransmission
+may use another transport packet sequence without changing the logical report.
 
 Keep reporting out of the measured path
 ------------------------------------------
 
 Workers update fixed progress/results storage and do no formatted per-operation
 printing. The supervisor validates progress and copies a bounded snapshot into
-the existing record queue; a low-priority transport owner sends it without
+an owned frame slot; a low-priority transport owner sends it without
 waiting for host reads. UART DMA or native USB can reduce CPU service work, but
 the BSP must demonstrate ownership, interrupt and cache correctness.
 
@@ -174,12 +179,15 @@ freeze its recent-event window locally before trying to transmit it. Reports do
 not feed the watchdog; the supervisor feeds it only after all required workers
 meet their configured progress deadlines.
 
-A starting storage budget is four 256-byte TX slots, two 256-byte RX/decode
-buffers, a 256-byte retained fault slot, 64 sixteen-byte trace records and two
-256-byte command/reply cache slots: 3328 bytes, excluding driver descriptors,
-task stacks and workload state. This
+A starting storage budget is four 576-byte TX slots, two 576-byte RX/decode
+buffers, separate 576-byte retained fault and result slots, 64 sixteen-byte trace
+records and two 576-byte command/reply cache slots: 6784 bytes, excluding ownership descriptors,
+task stacks and workload state. Queue small frame-ownership descriptors: the
+current RTOS queue's default 128-byte interrupt-masked copy bound must not be
+increased merely to carry 512-byte reports. Serialize frames outside the mask;
+qualify the cost of the bounded source snapshots separately. This
 is a design budget; the final linker map must verify actual storage. A maximum
-size summary at 1 Hz is under 240 stream bytes/second per device, before optional
+size summary at 1 Hz is at most 516 stream bytes/second per device, before optional
 thread-detail, trace, fault and handshake traffic. USB servicing
 and interrupt overhead still need measurement even at that low data rate.
 
@@ -224,8 +232,8 @@ Manager and delivery sequence
 The manager should be a C# CLI first, with one bounded asynchronous session per
 device and isolated evidence directories. Keep raw frames, decoded JSONL,
 firmware/checker hashes, requested/effective configuration, seed and timing.
-Classify completed, test-failed, target-reset, unresponsive, transport-lost and
-host-cutoff separately. Silence or USB loss cannot establish the target fault's
+Classify passed, test-failed, target-reset, unresponsive, transport-lost,
+stop-timeout, host-cutoff and evidence-incomplete separately. Silence or USB loss cannot establish the target fault's
 cause and cannot produce a pass. A host deadline does not prove target duration.
 
 Implement in stages:
@@ -244,6 +252,9 @@ Implement in stages:
 
 References
 ----------
+
+See :doc:`hil-verification-plan` and ``requirements/hil-design.csv`` for the
+specialist review, prioritized tests and planned host/monitor/equipment requirements.
 
 * `COBS original paper <https://www.stuartcheshire.org/papers/COBSforSIGCOMM/>`_.
 * `AMD AXI UARTLite PG142 <https://docs.amd.com/v/u/en-US/pg142-axi-uartlite>`_.

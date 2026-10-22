@@ -21,6 +21,7 @@ worst-case execution time, or hardware validation.
    ipc-stress
    overnight-stress
    hardware-in-loop
+   hil-verification-plan
    host-memory
    evidence
    how-it-works

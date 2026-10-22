@@ -1,0 +1,52 @@
+HIL design specialist review
+
+Scope: three independent specialist AI-agent reviews of repository source and
+the proposed hardware-in-loop design. This records design reasoning and peer
+review; it is not external human sign-off or physical-board qualification.
+
+Roles:
+  RTOS verification: context, scheduling, IPC, timer semantics and lifecycle.
+  Equipment/FPGA verification: independent observation, calibration, UART oracle
+    and detector-sensitivity controls.
+  Host executive/monitor: multi-board isolation, protocol identity, static frame
+    ownership, state machine, cooperative stop and retained evidence.
+
+Inputs included AGENTS.md, rtos.hpp, queue/mutex/synchronization contracts,
+hardware-in-loop.rst, uart-demo.rst and existing requirements. Reviews were
+read-only; implementation and editing were performed by the primary agent.
+
+Consensus:
+  Small test executive over permanent workers; no arbitrary thread destruction,
+  runtime create/delete/restart, raw kernel-field writes or live queue reset.
+  Independent GPIO/UART/reset observer; USB heartbeats are not correctness proof.
+  Fixed 512 decoded bytes with COBS; 516-byte maximum encoded frame including
+  delimiter; bounded static frame pool; queue small descriptors instead of
+  exceeding the default 128-byte interrupt-masked message-copy bound.
+  Per-worker semantic result/sequence oracles; global interleaving CRC is only
+  diagnostic. Correct CRC over wrong semantic data must fail a qualified checker.
+  Physical ISR/DMA/cache evidence remains BSP-specific and cannot be inferred
+  from host model tests.
+
+Peer-review issues resolved:
+  Replaced obsolete 236-byte draft consistently with the 512-byte proposal.
+  Specified target states and distinguished FAULTED from actual quiescence.
+  Reserved separate retained FAULT and RESULT slots; provisional budget 6784
+  bytes excluding descriptors, stacks and workload storage.
+  CONFIG establishes a new run from IDLE; later mutations validate current IDs.
+  Stable logical report IDs survive retransmission and protect delayed ACKs.
+  Aligned STOP_TIMEOUT and EVIDENCE_INCOMPLETE terminal classifications.
+  Defined successful REARM to invalidate old handles and return IDLE.
+  Scoped quiescence to test resources; permanent idle control waiters are valid
+  and command queues must never be included in workload drains.
+
+Deliverables:
+  requirements/hil-design.csv: 60 planned requirements, 12 host + 12 monitor +
+    12 equipment + 16 test + 8 protocol requirements; explicit acceptance clauses.
+  docs/hil-verification-plan.rst: priorities, monitor contract and delivery order.
+  docs/hardware-in-loop.rst: updated framing, ownership and equipment proposal.
+
+Remaining design gates:
+  Board/fixture selection, exact payload schemas and golden vectors, worker and
+  object capacities, per-board latency/stop/watchdog/interference budgets,
+  retained-storage/reset policy and implementation of the BSP external-IRQ path.
+  No new monitor, host executive, codec or FPGA RTL is implemented by this review.
