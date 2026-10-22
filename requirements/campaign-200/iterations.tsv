@@ -99,3 +99,13 @@ iteration	requirement	acceptance	scope	result	source_sha256
 98	NXR-134	oversized completion cannot release staging without stop	host-acceptance	passed	790eda680a77121e7f979f811665f1fc13d0f283cf92edecaa1e6a4fbf8bc5cf
 99	NXR-134	invalid completion enum fails closed	host-acceptance	passed	790eda680a77121e7f979f811665f1fc13d0f283cf92edecaa1e6a4fbf8bc5cf
 100	NXR-134	failed launch does not publish ticket	host-acceptance	passed	790eda680a77121e7f979f811665f1fc13d0f283cf92edecaa1e6a4fbf8bc5cf
+101	NXR-022	non-power-of-two FIFO wraps correctly	host-acceptance	passed	973107ed3f720d693530cff66576823f20099706545d68542f964a1d4813c380
+102	NXR-022	queued object is a value copy	host-acceptance	passed	973107ed3f720d693530cff66576823f20099706545d68542f964a1d4813c380
+103	NXR-022	capacity-sized payload copied exactly	host-acceptance	passed	973107ed3f720d693530cff66576823f20099706545d68542f964a1d4813c380
+104	NXR-022	full admission preserves queued head	host-acceptance	passed	973107ed3f720d693530cff66576823f20099706545d68542f964a1d4813c380
+105	NXR-022	empty receive preserves caller bytes	host-acceptance	passed	973107ed3f720d693530cff66576823f20099706545d68542f964a1d4813c380
+106	NXR-020	blocked receiver receives copied direct handoff	host-acceptance	passed	973107ed3f720d693530cff66576823f20099706545d68542f964a1d4813c380
+107	NXR-020	blocked sender stages value before caller mutation	host-acceptance	passed	973107ed3f720d693530cff66576823f20099706545d68542f964a1d4813c380
+108	NXR-022	maximum finite timeout valid on immediate success	host-acceptance	passed	973107ed3f720d693530cff66576823f20099706545d68542f964a1d4813c380
+109	NXR-022	oversized timeout cannot consume queued value	host-acceptance	passed	973107ed3f720d693530cff66576823f20099706545d68542f964a1d4813c380
+110	NXR-130	queue high-water survives draining	host-acceptance	passed	973107ed3f720d693530cff66576823f20099706545d68542f964a1d4813c380

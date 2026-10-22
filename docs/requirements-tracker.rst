@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **160**. Catalogue SHA-256: ``1771ef020553b25942d79e8bc836f1114032e054d2e05de22a983db0d31700e3``.
+Reviewed requirements: **160**. Catalogue SHA-256: ``8dfbb39c9acbeed6f11d885906bbe24bbb0d1f1b87e5ff12ce40592b495ebe4b``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -677,7 +677,7 @@ NXR-019 Counting and binary semaphores
 NXR-020 Atomic bounded wait lifecycle
 -------------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** Synchronization
@@ -707,7 +707,7 @@ NXR-020 Atomic bounded wait lifecycle
 **Static resource budget:** One active wait record/thread; bounded object wait queues.
 
 
-**Review finding:** State lacks generic blocked/wait-reason fields and signal/timeout arbitration.
+**Review finding:** Atomic wait enrollment and staged-value handoff have host acceptance tests; target ISR/preemption ordering and physical latency qualification remain open.
 
 NXR-021 Event flags semantics
 -----------------------------
@@ -747,7 +747,7 @@ NXR-021 Event flags semantics
 NXR-022 Typed fixed-capacity queues
 -----------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** IPC
@@ -777,7 +777,7 @@ NXR-022 Typed fixed-capacity queues
 **Static resource budget:** N times payload bytes plus fixed metadata and bounded waiters.
 
 
-**Review finding:** Byte copy support exists but queues and payload-lifetime contracts do not.
+**Review finding:** Typed static queues now have directed value-copy, wrap, direct handoff, staged sender and timeout-boundary host acceptance. Target interrupt timing and complete release-matrix qualification remain open.
 
 NXR-023 ISR-safe queue subset
 -----------------------------

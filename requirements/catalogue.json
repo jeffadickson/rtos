@@ -547,9 +547,14 @@
       "NXR-004",
       "NXR-009"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_queue.hpp",
+      "src/sync.cpp"
+    ],
+    "verification_files": [
+      "tests/campaign/batch_11.cpp"
+    ],
     "planned_test": "WAIT-RACES",
     "configuration": "Shared substrate for all blocking features.",
     "resource_budget": "One active wait record/thread; bounded object wait queues.",
@@ -559,7 +564,7 @@
       "src/scheduler.hpp",
       "src/kernel.cpp"
     ],
-    "finding": "State lacks generic blocked/wait-reason fields and signal/timeout arbitration."
+    "finding": "Atomic wait enrollment and staged-value handoff have host acceptance tests; target ISR/preemption ordering and physical latency qualification remain open."
   },
   {
     "id": "NXR-021",
@@ -598,9 +603,14 @@
       "NXR-001",
       "NXR-020"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_queue.hpp",
+      "src/sync.cpp"
+    ],
+    "verification_files": [
+      "tests/campaign/batch_11.cpp"
+    ],
     "planned_test": "QUEUE-FIFO",
     "configuration": "Optional payload type and positive static capacity.",
     "resource_budget": "N times payload bytes plus fixed metadata and bounded waiters.",
@@ -610,7 +620,7 @@
       "src/memory.cpp",
       "docs/memory.rst"
     ],
-    "finding": "Byte copy support exists but queues and payload-lifetime contracts do not."
+    "finding": "Typed static queues now have directed value-copy, wrap, direct handoff, staged sender and timeout-boundary host acceptance. Target interrupt timing and complete release-matrix qualification remain open."
   },
   {
     "id": "NXR-023",

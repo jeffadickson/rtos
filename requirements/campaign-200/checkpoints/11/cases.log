@@ -1,0 +1,10 @@
+101	NXR-022	non-power-of-two FIFO wraps correctly
+102	NXR-022	queued object is a value copy
+103	NXR-022	capacity-sized payload copied exactly
+104	NXR-022	full admission preserves queued head
+105	NXR-022	empty receive preserves caller bytes
+106	NXR-020	blocked receiver receives copied direct handoff
+107	NXR-020	blocked sender stages value before caller mutation
+108	NXR-022	maximum finite timeout valid on immediate success
+109	NXR-022	oversized timeout cannot consume queued value
+110	NXR-130	queue high-water survives draining

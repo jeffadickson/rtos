@@ -252,7 +252,7 @@ Dependencies: NXR-009, NXR-014, NXR-020
 
 [REQUIREMENT]
 UID: NXR-020
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Atomic bounded wait lifecycle
 STATEMENT: >>>
 Blocking primitives shall atomically register waiters, transition state and resolve wakeup, timeout or cancellation exactly once in fixed waiter storage.
@@ -278,7 +278,7 @@ Dependencies: NXR-014, NXR-020
 
 [REQUIREMENT]
 UID: NXR-022
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Typed fixed-capacity queues
 STATEMENT: >>>
 Queues shall hold a compile-time bounded number of trivially copyable messages in caller storage with FIFO send/receive and full, empty, timeout results.
