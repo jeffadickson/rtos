@@ -159,3 +159,13 @@ iteration	requirement	acceptance	scope	result	source_sha256
 158	NXR-010	timer catch-up counts exact deadline once	host-acceptance	passed	7b72d1c65967190ac1f6b77059abf5912c67c00a09e1e99248101630df1c63b5
 159	NXR-003	adjacent storage ranges do not overlap	host-acceptance	passed	7b72d1c65967190ac1f6b77059abf5912c67c00a09e1e99248101630df1c63b5
 160	NXR-003	range overlap handles top address without addition overflow	host-acceptance	passed	7b72d1c65967190ac1f6b77059abf5912c67c00a09e1e99248101630df1c63b5
+161	NXR-132	pending record completes before later producer record	host-acceptance	passed	11b839db31b9f4e7ca7d6881a5928ebc663de297427ec46e982492c9493bd5f2
+162	NXR-132	temporary backpressure preserves already sent prefix	host-acceptance	passed	11b839db31b9f4e7ca7d6881a5928ebc663de297427ec46e982492c9493bd5f2
+163	NXR-132	transport error after prefix retains offset	host-acceptance	passed	11b839db31b9f4e7ca7d6881a5928ebc663de297427ec46e982492c9493bd5f2
+164	NXR-132	oversized acceptance count never commits pending bytes	host-acceptance	passed	11b839db31b9f4e7ca7d6881a5928ebc663de297427ec46e982492c9493bd5f2
+165	NXR-132	drain byte budget bounds callback count and output	host-acceptance	passed	11b839db31b9f4e7ca7d6881a5928ebc663de297427ec46e982492c9493bd5f2
+166	NXR-132	empty-record service bounded to sixteen iterations	host-acceptance	passed	11b839db31b9f4e7ca7d6881a5928ebc663de297427ec46e982492c9493bd5f2
+167	NXR-132	logging before start cannot publish a record	host-acceptance	passed	11b839db31b9f4e7ca7d6881a5928ebc663de297427ec46e982492c9493bd5f2
+168	NXR-132	binary NUL survives queued transport	host-acceptance	passed	11b839db31b9f4e7ca7d6881a5928ebc663de297427ec46e982492c9493bd5f2
+169	NXR-140	vprintf preserves caller va-list for repeated use	host-acceptance	passed	11b839db31b9f4e7ca7d6881a5928ebc663de297427ec46e982492c9493bd5f2
+170	NXR-140	invalid format never consumes record capacity	host-acceptance	passed	11b839db31b9f4e7ca7d6881a5928ebc663de297427ec46e982492c9493bd5f2

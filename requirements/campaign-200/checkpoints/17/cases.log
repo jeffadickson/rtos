@@ -1,0 +1,10 @@
+161	NXR-132	pending record completes before later producer record
+162	NXR-132	temporary backpressure preserves already sent prefix
+163	NXR-132	transport error after prefix retains offset
+164	NXR-132	oversized acceptance count never commits pending bytes
+165	NXR-132	drain byte budget bounds callback count and output
+166	NXR-132	empty-record service bounded to sixteen iterations
+167	NXR-132	logging before start cannot publish a record
+168	NXR-132	binary NUL survives queued transport
+169	NXR-140	vprintf preserves caller va-list for repeated use
+170	NXR-140	invalid format never consumes record capacity
