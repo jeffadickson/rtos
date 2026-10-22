@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **160**. Catalogue SHA-256: ``8dfbb39c9acbeed6f11d885906bbe24bbb0d1f1b87e5ff12ce40592b495ebe4b``.
+Reviewed requirements: **160**. Catalogue SHA-256: ``d39c5f8b87472a8c369ba179f499163b54062f91a1493327b59f7da3c1dc733b``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -707,7 +707,7 @@ NXR-020 Atomic bounded wait lifecycle
 **Static resource budget:** One active wait record/thread; bounded object wait queues.
 
 
-**Review finding:** Atomic wait enrollment and staged-value handoff have host acceptance tests; target ISR/preemption ordering and physical latency qualification remain open.
+**Review finding:** Host acceptance now covers direct handoff, staged values, timeout unlinking, no stale sender data and wrap-safe expiration. Target interrupt entry and physical latency remain unqualified.
 
 NXR-021 Event flags semantics
 -----------------------------
@@ -782,7 +782,7 @@ NXR-022 Typed fixed-capacity queues
 NXR-023 ISR-safe queue subset
 -----------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** IPC
@@ -812,7 +812,7 @@ NXR-023 ISR-safe queue subset
 **Static resource budget:** One configured bounded payload copy and fixed metadata changes.
 
 
-**Review finding:** Current APIs are thread-only; no distinct ISR queue API exists.
+**Review finding:** ISR-only queue entry points and boot/context rejection now have directed host acceptance, including full/empty output preservation. A verified board ISR dispatcher remains an explicit qualification gap.
 
 NXR-024 Static software timers
 ------------------------------

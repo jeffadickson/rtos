@@ -1,0 +1,10 @@
+111	NXR-023	ISR API rejects thread-context send unchanged
+112	NXR-023	ISR API rejects thread-context receive unchanged
+113	NXR-023	ISR send rejected before scheduler start
+114	NXR-023	ISR receive rejected before scheduler start
+115	NXR-023	ISR send full does not replace record
+116	NXR-023	ISR empty receive preserves output
+117	NXR-020	receive timeout unlinks suspended destination
+118	NXR-020	sender timeout never admits stale stack value
+119	NXR-020	timeout expiration handles tick wrap
+120	NXR-130	timeout diagnostic differs from empty observation

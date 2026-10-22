@@ -291,7 +291,7 @@ Dependencies: NXR-001, NXR-020
 
 [REQUIREMENT]
 UID: NXR-023
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: ISR-safe queue subset
 STATEMENT: >>>
 ISR queues shall use explicit nonblocking APIs, bounded copies, immediate capacity errors and interrupt-return higher-priority rescheduling.

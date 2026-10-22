@@ -553,7 +553,8 @@
       "src/sync.cpp"
     ],
     "verification_files": [
-      "tests/campaign/batch_11.cpp"
+      "tests/campaign/batch_11.cpp",
+      "tests/campaign/batch_12.cpp"
     ],
     "planned_test": "WAIT-RACES",
     "configuration": "Shared substrate for all blocking features.",
@@ -564,7 +565,7 @@
       "src/scheduler.hpp",
       "src/kernel.cpp"
     ],
-    "finding": "Atomic wait enrollment and staged-value handoff have host acceptance tests; target ISR/preemption ordering and physical latency qualification remain open."
+    "finding": "Host acceptance now covers direct handoff, staged values, timeout unlinking, no stale sender data and wrap-safe expiration. Target interrupt entry and physical latency remain unqualified."
   },
   {
     "id": "NXR-021",
@@ -634,9 +635,14 @@
       "NXR-014",
       "NXR-022"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_queue.hpp",
+      "src/sync.cpp"
+    ],
+    "verification_files": [
+      "tests/campaign/batch_12.cpp"
+    ],
     "planned_test": "QUEUE-ISR",
     "configuration": "Explicit ISR subset and maximum payload bytes.",
     "resource_budget": "One configured bounded payload copy and fixed metadata changes.",
@@ -646,7 +652,7 @@
       "docs/api.rst",
       "docs/architecture.rst"
     ],
-    "finding": "Current APIs are thread-only; no distinct ISR queue API exists."
+    "finding": "ISR-only queue entry points and boot/context rejection now have directed host acceptance, including full/empty output preservation. A verified board ISR dispatcher remains an explicit qualification gap."
   },
   {
     "id": "NXR-024",

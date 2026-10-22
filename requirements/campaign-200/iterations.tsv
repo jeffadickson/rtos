@@ -109,3 +109,13 @@ iteration	requirement	acceptance	scope	result	source_sha256
 108	NXR-022	maximum finite timeout valid on immediate success	host-acceptance	passed	973107ed3f720d693530cff66576823f20099706545d68542f964a1d4813c380
 109	NXR-022	oversized timeout cannot consume queued value	host-acceptance	passed	973107ed3f720d693530cff66576823f20099706545d68542f964a1d4813c380
 110	NXR-130	queue high-water survives draining	host-acceptance	passed	973107ed3f720d693530cff66576823f20099706545d68542f964a1d4813c380
+111	NXR-023	ISR API rejects thread-context send unchanged	host-acceptance	passed	54dae7ba9a3a28c995a5f23c67e76b3a9e99b831504c89d288bcbda34f2f153f
+112	NXR-023	ISR API rejects thread-context receive unchanged	host-acceptance	passed	54dae7ba9a3a28c995a5f23c67e76b3a9e99b831504c89d288bcbda34f2f153f
+113	NXR-023	ISR send rejected before scheduler start	host-acceptance	passed	54dae7ba9a3a28c995a5f23c67e76b3a9e99b831504c89d288bcbda34f2f153f
+114	NXR-023	ISR receive rejected before scheduler start	host-acceptance	passed	54dae7ba9a3a28c995a5f23c67e76b3a9e99b831504c89d288bcbda34f2f153f
+115	NXR-023	ISR send full does not replace record	host-acceptance	passed	54dae7ba9a3a28c995a5f23c67e76b3a9e99b831504c89d288bcbda34f2f153f
+116	NXR-023	ISR empty receive preserves output	host-acceptance	passed	54dae7ba9a3a28c995a5f23c67e76b3a9e99b831504c89d288bcbda34f2f153f
+117	NXR-020	receive timeout unlinks suspended destination	host-acceptance	passed	54dae7ba9a3a28c995a5f23c67e76b3a9e99b831504c89d288bcbda34f2f153f
+118	NXR-020	sender timeout never admits stale stack value	host-acceptance	passed	54dae7ba9a3a28c995a5f23c67e76b3a9e99b831504c89d288bcbda34f2f153f
+119	NXR-020	timeout expiration handles tick wrap	host-acceptance	passed	54dae7ba9a3a28c995a5f23c67e76b3a9e99b831504c89d288bcbda34f2f153f
+120	NXR-130	timeout diagnostic differs from empty observation	host-acceptance	passed	54dae7ba9a3a28c995a5f23c67e76b3a9e99b831504c89d288bcbda34f2f153f
