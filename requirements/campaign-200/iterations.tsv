@@ -19,3 +19,13 @@ iteration	requirement	acceptance	scope	result	source_sha256
 18	NXR-072	trace publication copies caller data	host-acceptance	passed	ec7fe85b47c95f0426905afdc2b1936036e08f56e3773a71045473831d55c1c8
 19	NXR-072	trace does not request scheduling	host-acceptance	passed	ec7fe85b47c95f0426905afdc2b1936036e08f56e3773a71045473831d55c1c8
 20	NXR-072	drop history survives draining	host-acceptance	passed	ec7fe85b47c95f0426905afdc2b1936036e08f56e3773a71045473831d55c1c8
+21	NXR-073	empty fault leaves caller output unchanged	host-acceptance	passed	bab16ce8ea274386b72455febc728c3897ee5ffb77d5a0856d914332a8c0dbab
+22	NXR-073	first fault accepted	host-acceptance	passed	bab16ce8ea274386b72455febc728c3897ee5ffb77d5a0856d914332a8c0dbab
+23	NXR-073	later fault cannot overwrite cause	host-acceptance	passed	bab16ce8ea274386b72455febc728c3897ee5ffb77d5a0856d914332a8c0dbab
+24	NXR-073	status captured verbatim	host-acceptance	passed	bab16ce8ea274386b72455febc728c3897ee5ffb77d5a0856d914332a8c0dbab
+25	NXR-073	seed worker sequence retained	host-acceptance	passed	bab16ce8ea274386b72455febc728c3897ee5ffb77d5a0856d914332a8c0dbab
+26	NXR-073	zero-valued record remains present	host-acceptance	passed	bab16ce8ea274386b72455febc728c3897ee5ffb77d5a0856d914332a8c0dbab
+27	NXR-073	fault snapshot is a copy	host-acceptance	passed	bab16ce8ea274386b72455febc728c3897ee5ffb77d5a0856d914332a8c0dbab
+28	NXR-073	ISR capture restores nested mask	host-acceptance	passed	bab16ce8ea274386b72455febc728c3897ee5ffb77d5a0856d914332a8c0dbab
+29	NXR-073	independent record instances	host-acceptance	passed	bab16ce8ea274386b72455febc728c3897ee5ffb77d5a0856d914332a8c0dbab
+30	NXR-073	capture never asks scheduler to run	host-acceptance	passed	bab16ce8ea274386b72455febc728c3897ee5ffb77d5a0856d914332a8c0dbab

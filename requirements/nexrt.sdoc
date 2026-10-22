@@ -941,7 +941,7 @@ Dependencies: NXR-011, NXR-025
 
 [REQUIREMENT]
 UID: NXR-073
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: Bounded retained fault record
 STATEMENT: >>>
 Fault handling shall capture one fixed versioned reason, thread, CSR, timestamp and available frame record, freeze mutation and enter bounded halt/reset policy.

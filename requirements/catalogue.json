@@ -1982,9 +1982,13 @@
       "NXR-007",
       "NXR-011"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_fault_record.hpp"
+    ],
+    "verification_files": [
+      "tests/campaign/batch_03.cpp"
+    ],
     "planned_test": "TEST-NXR-073",
     "configuration": "Optional board retention region; halt/watchdog-reset policy.",
     "resource_budget": "One fixed record; no allocation, blocking locks or unbounded output.",
@@ -1994,7 +1998,7 @@
       "ports/riscue/context.S",
       "docs/verification.rst"
     ],
-    "finding": "Unexpected traps and guard faults invoke stop without retained CSR/first-fault data."
+    "finding": "Boot-static first-failure capture now passes field retention, publication and nested-mask host acceptance tests; reset retention, NMI safety and target fault qualification remain open."
   },
   {
     "id": "NXR-074",

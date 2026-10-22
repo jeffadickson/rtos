@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **160**. Catalogue SHA-256: ``0385173494675f6e35f79fac0cb6af99ca1a5ec95c8a0684d6a9ccf6dff0ed4a``.
+Reviewed requirements: **160**. Catalogue SHA-256: ``661334afd88802f42d3763e34f4c22a9a766e07e4211f7f7899b950a191be441``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -2532,7 +2532,7 @@ NXR-072 Fixed execution trace ring
 NXR-073 Bounded retained fault record
 -------------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** Diagnostics
@@ -2562,7 +2562,7 @@ NXR-073 Bounded retained fault record
 **Static resource budget:** One fixed record; no allocation, blocking locks or unbounded output.
 
 
-**Review finding:** Unexpected traps and guard faults invoke stop without retained CSR/first-fault data.
+**Review finding:** Boot-static first-failure capture now passes field retention, publication and nested-mask host acceptance tests; reset retention, NMI safety and target fault qualification remain open.
 
 NXR-074 Bounded service recovery
 --------------------------------

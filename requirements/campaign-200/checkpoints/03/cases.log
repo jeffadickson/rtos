@@ -1,0 +1,10 @@
+21	NXR-073	empty fault leaves caller output unchanged
+22	NXR-073	first fault accepted
+23	NXR-073	later fault cannot overwrite cause
+24	NXR-073	status captured verbatim
+25	NXR-073	seed worker sequence retained
+26	NXR-073	zero-valued record remains present
+27	NXR-073	fault snapshot is a copy
+28	NXR-073	ISR capture restores nested mask
+29	NXR-073	independent record instances
+30	NXR-073	capture never asks scheduler to run

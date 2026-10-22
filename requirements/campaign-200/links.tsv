@@ -1,2 +1,3 @@
 NXR-012	include/rtos_periodic.hpp	tests/campaign/batch_01.cpp	Release-grid helper now has directed wrap, overrun and invalid-period acceptance tests. Absolute kernel sleep and target timing qualification remain open.
 NXR-072	include/rtos_trace.hpp	tests/campaign/batch_02.cpp	Fixed binary ring now has FIFO, overflow, copy and ISR-mask host acceptance tests; target timing, trace selection policy and WCET remain unqualified.
+NXR-073	include/rtos_fault_record.hpp	tests/campaign/batch_03.cpp	Boot-static first-failure capture now passes field retention, publication and nested-mask host acceptance tests; reset retention, NMI safety and target fault qualification remain open.
