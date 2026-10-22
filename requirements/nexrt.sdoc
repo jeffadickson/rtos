@@ -1734,7 +1734,7 @@ Dependencies: NXR-115, NXR-118, NXR-119, NXR-131
 
 [REQUIREMENT]
 UID: NXR-134
-STATUS: Planned
+STATUS: PartialSourceUnverified
 TITLE: DMA buffer ownership and quiescence
 STATEMENT: >>>
 The DMA driver shall retain exclusive hardware buffer ownership until verified completion or proven quiescence and quarantine uncertain transfers after timeout or owner exit.

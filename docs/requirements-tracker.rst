@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **160**. Catalogue SHA-256: ``dea39035aedb2ed7ae896162e9ef16c1bf39b4c5615975aca729599d0e81b914``.
+Reviewed requirements: **160**. Catalogue SHA-256: ``c448f6d2dab6904ff3de80fbc347d7064647ac86627222201c248604e8ee0c15``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -4667,7 +4667,7 @@ NXR-133 Optional simple FPGA DMA driver
 NXR-134 DMA buffer ownership and quiescence
 -------------------------------------------
 
-**Status:** Planned
+**Status:** PartialSourceUnverified
 
 
 **Category:** DMA
@@ -4697,7 +4697,7 @@ NXR-134 DMA buffer ownership and quiescence
 **Static resource budget:** Fixed ownership/generation and quarantine state; retained buffers remain charged to static budget.
 
 
-**Review finding:** Later DMA work must establish a hardware-specific stop contract before any timed-out buffer can be reused.
+**Review finding:** Directed host acceptance now checks short/zero receive results, generation identity, output aliasing and single cache completion. Physical DMA quiescence and board cache/IRQ qualification remain open.
 
 NXR-135 DMA address and cache contract
 --------------------------------------

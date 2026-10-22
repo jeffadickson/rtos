@@ -3876,9 +3876,14 @@
       "NXR-120",
       "NXR-129"
     ],
-    "status": "Planned",
-    "implementation_files": [],
-    "verification_files": [],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_dma.hpp",
+      "src/dma.cpp"
+    ],
+    "verification_files": [
+      "tests/campaign/batch_09.cpp"
+    ],
     "planned_test": "TEST-NXR-134",
     "configuration": "Per-engine bounded completion/reset policy; no generic cancellation promise.",
     "resource_budget": "Fixed ownership/generation and quarantine state; retained buffers remain charged to static budget.",
@@ -3886,7 +3891,7 @@
     "inspected_files": [
       "docs/device-ipc-review.rst"
     ],
-    "finding": "Later DMA work must establish a hardware-specific stop contract before any timed-out buffer can be reused."
+    "finding": "Directed host acceptance now checks short/zero receive results, generation identity, output aliasing and single cache completion. Physical DMA quiescence and board cache/IRQ qualification remain open."
   },
   {
     "id": "NXR-135",

@@ -79,3 +79,13 @@ iteration	requirement	acceptance	scope	result	source_sha256
 78	NXR-133	DMA invalid direction rejected	host-acceptance	passed	9e327f3506aa9616e3608886b69fcf5f87453a6beeb4cbcc578fef0fa8386785
 79	NXR-135	DMA rejects unaligned bus address	host-acceptance	passed	9e327f3506aa9616e3608886b69fcf5f87453a6beeb4cbcc578fef0fa8386785
 80	NXR-134	DMA staging cannot overlap channel metadata	host-acceptance	passed	9e327f3506aa9616e3608886b69fcf5f87453a6beeb4cbcc578fef0fa8386785
+81	NXR-134	RX collection remains pending before completion	host-acceptance	passed	c0732c05d31ea4b6179cc38a17bd28eea77bea997553db784a3b102938211e58
+82	NXR-134	short RX completion copies only received bytes	host-acceptance	passed	c0732c05d31ea4b6179cc38a17bd28eea77bea997553db784a3b102938211e58
+83	NXR-134	zero-byte completed RX needs no output buffer	host-acceptance	passed	c0732c05d31ea4b6179cc38a17bd28eea77bea997553db784a3b102938211e58
+84	NXR-134	undersized RX destination retains completion	host-acceptance	passed	c0732c05d31ea4b6179cc38a17bd28eea77bea997553db784a3b102938211e58
+85	NXR-134	RX output may not overlap hardware staging	host-acceptance	passed	c0732c05d31ea4b6179cc38a17bd28eea77bea997553db784a3b102938211e58
+86	NXR-134	RX output may not overwrite channel metadata	host-acceptance	passed	c0732c05d31ea4b6179cc38a17bd28eea77bea997553db784a3b102938211e58
+87	NXR-134	RX count output cannot alias payload destination	host-acceptance	passed	c0732c05d31ea4b6179cc38a17bd28eea77bea997553db784a3b102938211e58
+88	NXR-134	null nonempty RX destination rejected	host-acceptance	passed	c0732c05d31ea4b6179cc38a17bd28eea77bea997553db784a3b102938211e58
+89	NXR-134	stale RX hardware generation cannot finish ownership	host-acceptance	passed	c0732c05d31ea4b6179cc38a17bd28eea77bea997553db784a3b102938211e58
+90	NXR-134	repeated completed RX polling finishes cache once	host-acceptance	passed	c0732c05d31ea4b6179cc38a17bd28eea77bea997553db784a3b102938211e58

@@ -1,0 +1,10 @@
+81	NXR-134	RX collection remains pending before completion
+82	NXR-134	short RX completion copies only received bytes
+83	NXR-134	zero-byte completed RX needs no output buffer
+84	NXR-134	undersized RX destination retains completion
+85	NXR-134	RX output may not overlap hardware staging
+86	NXR-134	RX output may not overwrite channel metadata
+87	NXR-134	RX count output cannot alias payload destination
+88	NXR-134	null nonempty RX destination rejected
+89	NXR-134	stale RX hardware generation cannot finish ownership
+90	NXR-134	repeated completed RX polling finishes cache once
