@@ -6668,5 +6668,245 @@
       "include/rtos_queue.hpp"
     ],
     "finding": "Current exit semantics reserve storage and do not permit recreating finished workers."
+  },
+  {
+    "id": "NXR-231",
+    "title": "Independent UART content oracle",
+    "category": "Independent observer",
+    "statement": "The external checker shall validate expected per-worker content and sequence in addition to CRC and framing.",
+    "rationale": "A valid CRC only proves consistency with the sender\u0027s bytes, not correct job execution.",
+    "acceptance": "A wrong payload with a recomputed valid CRC fails; a valid multiworker stream passes.",
+    "verification": "Feed synthetic UART waveforms and physical target streams with independent expected payload generation.",
+    "dependencies": [
+      "NXR-099"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-231",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Fixed per-worker oracle state and declared maximum worker count.",
+    "review_iteration": 231,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "A valid CRC only proves consistency with the sender\u0027s bytes, not correct job execution."
+  },
+  {
+    "id": "NXR-232",
+    "title": "Observer calibration identity",
+    "category": "Independent observer",
+    "statement": "Every timing result shall identify checker clock, sampling resolution, synchronizer uncertainty and calibration validity.",
+    "rationale": "An external clock is independent but still requires measurement uncertainty accounting.",
+    "acceptance": "Expired or mismatched calibration prevents a timing pass; known pulse widths fall within declared uncertainty.",
+    "verification": "Apply a reference pulse train at boundary widths and compare captured intervals.",
+    "dependencies": [
+      "NXR-099"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-232",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Calibration version and finite validity interval recorded per checker.",
+    "review_iteration": 232,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "An external clock is independent but still requires measurement uncertainty accounting."
+  },
+  {
+    "id": "NXR-233",
+    "title": "UART framing fault sensitivity",
+    "category": "Independent observer",
+    "statement": "UART checker qualification shall detect wrong baud, stop-bit violations, truncated records and FIFO overrun distinctly.",
+    "rationale": "Successful text decoding does not qualify framing and overload error detection.",
+    "acceptance": "Inject each fault independently and preserve the first affected byte or record identity.",
+    "verification": "Generate controlled waveforms and throttle the checker input sink.",
+    "dependencies": [
+      "NXR-099"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-233",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Declared baud tolerance, FIFO depth and maximum record length.",
+    "review_iteration": 233,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "Successful text decoding does not qualify framing and overload error detection."
+  },
+  {
+    "id": "NXR-234",
+    "title": "Physical latency witnesses",
+    "category": "Independent observer",
+    "statement": "Latency tests shall measure stimulus arrival, handler entry and worker dispatch as separate physical events.",
+    "rationale": "USB timestamps cannot separate interrupt latency from host transport latency.",
+    "acceptance": "A delayed worker with prompt ISR entry is classified as scheduling delay rather than interrupt-entry delay.",
+    "verification": "Drive an external stimulus and capture three GPIO witnesses with calibrated timestamps.",
+    "dependencies": [
+      "NXR-099"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-234",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Per-board limits declared before arming; GPIO overhead measured.",
+    "review_iteration": 234,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "USB timestamps cannot separate interrupt latency from host transport latency."
+  },
+  {
+    "id": "NXR-235",
+    "title": "Checker arming handshake",
+    "category": "Independent observer",
+    "statement": "A target run requiring an observer shall start only after the matching checker run identity is armed and acknowledged.",
+    "rationale": "An independently running checker can still observe the wrong target run without identity binding.",
+    "acceptance": "Unarmed, stale or wrong-profile checker rejects the run; target and checker terminal identities must match.",
+    "verification": "Race checker reset and host START while validating a physical start marker.",
+    "dependencies": [
+      "NXR-099"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-235",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "One active checker run and finite arming deadline.",
+    "review_iteration": 235,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "An independently running checker can still observe the wrong target run without identity binding."
+  },
+  {
+    "id": "NXR-236",
+    "title": "Checker fault injection controls",
+    "category": "Independent observer",
+    "statement": "Each observer detection channel shall have a controlled injection proving it can fail the run.",
+    "rationale": "An FPGA signature accumulator can appear healthy while its comparison or reporting path is disabled.",
+    "acceptance": "Disable a detector or alter a known-bad waveform; qualification detects the missing expected failure.",
+    "verification": "Run byte corruption, missing sequence, timing overrun and reset injections before acceptance tests.",
+    "dependencies": [
+      "NXR-099"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-236",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Finite preflight corpus and explicit injection-enabled profile.",
+    "review_iteration": 236,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "An FPGA signature accumulator can appear healthy while its comparison or reporting path is disabled."
+  },
+  {
+    "id": "NXR-237",
+    "title": "Reset observation provenance",
+    "category": "Independent observer",
+    "statement": "The bench shall distinguish host-requested reset, watchdog reset, power interruption and unexplained reboot using available independent evidence.",
+    "rationale": "A new boot counter alone cannot explain why the previous execution ended.",
+    "acceptance": "Controlled reset cases produce distinct evidence; unavailable reset-cause hardware yields unknown rather than a fabricated cause.",
+    "verification": "Correlate reset line, target boot identity and retained hardware reason where supported.",
+    "dependencies": [
+      "NXR-099"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-237",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Bounded reset event history and declared reset-domain wiring.",
+    "review_iteration": 237,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "A new boot counter alone cannot explain why the previous execution ended."
+  },
+  {
+    "id": "NXR-238",
+    "title": "Supply and disconnect domain",
+    "category": "Independent observer",
+    "statement": "Power interruption tests shall document which target, bridge and checker domains lose power and preserve evidence outside the tested domain.",
+    "rationale": "USB power wiring can reset the evidence collector along with the target.",
+    "acceptance": "Target-only power cycling does not erase checker evidence; shared-power loss is explicitly classified incomplete.",
+    "verification": "Execute the declared wiring matrix and verify reconnect identity and retained files.",
+    "dependencies": [
+      "NXR-099"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-238",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Equipment current and voltage limits declared per board; no undeclared reset assumptions.",
+    "review_iteration": 238,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "USB power wiring can reset the evidence collector along with the target."
+  },
+  {
+    "id": "NXR-239",
+    "title": "RISCue hardware claim boundary",
+    "category": "Independent observer",
+    "statement": "RISCue RTL, ECC and TMR hardware claims shall require the corresponding FPGA image and observable counters rather than commercial RISC-V silicon alone.",
+    "rationale": "A compatible ISA does not implement the custom processor\u0027s redundancy or protection hardware.",
+    "acceptance": "A commercial MCU run is accepted only for its HAL scope; absent ECC or TMR support cannot receive a hardware pass.",
+    "verification": "Validate image hashes, feature manifests and one controlled hardware event per claimed detector.",
+    "dependencies": [
+      "NXR-099"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-239",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Declared FPGA image and exposed counter widths; unsupported checks skipped explicitly.",
+    "review_iteration": 239,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "A compatible ISA does not implement the custom processor\u0027s redundancy or protection hardware."
+  },
+  {
+    "id": "NXR-240",
+    "title": "Observer storage overflow result",
+    "category": "Independent observer",
+    "statement": "A checker shall report capture loss and withhold complete-trace or timing-pass claims after overflow.",
+    "rationale": "An apparently valid tail of captured output can hide dropped earlier failures.",
+    "acceptance": "Exceed FIFO and capture depth; loss counters and terminal incomplete status appear while a bounded control passes.",
+    "verification": "Drive maximal-rate streams and delayed host drains at the declared input limit.",
+    "dependencies": [
+      "NXR-099"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-240",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Fixed FIFO and capture RAM; no silent circular overwrite of mandatory first-fault evidence.",
+    "review_iteration": 240,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "An apparently valid tail of captured output can hide dropped earlier failures."
   }
 ]

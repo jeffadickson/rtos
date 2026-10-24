@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **230**. Catalogue SHA-256: ``70eb808b37bf411263b51f5160b1278fb0e6f3183e1b6d6334842d3e42a93f22``.
+Reviewed requirements: **240**. Catalogue SHA-256: ``49bbc6858f23eeff3fcc81fca72744189028a8aa307882e70ea825b3ff617dd4``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -8058,4 +8058,354 @@ NXR-230 Sacrificial worker reboot policy
 
 
 **Review finding:** Current exit semantics reserve storage and do not permit recreating finished workers.
+
+NXR-231 Independent UART content oracle
+---------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Independent observer
+
+
+**Requirement:** The external checker shall validate expected per-worker content and sequence in addition to CRC and framing.
+
+
+**Rationale:** A valid CRC only proves consistency with the sender's bytes, not correct job execution.
+
+
+**Acceptance:** A wrong payload with a recomputed valid CRC fails; a valid multiworker stream passes.
+
+
+**Verification:** Feed synthetic UART waveforms and physical target streams with independent expected payload generation.
+
+
+**Planned test:** TEST-NXR-231
+
+
+**Dependencies:** NXR-099
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Fixed per-worker oracle state and declared maximum worker count.
+
+
+**Review finding:** A valid CRC only proves consistency with the sender's bytes, not correct job execution.
+
+NXR-232 Observer calibration identity
+-------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Independent observer
+
+
+**Requirement:** Every timing result shall identify checker clock, sampling resolution, synchronizer uncertainty and calibration validity.
+
+
+**Rationale:** An external clock is independent but still requires measurement uncertainty accounting.
+
+
+**Acceptance:** Expired or mismatched calibration prevents a timing pass; known pulse widths fall within declared uncertainty.
+
+
+**Verification:** Apply a reference pulse train at boundary widths and compare captured intervals.
+
+
+**Planned test:** TEST-NXR-232
+
+
+**Dependencies:** NXR-099
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Calibration version and finite validity interval recorded per checker.
+
+
+**Review finding:** An external clock is independent but still requires measurement uncertainty accounting.
+
+NXR-233 UART framing fault sensitivity
+--------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Independent observer
+
+
+**Requirement:** UART checker qualification shall detect wrong baud, stop-bit violations, truncated records and FIFO overrun distinctly.
+
+
+**Rationale:** Successful text decoding does not qualify framing and overload error detection.
+
+
+**Acceptance:** Inject each fault independently and preserve the first affected byte or record identity.
+
+
+**Verification:** Generate controlled waveforms and throttle the checker input sink.
+
+
+**Planned test:** TEST-NXR-233
+
+
+**Dependencies:** NXR-099
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Declared baud tolerance, FIFO depth and maximum record length.
+
+
+**Review finding:** Successful text decoding does not qualify framing and overload error detection.
+
+NXR-234 Physical latency witnesses
+----------------------------------
+
+**Status:** Planned
+
+
+**Category:** Independent observer
+
+
+**Requirement:** Latency tests shall measure stimulus arrival, handler entry and worker dispatch as separate physical events.
+
+
+**Rationale:** USB timestamps cannot separate interrupt latency from host transport latency.
+
+
+**Acceptance:** A delayed worker with prompt ISR entry is classified as scheduling delay rather than interrupt-entry delay.
+
+
+**Verification:** Drive an external stimulus and capture three GPIO witnesses with calibrated timestamps.
+
+
+**Planned test:** TEST-NXR-234
+
+
+**Dependencies:** NXR-099
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Per-board limits declared before arming; GPIO overhead measured.
+
+
+**Review finding:** USB timestamps cannot separate interrupt latency from host transport latency.
+
+NXR-235 Checker arming handshake
+--------------------------------
+
+**Status:** Planned
+
+
+**Category:** Independent observer
+
+
+**Requirement:** A target run requiring an observer shall start only after the matching checker run identity is armed and acknowledged.
+
+
+**Rationale:** An independently running checker can still observe the wrong target run without identity binding.
+
+
+**Acceptance:** Unarmed, stale or wrong-profile checker rejects the run; target and checker terminal identities must match.
+
+
+**Verification:** Race checker reset and host START while validating a physical start marker.
+
+
+**Planned test:** TEST-NXR-235
+
+
+**Dependencies:** NXR-099
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** One active checker run and finite arming deadline.
+
+
+**Review finding:** An independently running checker can still observe the wrong target run without identity binding.
+
+NXR-236 Checker fault injection controls
+----------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Independent observer
+
+
+**Requirement:** Each observer detection channel shall have a controlled injection proving it can fail the run.
+
+
+**Rationale:** An FPGA signature accumulator can appear healthy while its comparison or reporting path is disabled.
+
+
+**Acceptance:** Disable a detector or alter a known-bad waveform; qualification detects the missing expected failure.
+
+
+**Verification:** Run byte corruption, missing sequence, timing overrun and reset injections before acceptance tests.
+
+
+**Planned test:** TEST-NXR-236
+
+
+**Dependencies:** NXR-099
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Finite preflight corpus and explicit injection-enabled profile.
+
+
+**Review finding:** An FPGA signature accumulator can appear healthy while its comparison or reporting path is disabled.
+
+NXR-237 Reset observation provenance
+------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Independent observer
+
+
+**Requirement:** The bench shall distinguish host-requested reset, watchdog reset, power interruption and unexplained reboot using available independent evidence.
+
+
+**Rationale:** A new boot counter alone cannot explain why the previous execution ended.
+
+
+**Acceptance:** Controlled reset cases produce distinct evidence; unavailable reset-cause hardware yields unknown rather than a fabricated cause.
+
+
+**Verification:** Correlate reset line, target boot identity and retained hardware reason where supported.
+
+
+**Planned test:** TEST-NXR-237
+
+
+**Dependencies:** NXR-099
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Bounded reset event history and declared reset-domain wiring.
+
+
+**Review finding:** A new boot counter alone cannot explain why the previous execution ended.
+
+NXR-238 Supply and disconnect domain
+------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Independent observer
+
+
+**Requirement:** Power interruption tests shall document which target, bridge and checker domains lose power and preserve evidence outside the tested domain.
+
+
+**Rationale:** USB power wiring can reset the evidence collector along with the target.
+
+
+**Acceptance:** Target-only power cycling does not erase checker evidence; shared-power loss is explicitly classified incomplete.
+
+
+**Verification:** Execute the declared wiring matrix and verify reconnect identity and retained files.
+
+
+**Planned test:** TEST-NXR-238
+
+
+**Dependencies:** NXR-099
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Equipment current and voltage limits declared per board; no undeclared reset assumptions.
+
+
+**Review finding:** USB power wiring can reset the evidence collector along with the target.
+
+NXR-239 RISCue hardware claim boundary
+--------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Independent observer
+
+
+**Requirement:** RISCue RTL, ECC and TMR hardware claims shall require the corresponding FPGA image and observable counters rather than commercial RISC-V silicon alone.
+
+
+**Rationale:** A compatible ISA does not implement the custom processor's redundancy or protection hardware.
+
+
+**Acceptance:** A commercial MCU run is accepted only for its HAL scope; absent ECC or TMR support cannot receive a hardware pass.
+
+
+**Verification:** Validate image hashes, feature manifests and one controlled hardware event per claimed detector.
+
+
+**Planned test:** TEST-NXR-239
+
+
+**Dependencies:** NXR-099
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Declared FPGA image and exposed counter widths; unsupported checks skipped explicitly.
+
+
+**Review finding:** A compatible ISA does not implement the custom processor's redundancy or protection hardware.
+
+NXR-240 Observer storage overflow result
+----------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Independent observer
+
+
+**Requirement:** A checker shall report capture loss and withhold complete-trace or timing-pass claims after overflow.
+
+
+**Rationale:** An apparently valid tail of captured output can hide dropped earlier failures.
+
+
+**Acceptance:** Exceed FIFO and capture depth; loss counters and terminal incomplete status appear while a bounded control passes.
+
+
+**Verification:** Drive maximal-rate streams and delayed host drains at the declared input limit.
+
+
+**Planned test:** TEST-NXR-240
+
+
+**Dependencies:** NXR-099
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Fixed FIFO and capture RAM; no silent circular overwrite of mandatory first-fault evidence.
+
+
+**Review finding:** An apparently valid tail of captured output can hide dropped earlier failures.
 

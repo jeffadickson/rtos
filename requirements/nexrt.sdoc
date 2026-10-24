@@ -2993,3 +2993,133 @@ Static budget: No runtime thread resurrection in the default kernel profile.
 Dependencies: NXR-039, NXR-048
 <<<
 
+[REQUIREMENT]
+UID: NXR-231
+STATUS: Planned
+TITLE: Independent UART content oracle
+STATEMENT: >>>
+The external checker shall validate expected per-worker content and sequence in addition to CRC and framing.
+Acceptance: A wrong payload with a recomputed valid CRC fails; a valid multiworker stream passes.
+Verification: Feed synthetic UART waveforms and physical target streams with independent expected payload generation.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Fixed per-worker oracle state and declared maximum worker count.
+Dependencies: NXR-099
+<<<
+
+[REQUIREMENT]
+UID: NXR-232
+STATUS: Planned
+TITLE: Observer calibration identity
+STATEMENT: >>>
+Every timing result shall identify checker clock, sampling resolution, synchronizer uncertainty and calibration validity.
+Acceptance: Expired or mismatched calibration prevents a timing pass; known pulse widths fall within declared uncertainty.
+Verification: Apply a reference pulse train at boundary widths and compare captured intervals.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Calibration version and finite validity interval recorded per checker.
+Dependencies: NXR-099
+<<<
+
+[REQUIREMENT]
+UID: NXR-233
+STATUS: Planned
+TITLE: UART framing fault sensitivity
+STATEMENT: >>>
+UART checker qualification shall detect wrong baud, stop-bit violations, truncated records and FIFO overrun distinctly.
+Acceptance: Inject each fault independently and preserve the first affected byte or record identity.
+Verification: Generate controlled waveforms and throttle the checker input sink.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Declared baud tolerance, FIFO depth and maximum record length.
+Dependencies: NXR-099
+<<<
+
+[REQUIREMENT]
+UID: NXR-234
+STATUS: Planned
+TITLE: Physical latency witnesses
+STATEMENT: >>>
+Latency tests shall measure stimulus arrival, handler entry and worker dispatch as separate physical events.
+Acceptance: A delayed worker with prompt ISR entry is classified as scheduling delay rather than interrupt-entry delay.
+Verification: Drive an external stimulus and capture three GPIO witnesses with calibrated timestamps.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Per-board limits declared before arming; GPIO overhead measured.
+Dependencies: NXR-099
+<<<
+
+[REQUIREMENT]
+UID: NXR-235
+STATUS: Planned
+TITLE: Checker arming handshake
+STATEMENT: >>>
+A target run requiring an observer shall start only after the matching checker run identity is armed and acknowledged.
+Acceptance: Unarmed, stale or wrong-profile checker rejects the run; target and checker terminal identities must match.
+Verification: Race checker reset and host START while validating a physical start marker.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: One active checker run and finite arming deadline.
+Dependencies: NXR-099
+<<<
+
+[REQUIREMENT]
+UID: NXR-236
+STATUS: Planned
+TITLE: Checker fault injection controls
+STATEMENT: >>>
+Each observer detection channel shall have a controlled injection proving it can fail the run.
+Acceptance: Disable a detector or alter a known-bad waveform; qualification detects the missing expected failure.
+Verification: Run byte corruption, missing sequence, timing overrun and reset injections before acceptance tests.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Finite preflight corpus and explicit injection-enabled profile.
+Dependencies: NXR-099
+<<<
+
+[REQUIREMENT]
+UID: NXR-237
+STATUS: Planned
+TITLE: Reset observation provenance
+STATEMENT: >>>
+The bench shall distinguish host-requested reset, watchdog reset, power interruption and unexplained reboot using available independent evidence.
+Acceptance: Controlled reset cases produce distinct evidence; unavailable reset-cause hardware yields unknown rather than a fabricated cause.
+Verification: Correlate reset line, target boot identity and retained hardware reason where supported.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Bounded reset event history and declared reset-domain wiring.
+Dependencies: NXR-099
+<<<
+
+[REQUIREMENT]
+UID: NXR-238
+STATUS: Planned
+TITLE: Supply and disconnect domain
+STATEMENT: >>>
+Power interruption tests shall document which target, bridge and checker domains lose power and preserve evidence outside the tested domain.
+Acceptance: Target-only power cycling does not erase checker evidence; shared-power loss is explicitly classified incomplete.
+Verification: Execute the declared wiring matrix and verify reconnect identity and retained files.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Equipment current and voltage limits declared per board; no undeclared reset assumptions.
+Dependencies: NXR-099
+<<<
+
+[REQUIREMENT]
+UID: NXR-239
+STATUS: Planned
+TITLE: RISCue hardware claim boundary
+STATEMENT: >>>
+RISCue RTL, ECC and TMR hardware claims shall require the corresponding FPGA image and observable counters rather than commercial RISC-V silicon alone.
+Acceptance: A commercial MCU run is accepted only for its HAL scope; absent ECC or TMR support cannot receive a hardware pass.
+Verification: Validate image hashes, feature manifests and one controlled hardware event per claimed detector.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Declared FPGA image and exposed counter widths; unsupported checks skipped explicitly.
+Dependencies: NXR-099
+<<<
+
+[REQUIREMENT]
+UID: NXR-240
+STATUS: Planned
+TITLE: Observer storage overflow result
+STATEMENT: >>>
+A checker shall report capture loss and withhold complete-trace or timing-pass claims after overflow.
+Acceptance: Exceed FIFO and capture depth; loss counters and terminal incomplete status appear while a bounded control passes.
+Verification: Drive maximal-rate streams and delayed host drains at the declared input limit.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Fixed FIFO and capture RAM; no silent circular overwrite of mandatory first-fault evidence.
+Dependencies: NXR-099
+<<<
+
