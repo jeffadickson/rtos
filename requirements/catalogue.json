@@ -6908,5 +6908,275 @@
       "docs/hil-verification-plan.rst"
     ],
     "finding": "An apparently valid tail of captured output can hide dropped earlier failures."
+  },
+  {
+    "id": "NXR-241",
+    "title": "UART whole-record atomicity",
+    "category": "Driver qualification",
+    "statement": "Queued UART qualification shall prove that concurrent producer records never interleave within a record across partial transport writes.",
+    "rationale": "The queued implementation preserves pending offsets but needs sustained concurrent transport evidence.",
+    "acceptance": "Three seeded producers emit counted records through one-byte writes; each complete record belongs to one producer and sequence.",
+    "verification": "Compare exact output with an independent record parser while forcing full and busy transport responses.",
+    "dependencies": [
+      "NXR-041",
+      "NXR-119",
+      "NXR-149"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-241",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Configured static record slots and message size; no producer waits for device readiness.",
+    "review_iteration": 241,
+    "inspected_files": [
+      "include/rtos_uart.hpp",
+      "docs/drivers.rst",
+      "tests/uart.cpp"
+    ],
+    "finding": "The queued implementation preserves pending offsets but needs sustained concurrent transport evidence."
+  },
+  {
+    "id": "NXR-242",
+    "title": "UART acceptance accounting",
+    "category": "Driver qualification",
+    "statement": "UART counters shall distinguish accepted, rejected-full, truncated, transmitted and failed records.",
+    "rationale": "A hello demo cannot establish that overload and truncation are visible to callers.",
+    "acceptance": "Saturate the queue and formatting limit; every producer attempt has one documented outcome and byte conservation reconciles.",
+    "verification": "Use known record lengths and controlled transport errors with counter boundary fixtures.",
+    "dependencies": [
+      "NXR-041",
+      "NXR-119",
+      "NXR-149"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-242",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Saturating diagnostic counters; fixed queue capacity.",
+    "review_iteration": 242,
+    "inspected_files": [
+      "include/rtos_uart.hpp",
+      "docs/drivers.rst",
+      "tests/uart.cpp"
+    ],
+    "finding": "A hello demo cannot establish that overload and truncation are visible to callers."
+  },
+  {
+    "id": "NXR-243",
+    "title": "UART boot and BSP contract",
+    "category": "Driver qualification",
+    "statement": "UART initialization shall declare device base, clock, reset, baud and ordered-MMIO guarantees before the service worker runs.",
+    "rationale": "The current AXI TX adapter intentionally does not initialize clocks, baud or reset.",
+    "acceptance": "Misaligned base and wrong device profile are rejected; measured pin baud matches the configured tolerance.",
+    "verification": "Combine address-validation host fixtures with board clock and pin-loopback measurements.",
+    "dependencies": [
+      "NXR-041",
+      "NXR-119",
+      "NXR-149"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-243",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "No runtime driver discovery; one permanent owner per configured UART.",
+    "review_iteration": 243,
+    "inspected_files": [
+      "include/rtos_uart.hpp",
+      "docs/drivers.rst",
+      "tests/uart.cpp"
+    ],
+    "finding": "The current AXI TX adapter intentionally does not initialize clocks, baud or reset."
+  },
+  {
+    "id": "NXR-244",
+    "title": "UART receiver overrun policy",
+    "category": "Driver qualification",
+    "statement": "A future UART receiver shall expose bounded storage, per-error counters and a documented record resynchronization rule.",
+    "rationale": "The supplied AXI adapter is TX-only and must not be described as a complete RX or interrupt driver.",
+    "acceptance": "Overflow during a stalled reader does not corrupt adjacent memory and subsequent delimiter-framed packets recover.",
+    "verification": "Inject framing errors, bursts beyond capacity and consumer pauses on real hardware.",
+    "dependencies": [
+      "NXR-041",
+      "NXR-119",
+      "NXR-149"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-244",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Fixed RX ring and finite ISR work per entry; no heap.",
+    "review_iteration": 244,
+    "inspected_files": [
+      "include/rtos_uart.hpp",
+      "docs/drivers.rst",
+      "tests/uart.cpp"
+    ],
+    "finding": "The supplied AXI adapter is TX-only and must not be described as a complete RX or interrupt driver."
+  },
+  {
+    "id": "NXR-245",
+    "title": "External interrupt acknowledgement",
+    "category": "Driver qualification",
+    "statement": "Peripheral IRQ qualification shall establish source identification, acknowledgement order and pending recheck without losing a concurrent event.",
+    "rationale": "Current timer-only dispatch cannot establish a working UART or DMA external interrupt path.",
+    "acceptance": "An event arriving during acknowledgement is eventually serviced once; spurious sources do not call unrelated handlers.",
+    "verification": "Use hardware-generated edge and level stimuli and an independent event count.",
+    "dependencies": [
+      "NXR-041",
+      "NXR-119",
+      "NXR-149"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-245",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Fixed handler table; bounded per-entry service and declared nesting policy.",
+    "review_iteration": 245,
+    "inspected_files": [
+      "include/rtos_uart.hpp",
+      "docs/drivers.rst",
+      "tests/uart.cpp"
+    ],
+    "finding": "Current timer-only dispatch cannot establish a working UART or DMA external interrupt path."
+  },
+  {
+    "id": "NXR-246",
+    "title": "Interrupt storm containment",
+    "category": "Driver qualification",
+    "statement": "The BSP shall contain a continuously asserted peripheral source without permanently starving the scheduling timer.",
+    "rationale": "Acknowledging a misbehaving device indefinitely can turn bounded driver code into scheduler starvation.",
+    "acceptance": "Hold a level source active; the declared mask or defer policy activates and timer progress remains observable.",
+    "verification": "Inject a stuck source while measuring timer and high-priority worker progress externally.",
+    "dependencies": [
+      "NXR-041",
+      "NXR-119",
+      "NXR-149"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-246",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Finite events-per-entry budget and bounded deferred queue.",
+    "review_iteration": 246,
+    "inspected_files": [
+      "include/rtos_uart.hpp",
+      "docs/drivers.rst",
+      "tests/uart.cpp"
+    ],
+    "finding": "Acknowledging a misbehaving device indefinitely can turn bounded driver code into scheduler starvation."
+  },
+  {
+    "id": "NXR-247",
+    "title": "GPIO ownership and register races",
+    "category": "Driver qualification",
+    "statement": "GPIO qualification shall prove pin ownership and correct atomic set-clear semantics under concurrent unrelated pin updates.",
+    "rationale": "Generic volatile access alone does not protect shared GPIO read-modify-write operations.",
+    "acceptance": "Two threads toggle disjoint pins without lost updates; conflicting ownership is rejected before register access.",
+    "verification": "Capture pins externally and exercise write-one and read-modify-write register variants.",
+    "dependencies": [
+      "NXR-041",
+      "NXR-119",
+      "NXR-149"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-247",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Fixed pin table; critical section limit declared for non-atomic hardware.",
+    "review_iteration": 247,
+    "inspected_files": [
+      "include/rtos_uart.hpp",
+      "docs/drivers.rst",
+      "tests/uart.cpp"
+    ],
+    "finding": "Generic volatile access alone does not protect shared GPIO read-modify-write operations."
+  },
+  {
+    "id": "NXR-248",
+    "title": "Watchdog progress quorum",
+    "category": "Driver qualification",
+    "statement": "Watchdog feeding shall require progress from every mandatory worker in the current supervision epoch.",
+    "rationale": "A heartbeat from one healthy monitor cannot establish overall scheduler or application progress.",
+    "acceptance": "Freeze one required worker while the monitor stays alive; feeding stops and the declared reset is observed.",
+    "verification": "Inject worker stalls at differing priorities and compare independent reset timing.",
+    "dependencies": [
+      "NXR-041",
+      "NXR-119",
+      "NXR-149"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-248",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Fixed worker bitmap and finite epoch; optional workers explicitly excluded.",
+    "review_iteration": 248,
+    "inspected_files": [
+      "include/rtos_uart.hpp",
+      "docs/drivers.rst",
+      "tests/uart.cpp"
+    ],
+    "finding": "A heartbeat from one healthy monitor cannot establish overall scheduler or application progress."
+  },
+  {
+    "id": "NXR-249",
+    "title": "SPI transaction cancellation",
+    "category": "Driver qualification",
+    "statement": "SPI cancellation shall retain chip select and buffer ownership until the controller is demonstrably quiescent.",
+    "rationale": "A mutex around submission alone does not serialize the full hardware transaction lifetime.",
+    "acceptance": "Cancel mid-transfer and on completion boundary; no new client begins before settled bus ownership.",
+    "verification": "Observe chip select and clock while injecting completion delay and controller faults.",
+    "dependencies": [
+      "NXR-041",
+      "NXR-119",
+      "NXR-149"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-249",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Fixed transaction slots and finite cancellation deadline; uncertain hardware quarantined.",
+    "review_iteration": 249,
+    "inspected_files": [
+      "include/rtos_uart.hpp",
+      "docs/drivers.rst",
+      "tests/uart.cpp"
+    ],
+    "finding": "A mutex around submission alone does not serialize the full hardware transaction lifetime."
+  },
+  {
+    "id": "NXR-250",
+    "title": "I2C stuck-bus recovery evidence",
+    "category": "Driver qualification",
+    "statement": "I2C recovery shall use a board-declared bounded procedure and report failure when SCL or SDA cannot be released.",
+    "rationale": "Recovery must be based on actual line state and board electrical constraints.",
+    "acceptance": "NACK, clock stretching and permanently low lines yield distinct terminal outcomes without indefinite polling.",
+    "verification": "Use programmable pull-down fixtures and capture recovery pulses and stop generation.",
+    "dependencies": [
+      "NXR-041",
+      "NXR-119",
+      "NXR-149"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-250",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Finite stretch and recovery pulse limits; no unconditional bus-reset loops.",
+    "review_iteration": 250,
+    "inspected_files": [
+      "include/rtos_uart.hpp",
+      "docs/drivers.rst",
+      "tests/uart.cpp"
+    ],
+    "finding": "Recovery must be based on actual line state and board electrical constraints."
   }
 ]

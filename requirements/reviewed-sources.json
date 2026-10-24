@@ -153,6 +153,7 @@
   "tests/sync_deadlines.cpp": "e9aef38cfbe333a37f876d9519df6a0c85540962fb1fb8c3e771e46b8843927c",
   "tests/sync_edges.cpp": "20f4e7003b0693fdb7f46fb80cdba3c2628719d62ea77070b2a9e9b52b9d72d9",
   "tests/thread_stress.cpp": "eb46b6ab062af9e51d8832669f422f49d5120aa20a7ac073a8c67316e003df38",
+  "tests/uart.cpp": "730149c7b15ce025017c97c8d3e586f473741c8ec9125c8954eb12d89391e9f1",
   "tools/HostProcess.cs": "579cd1be8213bd2a879bb89ee53e75947911ef2ef9342c67b50a6dad7e5b62eb",
   "tools/NexRT.ArmSim/Program.cs": "45e3f8187959d14e69ad09514e3c3642984a6487b883c23ea8485b953841a482",
   "tools/NexRT.Configure/BoardContracts.cs": "34f15b693360b4b94570c7a0a06ed8afa5bb92b884746c02a39db7894e72870c",

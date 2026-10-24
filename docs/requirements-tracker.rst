@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **240**. Catalogue SHA-256: ``49bbc6858f23eeff3fcc81fca72744189028a8aa307882e70ea825b3ff617dd4``.
+Reviewed requirements: **250**. Catalogue SHA-256: ``3703cc7e62279229f52cf92a5ebccf5eff0e4ef05f80e6050149a12a391478d1``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -8408,4 +8408,354 @@ NXR-240 Observer storage overflow result
 
 
 **Review finding:** An apparently valid tail of captured output can hide dropped earlier failures.
+
+NXR-241 UART whole-record atomicity
+-----------------------------------
+
+**Status:** Planned
+
+
+**Category:** Driver qualification
+
+
+**Requirement:** Queued UART qualification shall prove that concurrent producer records never interleave within a record across partial transport writes.
+
+
+**Rationale:** The queued implementation preserves pending offsets but needs sustained concurrent transport evidence.
+
+
+**Acceptance:** Three seeded producers emit counted records through one-byte writes; each complete record belongs to one producer and sequence.
+
+
+**Verification:** Compare exact output with an independent record parser while forcing full and busy transport responses.
+
+
+**Planned test:** TEST-NXR-241
+
+
+**Dependencies:** NXR-041, NXR-119, NXR-149
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Configured static record slots and message size; no producer waits for device readiness.
+
+
+**Review finding:** The queued implementation preserves pending offsets but needs sustained concurrent transport evidence.
+
+NXR-242 UART acceptance accounting
+----------------------------------
+
+**Status:** Planned
+
+
+**Category:** Driver qualification
+
+
+**Requirement:** UART counters shall distinguish accepted, rejected-full, truncated, transmitted and failed records.
+
+
+**Rationale:** A hello demo cannot establish that overload and truncation are visible to callers.
+
+
+**Acceptance:** Saturate the queue and formatting limit; every producer attempt has one documented outcome and byte conservation reconciles.
+
+
+**Verification:** Use known record lengths and controlled transport errors with counter boundary fixtures.
+
+
+**Planned test:** TEST-NXR-242
+
+
+**Dependencies:** NXR-041, NXR-119, NXR-149
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Saturating diagnostic counters; fixed queue capacity.
+
+
+**Review finding:** A hello demo cannot establish that overload and truncation are visible to callers.
+
+NXR-243 UART boot and BSP contract
+----------------------------------
+
+**Status:** Planned
+
+
+**Category:** Driver qualification
+
+
+**Requirement:** UART initialization shall declare device base, clock, reset, baud and ordered-MMIO guarantees before the service worker runs.
+
+
+**Rationale:** The current AXI TX adapter intentionally does not initialize clocks, baud or reset.
+
+
+**Acceptance:** Misaligned base and wrong device profile are rejected; measured pin baud matches the configured tolerance.
+
+
+**Verification:** Combine address-validation host fixtures with board clock and pin-loopback measurements.
+
+
+**Planned test:** TEST-NXR-243
+
+
+**Dependencies:** NXR-041, NXR-119, NXR-149
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** No runtime driver discovery; one permanent owner per configured UART.
+
+
+**Review finding:** The current AXI TX adapter intentionally does not initialize clocks, baud or reset.
+
+NXR-244 UART receiver overrun policy
+------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Driver qualification
+
+
+**Requirement:** A future UART receiver shall expose bounded storage, per-error counters and a documented record resynchronization rule.
+
+
+**Rationale:** The supplied AXI adapter is TX-only and must not be described as a complete RX or interrupt driver.
+
+
+**Acceptance:** Overflow during a stalled reader does not corrupt adjacent memory and subsequent delimiter-framed packets recover.
+
+
+**Verification:** Inject framing errors, bursts beyond capacity and consumer pauses on real hardware.
+
+
+**Planned test:** TEST-NXR-244
+
+
+**Dependencies:** NXR-041, NXR-119, NXR-149
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Fixed RX ring and finite ISR work per entry; no heap.
+
+
+**Review finding:** The supplied AXI adapter is TX-only and must not be described as a complete RX or interrupt driver.
+
+NXR-245 External interrupt acknowledgement
+------------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Driver qualification
+
+
+**Requirement:** Peripheral IRQ qualification shall establish source identification, acknowledgement order and pending recheck without losing a concurrent event.
+
+
+**Rationale:** Current timer-only dispatch cannot establish a working UART or DMA external interrupt path.
+
+
+**Acceptance:** An event arriving during acknowledgement is eventually serviced once; spurious sources do not call unrelated handlers.
+
+
+**Verification:** Use hardware-generated edge and level stimuli and an independent event count.
+
+
+**Planned test:** TEST-NXR-245
+
+
+**Dependencies:** NXR-041, NXR-119, NXR-149
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Fixed handler table; bounded per-entry service and declared nesting policy.
+
+
+**Review finding:** Current timer-only dispatch cannot establish a working UART or DMA external interrupt path.
+
+NXR-246 Interrupt storm containment
+-----------------------------------
+
+**Status:** Planned
+
+
+**Category:** Driver qualification
+
+
+**Requirement:** The BSP shall contain a continuously asserted peripheral source without permanently starving the scheduling timer.
+
+
+**Rationale:** Acknowledging a misbehaving device indefinitely can turn bounded driver code into scheduler starvation.
+
+
+**Acceptance:** Hold a level source active; the declared mask or defer policy activates and timer progress remains observable.
+
+
+**Verification:** Inject a stuck source while measuring timer and high-priority worker progress externally.
+
+
+**Planned test:** TEST-NXR-246
+
+
+**Dependencies:** NXR-041, NXR-119, NXR-149
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Finite events-per-entry budget and bounded deferred queue.
+
+
+**Review finding:** Acknowledging a misbehaving device indefinitely can turn bounded driver code into scheduler starvation.
+
+NXR-247 GPIO ownership and register races
+-----------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Driver qualification
+
+
+**Requirement:** GPIO qualification shall prove pin ownership and correct atomic set-clear semantics under concurrent unrelated pin updates.
+
+
+**Rationale:** Generic volatile access alone does not protect shared GPIO read-modify-write operations.
+
+
+**Acceptance:** Two threads toggle disjoint pins without lost updates; conflicting ownership is rejected before register access.
+
+
+**Verification:** Capture pins externally and exercise write-one and read-modify-write register variants.
+
+
+**Planned test:** TEST-NXR-247
+
+
+**Dependencies:** NXR-041, NXR-119, NXR-149
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Fixed pin table; critical section limit declared for non-atomic hardware.
+
+
+**Review finding:** Generic volatile access alone does not protect shared GPIO read-modify-write operations.
+
+NXR-248 Watchdog progress quorum
+--------------------------------
+
+**Status:** Planned
+
+
+**Category:** Driver qualification
+
+
+**Requirement:** Watchdog feeding shall require progress from every mandatory worker in the current supervision epoch.
+
+
+**Rationale:** A heartbeat from one healthy monitor cannot establish overall scheduler or application progress.
+
+
+**Acceptance:** Freeze one required worker while the monitor stays alive; feeding stops and the declared reset is observed.
+
+
+**Verification:** Inject worker stalls at differing priorities and compare independent reset timing.
+
+
+**Planned test:** TEST-NXR-248
+
+
+**Dependencies:** NXR-041, NXR-119, NXR-149
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Fixed worker bitmap and finite epoch; optional workers explicitly excluded.
+
+
+**Review finding:** A heartbeat from one healthy monitor cannot establish overall scheduler or application progress.
+
+NXR-249 SPI transaction cancellation
+------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Driver qualification
+
+
+**Requirement:** SPI cancellation shall retain chip select and buffer ownership until the controller is demonstrably quiescent.
+
+
+**Rationale:** A mutex around submission alone does not serialize the full hardware transaction lifetime.
+
+
+**Acceptance:** Cancel mid-transfer and on completion boundary; no new client begins before settled bus ownership.
+
+
+**Verification:** Observe chip select and clock while injecting completion delay and controller faults.
+
+
+**Planned test:** TEST-NXR-249
+
+
+**Dependencies:** NXR-041, NXR-119, NXR-149
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Fixed transaction slots and finite cancellation deadline; uncertain hardware quarantined.
+
+
+**Review finding:** A mutex around submission alone does not serialize the full hardware transaction lifetime.
+
+NXR-250 I2C stuck-bus recovery evidence
+---------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Driver qualification
+
+
+**Requirement:** I2C recovery shall use a board-declared bounded procedure and report failure when SCL or SDA cannot be released.
+
+
+**Rationale:** Recovery must be based on actual line state and board electrical constraints.
+
+
+**Acceptance:** NACK, clock stretching and permanently low lines yield distinct terminal outcomes without indefinite polling.
+
+
+**Verification:** Use programmable pull-down fixtures and capture recovery pulses and stop generation.
+
+
+**Planned test:** TEST-NXR-250
+
+
+**Dependencies:** NXR-041, NXR-119, NXR-149
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Finite stretch and recovery pulse limits; no unconditional bus-reset loops.
+
+
+**Review finding:** Recovery must be based on actual line state and board electrical constraints.
 

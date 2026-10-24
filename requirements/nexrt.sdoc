@@ -3123,3 +3123,133 @@ Static budget: Fixed FIFO and capture RAM; no silent circular overwrite of manda
 Dependencies: NXR-099
 <<<
 
+[REQUIREMENT]
+UID: NXR-241
+STATUS: Planned
+TITLE: UART whole-record atomicity
+STATEMENT: >>>
+Queued UART qualification shall prove that concurrent producer records never interleave within a record across partial transport writes.
+Acceptance: Three seeded producers emit counted records through one-byte writes; each complete record belongs to one producer and sequence.
+Verification: Compare exact output with an independent record parser while forcing full and busy transport responses.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Configured static record slots and message size; no producer waits for device readiness.
+Dependencies: NXR-041, NXR-119, NXR-149
+<<<
+
+[REQUIREMENT]
+UID: NXR-242
+STATUS: Planned
+TITLE: UART acceptance accounting
+STATEMENT: >>>
+UART counters shall distinguish accepted, rejected-full, truncated, transmitted and failed records.
+Acceptance: Saturate the queue and formatting limit; every producer attempt has one documented outcome and byte conservation reconciles.
+Verification: Use known record lengths and controlled transport errors with counter boundary fixtures.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Saturating diagnostic counters; fixed queue capacity.
+Dependencies: NXR-041, NXR-119, NXR-149
+<<<
+
+[REQUIREMENT]
+UID: NXR-243
+STATUS: Planned
+TITLE: UART boot and BSP contract
+STATEMENT: >>>
+UART initialization shall declare device base, clock, reset, baud and ordered-MMIO guarantees before the service worker runs.
+Acceptance: Misaligned base and wrong device profile are rejected; measured pin baud matches the configured tolerance.
+Verification: Combine address-validation host fixtures with board clock and pin-loopback measurements.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: No runtime driver discovery; one permanent owner per configured UART.
+Dependencies: NXR-041, NXR-119, NXR-149
+<<<
+
+[REQUIREMENT]
+UID: NXR-244
+STATUS: Planned
+TITLE: UART receiver overrun policy
+STATEMENT: >>>
+A future UART receiver shall expose bounded storage, per-error counters and a documented record resynchronization rule.
+Acceptance: Overflow during a stalled reader does not corrupt adjacent memory and subsequent delimiter-framed packets recover.
+Verification: Inject framing errors, bursts beyond capacity and consumer pauses on real hardware.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Fixed RX ring and finite ISR work per entry; no heap.
+Dependencies: NXR-041, NXR-119, NXR-149
+<<<
+
+[REQUIREMENT]
+UID: NXR-245
+STATUS: Planned
+TITLE: External interrupt acknowledgement
+STATEMENT: >>>
+Peripheral IRQ qualification shall establish source identification, acknowledgement order and pending recheck without losing a concurrent event.
+Acceptance: An event arriving during acknowledgement is eventually serviced once; spurious sources do not call unrelated handlers.
+Verification: Use hardware-generated edge and level stimuli and an independent event count.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Fixed handler table; bounded per-entry service and declared nesting policy.
+Dependencies: NXR-041, NXR-119, NXR-149
+<<<
+
+[REQUIREMENT]
+UID: NXR-246
+STATUS: Planned
+TITLE: Interrupt storm containment
+STATEMENT: >>>
+The BSP shall contain a continuously asserted peripheral source without permanently starving the scheduling timer.
+Acceptance: Hold a level source active; the declared mask or defer policy activates and timer progress remains observable.
+Verification: Inject a stuck source while measuring timer and high-priority worker progress externally.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Finite events-per-entry budget and bounded deferred queue.
+Dependencies: NXR-041, NXR-119, NXR-149
+<<<
+
+[REQUIREMENT]
+UID: NXR-247
+STATUS: Planned
+TITLE: GPIO ownership and register races
+STATEMENT: >>>
+GPIO qualification shall prove pin ownership and correct atomic set-clear semantics under concurrent unrelated pin updates.
+Acceptance: Two threads toggle disjoint pins without lost updates; conflicting ownership is rejected before register access.
+Verification: Capture pins externally and exercise write-one and read-modify-write register variants.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Fixed pin table; critical section limit declared for non-atomic hardware.
+Dependencies: NXR-041, NXR-119, NXR-149
+<<<
+
+[REQUIREMENT]
+UID: NXR-248
+STATUS: Planned
+TITLE: Watchdog progress quorum
+STATEMENT: >>>
+Watchdog feeding shall require progress from every mandatory worker in the current supervision epoch.
+Acceptance: Freeze one required worker while the monitor stays alive; feeding stops and the declared reset is observed.
+Verification: Inject worker stalls at differing priorities and compare independent reset timing.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Fixed worker bitmap and finite epoch; optional workers explicitly excluded.
+Dependencies: NXR-041, NXR-119, NXR-149
+<<<
+
+[REQUIREMENT]
+UID: NXR-249
+STATUS: Planned
+TITLE: SPI transaction cancellation
+STATEMENT: >>>
+SPI cancellation shall retain chip select and buffer ownership until the controller is demonstrably quiescent.
+Acceptance: Cancel mid-transfer and on completion boundary; no new client begins before settled bus ownership.
+Verification: Observe chip select and clock while injecting completion delay and controller faults.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Fixed transaction slots and finite cancellation deadline; uncertain hardware quarantined.
+Dependencies: NXR-041, NXR-119, NXR-149
+<<<
+
+[REQUIREMENT]
+UID: NXR-250
+STATUS: Planned
+TITLE: I2C stuck-bus recovery evidence
+STATEMENT: >>>
+I2C recovery shall use a board-declared bounded procedure and report failure when SCL or SDA cannot be released.
+Acceptance: NACK, clock stretching and permanently low lines yield distinct terminal outcomes without indefinite polling.
+Verification: Use programmable pull-down fixtures and capture recovery pulses and stop generation.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Finite stretch and recovery pulse limits; no unconditional bus-reset loops.
+Dependencies: NXR-041, NXR-119, NXR-149
+<<<
+
