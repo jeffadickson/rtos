@@ -2213,3 +2213,133 @@ Static budget: Per-workload threshold and repeat count fixed before candidate ex
 Dependencies: NXR-081, NXR-025
 <<<
 
+[REQUIREMENT]
+UID: NXR-171
+STATUS: Planned
+TITLE: Optional lifecycle compatibility
+STATEMENT: >>>
+A future lifecycle profile shall use boot-reserved thread slots while preserving sealed registration and permanent completion in the default profile.
+Acceptance: Default post-start create still fails; lifecycle-disabled binaries expose no runtime recycling path.
+Verification: Compile both profiles and execute default registration regressions plus opt-in slot state fixtures.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Fixed slot and stack pool; zero general heap; lifecycle remains opt-in.
+Dependencies: NXR-001, NXR-128, NXR-129
+<<<
+
+[REQUIREMENT]
+UID: NXR-172
+STATUS: Planned
+TITLE: Thread generation exhaustion
+STATEMENT: >>>
+A recyclable thread handle shall contain a generation that never wraps into a previously valid handle during a boot.
+Acceptance: An old handle fails after slot reuse; the final representable generation exhausts the slot rather than wrapping.
+Verification: Use a reduced-width generation fixture and validate real-width boundary arithmetic.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: One generation word per reserved slot; exhausted slots remain unavailable until reset.
+Dependencies: NXR-001, NXR-128, NXR-129
+<<<
+
+[REQUIREMENT]
+UID: NXR-173
+STATUS: Planned
+TITLE: Cooperative stop acknowledgement
+STATEMENT: >>>
+A stop request shall be acknowledged as complete only after the worker reaches a documented safe point and settles owned resources.
+Acceptance: A worker retaining a mutex or DMA ownership cannot report stopped; a safe worker acknowledges once.
+Verification: Pause workers at each ownership transition and issue duplicate stop requests.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: One stop flag and acknowledgement per permanent worker; finite grace deadline.
+Dependencies: NXR-001, NXR-128, NXR-129
+<<<
+
+[REQUIREMENT]
+UID: NXR-174
+STATUS: Planned
+TITLE: Thread join evidence
+STATEMENT: >>>
+An optional join operation shall distinguish running, completed, timed-out and stale generations without consuming another incarnation's completion.
+Acceptance: Two joiners observe the documented policy; timeout and completion races never return an unrelated generation.
+Verification: Enumerate completion-before-wait, wait-before-completion and timeout boundaries in a state model.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Fixed join waiter capacity; no allocation and no infinite cleanup scan.
+Dependencies: NXR-001, NXR-128, NXR-129
+<<<
+
+[REQUIREMENT]
+UID: NXR-175
+STATUS: Planned
+TITLE: Thread reclamation barrier
+STATEMENT: >>>
+A lifecycle slot shall become reusable only after all scheduler, waiter, observer and ownership references to its old generation are retired.
+Acceptance: Attempt reuse with one stale waiter or pending observer reference and receive a bounded refusal.
+Verification: Inject each retained reference separately and verify no stack or control-block overwrite.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Reference metadata bounded by configured threads and waiters; no runtime stack growth.
+Dependencies: NXR-001, NXR-128, NXR-129
+<<<
+
+[REQUIREMENT]
+UID: NXR-176
+STATUS: Planned
+TITLE: Abandoned mutex policy
+STATEMENT: >>>
+The lifecycle API shall reject normal reclamation of a thread that still owns a mutex and report the ownership violation.
+Acceptance: Exit or stop with one and multiple owned mutexes produces the declared fault without silently transferring protected data.
+Verification: Exercise nested ownership and inherited priority chains with an independent ownership ledger.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: No forced unlock; reporting bounded by configured owned-mutex metadata.
+Dependencies: NXR-001, NXR-128, NXR-129
+<<<
+
+[REQUIREMENT]
+UID: NXR-177
+STATUS: Planned
+TITLE: Cancellation wait removal
+STATEMENT: >>>
+An optional cancellation path shall remove exactly the cancelled generation's pending wait under the same serialization as grant and timeout.
+Acceptance: Grant, timeout and cancel permutations yield one terminal result and conserve queue items and semaphore tokens.
+Verification: Exhaustively model finite interleavings and run seeded target races.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: At most configured waiter scans; no callback or device access inside the wait lock.
+Dependencies: NXR-001, NXR-128, NXR-129
+<<<
+
+[REQUIREMENT]
+UID: NXR-178
+STATUS: Planned
+TITLE: Lifecycle priority cleanup
+STATEMENT: >>>
+Slot reuse shall discard inherited priority and donation links from the retired generation before publishing the new thread.
+Acceptance: A reused low-priority thread cannot inherit a prior owner's donated priority or remain in its chain.
+Verification: Build chained donation fixtures and reuse each retired slot position.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Cleanup bounded by configured mutex and thread counts.
+Dependencies: NXR-001, NXR-128, NXR-129
+<<<
+
+[REQUIREMENT]
+UID: NXR-179
+STATUS: Planned
+TITLE: Worker activation conservation
+STATEMENT: >>>
+Permanent-worker test jobs shall use unique run and job identities and reject activation while the prior job is unsettled.
+Acceptance: Duplicate activation executes once; a new run cannot consume a queued old-run command.
+Verification: Use a bounded command queue with replayed commands and delayed acknowledgements.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: One active job per worker and a fixed outstanding command window.
+Dependencies: NXR-001, NXR-128, NXR-129
+<<<
+
+[REQUIREMENT]
+UID: NXR-180
+STATUS: Planned
+TITLE: Lifecycle fault recovery boundary
+STATEMENT: >>>
+Lifecycle failure shall distinguish recoverable quiescence from a reset-required ownership domain.
+Acceptance: A cooperative timeout with unsettled DMA reports reset required and never permits slot or buffer reuse.
+Verification: Inject failed stop and incomplete resource release and verify the reset policy against observed accesses.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: No automatic force-delete; finite stop deadline and retained first failure.
+Dependencies: NXR-001, NXR-128, NXR-129
+<<<
+

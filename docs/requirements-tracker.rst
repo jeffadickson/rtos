@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **170**. Catalogue SHA-256: ``b837d12a8c59df56823dd8e3a171656eef882ba1dba658939ba467a92f711233``.
+Reviewed requirements: **180**. Catalogue SHA-256: ``6254af0c7de4de9eac4817643450e770f29a6e910ba4bfb5c0dd06ea249e4f1a``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -5958,4 +5958,354 @@ NXR-170 Performance regression envelope
 
 
 **Review finding:** An observed speed difference is meaningless when build or measurement conditions change.
+
+NXR-171 Optional lifecycle compatibility
+----------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Kernel lifecycle
+
+
+**Requirement:** A future lifecycle profile shall use boot-reserved thread slots while preserving sealed registration and permanent completion in the default profile.
+
+
+**Rationale:** Runtime lifetime support need not imply dynamic allocation but must not silently alter the current contract.
+
+
+**Acceptance:** Default post-start create still fails; lifecycle-disabled binaries expose no runtime recycling path.
+
+
+**Verification:** Compile both profiles and execute default registration regressions plus opt-in slot state fixtures.
+
+
+**Planned test:** TEST-NXR-171
+
+
+**Dependencies:** NXR-001, NXR-128, NXR-129
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Fixed slot and stack pool; zero general heap; lifecycle remains opt-in.
+
+
+**Review finding:** Runtime lifetime support need not imply dynamic allocation but must not silently alter the current contract.
+
+NXR-172 Thread generation exhaustion
+------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Kernel lifecycle
+
+
+**Requirement:** A recyclable thread handle shall contain a generation that never wraps into a previously valid handle during a boot.
+
+
+**Rationale:** Index-only handles would allow stale commands to control a different thread incarnation.
+
+
+**Acceptance:** An old handle fails after slot reuse; the final representable generation exhausts the slot rather than wrapping.
+
+
+**Verification:** Use a reduced-width generation fixture and validate real-width boundary arithmetic.
+
+
+**Planned test:** TEST-NXR-172
+
+
+**Dependencies:** NXR-001, NXR-128, NXR-129
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** One generation word per reserved slot; exhausted slots remain unavailable until reset.
+
+
+**Review finding:** Index-only handles would allow stale commands to control a different thread incarnation.
+
+NXR-173 Cooperative stop acknowledgement
+----------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Kernel lifecycle
+
+
+**Requirement:** A stop request shall be acknowledged as complete only after the worker reaches a documented safe point and settles owned resources.
+
+
+**Rationale:** Setting a stop flag is not evidence that a worker is safe to reuse.
+
+
+**Acceptance:** A worker retaining a mutex or DMA ownership cannot report stopped; a safe worker acknowledges once.
+
+
+**Verification:** Pause workers at each ownership transition and issue duplicate stop requests.
+
+
+**Planned test:** TEST-NXR-173
+
+
+**Dependencies:** NXR-001, NXR-128, NXR-129
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** One stop flag and acknowledgement per permanent worker; finite grace deadline.
+
+
+**Review finding:** Setting a stop flag is not evidence that a worker is safe to reuse.
+
+NXR-174 Thread join evidence
+----------------------------
+
+**Status:** Planned
+
+
+**Category:** Kernel lifecycle
+
+
+**Requirement:** An optional join operation shall distinguish running, completed, timed-out and stale generations without consuming another incarnation's completion.
+
+
+**Rationale:** The current finished state is not a join or storage-reclamation protocol.
+
+
+**Acceptance:** Two joiners observe the documented policy; timeout and completion races never return an unrelated generation.
+
+
+**Verification:** Enumerate completion-before-wait, wait-before-completion and timeout boundaries in a state model.
+
+
+**Planned test:** TEST-NXR-174
+
+
+**Dependencies:** NXR-001, NXR-128, NXR-129
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Fixed join waiter capacity; no allocation and no infinite cleanup scan.
+
+
+**Review finding:** The current finished state is not a join or storage-reclamation protocol.
+
+NXR-175 Thread reclamation barrier
+----------------------------------
+
+**Status:** Planned
+
+
+**Category:** Kernel lifecycle
+
+
+**Requirement:** A lifecycle slot shall become reusable only after all scheduler, waiter, observer and ownership references to its old generation are retired.
+
+
+**Rationale:** Thread completion alone cannot prove that all kernel references are gone.
+
+
+**Acceptance:** Attempt reuse with one stale waiter or pending observer reference and receive a bounded refusal.
+
+
+**Verification:** Inject each retained reference separately and verify no stack or control-block overwrite.
+
+
+**Planned test:** TEST-NXR-175
+
+
+**Dependencies:** NXR-001, NXR-128, NXR-129
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Reference metadata bounded by configured threads and waiters; no runtime stack growth.
+
+
+**Review finding:** Thread completion alone cannot prove that all kernel references are gone.
+
+NXR-176 Abandoned mutex policy
+------------------------------
+
+**Status:** Planned
+
+
+**Category:** Kernel lifecycle
+
+
+**Requirement:** The lifecycle API shall reject normal reclamation of a thread that still owns a mutex and report the ownership violation.
+
+
+**Rationale:** Releasing a dead owner's lock can expose partially updated application state.
+
+
+**Acceptance:** Exit or stop with one and multiple owned mutexes produces the declared fault without silently transferring protected data.
+
+
+**Verification:** Exercise nested ownership and inherited priority chains with an independent ownership ledger.
+
+
+**Planned test:** TEST-NXR-176
+
+
+**Dependencies:** NXR-001, NXR-128, NXR-129
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** No forced unlock; reporting bounded by configured owned-mutex metadata.
+
+
+**Review finding:** Releasing a dead owner's lock can expose partially updated application state.
+
+NXR-177 Cancellation wait removal
+---------------------------------
+
+**Status:** Planned
+
+
+**Category:** Kernel lifecycle
+
+
+**Requirement:** An optional cancellation path shall remove exactly the cancelled generation's pending wait under the same serialization as grant and timeout.
+
+
+**Rationale:** A second terminal path can duplicate grants unless it shares the existing wait arbitration.
+
+
+**Acceptance:** Grant, timeout and cancel permutations yield one terminal result and conserve queue items and semaphore tokens.
+
+
+**Verification:** Exhaustively model finite interleavings and run seeded target races.
+
+
+**Planned test:** TEST-NXR-177
+
+
+**Dependencies:** NXR-001, NXR-128, NXR-129
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** At most configured waiter scans; no callback or device access inside the wait lock.
+
+
+**Review finding:** A second terminal path can duplicate grants unless it shares the existing wait arbitration.
+
+NXR-178 Lifecycle priority cleanup
+----------------------------------
+
+**Status:** Planned
+
+
+**Category:** Kernel lifecycle
+
+
+**Requirement:** Slot reuse shall discard inherited priority and donation links from the retired generation before publishing the new thread.
+
+
+**Rationale:** Donation metadata belongs to an incarnation rather than a reusable storage address.
+
+
+**Acceptance:** A reused low-priority thread cannot inherit a prior owner's donated priority or remain in its chain.
+
+
+**Verification:** Build chained donation fixtures and reuse each retired slot position.
+
+
+**Planned test:** TEST-NXR-178
+
+
+**Dependencies:** NXR-001, NXR-128, NXR-129
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Cleanup bounded by configured mutex and thread counts.
+
+
+**Review finding:** Donation metadata belongs to an incarnation rather than a reusable storage address.
+
+NXR-179 Worker activation conservation
+--------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Kernel lifecycle
+
+
+**Requirement:** Permanent-worker test jobs shall use unique run and job identities and reject activation while the prior job is unsettled.
+
+
+**Rationale:** Boot-created workers already support repeated jobs without promising runtime thread creation.
+
+
+**Acceptance:** Duplicate activation executes once; a new run cannot consume a queued old-run command.
+
+
+**Verification:** Use a bounded command queue with replayed commands and delayed acknowledgements.
+
+
+**Planned test:** TEST-NXR-179
+
+
+**Dependencies:** NXR-001, NXR-128, NXR-129
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** One active job per worker and a fixed outstanding command window.
+
+
+**Review finding:** Boot-created workers already support repeated jobs without promising runtime thread creation.
+
+NXR-180 Lifecycle fault recovery boundary
+-----------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Kernel lifecycle
+
+
+**Requirement:** Lifecycle failure shall distinguish recoverable quiescence from a reset-required ownership domain.
+
+
+**Rationale:** A cleanup timeout does not establish that hardware or kernel references have stopped.
+
+
+**Acceptance:** A cooperative timeout with unsettled DMA reports reset required and never permits slot or buffer reuse.
+
+
+**Verification:** Inject failed stop and incomplete resource release and verify the reset policy against observed accesses.
+
+
+**Planned test:** TEST-NXR-180
+
+
+**Dependencies:** NXR-001, NXR-128, NXR-129
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** No automatic force-delete; finite stop deadline and retained first failure.
+
+
+**Review finding:** A cleanup timeout does not establish that hardware or kernel references have stopped.
 

@@ -5088,5 +5088,285 @@
       "docs/memory.rst"
     ],
     "finding": "An observed speed difference is meaningless when build or measurement conditions change."
+  },
+  {
+    "id": "NXR-171",
+    "title": "Optional lifecycle compatibility",
+    "category": "Kernel lifecycle",
+    "statement": "A future lifecycle profile shall use boot-reserved thread slots while preserving sealed registration and permanent completion in the default profile.",
+    "rationale": "Runtime lifetime support need not imply dynamic allocation but must not silently alter the current contract.",
+    "acceptance": "Default post-start create still fails; lifecycle-disabled binaries expose no runtime recycling path.",
+    "verification": "Compile both profiles and execute default registration regressions plus opt-in slot state fixtures.",
+    "dependencies": [
+      "NXR-001",
+      "NXR-128",
+      "NXR-129"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-171",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Fixed slot and stack pool; zero general heap; lifecycle remains opt-in.",
+    "review_iteration": 171,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "include/rtos_mutex.hpp",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "Runtime lifetime support need not imply dynamic allocation but must not silently alter the current contract."
+  },
+  {
+    "id": "NXR-172",
+    "title": "Thread generation exhaustion",
+    "category": "Kernel lifecycle",
+    "statement": "A recyclable thread handle shall contain a generation that never wraps into a previously valid handle during a boot.",
+    "rationale": "Index-only handles would allow stale commands to control a different thread incarnation.",
+    "acceptance": "An old handle fails after slot reuse; the final representable generation exhausts the slot rather than wrapping.",
+    "verification": "Use a reduced-width generation fixture and validate real-width boundary arithmetic.",
+    "dependencies": [
+      "NXR-001",
+      "NXR-128",
+      "NXR-129"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-172",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "One generation word per reserved slot; exhausted slots remain unavailable until reset.",
+    "review_iteration": 172,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "include/rtos_mutex.hpp",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "Index-only handles would allow stale commands to control a different thread incarnation."
+  },
+  {
+    "id": "NXR-173",
+    "title": "Cooperative stop acknowledgement",
+    "category": "Kernel lifecycle",
+    "statement": "A stop request shall be acknowledged as complete only after the worker reaches a documented safe point and settles owned resources.",
+    "rationale": "Setting a stop flag is not evidence that a worker is safe to reuse.",
+    "acceptance": "A worker retaining a mutex or DMA ownership cannot report stopped; a safe worker acknowledges once.",
+    "verification": "Pause workers at each ownership transition and issue duplicate stop requests.",
+    "dependencies": [
+      "NXR-001",
+      "NXR-128",
+      "NXR-129"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-173",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "One stop flag and acknowledgement per permanent worker; finite grace deadline.",
+    "review_iteration": 173,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "include/rtos_mutex.hpp",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "Setting a stop flag is not evidence that a worker is safe to reuse."
+  },
+  {
+    "id": "NXR-174",
+    "title": "Thread join evidence",
+    "category": "Kernel lifecycle",
+    "statement": "An optional join operation shall distinguish running, completed, timed-out and stale generations without consuming another incarnation\u0027s completion.",
+    "rationale": "The current finished state is not a join or storage-reclamation protocol.",
+    "acceptance": "Two joiners observe the documented policy; timeout and completion races never return an unrelated generation.",
+    "verification": "Enumerate completion-before-wait, wait-before-completion and timeout boundaries in a state model.",
+    "dependencies": [
+      "NXR-001",
+      "NXR-128",
+      "NXR-129"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-174",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Fixed join waiter capacity; no allocation and no infinite cleanup scan.",
+    "review_iteration": 174,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "include/rtos_mutex.hpp",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "The current finished state is not a join or storage-reclamation protocol."
+  },
+  {
+    "id": "NXR-175",
+    "title": "Thread reclamation barrier",
+    "category": "Kernel lifecycle",
+    "statement": "A lifecycle slot shall become reusable only after all scheduler, waiter, observer and ownership references to its old generation are retired.",
+    "rationale": "Thread completion alone cannot prove that all kernel references are gone.",
+    "acceptance": "Attempt reuse with one stale waiter or pending observer reference and receive a bounded refusal.",
+    "verification": "Inject each retained reference separately and verify no stack or control-block overwrite.",
+    "dependencies": [
+      "NXR-001",
+      "NXR-128",
+      "NXR-129"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-175",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Reference metadata bounded by configured threads and waiters; no runtime stack growth.",
+    "review_iteration": 175,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "include/rtos_mutex.hpp",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "Thread completion alone cannot prove that all kernel references are gone."
+  },
+  {
+    "id": "NXR-176",
+    "title": "Abandoned mutex policy",
+    "category": "Kernel lifecycle",
+    "statement": "The lifecycle API shall reject normal reclamation of a thread that still owns a mutex and report the ownership violation.",
+    "rationale": "Releasing a dead owner\u0027s lock can expose partially updated application state.",
+    "acceptance": "Exit or stop with one and multiple owned mutexes produces the declared fault without silently transferring protected data.",
+    "verification": "Exercise nested ownership and inherited priority chains with an independent ownership ledger.",
+    "dependencies": [
+      "NXR-001",
+      "NXR-128",
+      "NXR-129"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-176",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "No forced unlock; reporting bounded by configured owned-mutex metadata.",
+    "review_iteration": 176,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "include/rtos_mutex.hpp",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "Releasing a dead owner\u0027s lock can expose partially updated application state."
+  },
+  {
+    "id": "NXR-177",
+    "title": "Cancellation wait removal",
+    "category": "Kernel lifecycle",
+    "statement": "An optional cancellation path shall remove exactly the cancelled generation\u0027s pending wait under the same serialization as grant and timeout.",
+    "rationale": "A second terminal path can duplicate grants unless it shares the existing wait arbitration.",
+    "acceptance": "Grant, timeout and cancel permutations yield one terminal result and conserve queue items and semaphore tokens.",
+    "verification": "Exhaustively model finite interleavings and run seeded target races.",
+    "dependencies": [
+      "NXR-001",
+      "NXR-128",
+      "NXR-129"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-177",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "At most configured waiter scans; no callback or device access inside the wait lock.",
+    "review_iteration": 177,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "include/rtos_mutex.hpp",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "A second terminal path can duplicate grants unless it shares the existing wait arbitration."
+  },
+  {
+    "id": "NXR-178",
+    "title": "Lifecycle priority cleanup",
+    "category": "Kernel lifecycle",
+    "statement": "Slot reuse shall discard inherited priority and donation links from the retired generation before publishing the new thread.",
+    "rationale": "Donation metadata belongs to an incarnation rather than a reusable storage address.",
+    "acceptance": "A reused low-priority thread cannot inherit a prior owner\u0027s donated priority or remain in its chain.",
+    "verification": "Build chained donation fixtures and reuse each retired slot position.",
+    "dependencies": [
+      "NXR-001",
+      "NXR-128",
+      "NXR-129"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-178",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Cleanup bounded by configured mutex and thread counts.",
+    "review_iteration": 178,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "include/rtos_mutex.hpp",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "Donation metadata belongs to an incarnation rather than a reusable storage address."
+  },
+  {
+    "id": "NXR-179",
+    "title": "Worker activation conservation",
+    "category": "Kernel lifecycle",
+    "statement": "Permanent-worker test jobs shall use unique run and job identities and reject activation while the prior job is unsettled.",
+    "rationale": "Boot-created workers already support repeated jobs without promising runtime thread creation.",
+    "acceptance": "Duplicate activation executes once; a new run cannot consume a queued old-run command.",
+    "verification": "Use a bounded command queue with replayed commands and delayed acknowledgements.",
+    "dependencies": [
+      "NXR-001",
+      "NXR-128",
+      "NXR-129"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-179",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "One active job per worker and a fixed outstanding command window.",
+    "review_iteration": 179,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "include/rtos_mutex.hpp",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "Boot-created workers already support repeated jobs without promising runtime thread creation."
+  },
+  {
+    "id": "NXR-180",
+    "title": "Lifecycle fault recovery boundary",
+    "category": "Kernel lifecycle",
+    "statement": "Lifecycle failure shall distinguish recoverable quiescence from a reset-required ownership domain.",
+    "rationale": "A cleanup timeout does not establish that hardware or kernel references have stopped.",
+    "acceptance": "A cooperative timeout with unsettled DMA reports reset required and never permits slot or buffer reuse.",
+    "verification": "Inject failed stop and incomplete resource release and verify the reset policy against observed accesses.",
+    "dependencies": [
+      "NXR-001",
+      "NXR-128",
+      "NXR-129"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-180",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "No automatic force-delete; finite stop deadline and retained first failure.",
+    "review_iteration": 180,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "include/rtos_mutex.hpp",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "A cleanup timeout does not establish that hardware or kernel references have stopped."
   }
 ]
