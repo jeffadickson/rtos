@@ -1,0 +1,11 @@
+[0/2] Re-checking globbed directories...
+[1/1] cd /home/jeffd/src/nexrt/rtos/build/overnight-stress && /home/jeffd/src/nexrt/rtos/build/host/native-tools/Rtos.Tools/Rtos.Tools static-contract --cxx /usr/bin/riscv64-unknown-elf-g++ --nm riscv64-unknown-elf-nm --source-root /home/jeffd/src/nexrt/rtos --build-dir /home/jeffd/src/nexrt/rtos/build/overnight-stress/static-contract --architecture riscue
+PASS: constant initialization accepted
+PASS: stripped image rejected as unauditable
+PASS: constructor rejected by linker, even with section GC
+PASS: priority-constructor rejected by linker, even with section GC
+PASS: priority-init-section rejected by linker, even with section GC
+PASS: preinit-section rejected by linker, even with section GC
+PASS: priority-preinit-section rejected by linker, even with section GC
+PASS: fini-section rejected by linker, even with section GC
+PASS: reachable allocator rejected by ELF audit

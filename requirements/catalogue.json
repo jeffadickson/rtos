@@ -6158,5 +6158,255 @@
       "docs/hil-verification-plan.rst"
     ],
     "finding": "Version numbers need an explicit compatibility rule before mixed host and firmware builds are safe."
+  },
+  {
+    "id": "NXR-211",
+    "title": "Exclusive durable board lease",
+    "category": "Host executive",
+    "statement": "The host manager shall lease a target by durable board identity and reject a concurrent owner even if the serial port changes.",
+    "rationale": "A COM port name is neither a durable target identity nor a sufficient ownership lock.",
+    "acceptance": "Swap enumeration, run a second manager and hotplug the board; identity remains stable and exclusivity holds.",
+    "verification": "Use fake serial endpoints plus two real processes contending for one configured board.",
+    "dependencies": [
+      "NXR-076",
+      "NXR-094"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-211",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "One bounded session per configured board; OS lease lifetime tied to owner process.",
+    "review_iteration": 211,
+    "inspected_files": [
+      "docs/hil-verification-plan.rst",
+      "requirements/hil-design.csv"
+    ],
+    "finding": "A COM port name is neither a durable target identity nor a sufficient ownership lock."
+  },
+  {
+    "id": "NXR-212",
+    "title": "Independent session supervision",
+    "category": "Host executive",
+    "statement": "A blocked target shall not block progress collection, deadlines or cleanup for other targets.",
+    "rationale": "A shared blocking serial loop would turn one board failure into a bench-wide loss of evidence.",
+    "acceptance": "Stall one reader and disconnect another while a third completes its declared run without missed deadlines.",
+    "verification": "Execute a three-endpoint scenario with bounded asynchronous cancellation and retained per-board logs.",
+    "dependencies": [
+      "NXR-076",
+      "NXR-094"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-212",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Finite per-board queues and deadlines; no unbounded task creation.",
+    "review_iteration": 212,
+    "inspected_files": [
+      "docs/hil-verification-plan.rst",
+      "requirements/hil-design.csv"
+    ],
+    "finding": "A shared blocking serial loop would turn one board failure into a bench-wide loss of evidence."
+  },
+  {
+    "id": "NXR-213",
+    "title": "Immutable start manifest",
+    "category": "Host executive",
+    "statement": "Before START the host shall freeze requested and effective firmware, board, checker, schema and workload identities.",
+    "rationale": "Desired settings are not evidence that the target actually accepted those settings.",
+    "acceptance": "Firmware hash substitution or mismatched capability rejects START; later configuration edits create a new run identity.",
+    "verification": "Tamper with each manifest component between configuration and arming.",
+    "dependencies": [
+      "NXR-076",
+      "NXR-094"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-213",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "One immutable manifest per run; checked file sizes and hashes.",
+    "review_iteration": 213,
+    "inspected_files": [
+      "docs/hil-verification-plan.rst",
+      "requirements/hil-design.csv"
+    ],
+    "finding": "Desired settings are not evidence that the target actually accepted those settings."
+  },
+  {
+    "id": "NXR-214",
+    "title": "Bounded evidence writing",
+    "category": "Host executive",
+    "statement": "Evidence backpressure shall terminate or explicitly degrade the run without silently losing mandatory terminal records.",
+    "rationale": "Durable evidence failures must be distinguished from a healthy target pass.",
+    "acceptance": "Fill the host storage quota and stall the writer; result becomes incomplete and first-fault retention remains accounted for.",
+    "verification": "Use a quota-limited sink and injected I/O failures with a healthy control run.",
+    "dependencies": [
+      "NXR-076",
+      "NXR-094"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-214",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Declared bytes-per-run ceiling and bounded writer queue; no unlimited RAM buffering.",
+    "review_iteration": 214,
+    "inspected_files": [
+      "docs/hil-verification-plan.rst",
+      "requirements/hil-design.csv"
+    ],
+    "finding": "Durable evidence failures must be distinguished from a healthy target pass."
+  },
+  {
+    "id": "NXR-215",
+    "title": "Per-board terminal classification",
+    "category": "Host executive",
+    "statement": "The host shall classify target failure, link loss, unresponsive target, stop timeout, host cutoff and incomplete evidence separately.",
+    "rationale": "Transport silence cannot reveal whether the kernel, cable or host reader failed.",
+    "acceptance": "Each injected failure maps to exactly its documented classification; timeout alone cannot assert kernel failure.",
+    "verification": "Drive fake-device state transitions and physical unplug/reset cases.",
+    "dependencies": [
+      "NXR-076",
+      "NXR-094"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-215",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "One terminal result per run with append-only transition history.",
+    "review_iteration": 215,
+    "inspected_files": [
+      "docs/hil-verification-plan.rst",
+      "requirements/hil-design.csv"
+    ],
+    "finding": "Transport silence cannot reveal whether the kernel, cable or host reader failed."
+  },
+  {
+    "id": "NXR-216",
+    "title": "Host restart recovery",
+    "category": "Host executive",
+    "statement": "After manager restart the host shall reconcile archived identity and live target state before issuing any state-changing command.",
+    "rationale": "Process restart is a separate state transition from target reset.",
+    "acceptance": "A live old run is attached as observed or stopped by explicit policy; it is never silently duplicated.",
+    "verification": "Kill the host after START and before terminal persistence, then restart with persisted manifest.",
+    "dependencies": [
+      "NXR-076",
+      "NXR-094"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-216",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Bounded recovery handshake deadline and one active lease.",
+    "review_iteration": 216,
+    "inspected_files": [
+      "docs/hil-verification-plan.rst",
+      "requirements/hil-design.csv"
+    ],
+    "finding": "Process restart is a separate state transition from target reset."
+  },
+  {
+    "id": "NXR-217",
+    "title": "Cancellation cleanup evidence",
+    "category": "Host executive",
+    "statement": "Host cancellation shall record stop request, acknowledgement, cleanup deadline and residual target state.",
+    "rationale": "Returning from a cancelled task does not prove that the device stopped running.",
+    "acceptance": "Cancel during handshake, running and result fetch; each phase preserves a truthful terminal outcome.",
+    "verification": "Use cancellation injection at every awaited operation and a target that refuses stop.",
+    "dependencies": [
+      "NXR-076",
+      "NXR-094"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-217",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Finite cleanup allowance; no indefinite wait after host cutoff.",
+    "review_iteration": 217,
+    "inspected_files": [
+      "docs/hil-verification-plan.rst",
+      "requirements/hil-design.csv"
+    ],
+    "finding": "Returning from a cancelled task does not prove that the device stopped running."
+  },
+  {
+    "id": "NXR-218",
+    "title": "Raw and decoded evidence linkage",
+    "category": "Host executive",
+    "statement": "Every decoded report shall retain a link to raw bytes and decoder version for later reanalysis.",
+    "rationale": "JSON summaries alone cannot diagnose decoder defects or framing loss.",
+    "acceptance": "A malformed frame remains available as raw evidence; changing decoder version produces a separate interpretation.",
+    "verification": "Replay an archived byte stream through two schema versions and compare stable raw hashes.",
+    "dependencies": [
+      "NXR-076",
+      "NXR-094"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-218",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Raw capture quota declared; any discarded bytes have explicit counters.",
+    "review_iteration": 218,
+    "inspected_files": [
+      "docs/hil-verification-plan.rst",
+      "requirements/hil-design.csv"
+    ],
+    "finding": "JSON summaries alone cannot diagnose decoder defects or framing loss."
+  },
+  {
+    "id": "NXR-219",
+    "title": "Safe test selection",
+    "category": "Host executive",
+    "statement": "The manager shall start only declared allowlisted test IDs and reject arbitrary address, register or memory-write requests.",
+    "rationale": "The HIL monitor is a test executive rather than an unrestricted remote debugger.",
+    "acceptance": "Unknown IDs, out-of-range parameters and unsupported fault injection fail before START.",
+    "verification": "Fuzz command selection and validate that no raw debug command reaches the monitor.",
+    "dependencies": [
+      "NXR-076",
+      "NXR-094"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-219",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Finite test registry and bounded parameter schema.",
+    "review_iteration": 219,
+    "inspected_files": [
+      "docs/hil-verification-plan.rst",
+      "requirements/hil-design.csv"
+    ],
+    "finding": "The HIL monitor is a test executive rather than an unrestricted remote debugger."
+  },
+  {
+    "id": "NXR-220",
+    "title": "Host codec performance budget",
+    "category": "Host executive",
+    "statement": "The host shall measure throughput and allocation behavior under the declared maximum board count without starving supervision.",
+    "rationale": "Async code alone does not prove bounded resource use at bench scale.",
+    "acceptance": "At configured board count and report rate all deadlines remain serviced; overload reports queue pressure explicitly.",
+    "verification": "Replay maximal frames from simulated endpoints and sample memory, CPU and per-board deadline delay.",
+    "dependencies": [
+      "NXR-076",
+      "NXR-094"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-220",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Maximum board count, queue depth and host memory ceiling fixed before qualification.",
+    "review_iteration": 220,
+    "inspected_files": [
+      "docs/hil-verification-plan.rst",
+      "requirements/hil-design.csv"
+    ],
+    "finding": "Async code alone does not prove bounded resource use at bench scale."
   }
 ]

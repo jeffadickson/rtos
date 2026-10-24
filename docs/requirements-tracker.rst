@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **210**. Catalogue SHA-256: ``363bf7c0ec43ffab2c8d4886436c721912e44263a0a42b8d6a9532ff28f3f91a``.
+Reviewed requirements: **220**. Catalogue SHA-256: ``5b11d98a9af41aa23fdc8bb63707dda576bb43edf325b208b003d6b07a3e80fe``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -7358,4 +7358,354 @@ NXR-210 Protocol compatibility negotiation
 
 
 **Review finding:** Version numbers need an explicit compatibility rule before mixed host and firmware builds are safe.
+
+NXR-211 Exclusive durable board lease
+-------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Host executive
+
+
+**Requirement:** The host manager shall lease a target by durable board identity and reject a concurrent owner even if the serial port changes.
+
+
+**Rationale:** A COM port name is neither a durable target identity nor a sufficient ownership lock.
+
+
+**Acceptance:** Swap enumeration, run a second manager and hotplug the board; identity remains stable and exclusivity holds.
+
+
+**Verification:** Use fake serial endpoints plus two real processes contending for one configured board.
+
+
+**Planned test:** TEST-NXR-211
+
+
+**Dependencies:** NXR-076, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** One bounded session per configured board; OS lease lifetime tied to owner process.
+
+
+**Review finding:** A COM port name is neither a durable target identity nor a sufficient ownership lock.
+
+NXR-212 Independent session supervision
+---------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Host executive
+
+
+**Requirement:** A blocked target shall not block progress collection, deadlines or cleanup for other targets.
+
+
+**Rationale:** A shared blocking serial loop would turn one board failure into a bench-wide loss of evidence.
+
+
+**Acceptance:** Stall one reader and disconnect another while a third completes its declared run without missed deadlines.
+
+
+**Verification:** Execute a three-endpoint scenario with bounded asynchronous cancellation and retained per-board logs.
+
+
+**Planned test:** TEST-NXR-212
+
+
+**Dependencies:** NXR-076, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Finite per-board queues and deadlines; no unbounded task creation.
+
+
+**Review finding:** A shared blocking serial loop would turn one board failure into a bench-wide loss of evidence.
+
+NXR-213 Immutable start manifest
+--------------------------------
+
+**Status:** Planned
+
+
+**Category:** Host executive
+
+
+**Requirement:** Before START the host shall freeze requested and effective firmware, board, checker, schema and workload identities.
+
+
+**Rationale:** Desired settings are not evidence that the target actually accepted those settings.
+
+
+**Acceptance:** Firmware hash substitution or mismatched capability rejects START; later configuration edits create a new run identity.
+
+
+**Verification:** Tamper with each manifest component between configuration and arming.
+
+
+**Planned test:** TEST-NXR-213
+
+
+**Dependencies:** NXR-076, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** One immutable manifest per run; checked file sizes and hashes.
+
+
+**Review finding:** Desired settings are not evidence that the target actually accepted those settings.
+
+NXR-214 Bounded evidence writing
+--------------------------------
+
+**Status:** Planned
+
+
+**Category:** Host executive
+
+
+**Requirement:** Evidence backpressure shall terminate or explicitly degrade the run without silently losing mandatory terminal records.
+
+
+**Rationale:** Durable evidence failures must be distinguished from a healthy target pass.
+
+
+**Acceptance:** Fill the host storage quota and stall the writer; result becomes incomplete and first-fault retention remains accounted for.
+
+
+**Verification:** Use a quota-limited sink and injected I/O failures with a healthy control run.
+
+
+**Planned test:** TEST-NXR-214
+
+
+**Dependencies:** NXR-076, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Declared bytes-per-run ceiling and bounded writer queue; no unlimited RAM buffering.
+
+
+**Review finding:** Durable evidence failures must be distinguished from a healthy target pass.
+
+NXR-215 Per-board terminal classification
+-----------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Host executive
+
+
+**Requirement:** The host shall classify target failure, link loss, unresponsive target, stop timeout, host cutoff and incomplete evidence separately.
+
+
+**Rationale:** Transport silence cannot reveal whether the kernel, cable or host reader failed.
+
+
+**Acceptance:** Each injected failure maps to exactly its documented classification; timeout alone cannot assert kernel failure.
+
+
+**Verification:** Drive fake-device state transitions and physical unplug/reset cases.
+
+
+**Planned test:** TEST-NXR-215
+
+
+**Dependencies:** NXR-076, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** One terminal result per run with append-only transition history.
+
+
+**Review finding:** Transport silence cannot reveal whether the kernel, cable or host reader failed.
+
+NXR-216 Host restart recovery
+-----------------------------
+
+**Status:** Planned
+
+
+**Category:** Host executive
+
+
+**Requirement:** After manager restart the host shall reconcile archived identity and live target state before issuing any state-changing command.
+
+
+**Rationale:** Process restart is a separate state transition from target reset.
+
+
+**Acceptance:** A live old run is attached as observed or stopped by explicit policy; it is never silently duplicated.
+
+
+**Verification:** Kill the host after START and before terminal persistence, then restart with persisted manifest.
+
+
+**Planned test:** TEST-NXR-216
+
+
+**Dependencies:** NXR-076, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Bounded recovery handshake deadline and one active lease.
+
+
+**Review finding:** Process restart is a separate state transition from target reset.
+
+NXR-217 Cancellation cleanup evidence
+-------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Host executive
+
+
+**Requirement:** Host cancellation shall record stop request, acknowledgement, cleanup deadline and residual target state.
+
+
+**Rationale:** Returning from a cancelled task does not prove that the device stopped running.
+
+
+**Acceptance:** Cancel during handshake, running and result fetch; each phase preserves a truthful terminal outcome.
+
+
+**Verification:** Use cancellation injection at every awaited operation and a target that refuses stop.
+
+
+**Planned test:** TEST-NXR-217
+
+
+**Dependencies:** NXR-076, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Finite cleanup allowance; no indefinite wait after host cutoff.
+
+
+**Review finding:** Returning from a cancelled task does not prove that the device stopped running.
+
+NXR-218 Raw and decoded evidence linkage
+----------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Host executive
+
+
+**Requirement:** Every decoded report shall retain a link to raw bytes and decoder version for later reanalysis.
+
+
+**Rationale:** JSON summaries alone cannot diagnose decoder defects or framing loss.
+
+
+**Acceptance:** A malformed frame remains available as raw evidence; changing decoder version produces a separate interpretation.
+
+
+**Verification:** Replay an archived byte stream through two schema versions and compare stable raw hashes.
+
+
+**Planned test:** TEST-NXR-218
+
+
+**Dependencies:** NXR-076, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Raw capture quota declared; any discarded bytes have explicit counters.
+
+
+**Review finding:** JSON summaries alone cannot diagnose decoder defects or framing loss.
+
+NXR-219 Safe test selection
+---------------------------
+
+**Status:** Planned
+
+
+**Category:** Host executive
+
+
+**Requirement:** The manager shall start only declared allowlisted test IDs and reject arbitrary address, register or memory-write requests.
+
+
+**Rationale:** The HIL monitor is a test executive rather than an unrestricted remote debugger.
+
+
+**Acceptance:** Unknown IDs, out-of-range parameters and unsupported fault injection fail before START.
+
+
+**Verification:** Fuzz command selection and validate that no raw debug command reaches the monitor.
+
+
+**Planned test:** TEST-NXR-219
+
+
+**Dependencies:** NXR-076, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Finite test registry and bounded parameter schema.
+
+
+**Review finding:** The HIL monitor is a test executive rather than an unrestricted remote debugger.
+
+NXR-220 Host codec performance budget
+-------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Host executive
+
+
+**Requirement:** The host shall measure throughput and allocation behavior under the declared maximum board count without starving supervision.
+
+
+**Rationale:** Async code alone does not prove bounded resource use at bench scale.
+
+
+**Acceptance:** At configured board count and report rate all deadlines remain serviced; overload reports queue pressure explicitly.
+
+
+**Verification:** Replay maximal frames from simulated endpoints and sample memory, CPU and per-board deadline delay.
+
+
+**Planned test:** TEST-NXR-220
+
+
+**Dependencies:** NXR-076, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Maximum board count, queue depth and host memory ceiling fixed before qualification.
+
+
+**Review finding:** Async code alone does not prove bounded resource use at bench scale.
 

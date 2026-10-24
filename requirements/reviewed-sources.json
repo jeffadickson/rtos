@@ -96,6 +96,7 @@
   "ports/riscue/rtos_port.hpp": "7ef981e87a78ee619e1cd94a2c3ad0aa2e8b1d4700921e3affc06e43567dda51",
   "ports/riscue/start.S": "251c5faedcafbf7d05e563ad0775be8741ec9881a28e44e9e0938389e9aee8fe",
   "ports/tang-nano-9k/README.rst": "6febf891cc8f9f18972a3d1e6e5c06796f64c8c41deec585798e930ea27f7999",
+  "requirements/hil-design.csv": "a3da5791cee44f46348fc5147f4f62d09d6b883a87f2fc7dcb1a096aeeb1bdd4",
   "sim/SharpDemo/Atomics.cs": "6369206a54c71247c1fad742d013a91fbf636c8027fb7098be8fe217613b8112",
   "sim/SharpDemo/Overnight.cs": "e7187bb95fbf97d87bf242109d2097bbef0399149903e0939655f334cb7c6f35",
   "sim/SharpDemo/Tests.cs": "fa56b4c48c46ece49323a2e4d9b8ba83159acd3a583cfd71c771053a9973ac9b",
