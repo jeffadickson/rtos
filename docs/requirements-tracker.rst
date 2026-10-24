@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **180**. Catalogue SHA-256: ``6254af0c7de4de9eac4817643450e770f29a6e910ba4bfb5c0dd06ea249e4f1a``.
+Reviewed requirements: **190**. Catalogue SHA-256: ``0846363010794749342abec9340ece3a745279d3d475718430040c7470b2c7ba``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -6308,4 +6308,354 @@ NXR-180 Lifecycle fault recovery boundary
 
 
 **Review finding:** A cleanup timeout does not establish that hardware or kernel references have stopped.
+
+NXR-181 Independent RISC-V feature matrix
+-----------------------------------------
+
+**Status:** Planned
+
+
+**Category:** RISC-V configuration
+
+
+**Requirement:** Qualification shall build baseline, Zaamo-only, M/U-PMP-only and combined profiles as four independent configurations.
+
+
+**Rationale:** Atomics and privilege protection are separate axes and should not become one coupled feature.
+
+
+**Acceptance:** Each profile reports its actual ISA and privilege capability; disabling either extension preserves baseline behavior.
+
+
+**Verification:** Compile and execute profile-specific positive and illegal-operation fixtures.
+
+
+**Planned test:** TEST-NXR-181
+
+
+**Dependencies:** NXR-102, NXR-139
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Single hart; fixed four-region PMP profile where enabled; no implicit MMU.
+
+
+**Review finding:** Atomics and privilege protection are separate axes and should not become one coupled feature.
+
+NXR-182 Zaamo capability mismatch
+---------------------------------
+
+**Status:** Planned
+
+
+**Category:** RISC-V configuration
+
+
+**Requirement:** The platform shall reject an atomic-capable build when the selected execution target or RAM window lacks the required Zaamo contract.
+
+
+**Rationale:** Instruction availability alone does not establish atomic behavior for every mapped address.
+
+
+**Acceptance:** Wrong-capability manifests fail before workload release; baseline fallback uses its explicitly selected implementation.
+
+
+**Verification:** Run manifest mismatch controls and RAM versus MMIO atomic address fixtures.
+
+
+**Planned test:** TEST-NXR-182
+
+
+**Dependencies:** NXR-102, NXR-139
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** No atomics on device memory; no silent runtime emulation inside the hardware qualification profile.
+
+
+**Review finding:** Instruction availability alone does not establish atomic behavior for every mapped address.
+
+NXR-183 Atomic return-value oracle
+----------------------------------
+
+**Status:** Planned
+
+
+**Category:** RISC-V configuration
+
+
+**Requirement:** Zaamo qualification shall check both stored values and returned old values for every supported operation.
+
+
+**Rationale:** Final memory checks can miss an incorrect register result from an atomic instruction.
+
+
+**Acceptance:** Exchange, add, OR and AND return and store the expected words; signed min and max are tested only when separately advertised by the instruction model.
+
+
+**Verification:** Execute edge operands and randomized word pairs; mutate return-value handling to prove detection.
+
+
+**Planned test:** TEST-NXR-183
+
+
+**Dependencies:** NXR-102, NXR-139
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Fixed operand corpus plus declared seed and operation count; no heap on target.
+
+
+**Review finding:** Final memory checks can miss an incorrect register result from an atomic instruction.
+
+NXR-184 Atomic ordering witnesses
+---------------------------------
+
+**Status:** Planned
+
+
+**Category:** RISC-V configuration
+
+
+**Requirement:** Atomic memory ordering claims shall be limited to the declared single-hart interrupt and device-ordering model.
+
+
+**Rationale:** A single-hart stress pass cannot establish multicore memory-order semantics.
+
+
+**Acceptance:** Release-acquire publication under preemption succeeds; unsupported multicore ordering is reported unsupported.
+
+
+**Verification:** Run interrupt handoff litmus tests and inspect emitted fences with the selected compiler.
+
+
+**Planned test:** TEST-NXR-184
+
+
+**Dependencies:** NXR-102, NXR-139
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** No SMP qualification claim; bounded shared ordinary-RAM words.
+
+
+**Review finding:** A single-hart stress pass cannot establish multicore memory-order semantics.
+
+NXR-185 User entry register sanitation
+--------------------------------------
+
+**Status:** Planned
+
+
+**Category:** RISC-V configuration
+
+
+**Requirement:** An optional U-mode entry shall initialize privilege state and all exposed register contents according to a documented ABI.
+
+
+**Rationale:** Processor U-mode support does not by itself supply a safe operating-system user boundary.
+
+
+**Acceptance:** Entry cannot inherit privileged stack pointers or stale kernel data; legal user entry reaches its declared PC.
+
+
+**Verification:** Use register-pattern fixtures and inspect mstatus, mepc and return privilege on an independent execution model.
+
+
+**Planned test:** TEST-NXR-185
+
+
+**Dependencies:** NXR-102, NXR-139
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** One declared user frame per slot; no FP or vector state unless separately enabled.
+
+
+**Review finding:** Processor U-mode support does not by itself supply a safe operating-system user boundary.
+
+NXR-186 PMP boundary access matrix
+----------------------------------
+
+**Status:** Planned
+
+
+**Category:** RISC-V configuration
+
+
+**Requirement:** Four-region PMP qualification shall test the last allowed and first forbidden byte for every configured access permission.
+
+
+**Rationale:** Region setup needs boundary evidence rather than only checking CSR readback.
+
+
+**Acceptance:** Read, write and execute violations trap with the expected cause and address; permitted boundary accesses succeed.
+
+
+**Verification:** Generate byte, halfword and word probes including region-crossing accesses on RTL and interpreter.
+
+
+**Planned test:** TEST-NXR-186
+
+
+**Dependencies:** NXR-102, NXR-139
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Exactly four declared regions; reject unrepresentable layouts before enabling user execution.
+
+
+**Review finding:** Region setup needs boundary evidence rather than only checking CSR readback.
+
+NXR-187 PMP lock semantics
+--------------------------
+
+**Status:** Planned
+
+
+**Category:** RISC-V configuration
+
+
+**Requirement:** PMP lock qualification shall verify the documented reset-only unlock behavior and machine-mode access effects.
+
+
+**Rationale:** A simulated region table can miss architectural lock effects and their reset lifetime.
+
+
+**Acceptance:** Writes to locked configuration fail to change it; accesses obey the selected locked permissions until reset.
+
+
+**Verification:** Attempt configuration and address rewrites and compare reset and pre-reset behavior.
+
+
+**Planned test:** TEST-NXR-187
+
+
+**Dependencies:** NXR-102, NXR-139
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** No runtime unlock API; fixed board reset domain.
+
+
+**Review finding:** A simulated region table can miss architectural lock effects and their reset lifetime.
+
+NXR-188 Trap origin integrity
+-----------------------------
+
+**Status:** Planned
+
+
+**Category:** RISC-V configuration
+
+
+**Requirement:** Trap dispatch shall preserve and report the originating privilege mode without allowing user-controlled state to impersonate kernel origin.
+
+
+**Rationale:** Shared trap entry must distinguish a legitimate user request from a kernel exception.
+
+
+**Acceptance:** User ecall and illegal CSR access are classified correctly; nested fault fixtures retain original context evidence.
+
+
+**Verification:** Compare saved status and cause against independently calculated trap transitions.
+
+
+**Planned test:** TEST-NXR-188
+
+
+**Dependencies:** NXR-102, NXR-139
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Fixed trap frames; bounded nesting policy explicitly declared.
+
+
+**Review finding:** Shared trap entry must distinguish a legitimate user request from a kernel exception.
+
+NXR-189 Interpreter timer service modes
+---------------------------------------
+
+**Status:** Planned
+
+
+**Category:** RISC-V configuration
+
+
+**Requirement:** The interpreter shall separate instruction-exact timer delivery from opt-in batched delivery and report the configured delay bound.
+
+
+**Rationale:** Reducing timer checks can improve throughput while changing interrupt placement and must be visible.
+
+
+**Acceptance:** Batch size one agrees with exact delivery; batch size ten never exceeds its declared instruction delay in eligible execution.
+
+
+**Verification:** Use known-deadline instruction streams, branch loops and masked-interrupt cases with reference traces.
+
+
+**Planned test:** TEST-NXR-189
+
+
+**Dependencies:** NXR-102, NXR-139
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Batch parameter finite and recorded; no timing-accuracy label for relaxed delivery.
+
+
+**Review finding:** Reducing timer checks can improve throughput while changing interrupt placement and must be visible.
+
+NXR-190 Interpreter RTL differential trace
+------------------------------------------
+
+**Status:** Planned
+
+
+**Category:** RISC-V configuration
+
+
+**Requirement:** Instruction-model qualification shall compare architectural retire state with RTL for matched finite workloads.
+
+
+**Rationale:** Fast interpretation needs an independent oracle rather than self-comparison of final signatures.
+
+
+**Acceptance:** Register, PC, trap cause and touched memory first diverge at a recorded instruction identity; an injected opcode defect is detected.
+
+
+**Verification:** Run short deterministic instruction, atomic and privilege corpora with identical reset state.
+
+
+**Planned test:** TEST-NXR-190
+
+
+**Dependencies:** NXR-102, NXR-139
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Bounded trace window and operation count; model speed does not imply cycle accuracy.
+
+
+**Review finding:** Fast interpretation needs an independent oracle rather than self-comparison of final signatures.
 

@@ -99,6 +99,7 @@
   "sim/SharpDemo/Tests.cs": "fa56b4c48c46ece49323a2e4d9b8ba83159acd3a583cfd71c771053a9973ac9b",
   "sim/interpreter/elf.cpp": "59373b1e82bebe9fe6dee47ac6af8d4e4c3772f34fdcd1a721d5d117573bfd1a",
   "sim/interpreter/machine.cpp": "3430ede774dfcb6250b5a369cb854a472fe8f6a814747f49f51663d882d58d5d",
+  "sim/interpreter/machine.hpp": "0f99de93d57c7f3d037e2782aa3dc060a3e8c9809482c7affc2592ec972292ce",
   "sim/rtl/riscue_atomic.sv": "05b06b550cbe88bd283f18f94a045c27646ccd6e74ab51f57d8b627f88de4407",
   "sim/rtl/riscue_demo.sv": "687ee3ae4fc5c60c6b0cd423384f719f89c595332cce04290609ef00a554d548",
   "site/how-it-works.template.html": "dbbcbb227e4f72139e4a540fac0a813f17ef898f296a70884ee2f4996d7ef0a8",

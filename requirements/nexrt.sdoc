@@ -2343,3 +2343,133 @@ Static budget: No automatic force-delete; finite stop deadline and retained firs
 Dependencies: NXR-001, NXR-128, NXR-129
 <<<
 
+[REQUIREMENT]
+UID: NXR-181
+STATUS: Planned
+TITLE: Independent RISC-V feature matrix
+STATEMENT: >>>
+Qualification shall build baseline, Zaamo-only, M/U-PMP-only and combined profiles as four independent configurations.
+Acceptance: Each profile reports its actual ISA and privilege capability; disabling either extension preserves baseline behavior.
+Verification: Compile and execute profile-specific positive and illegal-operation fixtures.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Single hart; fixed four-region PMP profile where enabled; no implicit MMU.
+Dependencies: NXR-102, NXR-139
+<<<
+
+[REQUIREMENT]
+UID: NXR-182
+STATUS: Planned
+TITLE: Zaamo capability mismatch
+STATEMENT: >>>
+The platform shall reject an atomic-capable build when the selected execution target or RAM window lacks the required Zaamo contract.
+Acceptance: Wrong-capability manifests fail before workload release; baseline fallback uses its explicitly selected implementation.
+Verification: Run manifest mismatch controls and RAM versus MMIO atomic address fixtures.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: No atomics on device memory; no silent runtime emulation inside the hardware qualification profile.
+Dependencies: NXR-102, NXR-139
+<<<
+
+[REQUIREMENT]
+UID: NXR-183
+STATUS: Planned
+TITLE: Atomic return-value oracle
+STATEMENT: >>>
+Zaamo qualification shall check both stored values and returned old values for every supported operation.
+Acceptance: Exchange, add, OR and AND return and store the expected words; signed min and max are tested only when separately advertised by the instruction model.
+Verification: Execute edge operands and randomized word pairs; mutate return-value handling to prove detection.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Fixed operand corpus plus declared seed and operation count; no heap on target.
+Dependencies: NXR-102, NXR-139
+<<<
+
+[REQUIREMENT]
+UID: NXR-184
+STATUS: Planned
+TITLE: Atomic ordering witnesses
+STATEMENT: >>>
+Atomic memory ordering claims shall be limited to the declared single-hart interrupt and device-ordering model.
+Acceptance: Release-acquire publication under preemption succeeds; unsupported multicore ordering is reported unsupported.
+Verification: Run interrupt handoff litmus tests and inspect emitted fences with the selected compiler.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: No SMP qualification claim; bounded shared ordinary-RAM words.
+Dependencies: NXR-102, NXR-139
+<<<
+
+[REQUIREMENT]
+UID: NXR-185
+STATUS: Planned
+TITLE: User entry register sanitation
+STATEMENT: >>>
+An optional U-mode entry shall initialize privilege state and all exposed register contents according to a documented ABI.
+Acceptance: Entry cannot inherit privileged stack pointers or stale kernel data; legal user entry reaches its declared PC.
+Verification: Use register-pattern fixtures and inspect mstatus, mepc and return privilege on an independent execution model.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: One declared user frame per slot; no FP or vector state unless separately enabled.
+Dependencies: NXR-102, NXR-139
+<<<
+
+[REQUIREMENT]
+UID: NXR-186
+STATUS: Planned
+TITLE: PMP boundary access matrix
+STATEMENT: >>>
+Four-region PMP qualification shall test the last allowed and first forbidden byte for every configured access permission.
+Acceptance: Read, write and execute violations trap with the expected cause and address; permitted boundary accesses succeed.
+Verification: Generate byte, halfword and word probes including region-crossing accesses on RTL and interpreter.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Exactly four declared regions; reject unrepresentable layouts before enabling user execution.
+Dependencies: NXR-102, NXR-139
+<<<
+
+[REQUIREMENT]
+UID: NXR-187
+STATUS: Planned
+TITLE: PMP lock semantics
+STATEMENT: >>>
+PMP lock qualification shall verify the documented reset-only unlock behavior and machine-mode access effects.
+Acceptance: Writes to locked configuration fail to change it; accesses obey the selected locked permissions until reset.
+Verification: Attempt configuration and address rewrites and compare reset and pre-reset behavior.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: No runtime unlock API; fixed board reset domain.
+Dependencies: NXR-102, NXR-139
+<<<
+
+[REQUIREMENT]
+UID: NXR-188
+STATUS: Planned
+TITLE: Trap origin integrity
+STATEMENT: >>>
+Trap dispatch shall preserve and report the originating privilege mode without allowing user-controlled state to impersonate kernel origin.
+Acceptance: User ecall and illegal CSR access are classified correctly; nested fault fixtures retain original context evidence.
+Verification: Compare saved status and cause against independently calculated trap transitions.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Fixed trap frames; bounded nesting policy explicitly declared.
+Dependencies: NXR-102, NXR-139
+<<<
+
+[REQUIREMENT]
+UID: NXR-189
+STATUS: Planned
+TITLE: Interpreter timer service modes
+STATEMENT: >>>
+The interpreter shall separate instruction-exact timer delivery from opt-in batched delivery and report the configured delay bound.
+Acceptance: Batch size one agrees with exact delivery; batch size ten never exceeds its declared instruction delay in eligible execution.
+Verification: Use known-deadline instruction streams, branch loops and masked-interrupt cases with reference traces.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Batch parameter finite and recorded; no timing-accuracy label for relaxed delivery.
+Dependencies: NXR-102, NXR-139
+<<<
+
+[REQUIREMENT]
+UID: NXR-190
+STATUS: Planned
+TITLE: Interpreter RTL differential trace
+STATEMENT: >>>
+Instruction-model qualification shall compare architectural retire state with RTL for matched finite workloads.
+Acceptance: Register, PC, trap cause and touched memory first diverge at a recorded instruction identity; an injected opcode defect is detected.
+Verification: Run short deterministic instruction, atomic and privilege corpora with identical reset state.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Bounded trace window and operation count; model speed does not imply cycle accuracy.
+Dependencies: NXR-102, NXR-139
+<<<
+

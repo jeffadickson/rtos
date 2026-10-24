@@ -5368,5 +5368,285 @@
       "include/rtos_queue.hpp"
     ],
     "finding": "A cleanup timeout does not establish that hardware or kernel references have stopped."
+  },
+  {
+    "id": "NXR-181",
+    "title": "Independent RISC-V feature matrix",
+    "category": "RISC-V configuration",
+    "statement": "Qualification shall build baseline, Zaamo-only, M/U-PMP-only and combined profiles as four independent configurations.",
+    "rationale": "Atomics and privilege protection are separate axes and should not become one coupled feature.",
+    "acceptance": "Each profile reports its actual ISA and privilege capability; disabling either extension preserves baseline behavior.",
+    "verification": "Compile and execute profile-specific positive and illegal-operation fixtures.",
+    "dependencies": [
+      "NXR-102",
+      "NXR-139"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-181",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Single hart; fixed four-region PMP profile where enabled; no implicit MMU.",
+    "review_iteration": 181,
+    "inspected_files": [
+      "include/rtos_hal.hpp",
+      "include/rtos_hal_atomic.hpp",
+      "sim/interpreter/machine.hpp",
+      "sim/interpreter/machine.cpp",
+      "ports/riscue/context.S"
+    ],
+    "finding": "Atomics and privilege protection are separate axes and should not become one coupled feature."
+  },
+  {
+    "id": "NXR-182",
+    "title": "Zaamo capability mismatch",
+    "category": "RISC-V configuration",
+    "statement": "The platform shall reject an atomic-capable build when the selected execution target or RAM window lacks the required Zaamo contract.",
+    "rationale": "Instruction availability alone does not establish atomic behavior for every mapped address.",
+    "acceptance": "Wrong-capability manifests fail before workload release; baseline fallback uses its explicitly selected implementation.",
+    "verification": "Run manifest mismatch controls and RAM versus MMIO atomic address fixtures.",
+    "dependencies": [
+      "NXR-102",
+      "NXR-139"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-182",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "No atomics on device memory; no silent runtime emulation inside the hardware qualification profile.",
+    "review_iteration": 182,
+    "inspected_files": [
+      "include/rtos_hal.hpp",
+      "include/rtos_hal_atomic.hpp",
+      "sim/interpreter/machine.hpp",
+      "sim/interpreter/machine.cpp",
+      "ports/riscue/context.S"
+    ],
+    "finding": "Instruction availability alone does not establish atomic behavior for every mapped address."
+  },
+  {
+    "id": "NXR-183",
+    "title": "Atomic return-value oracle",
+    "category": "RISC-V configuration",
+    "statement": "Zaamo qualification shall check both stored values and returned old values for every supported operation.",
+    "rationale": "Final memory checks can miss an incorrect register result from an atomic instruction.",
+    "acceptance": "Exchange, add, OR and AND return and store the expected words; signed min and max are tested only when separately advertised by the instruction model.",
+    "verification": "Execute edge operands and randomized word pairs; mutate return-value handling to prove detection.",
+    "dependencies": [
+      "NXR-102",
+      "NXR-139"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-183",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Fixed operand corpus plus declared seed and operation count; no heap on target.",
+    "review_iteration": 183,
+    "inspected_files": [
+      "include/rtos_hal.hpp",
+      "include/rtos_hal_atomic.hpp",
+      "sim/interpreter/machine.hpp",
+      "sim/interpreter/machine.cpp",
+      "ports/riscue/context.S"
+    ],
+    "finding": "Final memory checks can miss an incorrect register result from an atomic instruction."
+  },
+  {
+    "id": "NXR-184",
+    "title": "Atomic ordering witnesses",
+    "category": "RISC-V configuration",
+    "statement": "Atomic memory ordering claims shall be limited to the declared single-hart interrupt and device-ordering model.",
+    "rationale": "A single-hart stress pass cannot establish multicore memory-order semantics.",
+    "acceptance": "Release-acquire publication under preemption succeeds; unsupported multicore ordering is reported unsupported.",
+    "verification": "Run interrupt handoff litmus tests and inspect emitted fences with the selected compiler.",
+    "dependencies": [
+      "NXR-102",
+      "NXR-139"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-184",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "No SMP qualification claim; bounded shared ordinary-RAM words.",
+    "review_iteration": 184,
+    "inspected_files": [
+      "include/rtos_hal.hpp",
+      "include/rtos_hal_atomic.hpp",
+      "sim/interpreter/machine.hpp",
+      "sim/interpreter/machine.cpp",
+      "ports/riscue/context.S"
+    ],
+    "finding": "A single-hart stress pass cannot establish multicore memory-order semantics."
+  },
+  {
+    "id": "NXR-185",
+    "title": "User entry register sanitation",
+    "category": "RISC-V configuration",
+    "statement": "An optional U-mode entry shall initialize privilege state and all exposed register contents according to a documented ABI.",
+    "rationale": "Processor U-mode support does not by itself supply a safe operating-system user boundary.",
+    "acceptance": "Entry cannot inherit privileged stack pointers or stale kernel data; legal user entry reaches its declared PC.",
+    "verification": "Use register-pattern fixtures and inspect mstatus, mepc and return privilege on an independent execution model.",
+    "dependencies": [
+      "NXR-102",
+      "NXR-139"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-185",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "One declared user frame per slot; no FP or vector state unless separately enabled.",
+    "review_iteration": 185,
+    "inspected_files": [
+      "include/rtos_hal.hpp",
+      "include/rtos_hal_atomic.hpp",
+      "sim/interpreter/machine.hpp",
+      "sim/interpreter/machine.cpp",
+      "ports/riscue/context.S"
+    ],
+    "finding": "Processor U-mode support does not by itself supply a safe operating-system user boundary."
+  },
+  {
+    "id": "NXR-186",
+    "title": "PMP boundary access matrix",
+    "category": "RISC-V configuration",
+    "statement": "Four-region PMP qualification shall test the last allowed and first forbidden byte for every configured access permission.",
+    "rationale": "Region setup needs boundary evidence rather than only checking CSR readback.",
+    "acceptance": "Read, write and execute violations trap with the expected cause and address; permitted boundary accesses succeed.",
+    "verification": "Generate byte, halfword and word probes including region-crossing accesses on RTL and interpreter.",
+    "dependencies": [
+      "NXR-102",
+      "NXR-139"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-186",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Exactly four declared regions; reject unrepresentable layouts before enabling user execution.",
+    "review_iteration": 186,
+    "inspected_files": [
+      "include/rtos_hal.hpp",
+      "include/rtos_hal_atomic.hpp",
+      "sim/interpreter/machine.hpp",
+      "sim/interpreter/machine.cpp",
+      "ports/riscue/context.S"
+    ],
+    "finding": "Region setup needs boundary evidence rather than only checking CSR readback."
+  },
+  {
+    "id": "NXR-187",
+    "title": "PMP lock semantics",
+    "category": "RISC-V configuration",
+    "statement": "PMP lock qualification shall verify the documented reset-only unlock behavior and machine-mode access effects.",
+    "rationale": "A simulated region table can miss architectural lock effects and their reset lifetime.",
+    "acceptance": "Writes to locked configuration fail to change it; accesses obey the selected locked permissions until reset.",
+    "verification": "Attempt configuration and address rewrites and compare reset and pre-reset behavior.",
+    "dependencies": [
+      "NXR-102",
+      "NXR-139"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-187",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "No runtime unlock API; fixed board reset domain.",
+    "review_iteration": 187,
+    "inspected_files": [
+      "include/rtos_hal.hpp",
+      "include/rtos_hal_atomic.hpp",
+      "sim/interpreter/machine.hpp",
+      "sim/interpreter/machine.cpp",
+      "ports/riscue/context.S"
+    ],
+    "finding": "A simulated region table can miss architectural lock effects and their reset lifetime."
+  },
+  {
+    "id": "NXR-188",
+    "title": "Trap origin integrity",
+    "category": "RISC-V configuration",
+    "statement": "Trap dispatch shall preserve and report the originating privilege mode without allowing user-controlled state to impersonate kernel origin.",
+    "rationale": "Shared trap entry must distinguish a legitimate user request from a kernel exception.",
+    "acceptance": "User ecall and illegal CSR access are classified correctly; nested fault fixtures retain original context evidence.",
+    "verification": "Compare saved status and cause against independently calculated trap transitions.",
+    "dependencies": [
+      "NXR-102",
+      "NXR-139"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-188",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Fixed trap frames; bounded nesting policy explicitly declared.",
+    "review_iteration": 188,
+    "inspected_files": [
+      "include/rtos_hal.hpp",
+      "include/rtos_hal_atomic.hpp",
+      "sim/interpreter/machine.hpp",
+      "sim/interpreter/machine.cpp",
+      "ports/riscue/context.S"
+    ],
+    "finding": "Shared trap entry must distinguish a legitimate user request from a kernel exception."
+  },
+  {
+    "id": "NXR-189",
+    "title": "Interpreter timer service modes",
+    "category": "RISC-V configuration",
+    "statement": "The interpreter shall separate instruction-exact timer delivery from opt-in batched delivery and report the configured delay bound.",
+    "rationale": "Reducing timer checks can improve throughput while changing interrupt placement and must be visible.",
+    "acceptance": "Batch size one agrees with exact delivery; batch size ten never exceeds its declared instruction delay in eligible execution.",
+    "verification": "Use known-deadline instruction streams, branch loops and masked-interrupt cases with reference traces.",
+    "dependencies": [
+      "NXR-102",
+      "NXR-139"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-189",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Batch parameter finite and recorded; no timing-accuracy label for relaxed delivery.",
+    "review_iteration": 189,
+    "inspected_files": [
+      "include/rtos_hal.hpp",
+      "include/rtos_hal_atomic.hpp",
+      "sim/interpreter/machine.hpp",
+      "sim/interpreter/machine.cpp",
+      "ports/riscue/context.S"
+    ],
+    "finding": "Reducing timer checks can improve throughput while changing interrupt placement and must be visible."
+  },
+  {
+    "id": "NXR-190",
+    "title": "Interpreter RTL differential trace",
+    "category": "RISC-V configuration",
+    "statement": "Instruction-model qualification shall compare architectural retire state with RTL for matched finite workloads.",
+    "rationale": "Fast interpretation needs an independent oracle rather than self-comparison of final signatures.",
+    "acceptance": "Register, PC, trap cause and touched memory first diverge at a recorded instruction identity; an injected opcode defect is detected.",
+    "verification": "Run short deterministic instruction, atomic and privilege corpora with identical reset state.",
+    "dependencies": [
+      "NXR-102",
+      "NXR-139"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-190",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Bounded trace window and operation count; model speed does not imply cycle accuracy.",
+    "review_iteration": 190,
+    "inspected_files": [
+      "include/rtos_hal.hpp",
+      "include/rtos_hal_atomic.hpp",
+      "sim/interpreter/machine.hpp",
+      "sim/interpreter/machine.cpp",
+      "ports/riscue/context.S"
+    ],
+    "finding": "Fast interpretation needs an independent oracle rather than self-comparison of final signatures."
   }
 ]
