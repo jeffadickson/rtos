@@ -3253,3 +3253,133 @@ Static budget: Finite stretch and recovery pulse limits; no unconditional bus-re
 Dependencies: NXR-041, NXR-119, NXR-149
 <<<
 
+[REQUIREMENT]
+UID: NXR-251
+STATUS: Planned
+TITLE: DMA late-completion isolation
+STATEMENT: >>>
+DMA qualification shall reject a completion for an old ticket even after cancellation and a later transfer starts.
+Acceptance: Replay old completion before and after new completion; only the current generation changes state or data.
+Verification: Use an independently scripted backend and physical delayed IRQ where available.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: One active ticket per channel; generations never wrap within object lifetime.
+Dependencies: NXR-134, NXR-135, NXR-159
+<<<
+
+[REQUIREMENT]
+UID: NXR-252
+STATUS: Planned
+TITLE: DMA quiescence proof boundary
+STATEMENT: >>>
+A DMA backend shall report completed or stopped only when no further bus writes from that operation can occur.
+Acceptance: Delay the final write beyond the completion indication; qualification fails a backend that declares quiescence early.
+Verification: Instrument bus writes or FPGA markers and compare final access against ownership release.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Finite drain deadline; uncertain stop enters quarantine.
+Dependencies: NXR-134, NXR-135, NXR-159
+<<<
+
+[REQUIREMENT]
+UID: NXR-253
+STATUS: Planned
+TITLE: DMA cache-line exclusivity
+STATEMENT: >>>
+DMA buffers shall own all cache lines touched by prepare and finish maintenance operations.
+Acceptance: Adjacent application canaries survive transmit and receive tests with unaligned requested lengths.
+Verification: Exercise first and last cache-line boundaries on a cached board with independently observed buffer contents.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Staging alignment and rounded capacity cover the hardware cache-line size.
+Dependencies: NXR-134, NXR-135, NXR-159
+<<<
+
+[REQUIREMENT]
+UID: NXR-254
+STATUS: Planned
+TITLE: DMA failed-start side effects
+STATEMENT: >>>
+A backend start failure shall guarantee that no transfer was issued and no application buffer remains hardware-owned.
+Acceptance: A false start result followed by any bus activity fails; retry preserves channel ownership and counters.
+Verification: Script rejected starts and monitor bus activity or FPGA transfer counters.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: No application pointer retained; fixed channel staging allocation.
+Dependencies: NXR-134, NXR-135, NXR-159
+<<<
+
+[REQUIREMENT]
+UID: NXR-255
+STATUS: Planned
+TITLE: DMA quarantine recovery domain
+STATEMENT: >>>
+A quarantined channel shall remain unavailable until the declared reset domain proves hardware access has ended.
+Acceptance: Repeated begin and cancel calls cannot release quarantined staging; reset of an unrelated peripheral does not recover it.
+Verification: Inject stop failure, attempt reuse and verify only the qualified reset clears ownership.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Staging remains reserved during quarantine; no automatic generation reset.
+Dependencies: NXR-134, NXR-135, NXR-159
+<<<
+
+[REQUIREMENT]
+UID: NXR-256
+STATUS: Planned
+TITLE: No silent hardware skips
+STATEMENT: >>>
+Qualification shall distinguish passed, failed, unsupported, not-run and incomplete for every required board-profile test.
+Acceptance: Remove required UART checker or unavailable PMP support; aggregate release status cannot remain passed.
+Verification: Validate result aggregation with mixed result fixtures and missing required evidence.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Finite declared test matrix; no implicit default-pass entries.
+Dependencies: NXR-134, NXR-135, NXR-159
+<<<
+
+[REQUIREMENT]
+UID: NXR-257
+STATUS: Planned
+TITLE: Evidence-qualified feature claims
+STATEMENT: >>>
+Release notes shall link every supported feature and board claim to its configuration and retained acceptance evidence.
+Acceptance: Delete or mismatch an evidence fingerprint and the corresponding qualified claim is rejected.
+Verification: Cross-check release manifest, requirement IDs, board identities and evidence hashes.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: One finite support matrix; planned work is never promoted by documentation generation.
+Dependencies: NXR-134, NXR-135, NXR-159
+<<<
+
+[REQUIREMENT]
+UID: NXR-258
+STATUS: Planned
+TITLE: Fair RTOS comparison profile
+STATEMENT: >>>
+Any published NexRT comparison shall match workload semantics, optimization, allocation, clock and enabled services across compared systems.
+Acceptance: An unmatched interrupt profile or omitted feature cost invalidates the comparison label.
+Verification: Retain complete build inputs, measurement method and raw repeated samples for every participant.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Comparison scope and memory accounting fixed before measurements.
+Dependencies: NXR-134, NXR-135, NXR-159
+<<<
+
+[REQUIREMENT]
+UID: NXR-259
+STATUS: Planned
+TITLE: Task requirement closure audit
+STATEMENT: >>>
+Each qualification task shall retain a stable requirement link, specific acceptance criteria, dependency list and unresolved evidence status.
+Acceptance: Duplicate IDs, missing acceptance, cyclic dependencies and stale generated task text fail the repository check.
+Verification: Run negative tracker fixtures and tamper with one generated task to prove stale-output detection.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Exactly one task per imported qualification review; at most 100 in this campaign.
+Dependencies: NXR-134, NXR-135, NXR-159
+<<<
+
+[REQUIREMENT]
+UID: NXR-260
+STATUS: Planned
+TITLE: Ten-review milestone integrity
+STATEMENT: >>>
+The campaign shall build and verify each ten-review boundary before making its local milestone commit.
+Acceptance: Boundaries 10 through 100 each retain command logs, catalogue hash and successful exit codes; a failed command prevents commit.
+Verification: Run the documented local checkpoint workflow and verify milestone ancestry without network operations.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Ten bounded milestones; no push; source and build evidence retained separately.
+Dependencies: NXR-134, NXR-135, NXR-159
+<<<
+

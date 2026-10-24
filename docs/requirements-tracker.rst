@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **250**. Catalogue SHA-256: ``3703cc7e62279229f52cf92a5ebccf5eff0e4ef05f80e6050149a12a391478d1``.
+Reviewed requirements: **260**. Catalogue SHA-256: ``18b8e0806a640fc8c928de62e79934caed1a7208c2902aab263805d730f1a0bb``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -8758,4 +8758,354 @@ NXR-250 I2C stuck-bus recovery evidence
 
 
 **Review finding:** Recovery must be based on actual line state and board electrical constraints.
+
+NXR-251 DMA late-completion isolation
+-------------------------------------
+
+**Status:** Planned
+
+
+**Category:** DMA and release
+
+
+**Requirement:** DMA qualification shall reject a completion for an old ticket even after cancellation and a later transfer starts.
+
+
+**Rationale:** A device completion bit without transfer identity can corrupt the next owner's result.
+
+
+**Acceptance:** Replay old completion before and after new completion; only the current generation changes state or data.
+
+
+**Verification:** Use an independently scripted backend and physical delayed IRQ where available.
+
+
+**Planned test:** TEST-NXR-251
+
+
+**Dependencies:** NXR-134, NXR-135, NXR-159
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** One active ticket per channel; generations never wrap within object lifetime.
+
+
+**Review finding:** A device completion bit without transfer identity can corrupt the next owner's result.
+
+NXR-252 DMA quiescence proof boundary
+-------------------------------------
+
+**Status:** Planned
+
+
+**Category:** DMA and release
+
+
+**Requirement:** A DMA backend shall report completed or stopped only when no further bus writes from that operation can occur.
+
+
+**Rationale:** The portable channel relies on backend quiescence guarantees that host state tests cannot prove.
+
+
+**Acceptance:** Delay the final write beyond the completion indication; qualification fails a backend that declares quiescence early.
+
+
+**Verification:** Instrument bus writes or FPGA markers and compare final access against ownership release.
+
+
+**Planned test:** TEST-NXR-252
+
+
+**Dependencies:** NXR-134, NXR-135, NXR-159
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Finite drain deadline; uncertain stop enters quarantine.
+
+
+**Review finding:** The portable channel relies on backend quiescence guarantees that host state tests cannot prove.
+
+NXR-253 DMA cache-line exclusivity
+----------------------------------
+
+**Status:** Planned
+
+
+**Category:** DMA and release
+
+
+**Requirement:** DMA buffers shall own all cache lines touched by prepare and finish maintenance operations.
+
+
+**Rationale:** Correct byte bounds do not prevent cache maintenance from touching neighboring objects.
+
+
+**Acceptance:** Adjacent application canaries survive transmit and receive tests with unaligned requested lengths.
+
+
+**Verification:** Exercise first and last cache-line boundaries on a cached board with independently observed buffer contents.
+
+
+**Planned test:** TEST-NXR-253
+
+
+**Dependencies:** NXR-134, NXR-135, NXR-159
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Staging alignment and rounded capacity cover the hardware cache-line size.
+
+
+**Review finding:** Correct byte bounds do not prevent cache maintenance from touching neighboring objects.
+
+NXR-254 DMA failed-start side effects
+-------------------------------------
+
+**Status:** Planned
+
+
+**Category:** DMA and release
+
+
+**Requirement:** A backend start failure shall guarantee that no transfer was issued and no application buffer remains hardware-owned.
+
+
+**Rationale:** The interface's false-start guarantee is essential to safe immediate reuse.
+
+
+**Acceptance:** A false start result followed by any bus activity fails; retry preserves channel ownership and counters.
+
+
+**Verification:** Script rejected starts and monitor bus activity or FPGA transfer counters.
+
+
+**Planned test:** TEST-NXR-254
+
+
+**Dependencies:** NXR-134, NXR-135, NXR-159
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** No application pointer retained; fixed channel staging allocation.
+
+
+**Review finding:** The interface's false-start guarantee is essential to safe immediate reuse.
+
+NXR-255 DMA quarantine recovery domain
+--------------------------------------
+
+**Status:** Planned
+
+
+**Category:** DMA and release
+
+
+**Requirement:** A quarantined channel shall remain unavailable until the declared reset domain proves hardware access has ended.
+
+
+**Rationale:** Software state reset cannot stop a bus master that still owns memory.
+
+
+**Acceptance:** Repeated begin and cancel calls cannot release quarantined staging; reset of an unrelated peripheral does not recover it.
+
+
+**Verification:** Inject stop failure, attempt reuse and verify only the qualified reset clears ownership.
+
+
+**Planned test:** TEST-NXR-255
+
+
+**Dependencies:** NXR-134, NXR-135, NXR-159
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Staging remains reserved during quarantine; no automatic generation reset.
+
+
+**Review finding:** Software state reset cannot stop a bus master that still owns memory.
+
+NXR-256 No silent hardware skips
+--------------------------------
+
+**Status:** Planned
+
+
+**Category:** DMA and release
+
+
+**Requirement:** Qualification shall distinguish passed, failed, unsupported, not-run and incomplete for every required board-profile test.
+
+
+**Rationale:** A green aggregate is misleading if unsupported hardware tests disappear from the denominator.
+
+
+**Acceptance:** Remove required UART checker or unavailable PMP support; aggregate release status cannot remain passed.
+
+
+**Verification:** Validate result aggregation with mixed result fixtures and missing required evidence.
+
+
+**Planned test:** TEST-NXR-256
+
+
+**Dependencies:** NXR-134, NXR-135, NXR-159
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Finite declared test matrix; no implicit default-pass entries.
+
+
+**Review finding:** A green aggregate is misleading if unsupported hardware tests disappear from the denominator.
+
+NXR-257 Evidence-qualified feature claims
+-----------------------------------------
+
+**Status:** Planned
+
+
+**Category:** DMA and release
+
+
+**Requirement:** Release notes shall link every supported feature and board claim to its configuration and retained acceptance evidence.
+
+
+**Rationale:** Source presence and generated requirements are not sufficient evidence of target support.
+
+
+**Acceptance:** Delete or mismatch an evidence fingerprint and the corresponding qualified claim is rejected.
+
+
+**Verification:** Cross-check release manifest, requirement IDs, board identities and evidence hashes.
+
+
+**Planned test:** TEST-NXR-257
+
+
+**Dependencies:** NXR-134, NXR-135, NXR-159
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** One finite support matrix; planned work is never promoted by documentation generation.
+
+
+**Review finding:** Source presence and generated requirements are not sufficient evidence of target support.
+
+NXR-258 Fair RTOS comparison profile
+------------------------------------
+
+**Status:** Planned
+
+
+**Category:** DMA and release
+
+
+**Requirement:** Any published NexRT comparison shall match workload semantics, optimization, allocation, clock and enabled services across compared systems.
+
+
+**Rationale:** Small default images cannot fairly be compared with another RTOS configured for additional services.
+
+
+**Acceptance:** An unmatched interrupt profile or omitted feature cost invalidates the comparison label.
+
+
+**Verification:** Retain complete build inputs, measurement method and raw repeated samples for every participant.
+
+
+**Planned test:** TEST-NXR-258
+
+
+**Dependencies:** NXR-134, NXR-135, NXR-159
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Comparison scope and memory accounting fixed before measurements.
+
+
+**Review finding:** Small default images cannot fairly be compared with another RTOS configured for additional services.
+
+NXR-259 Task requirement closure audit
+--------------------------------------
+
+**Status:** Planned
+
+
+**Category:** DMA and release
+
+
+**Requirement:** Each qualification task shall retain a stable requirement link, specific acceptance criteria, dependency list and unresolved evidence status.
+
+
+**Rationale:** The earlier HIL design CSV was outside the canonical StrictDoc export and needs explicit implementation task traceability.
+
+
+**Acceptance:** Duplicate IDs, missing acceptance, cyclic dependencies and stale generated task text fail the repository check.
+
+
+**Verification:** Run negative tracker fixtures and tamper with one generated task to prove stale-output detection.
+
+
+**Planned test:** TEST-NXR-259
+
+
+**Dependencies:** NXR-134, NXR-135, NXR-159
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Exactly one task per imported qualification review; at most 100 in this campaign.
+
+
+**Review finding:** The earlier HIL design CSV was outside the canonical StrictDoc export and needs explicit implementation task traceability.
+
+NXR-260 Ten-review milestone integrity
+--------------------------------------
+
+**Status:** Planned
+
+
+**Category:** DMA and release
+
+
+**Requirement:** The campaign shall build and verify each ten-review boundary before making its local milestone commit.
+
+
+**Rationale:** Counting authored rows is not equivalent to executing 100 runtime engineering changes and must remain labeled as requirements review.
+
+
+**Acceptance:** Boundaries 10 through 100 each retain command logs, catalogue hash and successful exit codes; a failed command prevents commit.
+
+
+**Verification:** Run the documented local checkpoint workflow and verify milestone ancestry without network operations.
+
+
+**Planned test:** TEST-NXR-260
+
+
+**Dependencies:** NXR-134, NXR-135, NXR-159
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Ten bounded milestones; no push; source and build evidence retained separately.
+
+
+**Review finding:** Counting authored rows is not equivalent to executing 100 runtime engineering changes and must remain labeled as requirements review.
 

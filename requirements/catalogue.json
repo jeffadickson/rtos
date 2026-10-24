@@ -7178,5 +7178,285 @@
       "tests/uart.cpp"
     ],
     "finding": "Recovery must be based on actual line state and board electrical constraints."
+  },
+  {
+    "id": "NXR-251",
+    "title": "DMA late-completion isolation",
+    "category": "DMA and release",
+    "statement": "DMA qualification shall reject a completion for an old ticket even after cancellation and a later transfer starts.",
+    "rationale": "A device completion bit without transfer identity can corrupt the next owner\u0027s result.",
+    "acceptance": "Replay old completion before and after new completion; only the current generation changes state or data.",
+    "verification": "Use an independently scripted backend and physical delayed IRQ where available.",
+    "dependencies": [
+      "NXR-134",
+      "NXR-135",
+      "NXR-159"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-251",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "One active ticket per channel; generations never wrap within object lifetime.",
+    "review_iteration": 251,
+    "inspected_files": [
+      "include/rtos_dma.hpp",
+      "src/dma.cpp",
+      "tests/dma.cpp",
+      "docs/dma.rst"
+    ],
+    "finding": "A device completion bit without transfer identity can corrupt the next owner\u0027s result."
+  },
+  {
+    "id": "NXR-252",
+    "title": "DMA quiescence proof boundary",
+    "category": "DMA and release",
+    "statement": "A DMA backend shall report completed or stopped only when no further bus writes from that operation can occur.",
+    "rationale": "The portable channel relies on backend quiescence guarantees that host state tests cannot prove.",
+    "acceptance": "Delay the final write beyond the completion indication; qualification fails a backend that declares quiescence early.",
+    "verification": "Instrument bus writes or FPGA markers and compare final access against ownership release.",
+    "dependencies": [
+      "NXR-134",
+      "NXR-135",
+      "NXR-159"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-252",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Finite drain deadline; uncertain stop enters quarantine.",
+    "review_iteration": 252,
+    "inspected_files": [
+      "include/rtos_dma.hpp",
+      "src/dma.cpp",
+      "tests/dma.cpp",
+      "docs/dma.rst"
+    ],
+    "finding": "The portable channel relies on backend quiescence guarantees that host state tests cannot prove."
+  },
+  {
+    "id": "NXR-253",
+    "title": "DMA cache-line exclusivity",
+    "category": "DMA and release",
+    "statement": "DMA buffers shall own all cache lines touched by prepare and finish maintenance operations.",
+    "rationale": "Correct byte bounds do not prevent cache maintenance from touching neighboring objects.",
+    "acceptance": "Adjacent application canaries survive transmit and receive tests with unaligned requested lengths.",
+    "verification": "Exercise first and last cache-line boundaries on a cached board with independently observed buffer contents.",
+    "dependencies": [
+      "NXR-134",
+      "NXR-135",
+      "NXR-159"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-253",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Staging alignment and rounded capacity cover the hardware cache-line size.",
+    "review_iteration": 253,
+    "inspected_files": [
+      "include/rtos_dma.hpp",
+      "src/dma.cpp",
+      "tests/dma.cpp",
+      "docs/dma.rst"
+    ],
+    "finding": "Correct byte bounds do not prevent cache maintenance from touching neighboring objects."
+  },
+  {
+    "id": "NXR-254",
+    "title": "DMA failed-start side effects",
+    "category": "DMA and release",
+    "statement": "A backend start failure shall guarantee that no transfer was issued and no application buffer remains hardware-owned.",
+    "rationale": "The interface\u0027s false-start guarantee is essential to safe immediate reuse.",
+    "acceptance": "A false start result followed by any bus activity fails; retry preserves channel ownership and counters.",
+    "verification": "Script rejected starts and monitor bus activity or FPGA transfer counters.",
+    "dependencies": [
+      "NXR-134",
+      "NXR-135",
+      "NXR-159"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-254",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "No application pointer retained; fixed channel staging allocation.",
+    "review_iteration": 254,
+    "inspected_files": [
+      "include/rtos_dma.hpp",
+      "src/dma.cpp",
+      "tests/dma.cpp",
+      "docs/dma.rst"
+    ],
+    "finding": "The interface\u0027s false-start guarantee is essential to safe immediate reuse."
+  },
+  {
+    "id": "NXR-255",
+    "title": "DMA quarantine recovery domain",
+    "category": "DMA and release",
+    "statement": "A quarantined channel shall remain unavailable until the declared reset domain proves hardware access has ended.",
+    "rationale": "Software state reset cannot stop a bus master that still owns memory.",
+    "acceptance": "Repeated begin and cancel calls cannot release quarantined staging; reset of an unrelated peripheral does not recover it.",
+    "verification": "Inject stop failure, attempt reuse and verify only the qualified reset clears ownership.",
+    "dependencies": [
+      "NXR-134",
+      "NXR-135",
+      "NXR-159"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-255",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Staging remains reserved during quarantine; no automatic generation reset.",
+    "review_iteration": 255,
+    "inspected_files": [
+      "include/rtos_dma.hpp",
+      "src/dma.cpp",
+      "tests/dma.cpp",
+      "docs/dma.rst"
+    ],
+    "finding": "Software state reset cannot stop a bus master that still owns memory."
+  },
+  {
+    "id": "NXR-256",
+    "title": "No silent hardware skips",
+    "category": "DMA and release",
+    "statement": "Qualification shall distinguish passed, failed, unsupported, not-run and incomplete for every required board-profile test.",
+    "rationale": "A green aggregate is misleading if unsupported hardware tests disappear from the denominator.",
+    "acceptance": "Remove required UART checker or unavailable PMP support; aggregate release status cannot remain passed.",
+    "verification": "Validate result aggregation with mixed result fixtures and missing required evidence.",
+    "dependencies": [
+      "NXR-134",
+      "NXR-135",
+      "NXR-159"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-256",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Finite declared test matrix; no implicit default-pass entries.",
+    "review_iteration": 256,
+    "inspected_files": [
+      "include/rtos_dma.hpp",
+      "src/dma.cpp",
+      "tests/dma.cpp",
+      "docs/dma.rst"
+    ],
+    "finding": "A green aggregate is misleading if unsupported hardware tests disappear from the denominator."
+  },
+  {
+    "id": "NXR-257",
+    "title": "Evidence-qualified feature claims",
+    "category": "DMA and release",
+    "statement": "Release notes shall link every supported feature and board claim to its configuration and retained acceptance evidence.",
+    "rationale": "Source presence and generated requirements are not sufficient evidence of target support.",
+    "acceptance": "Delete or mismatch an evidence fingerprint and the corresponding qualified claim is rejected.",
+    "verification": "Cross-check release manifest, requirement IDs, board identities and evidence hashes.",
+    "dependencies": [
+      "NXR-134",
+      "NXR-135",
+      "NXR-159"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-257",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "One finite support matrix; planned work is never promoted by documentation generation.",
+    "review_iteration": 257,
+    "inspected_files": [
+      "include/rtos_dma.hpp",
+      "src/dma.cpp",
+      "tests/dma.cpp",
+      "docs/dma.rst"
+    ],
+    "finding": "Source presence and generated requirements are not sufficient evidence of target support."
+  },
+  {
+    "id": "NXR-258",
+    "title": "Fair RTOS comparison profile",
+    "category": "DMA and release",
+    "statement": "Any published NexRT comparison shall match workload semantics, optimization, allocation, clock and enabled services across compared systems.",
+    "rationale": "Small default images cannot fairly be compared with another RTOS configured for additional services.",
+    "acceptance": "An unmatched interrupt profile or omitted feature cost invalidates the comparison label.",
+    "verification": "Retain complete build inputs, measurement method and raw repeated samples for every participant.",
+    "dependencies": [
+      "NXR-134",
+      "NXR-135",
+      "NXR-159"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-258",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Comparison scope and memory accounting fixed before measurements.",
+    "review_iteration": 258,
+    "inspected_files": [
+      "include/rtos_dma.hpp",
+      "src/dma.cpp",
+      "tests/dma.cpp",
+      "docs/dma.rst"
+    ],
+    "finding": "Small default images cannot fairly be compared with another RTOS configured for additional services."
+  },
+  {
+    "id": "NXR-259",
+    "title": "Task requirement closure audit",
+    "category": "DMA and release",
+    "statement": "Each qualification task shall retain a stable requirement link, specific acceptance criteria, dependency list and unresolved evidence status.",
+    "rationale": "The earlier HIL design CSV was outside the canonical StrictDoc export and needs explicit implementation task traceability.",
+    "acceptance": "Duplicate IDs, missing acceptance, cyclic dependencies and stale generated task text fail the repository check.",
+    "verification": "Run negative tracker fixtures and tamper with one generated task to prove stale-output detection.",
+    "dependencies": [
+      "NXR-134",
+      "NXR-135",
+      "NXR-159"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-259",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Exactly one task per imported qualification review; at most 100 in this campaign.",
+    "review_iteration": 259,
+    "inspected_files": [
+      "include/rtos_dma.hpp",
+      "src/dma.cpp",
+      "tests/dma.cpp",
+      "docs/dma.rst"
+    ],
+    "finding": "The earlier HIL design CSV was outside the canonical StrictDoc export and needs explicit implementation task traceability."
+  },
+  {
+    "id": "NXR-260",
+    "title": "Ten-review milestone integrity",
+    "category": "DMA and release",
+    "statement": "The campaign shall build and verify each ten-review boundary before making its local milestone commit.",
+    "rationale": "Counting authored rows is not equivalent to executing 100 runtime engineering changes and must remain labeled as requirements review.",
+    "acceptance": "Boundaries 10 through 100 each retain command logs, catalogue hash and successful exit codes; a failed command prevents commit.",
+    "verification": "Run the documented local checkpoint workflow and verify milestone ancestry without network operations.",
+    "dependencies": [
+      "NXR-134",
+      "NXR-135",
+      "NXR-159"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-260",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Ten bounded milestones; no push; source and build evidence retained separately.",
+    "review_iteration": 260,
+    "inspected_files": [
+      "include/rtos_dma.hpp",
+      "src/dma.cpp",
+      "tests/dma.cpp",
+      "docs/dma.rst"
+    ],
+    "finding": "Counting authored rows is not equivalent to executing 100 runtime engineering changes and must remain labeled as requirements review."
   }
 ]
