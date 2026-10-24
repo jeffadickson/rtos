@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **190**. Catalogue SHA-256: ``0846363010794749342abec9340ece3a745279d3d475718430040c7470b2c7ba``.
+Reviewed requirements: **200**. Catalogue SHA-256: ``b23994e0a37e13daa197acdc3a10ae9b1c6d52c73656f935babd2ba3d8e3e324``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -6658,4 +6658,354 @@ NXR-190 Interpreter RTL differential trace
 
 
 **Review finding:** Fast interpretation needs an independent oracle rather than self-comparison of final signatures.
+
+NXR-191 Random stream versioning
+--------------------------------
+
+**Status:** Planned
+
+
+**Category:** Failure reproduction
+
+
+**Requirement:** Randomized tests shall identify the generator algorithm and version as well as the seed and stream identifier.
+
+
+**Rationale:** A seed alone cannot reproduce a test after the generator or stream partition changes.
+
+
+**Acceptance:** A golden vector reproduces across host and target builds; changing the algorithm without changing version fails.
+
+
+**Verification:** Publish fixed seed vectors including zero and maximal seeds and compare independent implementations.
+
+
+**Planned test:** TEST-NXR-191
+
+
+**Dependencies:** NXR-072, NXR-073, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Fixed generator state per worker; no entropy dependency for replay.
+
+
+**Review finding:** A seed alone cannot reproduce a test after the generator or stream partition changes.
+
+NXR-192 Schedule choice recording
+---------------------------------
+
+**Status:** Planned
+
+
+**Category:** Failure reproduction
+
+
+**Requirement:** Replay reports shall distinguish deterministic workload inputs from nondeterministic interrupt and scheduling choices.
+
+
+**Rationale:** Seeded jobs are reproducible even when their legal thread interleavings are not.
+
+
+**Acceptance:** Identical seeds with different timer delivery produce separate schedule identities; exact replay is claimed only with sufficient recorded choices.
+
+
+**Verification:** Repeat workloads with shifted interrupt points and compare input and schedule logs separately.
+
+
+**Planned test:** TEST-NXR-192
+
+
+**Dependencies:** NXR-072, NXR-073, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Fixed trace ring with explicit loss counters; loss disables exact replay claims.
+
+
+**Review finding:** Seeded jobs are reproducible even when their legal thread interleavings are not.
+
+NXR-193 Job oracle independence
+-------------------------------
+
+**Status:** Planned
+
+
+**Category:** Failure reproduction
+
+
+**Requirement:** Each randomized job family shall have a reference calculation that does not reuse the tested implementation path.
+
+
+**Rationale:** A checksum of the implementation's own answer is not an independent correctness oracle.
+
+
+**Acceptance:** A deliberate error in arithmetic, queue ordering or payload generation yields a mismatch even with a valid transport CRC.
+
+
+**Verification:** Use separately authored reference functions and mutation fixtures for each job family.
+
+
+**Planned test:** TEST-NXR-193
+
+
+**Dependencies:** NXR-072, NXR-073, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Fixed input and result sizes; bounded outstanding jobs.
+
+
+**Review finding:** A checksum of the implementation's own answer is not an independent correctness oracle.
+
+NXR-194 Replay bundle completeness
+----------------------------------
+
+**Status:** Planned
+
+
+**Category:** Failure reproduction
+
+
+**Requirement:** A replay bundle shall include firmware, source revision, dirty diff, tool versions, configuration, seed and the terminal classification.
+
+
+**Rationale:** A commit ID cannot identify uncommitted source or substituted firmware bytes.
+
+
+**Acceptance:** Removing any mandatory identity makes the bundle incomplete; a clean and dirty build remain distinguishable.
+
+
+**Verification:** Validate bundle schema against intentionally missing fields and hash mismatches.
+
+
+**Planned test:** TEST-NXR-194
+
+
+**Dependencies:** NXR-072, NXR-073, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Host storage quota declared per run; archive exhaustion cannot be reported as a pass.
+
+
+**Review finding:** A commit ID cannot identify uncommitted source or substituted firmware bytes.
+
+NXR-195 First-fault retention scope
+-----------------------------------
+
+**Status:** Planned
+
+
+**Category:** Failure reproduction
+
+
+**Requirement:** Fault reports shall state whether their storage survives only the current boot or a qualified reset domain.
+
+
+**Rationale:** The current FirstFault helper explicitly does not provide reset or double-fault retention.
+
+
+**Acceptance:** Ordinary RAM is never labeled reset-retained; a later fault cannot overwrite the first fault in the same capture epoch.
+
+
+**Verification:** Trigger two distinct faults and then each supported reset kind; compare retained identity and validity markers.
+
+
+**Planned test:** TEST-NXR-195
+
+
+**Dependencies:** NXR-072, NXR-073, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** One fixed first-fault record per capture epoch; no allocation in capture.
+
+
+**Review finding:** The current FirstFault helper explicitly does not provide reset or double-fault retention.
+
+NXR-196 Trace overflow semantics
+--------------------------------
+
+**Status:** Planned
+
+
+**Category:** Failure reproduction
+
+
+**Requirement:** Trace consumers shall report lost events and forbid complete-history conclusions after overflow.
+
+
+**Rationale:** A bounded trace is useful evidence only when omitted history remains explicit.
+
+
+**Acceptance:** Fill the ring, drop events, drain and refill; loss count is visible and saturates without wrapping.
+
+
+**Verification:** Exercise capacity one, full and counter-boundary fixtures and malformed consumer sequence claims.
+
+
+**Planned test:** TEST-NXR-196
+
+
+**Dependencies:** NXR-072, NXR-073, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Configured event capacity only; overflow never blocks producers.
+
+
+**Review finding:** A bounded trace is useful evidence only when omitted history remains explicit.
+
+NXR-197 Failure minimization preservation
+-----------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Failure reproduction
+
+
+**Requirement:** A failure reducer shall preserve the original bundle and emit every reduced candidate as a separately identified artifact.
+
+
+**Rationale:** Simplifying a randomized failure can accidentally remove the trigger while retaining a similar symptom.
+
+
+**Acceptance:** A reduced workload that stops reproducing is rejected as a reproducer; original inputs remain immutable.
+
+
+**Verification:** Replay a seeded injected failure, remove operations and verify stable failure identity.
+
+
+**Planned test:** TEST-NXR-197
+
+
+**Dependencies:** NXR-072, NXR-073, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Finite reduction attempts and host time budget; no autonomous unbounded search.
+
+
+**Review finding:** Simplifying a randomized failure can accidentally remove the trigger while retaining a similar symptom.
+
+NXR-198 Mismatch first witness
+------------------------------
+
+**Status:** Planned
+
+
+**Category:** Failure reproduction
+
+
+**Requirement:** A result mismatch shall retain the first worker, job sequence, operation and expected versus observed value before summarizing signatures.
+
+
+**Rationale:** Aggregate mismatch counts do not identify the operation needed to reproduce a defect.
+
+
+**Acceptance:** Two mismatches preserve the earliest witness; report truncation cannot erase its identity.
+
+
+**Verification:** Inject a known bad job followed by a second fault and saturate normal telemetry.
+
+
+**Planned test:** TEST-NXR-198
+
+
+**Dependencies:** NXR-072, NXR-073, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** One fixed witness record plus bounded context window.
+
+
+**Review finding:** Aggregate mismatch counts do not identify the operation needed to reproduce a defect.
+
+NXR-199 Endurance completion criteria
+-------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Failure reproduction
+
+
+**Requirement:** An endurance result shall require its declared target operations and target duration independently of host cutoff.
+
+
+**Rationale:** A twelve-hour host window does not imply twelve hours of simulated target execution.
+
+
+**Acceptance:** A host deadline reached before target goals reports wall limit or incomplete rather than passed.
+
+
+**Verification:** Run deliberately slow simulation with short host cutoff and a separate completed control.
+
+
+**Planned test:** TEST-NXR-199
+
+
+**Dependencies:** NXR-072, NXR-073, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Finite host cutoff plus cleanup allowance; target goals recorded before start.
+
+
+**Review finding:** A twelve-hour host window does not imply twelve hours of simulated target execution.
+
+NXR-200 Detection qualification campaign
+----------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Failure reproduction
+
+
+**Requirement:** Each claimed invariant checker shall detect at least one controlled violation of its own property.
+
+
+**Rationale:** Healthy runs alone cannot demonstrate that diagnostic checks discriminate failures.
+
+
+**Acceptance:** Disabled or always-successful checkers fail qualification; every injected violation has an expected classification.
+
+
+**Verification:** Create explicit controls for context corruption, duplicate jobs, stale handles and bad UART content.
+
+
+**Planned test:** TEST-NXR-200
+
+
+**Dependencies:** NXR-072, NXR-073, NXR-094
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Fault injection confined to named test profiles; no release default activation.
+
+
+**Review finding:** Healthy runs alone cannot demonstrate that diagnostic checks discriminate failures.
 

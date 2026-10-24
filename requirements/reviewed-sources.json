@@ -37,6 +37,7 @@
   "docs/hal.rst": "31a772d926153ace5f6c246ee66d6f64d9310b82c2625b3f2c4c63e38929a158",
   "docs/handoff.rst": "e808cba812ea15d6c603917cb4eb4abfd4ba6ca33e221f2b6c3795785ba9b9eb",
   "docs/hardware-atomics.rst": "3ca3c039caa46288679b380567f4069bd80026c1d0953485f4e15ad422ab178c",
+  "docs/hardware-in-loop.rst": "e378173d7ef723ddd9ca5457279f0032ca49c939570dc5b586148d7a0e3689f3",
   "docs/host-memory.rst": "e9425b3b7e1737360bc269a8255d6dd8d2521f71496f229ae95d502e4f644e63",
   "docs/how-it-works.rst": "66b6b01c3d31b1fe3320e3b2a11ee9ec323bf634cea5f263dd3d576fe84e2651",
   "docs/index.rst": "64b4ceba16d41cb8d8ade2458609c609b8fa695b6d602af8f5eb9646768f2c4a",
