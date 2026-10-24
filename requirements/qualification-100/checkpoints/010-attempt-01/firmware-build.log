@@ -1,0 +1,22 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- Configuring done (3.5s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/jeffd/src/nexrt/rtos/build/overnight-stress
+[0/2] Re-checking globbed directories...
+[1/10] Building CXX object CMakeFiles/rtos.dir/src/memory.cpp.obj
+[2/10] Building ASM object CMakeFiles/rtos.dir/ports/riscue/context.S.obj
+[3/10] Building CXX object CMakeFiles/rtos.dir/src/kernel.cpp.obj
+[4/10] Building CXX object CMakeFiles/rtos.dir/src/sync.cpp.obj
+[5/10] Building CXX object CMakeFiles/rtos.dir/src/mutex.cpp.obj
+[6/10] Building CXX object CMakeFiles/demo.dir/examples/overnight_stress.cpp.obj
+[7/10] Building ASM object CMakeFiles/demo.dir/ports/riscue/start.S.obj
+[8/10] cd /home/jeffd/src/nexrt/rtos/build/overnight-stress && /home/jeffd/src/nexrt/rtos/build/host/native-tools/NexRT.Requirements/NexRT.Requirements check /home/jeffd/src/nexrt/rtos
+Tracker check passed: 170 substantive review iterations; 88 planned; no runtime verification claims.
+[9/10] Linking CXX static library librtos.a
+[10/10] Linking CXX executable demo.elf
+/usr/lib/gcc/riscv64-unknown-elf/13.2.0/../../../riscv64-unknown-elf/bin/ld: warning: demo.elf has a LOAD segment with RWX permissions
+Static-only ELF audit passed: no allocator or dynamic C++ initializer symbols
+   text	   data	    bss	    dec	    hex	filename
+  17848	     96	  10224	  28168	   6e08	/home/jeffd/src/nexrt/rtos/build/overnight-stress/demo.elf
+-- GLOB mismatch!

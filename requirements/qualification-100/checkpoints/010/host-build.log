@@ -1,0 +1,21 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- Rtos.Tools: Native AOT host executable (linux-x64)
+-- NexRT.Evidence: Native AOT host executable (linux-x64)
+-- NexRT.Handoff: Native AOT host executable (linux-x64)
+-- NexRT.Requirements: Native AOT host executable (linux-x64)
+-- NexRT.Configure: Native AOT host executable (linux-x64)
+-- NexRT.Workbench: Native AOT host executable (linux-x64)
+-- NexRT.Sim: Native AOT host executable (linux-x64)
+-- Configuring done (4.0s)
+-- Generating done (0.4s)
+-- Build files have been written to: /home/jeffd/src/nexrt/rtos/build/host
+[0/2] Re-checking globbed directories...
+[1/2] Generating native-tools/NexRT.Requirements/NexRT.Requirements, native-tools/NexRT.Requirements/NexRT.Requirements.xml, native-tools/NexRT.Requirements/NexRT.Requirements.sources
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  NexRT.Requirements -> /home/jeffd/src/nexrt/rtos/build/host/host-tool-bin/requirements_tool/Release/net10.0/linux-x64/NexRT.Requirements.dll
+  Generating native code
+  NexRT.Requirements -> /home/jeffd/src/nexrt/rtos/build/host/native-tools/NexRT.Requirements/
+[2/2] cd /home/jeffd/src/nexrt/rtos/build/host && /home/jeffd/src/nexrt/rtos/build/host/native-tools/NexRT.Requirements/NexRT.Requirements check /home/jeffd/src/nexrt/rtos
+Tracker check passed: 170 substantive review iterations; 88 planned; no runtime verification claims.

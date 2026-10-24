@@ -58,6 +58,7 @@ worst-case execution time, or hardware validation.
    requirements-tracker
    requirements-process
    requirements-campaign
+   qualification-roadmap
 
 Scope and status
 ----------------

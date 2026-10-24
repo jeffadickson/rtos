@@ -4818,5 +4818,275 @@
       "docs/handoff.rst"
     ],
     "finding": "Sources and selected Linux runtime support are portable; compiler installations and machine credentials are excluded. Destination execution and hardware qualification remain machine-specific."
+  },
+  {
+    "id": "NXR-161",
+    "title": "Profile RAM reconciliation",
+    "category": "Resource qualification",
+    "statement": "The release gate shall reconcile every allocated RAM section and boot-reserved stack against the declared board memory map.",
+    "rationale": "Current static allocation contracts do not establish a complete per-profile board reconciliation.",
+    "acceptance": "Sum all disjoint load and runtime ranges; reject an omitted boot stack and any overlap or address overflow.",
+    "verification": "Compare linker map and ELF program headers with a separately authored board manifest; inject each omission.",
+    "dependencies": [
+      "NXR-081",
+      "NXR-025"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-161",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Zero unexplained RAM bytes; board capacity is a hard ceiling.",
+    "review_iteration": 161,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "src/scheduler.hpp",
+      "docs/memory.rst"
+    ],
+    "finding": "Current static allocation contracts do not establish a complete per-profile board reconciliation."
+  },
+  {
+    "id": "NXR-162",
+    "title": "Allocation gate detection controls",
+    "category": "Resource qualification",
+    "statement": "The allocator audit shall prove detection of each forbidden allocator family using deliberately linked negative fixtures.",
+    "rationale": "A passing symbol scan alone cannot show that archive extraction and renamed wrappers are detected.",
+    "acceptance": "Fixtures referencing malloc, new, aligned allocation and allocator wrappers fail; a heap-free control passes.",
+    "verification": "Build positive and negative ELF fixtures with the same release flags and linker garbage collection.",
+    "dependencies": [
+      "NXR-081",
+      "NXR-025"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-162",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Zero permitted allocator references; fixtures remain host build artifacts.",
+    "review_iteration": 162,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "src/scheduler.hpp",
+      "docs/memory.rst"
+    ],
+    "finding": "A passing symbol scan alone cannot show that archive extraction and renamed wrappers are detected."
+  },
+  {
+    "id": "NXR-163",
+    "title": "Critical section measurement coverage",
+    "category": "Resource qualification",
+    "statement": "The qualification report shall enumerate every interrupt-masked path and its input-dependent work bound.",
+    "rationale": "The kernel uses local interrupt serialization, so latency claims need coverage of all masked work.",
+    "acceptance": "Queue maximum copies, waiter scans, donation chains and trace operations each have a source path and measured bound.",
+    "verification": "Instrument target mask entry and exit; test minimum and maximum configured capacities and calibrated probe overhead.",
+    "dependencies": [
+      "NXR-081",
+      "NXR-025"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-163",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Per-profile maximum mask duration is declared before measurement; no unbounded callback under mask.",
+    "review_iteration": 163,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "src/scheduler.hpp",
+      "docs/memory.rst"
+    ],
+    "finding": "The kernel uses local interrupt serialization, so latency claims need coverage of all masked work."
+  },
+  {
+    "id": "NXR-164",
+    "title": "Stack evidence completeness",
+    "category": "Resource qualification",
+    "statement": "The stack report shall distinguish untouched sentinel bytes from proven unused call-chain space.",
+    "rationale": "Watermarks are observations and cannot independently bound unexecuted paths.",
+    "acceptance": "A deliberately deep call and an interrupt at its deepest point are detected; incomplete scanning is reported as incomplete.",
+    "verification": "Combine compiler stack usage, call-chain review and target watermark fixtures including boot and fault paths.",
+    "dependencies": [
+      "NXR-081",
+      "NXR-025"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-164",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Every enabled stack has a byte ceiling including nested exception frames.",
+    "review_iteration": 164,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "src/scheduler.hpp",
+      "docs/memory.rst"
+    ],
+    "finding": "Watermarks are observations and cannot independently bound unexecuted paths."
+  },
+  {
+    "id": "NXR-165",
+    "title": "Feature removal differential",
+    "category": "Resource qualification",
+    "statement": "The release gate shall compare disabled-feature firmware against enabled firmware using identical toolchains and application behavior.",
+    "rationale": "Optional source compilation does not guarantee that associated static storage disappears.",
+    "acceptance": "Disabled DMA, logging and tracing remove their symbols and reserved pools; a hidden residual pool fails.",
+    "verification": "Retain map diffs and ELF symbol checks for one toggle at a time.",
+    "dependencies": [
+      "NXR-081",
+      "NXR-025"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-165",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Disabled feature contributes zero feature-owned RAM and code beyond documented shared dependencies.",
+    "review_iteration": 165,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "src/scheduler.hpp",
+      "docs/memory.rst"
+    ],
+    "finding": "Optional source compilation does not guarantee that associated static storage disappears."
+  },
+  {
+    "id": "NXR-166",
+    "title": "Timing units provenance",
+    "category": "Resource qualification",
+    "statement": "Every timing result shall carry target frequency, counter width, conversion rule and measurement origin.",
+    "rationale": "Host elapsed time and simulated timer advancement were previously easy to confuse.",
+    "acceptance": "Changing frequency without regenerating the profile rejects qualification; host seconds cannot populate target-time fields.",
+    "verification": "Exercise two clock profiles and counter wrap with known interval fixtures.",
+    "dependencies": [
+      "NXR-081",
+      "NXR-025"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-166",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Conversions use checked arithmetic and a declared rounding bound of at most one target tick.",
+    "review_iteration": 166,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "src/scheduler.hpp",
+      "docs/memory.rst"
+    ],
+    "finding": "Host elapsed time and simulated timer advancement were previously easy to confuse."
+  },
+  {
+    "id": "NXR-167",
+    "title": "Capacity sweep qualification",
+    "category": "Resource qualification",
+    "statement": "The qualification gate shall exercise legal minimum, representative and maximum resource capacities.",
+    "rationale": "Testing one default capacity misses index and fairness boundary defects.",
+    "acceptance": "Thread, queue and waiter boundaries reject excess operations without mutation at every selected capacity.",
+    "verification": "Run independent reference models and target boundary fixtures; retain configuration identity per case.",
+    "dependencies": [
+      "NXR-081",
+      "NXR-025"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-167",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "No capacity-dependent allocation; total execution budget declared for each sweep.",
+    "review_iteration": 167,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "src/scheduler.hpp",
+      "docs/memory.rst"
+    ],
+    "finding": "Testing one default capacity misses index and fairness boundary defects."
+  },
+  {
+    "id": "NXR-168",
+    "title": "Idle residency accounting",
+    "category": "Resource qualification",
+    "statement": "CPU residency reports shall identify measured busy and idle intervals without counting blocked host simulation time as target execution.",
+    "rationale": "Existing metrics need a calibrated interpretation before they support performance claims.",
+    "acceptance": "A controlled idle-heavy workload and busy loop produce ordered residency results; totals reconcile within declared sampling error.",
+    "verification": "Compare target counter accounting with external GPIO intervals and explicit sampling overhead.",
+    "dependencies": [
+      "NXR-081",
+      "NXR-025"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-168",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Accounting work is constant per transition; error ceiling declared in target counter units.",
+    "review_iteration": 168,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "src/scheduler.hpp",
+      "docs/memory.rst"
+    ],
+    "finding": "Existing metrics need a calibrated interpretation before they support performance claims."
+  },
+  {
+    "id": "NXR-169",
+    "title": "Reproducible optimized builds",
+    "category": "Resource qualification",
+    "statement": "Qualified firmware and interpreter builds shall record effective compiler options and require the designated optimized profile to use -O3.",
+    "rationale": "Requested optimization must be verified from effective commands rather than preset names.",
+    "acceptance": "A substituted -O2 interpreter or wrong language standard rejects the optimized qualification label.",
+    "verification": "Inspect compilation databases and embedded build identity; execute a wrong-flags negative fixture.",
+    "dependencies": [
+      "NXR-081",
+      "NXR-025"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-169",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "C\u002B\u002B20 interpreter; -O3 release profile; debug and sanitizer profiles remain separately named.",
+    "review_iteration": 169,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "src/scheduler.hpp",
+      "docs/memory.rst"
+    ],
+    "finding": "Requested optimization must be verified from effective commands rather than preset names."
+  },
+  {
+    "id": "NXR-170",
+    "title": "Performance regression envelope",
+    "category": "Resource qualification",
+    "statement": "The performance gate shall compare fixed workloads only under matching hardware, compiler, features and measurement methods.",
+    "rationale": "An observed speed difference is meaningless when build or measurement conditions change.",
+    "acceptance": "Changed profile identities prevent direct speedup claims; a seeded slow-path injection crosses and fails the recorded threshold.",
+    "verification": "Retain baseline distributions, repetitions, machine identity and confidence method alongside raw observations.",
+    "dependencies": [
+      "NXR-081",
+      "NXR-025"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-170",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Per-workload threshold and repeat count fixed before candidate execution.",
+    "review_iteration": 170,
+    "inspected_files": [
+      "include/rtos.hpp",
+      "src/kernel.cpp",
+      "src/scheduler.hpp",
+      "docs/memory.rst"
+    ],
+    "finding": "An observed speed difference is meaningless when build or measurement conditions change."
   }
 ]

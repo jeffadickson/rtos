@@ -1,0 +1,95 @@
+[0/2] Re-checking globbed directories...
+[1/2] cd /home/jeffd/src/nexrt/rtos/build/host && /home/jeffd/src/nexrt/rtos/build/host/native-tools/NexRT.Requirements/NexRT.Requirements check /home/jeffd/src/nexrt/rtos
+Tracker check passed: 170 substantive review iterations; 88 planned; no runtime verification claims.
+[2/2] cd /home/jeffd/src/nexrt/rtos/build/host && /home/jeffd/src/nexrt/rtos/build/docs-venv/bin/sphinx-build -n -W --keep-going -b html /home/jeffd/src/nexrt/rtos/docs /home/jeffd/src/nexrt/rtos/build/host/docs/html
+FAILED: CMakeFiles/docs /home/jeffd/src/nexrt/rtos/build/host/CMakeFiles/docs 
+cd /home/jeffd/src/nexrt/rtos/build/host && /home/jeffd/src/nexrt/rtos/build/docs-venv/bin/sphinx-build -n -W --keep-going -b html /home/jeffd/src/nexrt/rtos/docs /home/jeffd/src/nexrt/rtos/build/host/docs/html
+Running Sphinx v8.2.3
+loading translations [en]... done
+loading pickled environment... done
+building [mo]: targets for 0 po files that are out of date
+writing output... 
+building [html]: targets for 3 source files that are out of date
+updating environment: 5 added, 3 changed, 0 removed
+reading sources... [ 12%] hardware-in-loop
+reading sources... [ 25%] hil-verification-plan
+reading sources... [ 38%] index
+reading sources... [ 50%] instruction-model
+reading sources... [ 62%] qualification-roadmap
+reading sources... [ 75%] requirements-campaign
+reading sources... [ 88%] requirements-tracker
+reading sources... [100%] uart-demo
+
+/home/jeffd/src/nexrt/rtos/docs/qualification-roadmap.rst:79: WARNING: Title underline too short.
+
+Verification and local milestones
+-------------------------------- [docutils]
+/home/jeffd/src/nexrt/rtos/docs/qualification-roadmap.rst:79: WARNING: Title underline too short.
+
+Verification and local milestones
+-------------------------------- [docutils]
+looking for now-outdated files... 34 found
+pickling environment... done
+checking consistency... done
+preparing documents... done
+copying assets... 
+copying downloadable files... [100%] ../build/requirements/hil-design.csv
+
+copying static files... 
+Writing evaluated template result to /home/jeffd/src/nexrt/rtos/build/host/docs/html/_static/basic.css
+Writing evaluated template result to /home/jeffd/src/nexrt/rtos/build/host/docs/html/_static/documentation_options.js
+Writing evaluated template result to /home/jeffd/src/nexrt/rtos/build/host/docs/html/_static/language_data.js
+Writing evaluated template result to /home/jeffd/src/nexrt/rtos/build/host/docs/html/_static/alabaster.css
+copying static files: done
+copying extra files... 
+copying extra files: done
+copying assets: done
+writing output... [  2%] api
+writing output... [  5%] architecture
+writing output... [  7%] assembly-port
+writing output... [ 10%] configuration
+writing output... [ 12%] correctness-iterations
+writing output... [ 14%] device-ipc-review
+writing output... [ 17%] diagnostic-overlays
+writing output... [ 19%] dma
+writing output... [ 21%] drivers
+writing output... [ 24%] evidence
+writing output... [ 26%] footprint
+writing output... [ 29%] getting-started
+writing output... [ 31%] hal
+writing output... [ 33%] handoff
+writing output... [ 36%] hardware-atomics
+writing output... [ 38%] hardware-in-loop
+writing output... [ 40%] hil-verification-plan
+writing output... [ 43%] host-memory
+writing output... [ 45%] how-it-works
+writing output... [ 48%] implementation-300
+writing output... [ 50%] index
+writing output... [ 52%] instruction-model
+writing output... [ 55%] integration-history
+writing output... [ 57%] memory
+writing output... [ 60%] metrics
+writing output... [ 62%] platforms
+writing output... [ 64%] port-bringup
+writing output... [ 67%] qualification-roadmap
+writing output... [ 69%] requirements-campaign
+writing output... [ 71%] requirements-process
+writing output... [ 74%] requirements-tracker
+writing output... [ 76%] reviews
+writing output... [ 79%] simplicity-iterations
+writing output... [ 81%] source-reference
+writing output... [ 83%] stack-observations
+writing output... [ 86%] sync-iterations
+writing output... [ 88%] synchronization
+writing output... [ 90%] tooling
+writing output... [ 93%] uart-demo
+writing output... [ 95%] validation
+writing output... [ 98%] verification
+writing output... [100%] web
+
+generating indices... genindex done
+writing additional pages... search done
+dumping search index in English (code: en)... done
+dumping object inventory... done
+build finished with problems, 2 warnings (with warnings treated as errors).
+ninja: build stopped: subcommand failed.

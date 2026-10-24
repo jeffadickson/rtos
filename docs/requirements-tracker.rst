@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **160**. Catalogue SHA-256: ``7e54edfa9da1076cee092fe55d6df48126560100fffaf8fa31d06a2ed935a50d``.
+Reviewed requirements: **170**. Catalogue SHA-256: ``b837d12a8c59df56823dd8e3a171656eef882ba1dba658939ba467a92f711233``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -5608,4 +5608,354 @@ NXR-160 Portable source handoff and dependency diagnosis
 
 
 **Review finding:** Sources and selected Linux runtime support are portable; compiler installations and machine credentials are excluded. Destination execution and hardware qualification remain machine-specific.
+
+NXR-161 Profile RAM reconciliation
+----------------------------------
+
+**Status:** Planned
+
+
+**Category:** Resource qualification
+
+
+**Requirement:** The release gate shall reconcile every allocated RAM section and boot-reserved stack against the declared board memory map.
+
+
+**Rationale:** Current static allocation contracts do not establish a complete per-profile board reconciliation.
+
+
+**Acceptance:** Sum all disjoint load and runtime ranges; reject an omitted boot stack and any overlap or address overflow.
+
+
+**Verification:** Compare linker map and ELF program headers with a separately authored board manifest; inject each omission.
+
+
+**Planned test:** TEST-NXR-161
+
+
+**Dependencies:** NXR-081, NXR-025
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Zero unexplained RAM bytes; board capacity is a hard ceiling.
+
+
+**Review finding:** Current static allocation contracts do not establish a complete per-profile board reconciliation.
+
+NXR-162 Allocation gate detection controls
+------------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Resource qualification
+
+
+**Requirement:** The allocator audit shall prove detection of each forbidden allocator family using deliberately linked negative fixtures.
+
+
+**Rationale:** A passing symbol scan alone cannot show that archive extraction and renamed wrappers are detected.
+
+
+**Acceptance:** Fixtures referencing malloc, new, aligned allocation and allocator wrappers fail; a heap-free control passes.
+
+
+**Verification:** Build positive and negative ELF fixtures with the same release flags and linker garbage collection.
+
+
+**Planned test:** TEST-NXR-162
+
+
+**Dependencies:** NXR-081, NXR-025
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Zero permitted allocator references; fixtures remain host build artifacts.
+
+
+**Review finding:** A passing symbol scan alone cannot show that archive extraction and renamed wrappers are detected.
+
+NXR-163 Critical section measurement coverage
+---------------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Resource qualification
+
+
+**Requirement:** The qualification report shall enumerate every interrupt-masked path and its input-dependent work bound.
+
+
+**Rationale:** The kernel uses local interrupt serialization, so latency claims need coverage of all masked work.
+
+
+**Acceptance:** Queue maximum copies, waiter scans, donation chains and trace operations each have a source path and measured bound.
+
+
+**Verification:** Instrument target mask entry and exit; test minimum and maximum configured capacities and calibrated probe overhead.
+
+
+**Planned test:** TEST-NXR-163
+
+
+**Dependencies:** NXR-081, NXR-025
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Per-profile maximum mask duration is declared before measurement; no unbounded callback under mask.
+
+
+**Review finding:** The kernel uses local interrupt serialization, so latency claims need coverage of all masked work.
+
+NXR-164 Stack evidence completeness
+-----------------------------------
+
+**Status:** Planned
+
+
+**Category:** Resource qualification
+
+
+**Requirement:** The stack report shall distinguish untouched sentinel bytes from proven unused call-chain space.
+
+
+**Rationale:** Watermarks are observations and cannot independently bound unexecuted paths.
+
+
+**Acceptance:** A deliberately deep call and an interrupt at its deepest point are detected; incomplete scanning is reported as incomplete.
+
+
+**Verification:** Combine compiler stack usage, call-chain review and target watermark fixtures including boot and fault paths.
+
+
+**Planned test:** TEST-NXR-164
+
+
+**Dependencies:** NXR-081, NXR-025
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Every enabled stack has a byte ceiling including nested exception frames.
+
+
+**Review finding:** Watermarks are observations and cannot independently bound unexecuted paths.
+
+NXR-165 Feature removal differential
+------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Resource qualification
+
+
+**Requirement:** The release gate shall compare disabled-feature firmware against enabled firmware using identical toolchains and application behavior.
+
+
+**Rationale:** Optional source compilation does not guarantee that associated static storage disappears.
+
+
+**Acceptance:** Disabled DMA, logging and tracing remove their symbols and reserved pools; a hidden residual pool fails.
+
+
+**Verification:** Retain map diffs and ELF symbol checks for one toggle at a time.
+
+
+**Planned test:** TEST-NXR-165
+
+
+**Dependencies:** NXR-081, NXR-025
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Disabled feature contributes zero feature-owned RAM and code beyond documented shared dependencies.
+
+
+**Review finding:** Optional source compilation does not guarantee that associated static storage disappears.
+
+NXR-166 Timing units provenance
+-------------------------------
+
+**Status:** Planned
+
+
+**Category:** Resource qualification
+
+
+**Requirement:** Every timing result shall carry target frequency, counter width, conversion rule and measurement origin.
+
+
+**Rationale:** Host elapsed time and simulated timer advancement were previously easy to confuse.
+
+
+**Acceptance:** Changing frequency without regenerating the profile rejects qualification; host seconds cannot populate target-time fields.
+
+
+**Verification:** Exercise two clock profiles and counter wrap with known interval fixtures.
+
+
+**Planned test:** TEST-NXR-166
+
+
+**Dependencies:** NXR-081, NXR-025
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Conversions use checked arithmetic and a declared rounding bound of at most one target tick.
+
+
+**Review finding:** Host elapsed time and simulated timer advancement were previously easy to confuse.
+
+NXR-167 Capacity sweep qualification
+------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Resource qualification
+
+
+**Requirement:** The qualification gate shall exercise legal minimum, representative and maximum resource capacities.
+
+
+**Rationale:** Testing one default capacity misses index and fairness boundary defects.
+
+
+**Acceptance:** Thread, queue and waiter boundaries reject excess operations without mutation at every selected capacity.
+
+
+**Verification:** Run independent reference models and target boundary fixtures; retain configuration identity per case.
+
+
+**Planned test:** TEST-NXR-167
+
+
+**Dependencies:** NXR-081, NXR-025
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** No capacity-dependent allocation; total execution budget declared for each sweep.
+
+
+**Review finding:** Testing one default capacity misses index and fairness boundary defects.
+
+NXR-168 Idle residency accounting
+---------------------------------
+
+**Status:** Planned
+
+
+**Category:** Resource qualification
+
+
+**Requirement:** CPU residency reports shall identify measured busy and idle intervals without counting blocked host simulation time as target execution.
+
+
+**Rationale:** Existing metrics need a calibrated interpretation before they support performance claims.
+
+
+**Acceptance:** A controlled idle-heavy workload and busy loop produce ordered residency results; totals reconcile within declared sampling error.
+
+
+**Verification:** Compare target counter accounting with external GPIO intervals and explicit sampling overhead.
+
+
+**Planned test:** TEST-NXR-168
+
+
+**Dependencies:** NXR-081, NXR-025
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Accounting work is constant per transition; error ceiling declared in target counter units.
+
+
+**Review finding:** Existing metrics need a calibrated interpretation before they support performance claims.
+
+NXR-169 Reproducible optimized builds
+-------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Resource qualification
+
+
+**Requirement:** Qualified firmware and interpreter builds shall record effective compiler options and require the designated optimized profile to use -O3.
+
+
+**Rationale:** Requested optimization must be verified from effective commands rather than preset names.
+
+
+**Acceptance:** A substituted -O2 interpreter or wrong language standard rejects the optimized qualification label.
+
+
+**Verification:** Inspect compilation databases and embedded build identity; execute a wrong-flags negative fixture.
+
+
+**Planned test:** TEST-NXR-169
+
+
+**Dependencies:** NXR-081, NXR-025
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** C++20 interpreter; -O3 release profile; debug and sanitizer profiles remain separately named.
+
+
+**Review finding:** Requested optimization must be verified from effective commands rather than preset names.
+
+NXR-170 Performance regression envelope
+---------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Resource qualification
+
+
+**Requirement:** The performance gate shall compare fixed workloads only under matching hardware, compiler, features and measurement methods.
+
+
+**Rationale:** An observed speed difference is meaningless when build or measurement conditions change.
+
+
+**Acceptance:** Changed profile identities prevent direct speedup claims; a seeded slow-path injection crosses and fails the recorded threshold.
+
+
+**Verification:** Retain baseline distributions, repetitions, machine identity and confidence method alongside raw observations.
+
+
+**Planned test:** TEST-NXR-170
+
+
+**Dependencies:** NXR-081, NXR-025
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Per-workload threshold and repeat count fixed before candidate execution.
+
+
+**Review finding:** An observed speed difference is meaningless when build or measurement conditions change.
 

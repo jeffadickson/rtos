@@ -39,7 +39,7 @@ internal static class Program
     {
         try
         {
-            if (args.Length < 2) throw new ArgumentException("Usage: NexRT.Requirements <integrate|generate|check|self-test|checkpoint> <root> [25|50|75|100]");
+            if (args.Length < 2) throw new ArgumentException("Usage: NexRT.Requirements <integrate|generate|check|self-test|checkpoint|roadmap|qualification-checkpoint|qualification-resume> <root> [boundary]");
             var root = Path.GetFullPath(args[1]);
             switch (args[0])
             {
@@ -48,6 +48,21 @@ internal static class Program
                 case "generate": Views(root, false); break;
                 case "check": Views(root, true); break;
                 case "self-test": SelfTest(root); break;
+                case "roadmap":
+                    if (args.Length != 3 || !int.TryParse(args[2], out int count) || count < 10 || count > 100 || count % 10 != 0)
+                        throw new ArgumentException("Roadmap boundary must be 10,20,...,100.");
+                    Roadmap(root, count); break;
+                case "qualification-checkpoint":
+                case "qualification-resume":
+                    if (args.Length != 3 || !int.TryParse(args[2], out int boundary) || boundary < 10 || boundary > 100 || boundary % 10 != 0)
+                        throw new ArgumentException("Qualification boundary must be 10,20,...,100.");
+                    if (args[0] == "qualification-checkpoint") Roadmap(root, boundary);
+                    else
+                    {
+                        if (Load(root).Length != 160 + boundary) throw new InvalidDataException("Resume boundary does not match catalogue.");
+                        Views(root, true);
+                    }
+                    await QualificationCheckpoint.Run(root, boundary); break;
                 case "checkpoint":
                     if (args.Length != 3 || !int.TryParse(args[2], out int round) || round is not (25 or 50 or 75 or 100))
                         throw new ArgumentException("Checkpoint must be 25, 50, 75 or 100.");
@@ -154,6 +169,28 @@ internal static class Program
     /// <summary>Hashes exact bytes for reproducible catalogue and source fingerprints.</summary>
     private static string Hash(string path) => Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(path)));
 
+    /// <summary>Imports the next ten authored qualification reviews; never marks proposed services implemented.</summary>
+    private static void Roadmap(string root, int count)
+    {
+        var prior = Load(root);
+        if (prior.Length != 160 + count - 10) throw new InvalidDataException("Roadmap batches must be imported once in order.");
+        var input = File.ReadAllLines(Path.Combine(root, "requirements/qualification-100/reviews.psv"));
+        if (input.Length != 100) throw new InvalidDataException("Expected 100 authored reviews.");
+        string[] categories = ["Resource qualification", "Kernel lifecycle", "RISC-V configuration", "Failure reproduction", "HIL wire protocol", "Host executive", "Target executive", "Independent observer", "Driver qualification", "DMA and release"];
+        string[] inspected = ["include/rtos.hpp,src/kernel.cpp,src/scheduler.hpp,docs/memory.rst", "include/rtos.hpp,src/kernel.cpp,include/rtos_mutex.hpp,include/rtos_queue.hpp", "include/rtos_hal.hpp,include/rtos_hal_atomic.hpp,sim/interpreter/machine.hpp,sim/interpreter/machine.cpp,ports/riscue/context.S", "include/rtos_trace.hpp,include/rtos_fault_record.hpp,docs/hardware-in-loop.rst", "docs/hardware-in-loop.rst,docs/hil-verification-plan.rst", "docs/hil-verification-plan.rst,requirements/hil-design.csv", "src/kernel.cpp,docs/hil-verification-plan.rst,include/rtos_queue.hpp", "docs/hardware-in-loop.rst,docs/hil-verification-plan.rst", "include/rtos_uart.hpp,docs/drivers.rst,tests/uart.cpp", "include/rtos_dma.hpp,src/dma.cpp,tests/dma.cpp,docs/dma.rst"];
+        string[] dependencies = ["NXR-081,NXR-025", "NXR-001,NXR-128,NXR-129", "NXR-102,NXR-139", "NXR-072,NXR-073,NXR-094", "NXR-137", "NXR-076,NXR-094", "NXR-039,NXR-048", "NXR-099", "NXR-041,NXR-119,NXR-149", "NXR-134,NXR-135,NXR-159"];
+        var pipe = new StringBuilder();
+        for (int i = count - 10; i < count; ++i)
+        {
+            var f = input[i].Split('|');
+            if (f.Length != 7 || f[0] != $"NXR-{161+i:000}") throw new InvalidDataException("Malformed roadmap review at " + (i+1));
+            int group = i / 10;
+            pipe.AppendLine(string.Join('|', f[0], f[1], categories[group], f[2], f[6], f[3], f[4], dependencies[group],
+                "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.", f[5], inspected[group], f[6]));
+        }
+        ImportPipe(root, pipe.ToString());
+    }
+
     /// <summary>Quotes CSV values including embedded quotes, commas, and newlines.</summary>
     private static string Csv(string value) => "\"" + value.Replace("\"", "\"\"") + "\"";
 
@@ -204,7 +241,24 @@ internal static class Program
             .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToDictionary(p=>p,p=>Hash(EvidencePath(root,p)));
         Artifact(root,"requirements/reviewed-sources.json",JsonSerializer.Serialize(sources,TrackerJsonContext.Default.SourceHashes)+"\n",check);
         Artifact(root,"docs/requirements-tracker.rst",rst.ToString(),check);
+        QualificationTasks(root, rows, check);
         Console.WriteLine($"Tracker {(check ? "check" : "generation")} passed: {rows.Length} substantive review iterations; {rows.Count(r=>r.Status=="Planned")} planned; no runtime verification claims.");
+    }
+
+    /// <summary>Creates one Git-tracked task per qualification requirement with deterministic, checkable traceability.</summary>
+    private static void QualificationTasks(string root, Requirement[] rows, bool check)
+    {
+        var tasks = rows.Where(r => r.ReviewIteration is >= 161 and <= 260).ToArray();
+        if (tasks.Length == 0) return;
+        var index = new StringBuilder("# NexRT qualification tasks\n\nThese are local Git-tracked tasks, not remote issues. Review completion does not mean implementation completion. All new acceptance work is planned until its specified evidence is reviewed.\n\n");
+        foreach (var r in tasks)
+        {
+            string id = "TASK-" + r.Id;
+            index.AppendLine($"- [ ] [{id}: {r.Title}]({id}.md)");
+            string text = $"# {id}: {r.Title}\n\nStatus: Planned\n\nRequirement: {r.Id}; qualification review {r.ReviewIteration - 160}/100.\n\n## Required behavior\n\n{r.Statement}\n\n## Reason and source finding\n\n{r.Finding}\n\n## Acceptance criteria\n\n{r.Acceptance}\n\n## Verification and deliverables\n\n{r.Verification}\n\nDeliver the implementation or fixture, discriminating negative tests, exact commands and exit codes, firmware/tool hashes, and retained evidence. Document unsupported configurations. A host test cannot close a hardware acceptance criterion.\n\n## Configuration and resource ceiling\n\n{r.Configuration}\n\n{r.ResourceBudget}\n\n## Dependencies\n\n{string.Join(", ",r.Dependencies)}\n\n## Inspected sources\n\n{string.Join("\n", r.InspectedFiles.Select(p=>"- "+p))}\n\n## Completion checklist\n\n- [ ] Implement required behavior without weakening default contracts.\n- [ ] Pass the specific positive and negative acceptance checks above.\n- [ ] Record resource measurements and limits for the tested profile.\n- [ ] Retain evidence and update requirement status through the qualified evidence workflow.\n";
+            Artifact(root, $"tasks/qualification-100/{id}.md", text, check);
+        }
+        Artifact(root, "tasks/qualification-100/README.md", index.ToString(), check);
     }
 
     /// <summary>Adds CMake/CTest/Sphinx integration once; source generation remains an explicit C# action.</summary>
@@ -260,6 +314,40 @@ endif()
         Reject([sample with { InspectedFiles=["missing/nonexistent.cs"] }],"missing inspected source");
         if(Csv("a,\"b\"")!="\"a,\"\"b\"\"\"") throw new InvalidDataException("CSV escaping failed.");
         Console.WriteLine("PASS: CSV delimiters/quotes preserved");
+        TaskExportSelfTest(rows);
+    }
+
+    /// <summary>Proves task checking rejects changed acceptance, missing files and stale indexes without modifying repository artifacts.</summary>
+    private static void TaskExportSelfTest(Requirement[] rows)
+    {
+        var tasks = rows.Where(r => r.ReviewIteration is >= 161 and <= 260).ToArray();
+        if (tasks.Length == 0) return;
+        string scratch = Path.Combine(Path.GetTempPath(), "nexrt-task-check-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(scratch);
+        try
+        {
+            QualificationTasks(scratch, rows, false);
+            QualificationTasks(scratch, rows, true);
+            string task = Path.Combine(scratch, "tasks/qualification-100/TASK-" + tasks[0].Id + ".md");
+            void Reject(string label)
+            {
+                try { QualificationTasks(scratch, rows, true); }
+                catch (InvalidDataException) { Console.WriteLine("PASS: rejected " + label); return; }
+                throw new InvalidDataException("Task checker accepted " + label);
+            }
+            File.AppendAllText(task, "\nUnreviewed acceptance change\n");
+            Reject("modified task acceptance export");
+            QualificationTasks(scratch, rows, false);
+            File.Delete(task);
+            Reject("missing task export");
+            QualificationTasks(scratch, rows, false);
+            File.AppendAllText(Path.Combine(scratch, "tasks/qualification-100/README.md"), "\nStale index\n");
+            Reject("stale task index");
+            QualificationTasks(scratch, rows, false);
+            QualificationTasks(scratch, rows, true);
+            Console.WriteLine("PASS: deterministic task exports round-trip");
+        }
+        finally { Directory.Delete(scratch, true); }
     }
 
     /// <summary>Runs real builds at each requested boundary and records commands, exit status, log hashes, and baseline fingerprint.</summary>
