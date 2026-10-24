@@ -5918,5 +5918,245 @@
       "docs/hardware-in-loop.rst"
     ],
     "finding": "Healthy runs alone cannot demonstrate that diagnostic checks discriminate failures."
+  },
+  {
+    "id": "NXR-201",
+    "title": "Fixed-frame wire schema",
+    "category": "HIL wire protocol",
+    "statement": "The HIL codec shall encode the documented 512-byte frame using explicit little-endian fields and zero padding.",
+    "rationale": "The wire proposal exists but no frozen executable codec currently establishes compatibility.",
+    "acceptance": "Golden frames match byte for byte on host and target; native struct packing changes do not alter encoding.",
+    "verification": "Cross-check independent encoders and a published offset table including all boundary fields.",
+    "dependencies": [
+      "NXR-137"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-201",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "512 decoded bytes: 40 header, 468 payload region and 4 CRC bytes.",
+    "review_iteration": 201,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "The wire proposal exists but no frozen executable codec currently establishes compatibility."
+  },
+  {
+    "id": "NXR-202",
+    "title": "CRC coverage controls",
+    "category": "HIL wire protocol",
+    "statement": "The codec shall validate CRC-32C over all first 508 decoded bytes including padding before dispatch.",
+    "rationale": "Validating only meaningful payload would leave framing metadata and padding unchecked.",
+    "acceptance": "Single-bit changes in header, payload and padding fail; the standard check string yields E3069283.",
+    "verification": "Use independent bitwise and optimized implementations plus fixed known-answer frames.",
+    "dependencies": [
+      "NXR-137"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-202",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Four-byte little-endian CRC; polynomial 82F63B78 with declared initial and final XOR.",
+    "review_iteration": 202,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "Validating only meaningful payload would leave framing metadata and padding unchecked."
+  },
+  {
+    "id": "NXR-203",
+    "title": "COBS resynchronization bounds",
+    "category": "HIL wire protocol",
+    "statement": "The decoder shall bound encoded accumulation and recover at a delimiter after malformed or oversized input.",
+    "rationale": "USB and serial read boundaries do not correspond to logical frame boundaries.",
+    "acceptance": "All-zero payload and maximal nonzero runs round-trip; oversized or truncated frames never grow storage or dispatch commands.",
+    "verification": "Feed arbitrary read fragments, consecutive delimiters and corrupted code bytes followed by a valid frame.",
+    "dependencies": [
+      "NXR-137"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-203",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "At most 516 encoded bytes including delimiter; statically reserved 576-byte slots.",
+    "review_iteration": 203,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "USB and serial read boundaries do not correspond to logical frame boundaries."
+  },
+  {
+    "id": "NXR-204",
+    "title": "Packet rejection ordering",
+    "category": "HIL wire protocol",
+    "statement": "Packet validation shall reject magic, version, reserved fields, length and CRC errors before command side effects.",
+    "rationale": "A checksum pass is insufficient to authorize a structurally invalid command.",
+    "acceptance": "Each malformed field independently causes rejection and leaves run state, output ownership and command cache unchanged.",
+    "verification": "Compare state snapshots around one-field mutations and wrong-endian fixtures.",
+    "dependencies": [
+      "NXR-137"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-204",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Constant frame ceiling; no payload-dependent allocation or callback before validation.",
+    "review_iteration": 204,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "A checksum pass is insufficient to authorize a structurally invalid command."
+  },
+  {
+    "id": "NXR-205",
+    "title": "Session and boot identity binding",
+    "category": "HIL wire protocol",
+    "statement": "Every state-changing command shall match the negotiated session nonce and current boot identity.",
+    "rationale": "Sequence numbers alone cannot isolate sessions across reboot and USB enumeration.",
+    "acceptance": "A captured pre-reset command and a command from another host session cannot start or stop work.",
+    "verification": "Replay frames across reconnection and controlled resets with unchanged command numbers.",
+    "dependencies": [
+      "NXR-137"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-205",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "128-bit session nonce and 64-bit boot identity per wire proposal; entropy quality stated separately.",
+    "review_iteration": 205,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "Sequence numbers alone cannot isolate sessions across reboot and USB enumeration."
+  },
+  {
+    "id": "NXR-206",
+    "title": "Command retry idempotency",
+    "category": "HIL wire protocol",
+    "statement": "The target shall return a cached response for an exact retry of the last command without repeating side effects.",
+    "rationale": "Transport retries need execution identity rather than blind re-dispatch of commands.",
+    "acceptance": "Duplicate START and STOP execute once; reuse of the same command ID with different bytes is rejected.",
+    "verification": "Drop the first response, resend identical and modified requests and count actual state transitions.",
+    "dependencies": [
+      "NXR-137"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-206",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "One command in flight; one bounded request-response cache.",
+    "review_iteration": 206,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "Transport retries need execution identity rather than blind re-dispatch of commands."
+  },
+  {
+    "id": "NXR-207",
+    "title": "Transport sequence interpretation",
+    "category": "HIL wire protocol",
+    "statement": "The receiver shall distinguish transport loss and duplicate frames from logical report or command identity.",
+    "rationale": "Transport sequencing and logical event deduplication solve different problems.",
+    "acceptance": "A repeated fault report with a new transport sequence is not a new fault; missing transport sequence increments loss evidence.",
+    "verification": "Inject reordered, duplicate and wrapping transport sequences with stable logical identities.",
+    "dependencies": [
+      "NXR-137"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-207",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Fixed tracking window and documented sequence wrap comparison.",
+    "review_iteration": 207,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "Transport sequencing and logical event deduplication solve different problems."
+  },
+  {
+    "id": "NXR-208",
+    "title": "Status paging coherence",
+    "category": "HIL wire protocol",
+    "statement": "Paged status shall carry a sample epoch and page bounds so a host never merges incompatible snapshots.",
+    "rationale": "A single 512-byte packet cannot hold an unbounded worker inventory.",
+    "acceptance": "More than eight workers are reported over pages; a changed epoch during collection invalidates the aggregate.",
+    "verification": "Mutate worker counters between pages and test missing, duplicate and out-of-range pages.",
+    "dependencies": [
+      "NXR-137"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-208",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Eight 32-byte thread slots per status frame; bounded page count declared by profile.",
+    "review_iteration": 208,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "A single 512-byte packet cannot hold an unbounded worker inventory."
+  },
+  {
+    "id": "NXR-209",
+    "title": "Capability validity encoding",
+    "category": "HIL wire protocol",
+    "statement": "Optional telemetry fields shall carry explicit validity and capability metadata rather than treating zero as unsupported.",
+    "rationale": "Zero measurements can otherwise create false claims about unavailable hardware features.",
+    "acceptance": "A supported zero-error ECC counter differs from absent ECC hardware; unsupported latency does not display as zero latency.",
+    "verification": "Round-trip absent, valid-zero, saturated and stale metrics in schema fixtures.",
+    "dependencies": [
+      "NXR-137"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-209",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Validity bits and typed units fit the fixed schema; no implicit feature inference.",
+    "review_iteration": 209,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "Zero measurements can otherwise create false claims about unavailable hardware features."
+  },
+  {
+    "id": "NXR-210",
+    "title": "Protocol compatibility negotiation",
+    "category": "HIL wire protocol",
+    "statement": "Handshake shall reject incompatible major schemas and negotiate only documented compatible capabilities before CONFIGURE.",
+    "rationale": "Version numbers need an explicit compatibility rule before mixed host and firmware builds are safe.",
+    "acceptance": "Unknown mandatory features and incompatible packet layout fail without arming workers; optional unknown fields follow the stated policy.",
+    "verification": "Run old/new schema fixture pairs and unsupported-command probes.",
+    "dependencies": [
+      "NXR-137"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-210",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Bounded capability bitmap and finite handshake deadline.",
+    "review_iteration": 210,
+    "inspected_files": [
+      "docs/hardware-in-loop.rst",
+      "docs/hil-verification-plan.rst"
+    ],
+    "finding": "Version numbers need an explicit compatibility rule before mixed host and firmware builds are safe."
   }
 ]

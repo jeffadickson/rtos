@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **200**. Catalogue SHA-256: ``b23994e0a37e13daa197acdc3a10ae9b1c6d52c73656f935babd2ba3d8e3e324``.
+Reviewed requirements: **210**. Catalogue SHA-256: ``363bf7c0ec43ffab2c8d4886436c721912e44263a0a42b8d6a9532ff28f3f91a``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -7008,4 +7008,354 @@ NXR-200 Detection qualification campaign
 
 
 **Review finding:** Healthy runs alone cannot demonstrate that diagnostic checks discriminate failures.
+
+NXR-201 Fixed-frame wire schema
+-------------------------------
+
+**Status:** Planned
+
+
+**Category:** HIL wire protocol
+
+
+**Requirement:** The HIL codec shall encode the documented 512-byte frame using explicit little-endian fields and zero padding.
+
+
+**Rationale:** The wire proposal exists but no frozen executable codec currently establishes compatibility.
+
+
+**Acceptance:** Golden frames match byte for byte on host and target; native struct packing changes do not alter encoding.
+
+
+**Verification:** Cross-check independent encoders and a published offset table including all boundary fields.
+
+
+**Planned test:** TEST-NXR-201
+
+
+**Dependencies:** NXR-137
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** 512 decoded bytes: 40 header, 468 payload region and 4 CRC bytes.
+
+
+**Review finding:** The wire proposal exists but no frozen executable codec currently establishes compatibility.
+
+NXR-202 CRC coverage controls
+-----------------------------
+
+**Status:** Planned
+
+
+**Category:** HIL wire protocol
+
+
+**Requirement:** The codec shall validate CRC-32C over all first 508 decoded bytes including padding before dispatch.
+
+
+**Rationale:** Validating only meaningful payload would leave framing metadata and padding unchecked.
+
+
+**Acceptance:** Single-bit changes in header, payload and padding fail; the standard check string yields E3069283.
+
+
+**Verification:** Use independent bitwise and optimized implementations plus fixed known-answer frames.
+
+
+**Planned test:** TEST-NXR-202
+
+
+**Dependencies:** NXR-137
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Four-byte little-endian CRC; polynomial 82F63B78 with declared initial and final XOR.
+
+
+**Review finding:** Validating only meaningful payload would leave framing metadata and padding unchecked.
+
+NXR-203 COBS resynchronization bounds
+-------------------------------------
+
+**Status:** Planned
+
+
+**Category:** HIL wire protocol
+
+
+**Requirement:** The decoder shall bound encoded accumulation and recover at a delimiter after malformed or oversized input.
+
+
+**Rationale:** USB and serial read boundaries do not correspond to logical frame boundaries.
+
+
+**Acceptance:** All-zero payload and maximal nonzero runs round-trip; oversized or truncated frames never grow storage or dispatch commands.
+
+
+**Verification:** Feed arbitrary read fragments, consecutive delimiters and corrupted code bytes followed by a valid frame.
+
+
+**Planned test:** TEST-NXR-203
+
+
+**Dependencies:** NXR-137
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** At most 516 encoded bytes including delimiter; statically reserved 576-byte slots.
+
+
+**Review finding:** USB and serial read boundaries do not correspond to logical frame boundaries.
+
+NXR-204 Packet rejection ordering
+---------------------------------
+
+**Status:** Planned
+
+
+**Category:** HIL wire protocol
+
+
+**Requirement:** Packet validation shall reject magic, version, reserved fields, length and CRC errors before command side effects.
+
+
+**Rationale:** A checksum pass is insufficient to authorize a structurally invalid command.
+
+
+**Acceptance:** Each malformed field independently causes rejection and leaves run state, output ownership and command cache unchanged.
+
+
+**Verification:** Compare state snapshots around one-field mutations and wrong-endian fixtures.
+
+
+**Planned test:** TEST-NXR-204
+
+
+**Dependencies:** NXR-137
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Constant frame ceiling; no payload-dependent allocation or callback before validation.
+
+
+**Review finding:** A checksum pass is insufficient to authorize a structurally invalid command.
+
+NXR-205 Session and boot identity binding
+-----------------------------------------
+
+**Status:** Planned
+
+
+**Category:** HIL wire protocol
+
+
+**Requirement:** Every state-changing command shall match the negotiated session nonce and current boot identity.
+
+
+**Rationale:** Sequence numbers alone cannot isolate sessions across reboot and USB enumeration.
+
+
+**Acceptance:** A captured pre-reset command and a command from another host session cannot start or stop work.
+
+
+**Verification:** Replay frames across reconnection and controlled resets with unchanged command numbers.
+
+
+**Planned test:** TEST-NXR-205
+
+
+**Dependencies:** NXR-137
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** 128-bit session nonce and 64-bit boot identity per wire proposal; entropy quality stated separately.
+
+
+**Review finding:** Sequence numbers alone cannot isolate sessions across reboot and USB enumeration.
+
+NXR-206 Command retry idempotency
+---------------------------------
+
+**Status:** Planned
+
+
+**Category:** HIL wire protocol
+
+
+**Requirement:** The target shall return a cached response for an exact retry of the last command without repeating side effects.
+
+
+**Rationale:** Transport retries need execution identity rather than blind re-dispatch of commands.
+
+
+**Acceptance:** Duplicate START and STOP execute once; reuse of the same command ID with different bytes is rejected.
+
+
+**Verification:** Drop the first response, resend identical and modified requests and count actual state transitions.
+
+
+**Planned test:** TEST-NXR-206
+
+
+**Dependencies:** NXR-137
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** One command in flight; one bounded request-response cache.
+
+
+**Review finding:** Transport retries need execution identity rather than blind re-dispatch of commands.
+
+NXR-207 Transport sequence interpretation
+-----------------------------------------
+
+**Status:** Planned
+
+
+**Category:** HIL wire protocol
+
+
+**Requirement:** The receiver shall distinguish transport loss and duplicate frames from logical report or command identity.
+
+
+**Rationale:** Transport sequencing and logical event deduplication solve different problems.
+
+
+**Acceptance:** A repeated fault report with a new transport sequence is not a new fault; missing transport sequence increments loss evidence.
+
+
+**Verification:** Inject reordered, duplicate and wrapping transport sequences with stable logical identities.
+
+
+**Planned test:** TEST-NXR-207
+
+
+**Dependencies:** NXR-137
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Fixed tracking window and documented sequence wrap comparison.
+
+
+**Review finding:** Transport sequencing and logical event deduplication solve different problems.
+
+NXR-208 Status paging coherence
+-------------------------------
+
+**Status:** Planned
+
+
+**Category:** HIL wire protocol
+
+
+**Requirement:** Paged status shall carry a sample epoch and page bounds so a host never merges incompatible snapshots.
+
+
+**Rationale:** A single 512-byte packet cannot hold an unbounded worker inventory.
+
+
+**Acceptance:** More than eight workers are reported over pages; a changed epoch during collection invalidates the aggregate.
+
+
+**Verification:** Mutate worker counters between pages and test missing, duplicate and out-of-range pages.
+
+
+**Planned test:** TEST-NXR-208
+
+
+**Dependencies:** NXR-137
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Eight 32-byte thread slots per status frame; bounded page count declared by profile.
+
+
+**Review finding:** A single 512-byte packet cannot hold an unbounded worker inventory.
+
+NXR-209 Capability validity encoding
+------------------------------------
+
+**Status:** Planned
+
+
+**Category:** HIL wire protocol
+
+
+**Requirement:** Optional telemetry fields shall carry explicit validity and capability metadata rather than treating zero as unsupported.
+
+
+**Rationale:** Zero measurements can otherwise create false claims about unavailable hardware features.
+
+
+**Acceptance:** A supported zero-error ECC counter differs from absent ECC hardware; unsupported latency does not display as zero latency.
+
+
+**Verification:** Round-trip absent, valid-zero, saturated and stale metrics in schema fixtures.
+
+
+**Planned test:** TEST-NXR-209
+
+
+**Dependencies:** NXR-137
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Validity bits and typed units fit the fixed schema; no implicit feature inference.
+
+
+**Review finding:** Zero measurements can otherwise create false claims about unavailable hardware features.
+
+NXR-210 Protocol compatibility negotiation
+------------------------------------------
+
+**Status:** Planned
+
+
+**Category:** HIL wire protocol
+
+
+**Requirement:** Handshake shall reject incompatible major schemas and negotiate only documented compatible capabilities before CONFIGURE.
+
+
+**Rationale:** Version numbers need an explicit compatibility rule before mixed host and firmware builds are safe.
+
+
+**Acceptance:** Unknown mandatory features and incompatible packet layout fail without arming workers; optional unknown fields follow the stated policy.
+
+
+**Verification:** Run old/new schema fixture pairs and unsupported-command probes.
+
+
+**Planned test:** TEST-NXR-210
+
+
+**Dependencies:** NXR-137
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Bounded capability bitmap and finite handshake deadline.
+
+
+**Review finding:** Version numbers need an explicit compatibility rule before mixed host and firmware builds are safe.
 

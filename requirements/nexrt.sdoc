@@ -2603,3 +2603,133 @@ Static budget: Fault injection confined to named test profiles; no release defau
 Dependencies: NXR-072, NXR-073, NXR-094
 <<<
 
+[REQUIREMENT]
+UID: NXR-201
+STATUS: Planned
+TITLE: Fixed-frame wire schema
+STATEMENT: >>>
+The HIL codec shall encode the documented 512-byte frame using explicit little-endian fields and zero padding.
+Acceptance: Golden frames match byte for byte on host and target; native struct packing changes do not alter encoding.
+Verification: Cross-check independent encoders and a published offset table including all boundary fields.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: 512 decoded bytes: 40 header, 468 payload region and 4 CRC bytes.
+Dependencies: NXR-137
+<<<
+
+[REQUIREMENT]
+UID: NXR-202
+STATUS: Planned
+TITLE: CRC coverage controls
+STATEMENT: >>>
+The codec shall validate CRC-32C over all first 508 decoded bytes including padding before dispatch.
+Acceptance: Single-bit changes in header, payload and padding fail; the standard check string yields E3069283.
+Verification: Use independent bitwise and optimized implementations plus fixed known-answer frames.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Four-byte little-endian CRC; polynomial 82F63B78 with declared initial and final XOR.
+Dependencies: NXR-137
+<<<
+
+[REQUIREMENT]
+UID: NXR-203
+STATUS: Planned
+TITLE: COBS resynchronization bounds
+STATEMENT: >>>
+The decoder shall bound encoded accumulation and recover at a delimiter after malformed or oversized input.
+Acceptance: All-zero payload and maximal nonzero runs round-trip; oversized or truncated frames never grow storage or dispatch commands.
+Verification: Feed arbitrary read fragments, consecutive delimiters and corrupted code bytes followed by a valid frame.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: At most 516 encoded bytes including delimiter; statically reserved 576-byte slots.
+Dependencies: NXR-137
+<<<
+
+[REQUIREMENT]
+UID: NXR-204
+STATUS: Planned
+TITLE: Packet rejection ordering
+STATEMENT: >>>
+Packet validation shall reject magic, version, reserved fields, length and CRC errors before command side effects.
+Acceptance: Each malformed field independently causes rejection and leaves run state, output ownership and command cache unchanged.
+Verification: Compare state snapshots around one-field mutations and wrong-endian fixtures.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Constant frame ceiling; no payload-dependent allocation or callback before validation.
+Dependencies: NXR-137
+<<<
+
+[REQUIREMENT]
+UID: NXR-205
+STATUS: Planned
+TITLE: Session and boot identity binding
+STATEMENT: >>>
+Every state-changing command shall match the negotiated session nonce and current boot identity.
+Acceptance: A captured pre-reset command and a command from another host session cannot start or stop work.
+Verification: Replay frames across reconnection and controlled resets with unchanged command numbers.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: 128-bit session nonce and 64-bit boot identity per wire proposal; entropy quality stated separately.
+Dependencies: NXR-137
+<<<
+
+[REQUIREMENT]
+UID: NXR-206
+STATUS: Planned
+TITLE: Command retry idempotency
+STATEMENT: >>>
+The target shall return a cached response for an exact retry of the last command without repeating side effects.
+Acceptance: Duplicate START and STOP execute once; reuse of the same command ID with different bytes is rejected.
+Verification: Drop the first response, resend identical and modified requests and count actual state transitions.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: One command in flight; one bounded request-response cache.
+Dependencies: NXR-137
+<<<
+
+[REQUIREMENT]
+UID: NXR-207
+STATUS: Planned
+TITLE: Transport sequence interpretation
+STATEMENT: >>>
+The receiver shall distinguish transport loss and duplicate frames from logical report or command identity.
+Acceptance: A repeated fault report with a new transport sequence is not a new fault; missing transport sequence increments loss evidence.
+Verification: Inject reordered, duplicate and wrapping transport sequences with stable logical identities.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Fixed tracking window and documented sequence wrap comparison.
+Dependencies: NXR-137
+<<<
+
+[REQUIREMENT]
+UID: NXR-208
+STATUS: Planned
+TITLE: Status paging coherence
+STATEMENT: >>>
+Paged status shall carry a sample epoch and page bounds so a host never merges incompatible snapshots.
+Acceptance: More than eight workers are reported over pages; a changed epoch during collection invalidates the aggregate.
+Verification: Mutate worker counters between pages and test missing, duplicate and out-of-range pages.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Eight 32-byte thread slots per status frame; bounded page count declared by profile.
+Dependencies: NXR-137
+<<<
+
+[REQUIREMENT]
+UID: NXR-209
+STATUS: Planned
+TITLE: Capability validity encoding
+STATEMENT: >>>
+Optional telemetry fields shall carry explicit validity and capability metadata rather than treating zero as unsupported.
+Acceptance: A supported zero-error ECC counter differs from absent ECC hardware; unsupported latency does not display as zero latency.
+Verification: Round-trip absent, valid-zero, saturated and stale metrics in schema fixtures.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Validity bits and typed units fit the fixed schema; no implicit feature inference.
+Dependencies: NXR-137
+<<<
+
+[REQUIREMENT]
+UID: NXR-210
+STATUS: Planned
+TITLE: Protocol compatibility negotiation
+STATEMENT: >>>
+Handshake shall reject incompatible major schemas and negotiate only documented compatible capabilities before CONFIGURE.
+Acceptance: Unknown mandatory features and incompatible packet layout fail without arming workers; optional unknown fields follow the stated policy.
+Verification: Run old/new schema fixture pairs and unsupported-command probes.
+Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+Static budget: Bounded capability bitmap and finite handshake deadline.
+Dependencies: NXR-137
+<<<
+
