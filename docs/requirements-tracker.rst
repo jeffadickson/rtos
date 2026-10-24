@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 The StrictDoc-format export has not been parsed by the Python StrictDoc engine.
 
-Reviewed requirements: **220**. Catalogue SHA-256: ``5b11d98a9af41aa23fdc8bb63707dda576bb43edf325b208b003d6b07a3e80fe``.
+Reviewed requirements: **230**. Catalogue SHA-256: ``70eb808b37bf411263b51f5160b1278fb0e6f3183e1b6d6334842d3e42a93f22``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -7708,4 +7708,354 @@ NXR-220 Host codec performance budget
 
 
 **Review finding:** Async code alone does not prove bounded resource use at bench scale.
+
+NXR-221 Monitor legal transition table
+--------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Target executive
+
+
+**Requirement:** The target executive shall enforce the documented command-state transition table without implicit starts.
+
+
+**Rationale:** The proposed states need executable rejection tests as well as happy-path scenarios.
+
+
+**Acceptance:** CONFIGURE, ARM, START, STOP and REARM issued in every state either follow the table or fail unchanged.
+
+
+**Verification:** Exhaustively exercise the finite state-command matrix including duplicate commands.
+
+
+**Planned test:** TEST-NXR-221
+
+
+**Dependencies:** NXR-039, NXR-048
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Fixed state enum and one active run; bounded command processing.
+
+
+**Review finding:** The proposed states need executable rejection tests as well as happy-path scenarios.
+
+NXR-222 All-worker start barrier
+--------------------------------
+
+**Status:** Planned
+
+
+**Category:** Target executive
+
+
+**Requirement:** RUNNING shall be reported only after every selected worker acknowledges the same run generation.
+
+
+**Rationale:** Dispatching START does not prove that all required workers became active.
+
+
+**Acceptance:** Delay or omit one worker acknowledgement; the monitor remains starting or fails its deadline without claiming full activity.
+
+
+**Verification:** Gate workers individually and compare acknowledgements with externally observed activity.
+
+
+**Planned test:** TEST-NXR-222
+
+
+**Dependencies:** NXR-039, NXR-048
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** One acknowledgement bit per configured worker and finite start deadline.
+
+
+**Review finding:** Dispatching START does not prove that all required workers became active.
+
+NXR-223 Stop ownership reconciliation
+-------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Target executive
+
+
+**Requirement:** COMPLETED shall require all selected workers quiescent and all test-owned resources reconciled.
+
+
+**Rationale:** Worker inactivity is insufficient when hardware or descriptors still own buffers.
+
+
+**Acceptance:** A pending DMA transfer or unreturned queue descriptor prevents COMPLETED even if worker loops have ended.
+
+
+**Verification:** Hold each resource type in turn and verify stop classification and residual inventory.
+
+
+**Planned test:** TEST-NXR-223
+
+
+**Dependencies:** NXR-039, NXR-048
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Finite reconciliation pass over declared test resources.
+
+
+**Review finding:** Worker inactivity is insufficient when hardware or descriptors still own buffers.
+
+NXR-224 Rearm control-queue preservation
+----------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Target executive
+
+
+**Requirement:** REARM shall reset only settled test resources and preserve permanent monitor control channels.
+
+
+**Rationale:** Permanent control waiters are legitimate idle state and must not be drained as leaked test resources.
+
+
+**Acceptance:** An idle control waiter survives REARM and accepts the next command; stale job descriptors are rejected.
+
+
+**Verification:** Repeat configure-run-stop-rearm cycles with queued old-generation work and idle control waiters.
+
+
+**Planned test:** TEST-NXR-224
+
+
+**Dependencies:** NXR-039, NXR-048
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** No blanket queue reset; fixed run-generation metadata.
+
+
+**Review finding:** Permanent control waiters are legitimate idle state and must not be drained as leaked test resources.
+
+NXR-225 Fault state quiescence distinction
+------------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Target executive
+
+
+**Requirement:** FAULTED shall report quiescence independently and forbid reuse when ownership remains uncertain.
+
+
+**Rationale:** A fault label is not proof that external activity has stopped.
+
+
+**Acceptance:** Inject a worker fault during active DMA; fault evidence is retained while reuse remains blocked.
+
+
+**Verification:** Model fault and stop transitions and inspect hardware ownership until reset.
+
+
+**Planned test:** TEST-NXR-225
+
+
+**Dependencies:** NXR-039, NXR-048
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Separate fault and quiescence fields; one retained first-fault slot.
+
+
+**Review finding:** A fault label is not proof that external activity has stopped.
+
+NXR-226 Monitor noninterference budget
+--------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Target executive
+
+
+**Requirement:** The monitor shall publish its priority, sampling cost and transport budget so test results account for observer load.
+
+
+**Rationale:** The test executive can perturb the scheduler behavior it is measuring.
+
+
+**Acceptance:** Compare workload progress with telemetry disabled and enabled; overhead stays within the predeclared envelope.
+
+
+**Verification:** Measure target cycles and external GPIO timing under summary and trace modes.
+
+
+**Planned test:** TEST-NXR-226
+
+
+**Dependencies:** NXR-039, NXR-048
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Default summary rate one per second; fixed service budget per dispatch.
+
+
+**Review finding:** The test executive can perturb the scheduler behavior it is measuring.
+
+NXR-227 Command descriptor ownership
+------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Target executive
+
+
+**Requirement:** Monitor queues shall carry bounded frame descriptors rather than copying full 512-byte packets under the kernel queue lock.
+
+
+**Rationale:** The fixed packet size exceeds the existing queue copy limit and needs separate frame storage.
+
+
+**Acceptance:** Largest command enqueue respects the 128-byte copy limit; descriptor ownership is conserved on reject and cancel.
+
+
+**Verification:** Fill every pool slot and inject parse failures, duplicate responses and cancellation.
+
+
+**Planned test:** TEST-NXR-227
+
+
+**Dependencies:** NXR-039, NXR-048
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Static frame pool and descriptor queue; proposed protocol storage ceiling 6784 bytes excluding stacks and descriptors.
+
+
+**Review finding:** The fixed packet size exceeds the existing queue copy limit and needs separate frame storage.
+
+NXR-228 Terminal evidence acknowledgement
+-----------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Target executive
+
+
+**Requirement:** The monitor shall retain final result and fault records until the host acknowledges the matching logical identity.
+
+
+**Rationale:** A transport write success does not establish durable host receipt.
+
+
+**Acceptance:** Drop result frames and reconnect; identical logical evidence remains fetchable and is not replaced by a new run.
+
+
+**Verification:** Exercise lost acknowledgement, duplicate fetch and stale acknowledgement cases.
+
+
+**Planned test:** TEST-NXR-228
+
+
+**Dependencies:** NXR-039, NXR-048
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** One retained terminal result and first fault; finite fetch payloads.
+
+
+**Review finding:** A transport write success does not establish durable host receipt.
+
+NXR-229 Monitor parameter validation
+------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Target executive
+
+
+**Requirement:** CONFIGURE shall validate worker selection, job bounds, durations and resource needs before changing the active configuration.
+
+
+**Rationale:** Malformed test parameters can invalidate the resource guarantees of an otherwise bounded workload.
+
+
+**Acceptance:** Overflowing durations, zero illegal counts and excessive frame demand fail without partial resource acquisition.
+
+
+**Verification:** Test each parameter boundary and a compound invalid configuration against state snapshots.
+
+
+**Planned test:** TEST-NXR-229
+
+
+**Dependencies:** NXR-039, NXR-048
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** Checked arithmetic and declared fixed capacities; no allocation on configure.
+
+
+**Review finding:** Malformed test parameters can invalidate the resource guarantees of an otherwise bounded workload.
+
+NXR-230 Sacrificial worker reboot policy
+----------------------------------------
+
+**Status:** Planned
+
+
+**Category:** Target executive
+
+
+**Requirement:** A test that permanently exits a boot-created worker shall declare the run non-rearmable without the required reset.
+
+
+**Rationale:** Current exit semantics reserve storage and do not permit recreating finished workers.
+
+
+**Acceptance:** After exit the monitor reports reboot required and rejects another run needing that worker.
+
+
+**Verification:** Run exit-focused fixtures and then attempt rearm and start with the same worker inventory.
+
+
+**Planned test:** TEST-NXR-230
+
+
+**Dependencies:** NXR-039, NXR-048
+
+
+**Configuration:** Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
+
+
+**Static resource budget:** No runtime thread resurrection in the default kernel profile.
+
+
+**Review finding:** Current exit semantics reserve storage and do not permit recreating finished workers.
 

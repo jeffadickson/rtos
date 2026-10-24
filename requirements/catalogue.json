@@ -6408,5 +6408,265 @@
       "requirements/hil-design.csv"
     ],
     "finding": "Async code alone does not prove bounded resource use at bench scale."
+  },
+  {
+    "id": "NXR-221",
+    "title": "Monitor legal transition table",
+    "category": "Target executive",
+    "statement": "The target executive shall enforce the documented command-state transition table without implicit starts.",
+    "rationale": "The proposed states need executable rejection tests as well as happy-path scenarios.",
+    "acceptance": "CONFIGURE, ARM, START, STOP and REARM issued in every state either follow the table or fail unchanged.",
+    "verification": "Exhaustively exercise the finite state-command matrix including duplicate commands.",
+    "dependencies": [
+      "NXR-039",
+      "NXR-048"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-221",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Fixed state enum and one active run; bounded command processing.",
+    "review_iteration": 221,
+    "inspected_files": [
+      "src/kernel.cpp",
+      "docs/hil-verification-plan.rst",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "The proposed states need executable rejection tests as well as happy-path scenarios."
+  },
+  {
+    "id": "NXR-222",
+    "title": "All-worker start barrier",
+    "category": "Target executive",
+    "statement": "RUNNING shall be reported only after every selected worker acknowledges the same run generation.",
+    "rationale": "Dispatching START does not prove that all required workers became active.",
+    "acceptance": "Delay or omit one worker acknowledgement; the monitor remains starting or fails its deadline without claiming full activity.",
+    "verification": "Gate workers individually and compare acknowledgements with externally observed activity.",
+    "dependencies": [
+      "NXR-039",
+      "NXR-048"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-222",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "One acknowledgement bit per configured worker and finite start deadline.",
+    "review_iteration": 222,
+    "inspected_files": [
+      "src/kernel.cpp",
+      "docs/hil-verification-plan.rst",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "Dispatching START does not prove that all required workers became active."
+  },
+  {
+    "id": "NXR-223",
+    "title": "Stop ownership reconciliation",
+    "category": "Target executive",
+    "statement": "COMPLETED shall require all selected workers quiescent and all test-owned resources reconciled.",
+    "rationale": "Worker inactivity is insufficient when hardware or descriptors still own buffers.",
+    "acceptance": "A pending DMA transfer or unreturned queue descriptor prevents COMPLETED even if worker loops have ended.",
+    "verification": "Hold each resource type in turn and verify stop classification and residual inventory.",
+    "dependencies": [
+      "NXR-039",
+      "NXR-048"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-223",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Finite reconciliation pass over declared test resources.",
+    "review_iteration": 223,
+    "inspected_files": [
+      "src/kernel.cpp",
+      "docs/hil-verification-plan.rst",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "Worker inactivity is insufficient when hardware or descriptors still own buffers."
+  },
+  {
+    "id": "NXR-224",
+    "title": "Rearm control-queue preservation",
+    "category": "Target executive",
+    "statement": "REARM shall reset only settled test resources and preserve permanent monitor control channels.",
+    "rationale": "Permanent control waiters are legitimate idle state and must not be drained as leaked test resources.",
+    "acceptance": "An idle control waiter survives REARM and accepts the next command; stale job descriptors are rejected.",
+    "verification": "Repeat configure-run-stop-rearm cycles with queued old-generation work and idle control waiters.",
+    "dependencies": [
+      "NXR-039",
+      "NXR-048"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-224",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "No blanket queue reset; fixed run-generation metadata.",
+    "review_iteration": 224,
+    "inspected_files": [
+      "src/kernel.cpp",
+      "docs/hil-verification-plan.rst",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "Permanent control waiters are legitimate idle state and must not be drained as leaked test resources."
+  },
+  {
+    "id": "NXR-225",
+    "title": "Fault state quiescence distinction",
+    "category": "Target executive",
+    "statement": "FAULTED shall report quiescence independently and forbid reuse when ownership remains uncertain.",
+    "rationale": "A fault label is not proof that external activity has stopped.",
+    "acceptance": "Inject a worker fault during active DMA; fault evidence is retained while reuse remains blocked.",
+    "verification": "Model fault and stop transitions and inspect hardware ownership until reset.",
+    "dependencies": [
+      "NXR-039",
+      "NXR-048"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-225",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Separate fault and quiescence fields; one retained first-fault slot.",
+    "review_iteration": 225,
+    "inspected_files": [
+      "src/kernel.cpp",
+      "docs/hil-verification-plan.rst",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "A fault label is not proof that external activity has stopped."
+  },
+  {
+    "id": "NXR-226",
+    "title": "Monitor noninterference budget",
+    "category": "Target executive",
+    "statement": "The monitor shall publish its priority, sampling cost and transport budget so test results account for observer load.",
+    "rationale": "The test executive can perturb the scheduler behavior it is measuring.",
+    "acceptance": "Compare workload progress with telemetry disabled and enabled; overhead stays within the predeclared envelope.",
+    "verification": "Measure target cycles and external GPIO timing under summary and trace modes.",
+    "dependencies": [
+      "NXR-039",
+      "NXR-048"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-226",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Default summary rate one per second; fixed service budget per dispatch.",
+    "review_iteration": 226,
+    "inspected_files": [
+      "src/kernel.cpp",
+      "docs/hil-verification-plan.rst",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "The test executive can perturb the scheduler behavior it is measuring."
+  },
+  {
+    "id": "NXR-227",
+    "title": "Command descriptor ownership",
+    "category": "Target executive",
+    "statement": "Monitor queues shall carry bounded frame descriptors rather than copying full 512-byte packets under the kernel queue lock.",
+    "rationale": "The fixed packet size exceeds the existing queue copy limit and needs separate frame storage.",
+    "acceptance": "Largest command enqueue respects the 128-byte copy limit; descriptor ownership is conserved on reject and cancel.",
+    "verification": "Fill every pool slot and inject parse failures, duplicate responses and cancellation.",
+    "dependencies": [
+      "NXR-039",
+      "NXR-048"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-227",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Static frame pool and descriptor queue; proposed protocol storage ceiling 6784 bytes excluding stacks and descriptors.",
+    "review_iteration": 227,
+    "inspected_files": [
+      "src/kernel.cpp",
+      "docs/hil-verification-plan.rst",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "The fixed packet size exceeds the existing queue copy limit and needs separate frame storage."
+  },
+  {
+    "id": "NXR-228",
+    "title": "Terminal evidence acknowledgement",
+    "category": "Target executive",
+    "statement": "The monitor shall retain final result and fault records until the host acknowledges the matching logical identity.",
+    "rationale": "A transport write success does not establish durable host receipt.",
+    "acceptance": "Drop result frames and reconnect; identical logical evidence remains fetchable and is not replaced by a new run.",
+    "verification": "Exercise lost acknowledgement, duplicate fetch and stale acknowledgement cases.",
+    "dependencies": [
+      "NXR-039",
+      "NXR-048"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-228",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "One retained terminal result and first fault; finite fetch payloads.",
+    "review_iteration": 228,
+    "inspected_files": [
+      "src/kernel.cpp",
+      "docs/hil-verification-plan.rst",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "A transport write success does not establish durable host receipt."
+  },
+  {
+    "id": "NXR-229",
+    "title": "Monitor parameter validation",
+    "category": "Target executive",
+    "statement": "CONFIGURE shall validate worker selection, job bounds, durations and resource needs before changing the active configuration.",
+    "rationale": "Malformed test parameters can invalidate the resource guarantees of an otherwise bounded workload.",
+    "acceptance": "Overflowing durations, zero illegal counts and excessive frame demand fail without partial resource acquisition.",
+    "verification": "Test each parameter boundary and a compound invalid configuration against state snapshots.",
+    "dependencies": [
+      "NXR-039",
+      "NXR-048"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-229",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "Checked arithmetic and declared fixed capacities; no allocation on configure.",
+    "review_iteration": 229,
+    "inspected_files": [
+      "src/kernel.cpp",
+      "docs/hil-verification-plan.rst",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "Malformed test parameters can invalidate the resource guarantees of an otherwise bounded workload."
+  },
+  {
+    "id": "NXR-230",
+    "title": "Sacrificial worker reboot policy",
+    "category": "Target executive",
+    "statement": "A test that permanently exits a boot-created worker shall declare the run non-rearmable without the required reset.",
+    "rationale": "Current exit semantics reserve storage and do not permit recreating finished workers.",
+    "acceptance": "After exit the monitor reports reboot required and rejects another run needing that worker.",
+    "verification": "Run exit-focused fixtures and then attempt rearm and start with the same worker inventory.",
+    "dependencies": [
+      "NXR-039",
+      "NXR-048"
+    ],
+    "status": "Planned",
+    "implementation_files": [],
+    "verification_files": [],
+    "planned_test": "TEST-NXR-230",
+    "configuration": "Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.",
+    "resource_budget": "No runtime thread resurrection in the default kernel profile.",
+    "review_iteration": 230,
+    "inspected_files": [
+      "src/kernel.cpp",
+      "docs/hil-verification-plan.rst",
+      "include/rtos_queue.hpp"
+    ],
+    "finding": "Current exit semantics reserve storage and do not permit recreating finished workers."
   }
 ]
