@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "targets": [
     {
+      "id": "qemu-virt-rv32", "architecture": "riscv32",
+      "cpu": "QEMU virt RV32 single-hart machine mode", "status": "simulation-bringup",
+      "physicalCpuLimit": 1, "firmwareReady": true,
+      "sources": ["https://www.qemu.org/docs/master/system/riscv/virt.html"]
+    },
+    {
       "id": "qemu-mps2-m3",
       "architecture": "armv7-m",
       "cpu": "QEMU MPS2 AN385 Cortex-M3 (simulation only)",

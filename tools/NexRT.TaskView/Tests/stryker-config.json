@@ -1,0 +1,1 @@
+{"stryker-config":{"test-case-filter":"FullyQualifiedName~DecoderTests|FullyQualifiedName~SourceTests|FullyQualifiedName~IntervalTests","project":"NexRT.TaskView.Core.csproj","test-projects":["NexRT.TaskView.Tests.csproj"],"mutate":["Trace.cs"],"reporters":["html","json","progress"],"concurrency":4,"additional-timeout":10000}}

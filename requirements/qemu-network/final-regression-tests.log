@@ -1,0 +1,136 @@
+Internal ctest changing into directory: /home/jeffd/src/nexrt/rtos/build/services-coverage
+Test project /home/jeffd/src/nexrt/rtos/build/services-coverage
+      Start  8: network_client_negative
+      Start 59: configuration_cmake
+      Start 61: handoff_roundtrip
+      Start 63: rv_static_services
+ 1/65 Test #61: handoff_roundtrip .................   Passed    0.14 sec
+      Start 57: requirements_negative
+ 2/65 Test #57: requirements_negative .............   Passed    0.07 sec
+      Start  1: virtio_net
+ 3/65 Test #63: rv_static_services ................   Passed    0.29 sec
+      Start 56: requirements_tracker
+ 4/65 Test  #1: virtio_net ........................   Passed    0.11 sec
+      Start 48: ipc_random_seed_42
+ 5/65 Test #56: requirements_tracker ..............   Passed    0.04 sec
+      Start 11: memory
+ 6/65 Test #48: ipc_random_seed_42 ................   Passed    0.02 sec
+      Start  3: etl_evaluation
+ 7/65 Test #11: memory ............................   Passed    0.00 sec
+      Start 62: rv_architecture
+ 8/65 Test  #3: etl_evaluation ....................   Passed    0.00 sec
+      Start  7: monitor
+ 9/65 Test  #7: monitor ...........................   Passed    0.03 sec
+      Start 53: thread_stress_seed_42
+10/65 Test #53: thread_stress_seed_42 .............   Passed    0.03 sec
+      Start 52: thread_stress_seed_1
+11/65 Test #62: rv_architecture ...................   Passed    0.07 sec
+      Start 31: requirement_campaign_12
+12/65 Test #31: requirement_campaign_12 ...........   Passed    0.00 sec
+      Start 10: evidence_tool
+13/65 Test #52: thread_stress_seed_1 ..............   Passed    0.02 sec
+      Start 45: processor_hal
+14/65 Test #45: processor_hal .....................   Passed    0.00 sec
+      Start 50: ipc_random_seed_4294967295
+15/65 Test #10: evidence_tool .....................   Passed    0.01 sec
+      Start 12: scheduler
+16/65 Test #12: scheduler .........................   Passed    0.00 sec
+      Start 54: thread_stress_seed_3735928559
+17/65 Test #50: ipc_random_seed_4294967295 ........   Passed    0.02 sec
+      Start 55: thread_stress_seed_4294967295
+18/65 Test #54: thread_stress_seed_3735928559 .....   Passed    0.02 sec
+      Start 49: ipc_random_seed_3735928559
+19/65 Test #55: thread_stress_seed_4294967295 .....   Passed    0.02 sec
+      Start 24: requirement_campaign_05
+20/65 Test #24: requirement_campaign_05 ...........   Passed    0.00 sec
+      Start 25: requirement_campaign_06
+21/65 Test #49: ipc_random_seed_3735928559 ........   Passed    0.02 sec
+      Start 47: ipc_random_seed_1
+22/65 Test #25: requirement_campaign_06 ...........   Passed    0.01 sec
+      Start 65: rv_static_services_wrong_clock
+23/65 Test #65: rv_static_services_wrong_clock ....   Passed    0.02 sec
+      Start 15: synchronization
+24/65 Test #47: ipc_random_seed_1 .................   Passed    0.02 sec
+      Start 39: requirement_campaign_20
+25/65 Test #15: synchronization ...................   Passed    0.00 sec
+      Start 38: requirement_campaign_19
+26/65 Test #39: requirement_campaign_20 ...........   Passed    0.01 sec
+      Start 37: requirement_campaign_18
+27/65 Test #38: requirement_campaign_19 ...........   Passed    0.01 sec
+      Start 44: stack_watermark
+28/65 Test #37: requirement_campaign_18 ...........   Passed    0.00 sec
+      Start 51: ipc_wait_order
+29/65 Test #44: stack_watermark ...................   Passed    0.00 sec
+      Start 30: requirement_campaign_11
+30/65 Test #51: ipc_wait_order ....................   Passed    0.00 sec
+      Start 16: ipc_queue_atomic
+31/65 Test #30: requirement_campaign_11 ...........   Passed    0.00 sec
+      Start 26: requirement_campaign_07
+32/65 Test #16: ipc_queue_atomic ..................   Passed    0.00 sec
+      Start 20: requirement_campaign_01
+33/65 Test #26: requirement_campaign_07 ...........   Passed    0.00 sec
+      Start 42: synchronization_deadlines
+34/65 Test #20: requirement_campaign_01 ...........   Passed    0.00 sec
+      Start 22: requirement_campaign_03
+35/65 Test #42: synchronization_deadlines .........   Passed    0.00 sec
+      Start 28: requirement_campaign_09
+36/65 Test #22: requirement_campaign_03 ...........   Passed    0.00 sec
+      Start 58: configuration
+37/65 Test #28: requirement_campaign_09 ...........   Passed    0.01 sec
+      Start 34: requirement_campaign_15
+38/65 Test #34: requirement_campaign_15 ...........   Passed    0.00 sec
+      Start 40: queued_printf_edges
+39/65 Test #58: configuration .....................   Passed    0.01 sec
+      Start 64: rv_static_services_cutoff
+40/65 Test #40: queued_printf_edges ...............   Passed    0.00 sec
+      Start 23: requirement_campaign_04
+41/65 Test #23: requirement_campaign_04 ...........   Passed    0.00 sec
+      Start 14: static_storage
+42/65 Test #14: static_storage ....................   Passed    0.00 sec
+      Start 17: mutex_inheritance
+43/65 Test #17: mutex_inheritance .................   Passed    0.00 sec
+      Start 19: queued_uart
+44/65 Test #19: queued_uart .......................   Passed    0.00 sec
+      Start 27: requirement_campaign_08
+45/65 Test #64: rv_static_services_cutoff .........   Passed    0.02 sec
+      Start 36: requirement_campaign_17
+46/65 Test #27: requirement_campaign_08 ...........   Passed    0.00 sec
+      Start 60: optional_services_configuration
+47/65 Test #36: requirement_campaign_17 ...........   Passed    0.00 sec
+      Start 43: ipc_public_api
+48/65 Test #43: ipc_public_api ....................   Passed    0.00 sec
+      Start 35: requirement_campaign_16
+49/65 Test #60: optional_services_configuration ...   Passed    0.01 sec
+      Start 33: requirement_campaign_14
+50/65 Test #35: requirement_campaign_16 ...........   Passed    0.00 sec
+      Start 21: requirement_campaign_02
+51/65 Test #33: requirement_campaign_14 ...........   Passed    0.00 sec
+      Start  2: udp_address
+52/65 Test #21: requirement_campaign_02 ...........   Passed    0.00 sec
+      Start 41: synchronization_edges
+53/65 Test  #2: udp_address .......................   Passed    0.00 sec
+      Start  9: tooling
+54/65 Test #41: synchronization_edges .............   Passed    0.00 sec
+      Start 29: requirement_campaign_10
+55/65 Test #29: requirement_campaign_10 ...........   Passed    0.00 sec
+      Start 18: queued_printf
+56/65 Test  #9: tooling ...........................   Passed    0.01 sec
+      Start 32: requirement_campaign_13
+57/65 Test #18: queued_printf .....................   Passed    0.00 sec
+      Start 46: hardware_atomic_hal_model
+58/65 Test #32: requirement_campaign_13 ...........   Passed    0.00 sec
+      Start  4: littlefs_service
+59/65 Test #46: hardware_atomic_hal_model .........   Passed    0.00 sec
+      Start  6: boost_static_evaluation
+60/65 Test  #6: boost_static_evaluation ...........   Passed    0.00 sec
+      Start 13: ethernet
+61/65 Test #13: ethernet ..........................   Passed    0.00 sec
+      Start  5: udp_service
+62/65 Test  #4: littlefs_service ..................   Passed    0.01 sec
+63/65 Test #59: configuration_cmake ...............   Passed    0.63 sec
+64/65 Test  #5: udp_service .......................   Passed    0.01 sec
+65/65 Test  #8: network_client_negative ...........   Passed    2.01 sec
+
+100% tests passed, 0 tests failed out of 65
+
+Total Test time (real) =   2.01 sec

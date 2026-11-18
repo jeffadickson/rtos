@@ -1,5 +1,6 @@
 #include "scheduler.hpp"
 #include "rtos_hal.hpp"
+#include "rtos_monitor.hpp"
 #if RTOS_ZAAMO
 #include "rtos_hal_atomic.hpp"
 #endif
@@ -70,6 +71,22 @@ void account(uint64_t now) {
 #endif
 }
 namespace rtos {
+#if RTOS_TASK_TRACE
+namespace monitor {
+namespace {
+uint8_t identity(const Thread* thread){for(unsigned i=0;i<scheduler.count;++i)if(scheduler.threads[i]==thread)return uint8_t(i);return 255;}
+void name(const Thread& t){Event e;e.kind=Kind::thread_info;e.thread=identity(&t);e.base=t.priority;e.effective=detail::Scheduler::priority(t);
+    for(unsigned i=0;t.name&&i<12&&t.name[i];++i){const auto c=uint8_t(t.name[i]);const auto v=c>=32&&c<127?c:uint8_t('?');if(i<8)e.time|=uint64_t(v)<<(i*8);else e.value|=uint32_t(v)<<((i-8)*8);}publish(e);}
+}
+void record(Kind kind,const Thread* thread,const Thread* related,uint32_t value){
+    if(!running||!thread)return;
+    Lock lock;
+    Event event;event.kind=kind;event.time=time_now();event.thread=identity(thread);event.related=identity(related);
+    event.base=thread->priority;event.effective=detail::Scheduler::priority(*thread);event.value=value;publish(event);
+}
+void announce(){Event e;e.kind=Kind::clock;e.time=clock_hz;publish(e);for(unsigned i=0;i<scheduler.count;++i)name(*scheduler.threads[i]);name(idle_thread);}
+}
+#endif
 bool create(Thread& t, Entry e, void* arg, uint8_t priority, void* stack, size_t bytes, const char* name) {
     // Reject all extents before publication/frame writes. Actual pointer validity
     // cannot be established by an unprotected machine-mode kernel.
@@ -93,6 +110,9 @@ bool create(Thread& t, Entry e, void* arg, uint8_t priority, void* stack, size_t
     initialize(idle_thread,idle,nullptr,0,idle_stack.words,sizeof(idle_stack),"idle");
     period=hz/tick_hz; clock_hz=hz;
     running=true;
+#if RTOS_TASK_TRACE
+    monitor::announce();
+#endif
     hal::install_vector();
 #if RTOS_ZAAMO
     if(!hal::atomic::available())stop();
@@ -112,7 +132,7 @@ bool sleep_for(Tick delay) {
     // A suspended context retains its port mask; restore the caller's prior mask
     // after resume (RISC-V MIE or Cortex-M BASEPRI).
     Lock lock;
-    if (delay) { current->wake=scheduler.now+delay; current->state=State::sleeping; }
+    if (delay) { current->wake=scheduler.now+delay; current->state=State::sleeping;NEXRT_TRACE(sleep,current,nullptr,delay); }
     yield();
     return true;
 }
@@ -124,12 +144,14 @@ Tick ticks() { Lock lock; return scheduler.now; }
     Mutex::owner_exit(*current);
 #endif
     current->state=State::finished;
+    NEXRT_TRACE(finished,current,nullptr,0);
     yield(); stop();
 }
 bool set_priority(Thread& t, uint8_t priority) {
     Lock lock;
     if (!scheduler.contains(t) || t.state == State::finished) return false;
     t.priority=priority;
+    NEXRT_TRACE(priority,&t,nullptr,priority);
 #if RTOS_SYNC
     Mutex::priority_changed(t);
 #endif
@@ -219,6 +241,7 @@ extern "C" uint32_t* rtos_trap(uint32_t* frame, uint32_t cause) {
 #if RTOS_METRICS
     ++next->dispatches;
 #endif
+    if(current!=next)NEXRT_TRACE(dispatch,next,current,0);
     current=next;
 #if RTOS_SYNC
     handling_interrupt=false;

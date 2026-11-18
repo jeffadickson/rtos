@@ -1,0 +1,206 @@
+[
+  {
+    "path": "docs/qemu-network.rst",
+    "sha256": "38ca2a4869c16208093b72bf2a7cb3c9bf6a326884072d4fdcf02af4a1ba34ae"
+  },
+  {
+    "path": "docs/task-view.rst",
+    "sha256": "469530f57a5dd712165e0442fcec4a111d5adb0afa7101daae3af3f1333579c1"
+  },
+  {
+    "path": "examples/qemu_udp_echo.cpp",
+    "sha256": "e167c6a0a9c5364bfd7e86653c74f1d2cceacc9e864be1e454727bd9c6997344"
+  },
+  {
+    "path": "include/rtos_monitor.hpp",
+    "sha256": "b3d97ffb3a7679b712f9b5c215a0b48ce7ad96ca2daa34bb0051d7ffc215b169"
+  },
+  {
+    "path": "include/rtos_monitor_stream.hpp",
+    "sha256": "eaf76f3023b347c4ede8810ab8eba843be5e91ee652df293217d65e99db04694"
+  },
+  {
+    "path": "include/rtos_virtio_net.hpp",
+    "sha256": "569ce1eac616a9744a3fdf48b5ecaa6da7a0f36a6ae05a95ed0e6d309db3dfa3"
+  },
+  {
+    "path": "ports/qemu-virt-rv32/context.S",
+    "sha256": "75a1115a26e1b23e6c64577f27493ebf818f551a6bd3d0e7717d06f6eecd8048"
+  },
+  {
+    "path": "ports/qemu-virt-rv32/link.ld",
+    "sha256": "133faf0707a97989092a393c7a386d4f71d1fed3865643ee0efcf08aa7ee6a90"
+  },
+  {
+    "path": "ports/qemu-virt-rv32/rtos_port.hpp",
+    "sha256": "ed66724dc4db185ee159565baf7f9d56f90244efc1dd1fe8579946b852413662"
+  },
+  {
+    "path": "ports/qemu-virt-rv32/start.S",
+    "sha256": "04f0534341d10455f1547a5d1a20324f0f764bcaf8ec62dda29d5cc971c8b21b"
+  },
+  {
+    "path": "src/monitor.cpp",
+    "sha256": "2a085aa8fb752d433874cb8f79ed09cc8571623ea522337523d297307c06cf7f"
+  },
+  {
+    "path": "src/virtio_net.cpp",
+    "sha256": "4e694b3b477a4a23f064e1e3a9e904b77e7539c39adda174f854d92f9922ca21"
+  },
+  {
+    "path": "tests/boost_static_evaluation.cpp",
+    "sha256": "1857d446243125076f2c46408e0a86c49c0804bc08c7d6029585b61c4c850c22"
+  },
+  {
+    "path": "tests/monitor.cpp",
+    "sha256": "13e729c6d12a4a4a5b67db2ec1d923178c7007857c9b9a1304a1e99e43e9c514"
+  },
+  {
+    "path": "tests/udp_address.cpp",
+    "sha256": "8e83ff09d5cbc808564a706f94c135cf1c126815a29de3098d2d1bcd7265e39f"
+  },
+  {
+    "path": "tests/virtio_net.cpp",
+    "sha256": "247fd0efaa2c7f981850e27bdb90c1e6b09d6ae7b17fe2f1ade202115012301c"
+  },
+  {
+    "path": "tools/NexRT.NetTest/NexRT.NetTest.csproj",
+    "sha256": "8597eb234b19271ac2917d099c8a47d301c203568167963d4af3a578f4422b64"
+  },
+  {
+    "path": "tools/NexRT.NetTest/Program.cs",
+    "sha256": "fe0ae7bb18cbf9c73ad638d70681e10a17263546f3f99c39073dfd2cf6e3f16a"
+  },
+  {
+    "path": "tools/NexRT.TaskView/.config/dotnet-tools.json",
+    "sha256": "691d8ccf764919b5e456987567f7d7eb1cc7c37803829e8181ed89e6dd2955fd"
+  },
+  {
+    "path": "tools/NexRT.TaskView/App/AssemblyInfo.cs",
+    "sha256": "9f5698828c2aa0636061e8f5728c2035a1ce7ab83fb9bcd88b1a6d06797d2811"
+  },
+  {
+    "path": "tools/NexRT.TaskView/App/NexRT.TaskView.App.csproj",
+    "sha256": "6914f0227df74e893f62985c9d57dd42216b84f080f7c402caf03e83db985af4"
+  },
+  {
+    "path": "tools/NexRT.TaskView/App/Program.cs",
+    "sha256": "6b26ef0bd80755f87d8d81bec7f2e05085c3d3e84f39ee9edcd107a38fa42c37"
+  },
+  {
+    "path": "tools/NexRT.TaskView/Core/NexRT.TaskView.Core.csproj",
+    "sha256": "277dc11b3976b01ecea49da233b779e1089bdf00503713fdf5989a7fa92f5571"
+  },
+  {
+    "path": "tools/NexRT.TaskView/Core/Trace.cs",
+    "sha256": "88bc1ba5983709fd6fd01b8d33c0820dcdc1b8161746a4ecc75d57a824e027c5"
+  },
+  {
+    "path": "tools/NexRT.TaskView/Tests/DecoderTests.cs",
+    "sha256": "1ea4c13cad41bf731bcb4fca7444d8ca34e3d1ed455b115895e82d73aa3be6c3"
+  },
+  {
+    "path": "tools/NexRT.TaskView/Tests/IntervalTests.cs",
+    "sha256": "938608e8255474dc068e814043ca73d5ee09ef3d7c48458fd221050dcb189e63"
+  },
+  {
+    "path": "tools/NexRT.TaskView/Tests/NexRT.TaskView.Tests.csproj",
+    "sha256": "797d34433b2c445a2c5f6a82949fcb164ce98dcbc3407edde7d5b8f73bb17865"
+  },
+  {
+    "path": "tools/NexRT.TaskView/Tests/RenderTests.cs",
+    "sha256": "e0da9d9c9ceff808a1e4824d5646c9e7b4b0e551539f9fa1c9b59c3c6a5e8cca"
+  },
+  {
+    "path": "tools/NexRT.TaskView/Tests/SourceTests.cs",
+    "sha256": "d90662d6012733bf52cc2d6910e532de880f48e548644e7b4f4503c23192c4a3"
+  },
+  {
+    "path": "tools/NexRT.TaskView/Tests/stryker-config.json",
+    "sha256": "bd4f52829c75bc30514da3a84c38c7eb184aad824f7b50c92fb1fcfaf03dd791"
+  },
+  {
+    "path": "tools/NexRT.TaskView/global.json",
+    "sha256": "47a316c0a4ade4b1b6c79201cad720c2fbe41744713f1ccf25107988073c2a6d"
+  },
+  {
+    "path": "CMakeLists.txt",
+    "sha256": "49b6417715523192e241ee5f8f04afc6a0e237a770495a9a6410e9a439a5b6df"
+  },
+  {
+    "path": "CMakePresets.json",
+    "sha256": "ada46425cd004013fe088a7c05ad403d4e260159c5b5f7b11a89e072178f7c1e"
+  },
+  {
+    "path": "cmake/configuration.cmake",
+    "sha256": "d9fb8c3cdb59c232259afd779bd9454bdc91884ec3a95ed16d5a915a00ce9c58"
+  },
+  {
+    "path": "cmake/firmware.cmake",
+    "sha256": "1a54a770891dae2cc002802a513d17d218fd3c3d71e3dd3afa981f6383152a71"
+  },
+  {
+    "path": "cmake/host-tests.cmake",
+    "sha256": "4754ac86334f767ab18ce690d964cd037aaf9fccade23222f5e42c2d98ad80e7"
+  },
+  {
+    "path": "cmake/static-services.cmake",
+    "sha256": "25f05df1f8485e87635c21ca24cd0a06d0df73e141efd95843f2b2ad6eef9b5f"
+  },
+  {
+    "path": "config/system.json",
+    "sha256": "e1cc2ad23581e99104a08b69b3b317e94b6711637e78156c61137295cde126f0"
+  },
+  {
+    "path": "docs/index.rst",
+    "sha256": "d07dc22f7c4f9ca548b49856a4abd809cbe29f5d216743d6a521c298f26cf939"
+  },
+  {
+    "path": "include/rtos_littlefs.hpp",
+    "sha256": "fdb24430b4be0f79c805ac53415b2b8c1d9e50c5cfb4ebb7a874aca1be5d7321"
+  },
+  {
+    "path": "include/rtos_udp.hpp",
+    "sha256": "f8d38d449814cf9f7360ef5aa9868ddaa4361fa5bacad756b683501d14352c71"
+  },
+  {
+    "path": "src/kernel.cpp",
+    "sha256": "59233233e6384a3b57a0791077974de9782407ee4830318131c8b71541b11a99"
+  },
+  {
+    "path": "src/mutex.cpp",
+    "sha256": "845aadb132bd086e1c8564e1a8eae1862ed7e5067a9db354ee6f105887165322"
+  },
+  {
+    "path": "src/scheduler.hpp",
+    "sha256": "c042799a1c2af8b44ee6ee2290e6d6540e3a3bc8dca938215a232f63978655c0"
+  },
+  {
+    "path": "src/storage.cpp",
+    "sha256": "7f860264cecf11d145b1f5bf0661062674c675e73acfd6375a866404a5c26b6e"
+  },
+  {
+    "path": "src/sync.cpp",
+    "sha256": "85616f45cd4115237fef1573e3d6b68f2064d77f7ae6a3f7fda5f3e798a4458e"
+  },
+  {
+    "path": "src/udp.cpp",
+    "sha256": "0f2594cebf0da2319683f2aeb8032cea045fb1de1fb7143b232a74c521b9d337"
+  },
+  {
+    "path": "tests/campaign/elf_fixture.hpp",
+    "sha256": "2d00ddb9f8d822d9d12c35f12fd75bfd6010ce88b7a7c59eb5fb6fb2116fe841"
+  },
+  {
+    "path": "tests/static_services.cpp",
+    "sha256": "36135f68f1dcd1fc2accfc779eea73756b3b7828d9613cdf0d67d582ef635a09"
+  },
+  {
+    "path": "tools/NexRT.Configure/Program.cs",
+    "sha256": "fae5843366327948fd54172a7a9cbfa6639e0d5748ee516267645a2a5b101c90"
+  },
+  {
+    "path": "tools/NexRT.Services/Program.cs",
+    "sha256": "88111bf9fab48aabbd3f836fa643835c0e235e923fc34081da7e7a9e221891a7"
+  }
+]

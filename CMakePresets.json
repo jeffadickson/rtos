@@ -7,6 +7,10 @@
   },
   "configurePresets": [
     {
+      "name": "qemu-udp", "inherits": "riscue", "binaryDir": "${sourceDir}/build/qemu-udp",
+      "cacheVariables": {"RTOS_TARGET_ID":"qemu-virt-rv32","RTOS_APPLICATION":"examples/qemu_udp_echo.cpp","RTOS_ETHERNET":"ON","RTOS_LWIP":"ON","RTOS_VIRTIO_NET":"ON","RTOS_WEB":"OFF","RTOS_STORAGE":"OFF","RTOS_MAX_THREADS":"6","RTOS_METRICS":"ON","RTOS_IDLE_STACK_BYTES":"1024","RTOS_SYNC":"ON","RTOS_TASK_TRACE":"ON"}
+    },
+    {
       "name": "host-static-services", "inherits": "host",
       "binaryDir": "${sourceDir}/build/static-services",
       "cacheVariables": { "RTOS_STORAGE": "ON", "RTOS_LWIP": "ON", "RTOS_ETHERNET": "ON", "RTOS_ETL_EVALUATION": "ON", "RTOS_WEB": "OFF", "RTOS_INTERPRETER": "ON" }
@@ -222,6 +226,7 @@
     }
   ],
   "buildPresets": [
+    {"name":"qemu-udp","configurePreset":"qemu-udp"},
     { "name": "host-static-services", "configurePreset": "host-static-services" },
     { "name": "services-rv32-sim", "configurePreset": "services-rv32-sim" },
     { "name": "atomic-baseline", "configurePreset": "atomic-baseline" },

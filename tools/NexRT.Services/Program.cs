@@ -33,6 +33,8 @@ internal static class Program
         var sources=commands.RootElement.EnumerateArray().Select(c=>c.GetProperty("file").GetString()!.Replace('\\','/')).ToArray();
         bool Has(string suffix)=>sources.Any(p=>p.EndsWith(suffix,StringComparison.Ordinal));
         if(Has("/src/storage.cpp")!=Enabled("RTOS_STORAGE")||Has("/lfs.c")!=Enabled("RTOS_STORAGE"))throw new IOException("littlefs source stripping mismatch");
+        if(Has("/src/virtio_net.cpp")!=Enabled("RTOS_VIRTIO_NET"))throw new IOException("virtio source stripping mismatch");
+        if(Enabled("RTOS_BUILD_FIRMWARE")&&Has("/src/monitor.cpp")!=Enabled("RTOS_TASK_TRACE"))throw new IOException("monitor source stripping mismatch");
         if(Has("/src/udp.cpp")!=Enabled("RTOS_LWIP"))throw new IOException("lwIP source stripping mismatch");
         if(Has("/tests/etl_evaluation.cpp")!=(Enabled("RTOS_ETL_EVALUATION")&&!Enabled("RTOS_BUILD_FIRMWARE")))throw new IOException("ETL evaluation stripping mismatch");
         foreach(string forbidden in new[]{"/core/tcp.c","/core/dns.c","/ipv4/dhcp.c","/api/sockets.c","/ipv6/ip6.c"})
@@ -65,16 +67,18 @@ internal static class Program
             string target=Path.Combine(copy,relative);string parent=Path.GetDirectoryName(target)!;
             if(!Directory.Exists(parent))Directory.CreateDirectory(parent);File.Copy(source,target);
         }
-        var configure=await Run(copy,"cmake","-S",copy,"-B",Path.Combine(copy,"build"),"-G","Ninja","-DCMAKE_BUILD_TYPE=Release","-DRTOS_STORAGE=ON","-DRTOS_LWIP=ON","-DRTOS_WEB=OFF","-DRTOS_NATIVE_TOOLS=OFF",
+        var configure=await Run(copy,"cmake","-S",copy,"-B",Path.Combine(copy,"build"),"-G","Ninja","-DCMAKE_BUILD_TYPE=Release","-DRTOS_STORAGE=ON","-DRTOS_VIRTIO_NET=ON","-DRTOS_LWIP=ON","-DRTOS_WEB=OFF","-DRTOS_NATIVE_TOOLS=OFF",
             "-DFETCHCONTENT_SOURCE_DIR_LITTLEFS="+Path.Combine(root,"build/static-deps/littlefs"),"-DFETCHCONTENT_SOURCE_DIR_LWIP="+Path.Combine(root,"build/static-deps/lwip"));
         File.WriteAllText(Path.Combine(output,"mutation-configure.log"),configure.Text);if(configure.Exit!=0)throw new IOException("Mutation configuration failed");
-        async Task Build(){var b=await Run(copy,"cmake","--build",Path.Combine(copy,"build"),"--target","littlefs_service","udp_service","-j2");if(b.Exit!=0)throw new IOException("Mutation compile failure is not a killed mutant: "+b.Text);}
-        await Build();var baseline=await Run(copy,"ctest","--test-dir",Path.Combine(copy,"build"),"-R","littlefs_service|udp_service","--output-on-failure");
+        async Task Build(){var b=await Run(copy,"cmake","--build",Path.Combine(copy,"build"),"--target","littlefs_service","udp_service","monitor_test","virtio_net_test","-j2");if(b.Exit!=0)throw new IOException("Mutation compile failure is not a killed mutant: "+b.Text);}
+        await Build();var baseline=await Run(copy,"ctest","--test-dir",Path.Combine(copy,"build"),"-R","littlefs_service|udp_service|monitor|virtio_net","--output-on-failure");
         File.WriteAllText(Path.Combine(output,"mutation-baseline.log"),baseline.Text);if(baseline.Exit!=0)throw new IOException("Mutation baseline is not green");
         var controls=new[]{
             ("mount-state","src/storage.cpp","mounted_=error_==0;","mounted_=false;","littlefs_service"),
             ("nor-overwrite","include/rtos_littlefs.hpp","if((bytes_[b][off+i]&p[i])!=p[i])","if(false)","littlefs_service"),
-            ("udp-destination","src/udp.cpp","udp_sendto(pcb,reply,&peer,port)","udp_sendto(pcb,reply,&peer,u16_t(port+1))","udp_service")};
+            ("udp-destination","src/udp.cpp","udp_sendto(pcb,reply,&peer,port)","udp_sendto(pcb,reply,&peer,u16_t(port+1))","udp_service"),
+            ("trace-crc","include/rtos_monitor.hpp","crc^=UINT32_MAX;","crc^=0u;","monitor"),
+            ("virtio-copy","src/virtio_net.cpp","transmit_bytes_[virtio::header_bytes+i]=bytes[i]","transmit_bytes_[virtio::header_bytes+i]=0","virtio_net")};
         foreach(var (name,path,before,after,test) in controls)
         {
             string file=Path.Combine(copy,path);string original=File.ReadAllText(file);
@@ -87,7 +91,7 @@ internal static class Program
                 Console.WriteLine("KILLED: "+name);
             }finally{File.WriteAllText(file,original);}
         }
-        Console.WriteLine("Three targeted controls killed; this is not a comprehensive mutation score.");
+        Console.WriteLine("Five targeted controls killed; this is not a comprehensive mutation score.");
     }
 
     /// <summary>Adds stable implementation requirements while preserving existing review identities and evidence limitations.</summary>
@@ -105,7 +109,13 @@ internal static class Program
             ["Wire-level UDP echo","The UDP service shall echo at most 512 payload bytes on its configured IPv4 port through the existing Ethernet adapter with synchronous ownership transfer.","Independently built ARP/IPv4/UDP frames produce matching response payload, ports and checksums; bad checksums, oversized data and exhausted pools do not produce successful echoes.","src/udp.cpp,include/rtos_udp.hpp","tests/udp.cpp,examples/static_service_probe.hpp","NXR-264,NXR-051"],
             ["Independent optional-service removal","Configuration shall exclude dependency resolution, compilation and linked storage for disabled littlefs, lwIP and ETL evaluation features independently.","Disabled and each single-feature build pass; all-off configuration performs no dependency download; linked maps and symbols contain no disabled library implementation.","cmake/static-services.cmake,cmake/configuration.cmake","tests/static_services.cpp,tests/udp.cpp,tests/etl_evaluation.cpp","NXR-078,NXR-079"],
             ["ETL typed-pool evaluation","The ETL evaluation shall measure fixed typed-pool alignment, exhaustion guarding, reuse and initialization constraints before replacing NexRT ownership helpers.","Four aligned packet loans exhaust capacity and return to empty; constructor/exception policy and absence of generation handles are recorded; no kernel replacement is implied.","cmake/static-services.cmake","tests/etl_evaluation.cpp","NXR-002"],
-            ["Scheduled static-service firmware","The simulation demo shall run littlefs remount and 32 wire-level UDP echoes in an actual NexRT worker while another worker and scheduling timer make progress.","Instruction model reports completed, one persisted file, 32 echoes, nonzero peer progress, multiple dispatches and timer traps; target ELF passes no-heap/no-initializer audit; cutoff is not completion.","examples/static_services.cpp,sim/interpreter/main.cpp","examples/static_service_probe.hpp,tests/static_services.cpp,tests/udp.cpp","NXR-262,NXR-265"]
+            ["Scheduled static-service firmware","The simulation demo shall run littlefs remount and 32 wire-level UDP echoes in an actual NexRT worker while another worker and scheduling timer make progress.","Instruction model reports completed, one persisted file, 32 echoes, nonzero peer progress, multiple dispatches and timer traps; target ELF passes no-heap/no-initializer audit; cutoff is not completion.","examples/static_services.cpp,sim/interpreter/main.cpp","examples/static_service_probe.hpp,tests/static_services.cpp,tests/udp.cpp","NXR-262,NXR-265"],            ["QEMU RV32 host network profile","The optional QEMU virt RV32 profile shall run the actual single-hart kernel with a 10 MHz CLINT timebase and independent address map.","QEMU boots the audited no-heap ELF; a peer worker progresses while a host socket receives echoes.","ports/qemu-virt-rv32/link.ld,examples/qemu_udp_echo.cpp","tools/NexRT.NetTest/Program.cs","NXR-268"],
+            ["Bounded modern virtio network","The optional polled virtio-MMIO driver shall use eight permanently posted RX buffers and one copied outstanding TX with bounded initialization and malformed completion rejection.","Host device model checks copy ownership, busy recovery, invalid features, malformed completions and 16-bit ring wrap; actual QEMU networking transfers packets.","include/rtos_virtio_net.hpp,src/virtio_net.cpp","tests/virtio_net.cpp","NXR-051"],
+            ["Host UDP forwarding acceptance","The native host client shall verify byte-exact bounded UDP echo through loopback QEMU forwarding and observe cleanup of its owned simulator.","Seeded 0/1/511/512-byte and randomized datagrams echo; 513-byte input is rejected and following valid input succeeds; owned QEMU stops.","tools/NexRT.NetTest/Program.cs,src/udp.cpp","tests/udp_address.cpp,tools/NexRT.NetTest/Program.cs","NXR-265,NXR-269"],
+            ["Optional bounded scheduler recording","Optional RTOS instrumentation shall record scheduler, sleep, priority, mutex and termination events into a boot-static bounded ring without device IO inside kernel hooks.","Disabled build has no recorder symbols; overflow drops new events with observable sequence discontinuity and cumulative loss record; FIFO and wrap checks pass.","include/rtos_monitor.hpp,src/monitor.cpp,src/kernel.cpp,src/mutex.cpp,src/scheduler.hpp,src/sync.cpp","tests/monitor.cpp","NXR-002"],
+            ["Framed monitor UART transport","One thread shall drain trace records through bounded partial writes using versioned little-endian COBS frames with CRC-32C and a startup delimiter.","Every encoded frame is bounded at 34 bytes; independent reference decoding and seeded properties pass; blocked UART retains partial frame without blocking producers.","include/rtos_monitor.hpp,include/rtos_monitor_stream.hpp,examples/qemu_udp_echo.cpp","tests/monitor.cpp","NXR-272"],
+            ["Native task timeline viewer","The optional CSharp Avalonia application shall display captured or TCP-streamed task activity, base/effective priorities and mutex waits with bounded retention and explicit loss diagnostics.","Parser tests reject corruption and malformed input, handle fragmentation, metadata and sequence wrap; actual QEMU priority-inheritance trace renders in a visually inspected window.","tools/NexRT.TaskView/Core/Trace.cs,tools/NexRT.TaskView/App/Program.cs","docs/task-view.rst","NXR-273"],
+            ["Static littlefs file control ownership","The NexRT littlefs adapter shall require no-malloc upstream compilation and permanently own file metadata, configuration and all caches, with one owner and reentry rejection.","Negative no-malloc compile fixture fails; upstream allocator fallback returns null; error cleanup permits slot reuse and callback reentry fails explicitly.","include/rtos_littlefs.hpp,src/storage.cpp","tests/static_services.cpp","NXR-262"]
         ];
         for(int i=0;i<authored.Length;++i)
         {
@@ -116,17 +126,24 @@ internal static class Program
             var record=new JsonObject {
                 ["id"]=id,["title"]=f[0],["category"]="Static service integration",["statement"]=f[1],
                 ["rationale"]="Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
-                ["acceptance"]=f[2],["verification"]="Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.",
+                ["acceptance"]=f[2],["verification"]="Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.",
                 ["dependencies"]=Paths(f[5]),["status"]="PartialSourceUnverified",["implementation_files"]=Paths(f[3]),["verification_files"]=Paths(f[4]),
                 ["planned_test"]="TEST-"+id,["configuration"]="C++20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.",
                 ["resource_budget"]="Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.",
                 ["review_iteration"]=261+i,["inspected_files"]=Paths(f[3]+","+f[4]),
                 ["finding"]="Implementation and finite simulation evidence exist; board flash/MAC timing, full network conformance and formal qualification are not established."
             };
+                        if(i>=8){
+                record["category"]="QEMU networking and task instrumentation";
+                record["verification"]="See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.";
+                record["configuration"]="C++20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.";
+                record["resource_budget"]="Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.";
+                record["finding"]="Finite QEMU and host evidence recorded; physical UART/DMA, target overhead bounds and full platform qualification remain open.";
+            }
             if(existing is null)rows.Add((JsonNode)record);else rows[index]=record;
         }
         File.WriteAllText(path,JsonSerializer.Serialize(rows,ServiceJson.Default.JsonArray)+"\n");
-        Console.WriteLine("Updated NXR-261..268; no runtime Verified status claimed.");
+        Console.WriteLine("Updated NXR-261..275; no runtime Verified status claimed.");
     }
 
     /// <summary>Unions covered source lines and sums GCC branch occurrences across translation units; these are distinct aggregation scopes.</summary>

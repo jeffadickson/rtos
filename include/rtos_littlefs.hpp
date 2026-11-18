@@ -4,6 +4,9 @@
  * nor grants ISR access. Flash callbacks must finish synchronously and report
  * durable completion from sync; cache contents are never a durability promise.
  */
+#ifndef LFS_NO_MALLOC
+#error "The static adapter requires LFS_NO_MALLOC for all littlefs translation units"
+#endif
 #include "lfs.h"
 #include <stdint.h>
 #include <stddef.h>
@@ -22,11 +25,23 @@ struct Device {
  * Operations open/close internally, so maximum simultaneously open files is one.
  * All bool failures retain a specific littlefs code through last_error(). A
  * failed mount never formats or overwrites media. Bind once before execution.
+ * After device I/O failure, restore the device and unmount/remount before reuse;
+ * littlefs metadata caches are not a recovery transaction.
+ * One externally serialized owner is required. Callback reentry is rejected with
+ * LFS_ERR_INVAL before touching littlefs; concurrent access remains unsupported.
  */
 class Volume {
     Device device_{};lfs_config config_{};lfs_t fs_{};
     uint8_t read_[64]{},program_[64]{},lookahead_[16]{},file_[64]{};
-    bool bound_{},mounted_{};int error_{};
+    // File metadata and its borrowed configuration have permanent volume lifetime.
+    lfs_file_t handle_{};lfs_file_config file_config_{};
+    bool bound_{},mounted_{},active_{};int error_{};
+    // Detect callback reentry by the single owner; this is deliberately not a lock.
+    struct Operation {
+        Volume& volume;bool acquired;
+        explicit Operation(Volume& v):volume(v),acquired(!v.active_){if(acquired)v.active_=true;else v.error_=LFS_ERR_INVAL;}
+        ~Operation(){if(acquired)volume.active_=false;}
+    };
 public:
     constexpr Volume()=default;
     Volume(const Volume&)=delete;

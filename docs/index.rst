@@ -59,6 +59,8 @@ worst-case execution time, or hardware validation.
    requirements-process
    requirements-campaign
    qualification-roadmap
+   qemu-network
+   task-view
    static-services
 
 Scope and status

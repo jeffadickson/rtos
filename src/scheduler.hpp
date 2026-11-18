@@ -1,5 +1,6 @@
 #pragma once
 #include "rtos.hpp"
+#include "rtos_monitor.hpp"
 #if RTOS_SYNC
 namespace rtos::detail { void expire_wait(Thread&,Tick); }
 #endif
@@ -57,8 +58,10 @@ struct Scheduler {
 #if RTOS_SYNC
             expire_wait(t,now);
 #endif
-            if (t.state == State::sleeping && Tick(now - t.wake) < 0x80000000u)
+            if (t.state == State::sleeping && Tick(now - t.wake) < 0x80000000u) {
                 t.state = State::ready;
+                NEXRT_TRACE(ready,&t,nullptr,0);
+            }
         }
     }
     Thread* pick(Thread* previous = nullptr, bool rotate = true) {

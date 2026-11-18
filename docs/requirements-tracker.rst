@@ -7,7 +7,7 @@ This is a requirements baseline, not a claim of completed runtime services.
 SourceUnverified and PartialSourceUnverified do not mean target-tested.
 Real StrictDoc validation is a separate build gate; see static-services for execution evidence.
 
-Reviewed requirements: **268**. Catalogue SHA-256: ``f6a9c4071f51cd41186b7051ddcb62da15602a7cad7917f45263fd5c584e7e28``.
+Reviewed requirements: **275**. Catalogue SHA-256: ``3a018d61320db643efe9a250ff30e2a005e482dad0d29ee968e687d80fdcb9bf``.
 
 NXR-001 Boot registry seal
 --------------------------
@@ -9127,7 +9127,7 @@ NXR-261 Project C++20 migration
 **Acceptance:** Effective C++ commands use C++20; existing host tests and target static audit pass; Release remains -O3 with loop and SLP vectorization enabled.
 
 
-**Verification:** Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+**Verification:** Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.
 
 
 **Planned test:** TEST-NXR-261
@@ -9162,7 +9162,7 @@ NXR-262 Static littlefs service
 **Acceptance:** Blank mount fails unchanged; explicit format succeeds; a file survives unmount/remount; invalid input and injected I/O fail explicitly.
 
 
-**Verification:** Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+**Verification:** Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.
 
 
 **Planned test:** TEST-NXR-262
@@ -9197,7 +9197,7 @@ NXR-263 NOR simulation and reset boundaries
 **Acceptance:** NOR bit rules and range tests pass; 64 injected reset boundaries retain the prior or new committed inline value; physical power-loss behavior remains unqualified.
 
 
-**Verification:** Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+**Verification:** Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.
 
 
 **Planned test:** TEST-NXR-263
@@ -9232,7 +9232,7 @@ NXR-264 Pool-only lwIP ownership
 **Acceptance:** PBUF and variable-size allocation exhaustion return failure; releasing blocks restores service; complete target ELF contains no forbidden allocator or dynamic initializer.
 
 
-**Verification:** Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+**Verification:** Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.
 
 
 **Planned test:** TEST-NXR-264
@@ -9267,7 +9267,7 @@ NXR-265 Wire-level UDP echo
 **Acceptance:** Independently built ARP/IPv4/UDP frames produce matching response payload, ports and checksums; bad checksums, oversized data and exhausted pools do not produce successful echoes.
 
 
-**Verification:** Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+**Verification:** Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.
 
 
 **Planned test:** TEST-NXR-265
@@ -9302,7 +9302,7 @@ NXR-266 Independent optional-service removal
 **Acceptance:** Disabled and each single-feature build pass; all-off configuration performs no dependency download; linked maps and symbols contain no disabled library implementation.
 
 
-**Verification:** Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+**Verification:** Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.
 
 
 **Planned test:** TEST-NXR-266
@@ -9337,7 +9337,7 @@ NXR-267 ETL typed-pool evaluation
 **Acceptance:** Four aligned packet loans exhaust capacity and return to empty; constructor/exception policy and absence of generation handles are recorded; no kernel replacement is implied.
 
 
-**Verification:** Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+**Verification:** Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.
 
 
 **Planned test:** TEST-NXR-267
@@ -9372,7 +9372,7 @@ NXR-268 Scheduled static-service firmware
 **Acceptance:** Instruction model reports completed, one persisted file, 32 echoes, nonzero peer progress, multiple dispatches and timer traps; target ELF passes no-heap/no-initializer audit; cutoff is not completion.
 
 
-**Verification:** Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+**Verification:** Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.
 
 
 **Planned test:** TEST-NXR-268
@@ -9388,4 +9388,249 @@ NXR-268 Scheduled static-service firmware
 
 
 **Review finding:** Implementation and finite simulation evidence exist; board flash/MAC timing, full network conformance and formal qualification are not established.
+
+NXR-269 QEMU RV32 host network profile
+--------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** QEMU networking and task instrumentation
+
+
+**Requirement:** The optional QEMU virt RV32 profile shall run the actual single-hart kernel with a 10 MHz CLINT timebase and independent address map.
+
+
+**Rationale:** Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.
+
+
+**Acceptance:** QEMU boots the audited no-heap ELF; a peer worker progresses while a host socket receives echoes.
+
+
+**Verification:** See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.
+
+
+**Planned test:** TEST-NXR-269
+
+
+**Dependencies:** NXR-268
+
+
+**Configuration:** C++20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.
+
+
+**Static resource budget:** Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.
+
+
+**Review finding:** Finite QEMU and host evidence recorded; physical UART/DMA, target overhead bounds and full platform qualification remain open.
+
+NXR-270 Bounded modern virtio network
+-------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** QEMU networking and task instrumentation
+
+
+**Requirement:** The optional polled virtio-MMIO driver shall use eight permanently posted RX buffers and one copied outstanding TX with bounded initialization and malformed completion rejection.
+
+
+**Rationale:** Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.
+
+
+**Acceptance:** Host device model checks copy ownership, busy recovery, invalid features, malformed completions and 16-bit ring wrap; actual QEMU networking transfers packets.
+
+
+**Verification:** See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.
+
+
+**Planned test:** TEST-NXR-270
+
+
+**Dependencies:** NXR-051
+
+
+**Configuration:** C++20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.
+
+
+**Static resource budget:** Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.
+
+
+**Review finding:** Finite QEMU and host evidence recorded; physical UART/DMA, target overhead bounds and full platform qualification remain open.
+
+NXR-271 Host UDP forwarding acceptance
+--------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** QEMU networking and task instrumentation
+
+
+**Requirement:** The native host client shall verify byte-exact bounded UDP echo through loopback QEMU forwarding and observe cleanup of its owned simulator.
+
+
+**Rationale:** Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.
+
+
+**Acceptance:** Seeded 0/1/511/512-byte and randomized datagrams echo; 513-byte input is rejected and following valid input succeeds; owned QEMU stops.
+
+
+**Verification:** See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.
+
+
+**Planned test:** TEST-NXR-271
+
+
+**Dependencies:** NXR-265, NXR-269
+
+
+**Configuration:** C++20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.
+
+
+**Static resource budget:** Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.
+
+
+**Review finding:** Finite QEMU and host evidence recorded; physical UART/DMA, target overhead bounds and full platform qualification remain open.
+
+NXR-272 Optional bounded scheduler recording
+--------------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** QEMU networking and task instrumentation
+
+
+**Requirement:** Optional RTOS instrumentation shall record scheduler, sleep, priority, mutex and termination events into a boot-static bounded ring without device IO inside kernel hooks.
+
+
+**Rationale:** Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.
+
+
+**Acceptance:** Disabled build has no recorder symbols; overflow drops new events with observable sequence discontinuity and cumulative loss record; FIFO and wrap checks pass.
+
+
+**Verification:** See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.
+
+
+**Planned test:** TEST-NXR-272
+
+
+**Dependencies:** NXR-002
+
+
+**Configuration:** C++20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.
+
+
+**Static resource budget:** Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.
+
+
+**Review finding:** Finite QEMU and host evidence recorded; physical UART/DMA, target overhead bounds and full platform qualification remain open.
+
+NXR-273 Framed monitor UART transport
+-------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** QEMU networking and task instrumentation
+
+
+**Requirement:** One thread shall drain trace records through bounded partial writes using versioned little-endian COBS frames with CRC-32C and a startup delimiter.
+
+
+**Rationale:** Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.
+
+
+**Acceptance:** Every encoded frame is bounded at 34 bytes; independent reference decoding and seeded properties pass; blocked UART retains partial frame without blocking producers.
+
+
+**Verification:** See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.
+
+
+**Planned test:** TEST-NXR-273
+
+
+**Dependencies:** NXR-272
+
+
+**Configuration:** C++20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.
+
+
+**Static resource budget:** Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.
+
+
+**Review finding:** Finite QEMU and host evidence recorded; physical UART/DMA, target overhead bounds and full platform qualification remain open.
+
+NXR-274 Native task timeline viewer
+-----------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** QEMU networking and task instrumentation
+
+
+**Requirement:** The optional CSharp Avalonia application shall display captured or TCP-streamed task activity, base/effective priorities and mutex waits with bounded retention and explicit loss diagnostics.
+
+
+**Rationale:** Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.
+
+
+**Acceptance:** Parser tests reject corruption and malformed input, handle fragmentation, metadata and sequence wrap; actual QEMU priority-inheritance trace renders in a visually inspected window.
+
+
+**Verification:** See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.
+
+
+**Planned test:** TEST-NXR-274
+
+
+**Dependencies:** NXR-273
+
+
+**Configuration:** C++20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.
+
+
+**Static resource budget:** Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.
+
+
+**Review finding:** Finite QEMU and host evidence recorded; physical UART/DMA, target overhead bounds and full platform qualification remain open.
+
+NXR-275 Static littlefs file control ownership
+----------------------------------------------
+
+**Status:** PartialSourceUnverified
+
+
+**Category:** QEMU networking and task instrumentation
+
+
+**Requirement:** The NexRT littlefs adapter shall require no-malloc upstream compilation and permanently own file metadata, configuration and all caches, with one owner and reentry rejection.
+
+
+**Rationale:** Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.
+
+
+**Acceptance:** Negative no-malloc compile fixture fails; upstream allocator fallback returns null; error cleanup permits slot reuse and callback reentry fails explicitly.
+
+
+**Verification:** See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.
+
+
+**Planned test:** TEST-NXR-275
+
+
+**Dependencies:** NXR-262
+
+
+**Configuration:** C++20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.
+
+
+**Static resource budget:** Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.
+
+
+**Review finding:** Finite QEMU and host evidence recorded; physical UART/DMA, target overhead bounds and full platform qualification remain open.
 

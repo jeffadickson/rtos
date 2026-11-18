@@ -1,7 +1,7 @@
 [DOCUMENT]
 TITLE: NexRT Implementation Requirements
 UID: NXR-BASELINE
-VERSION: catalogue-f6a9c4071f51
+VERSION: catalogue-3a018d61320d
 
 [REQUIREMENT]
 UID: NXR-001
@@ -3910,7 +3910,7 @@ TITLE: Project C++20 migration
 STATEMENT: >>>
 The project shall build firmware, host tests and analysis configurations using C++20 while preserving existing kernel behavior.
 Acceptance: Effective C++ commands use C++20; existing host tests and target static audit pass; Release remains -O3 with loop and SLP vectorization enabled.
-Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.
 Configuration: C++20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.
 Static budget: Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.
 Dependencies: NXR-077
@@ -3925,7 +3925,7 @@ TITLE: Static littlefs service
 STATEMENT: >>>
 The optional storage service shall use caller-owned volume and file caches without a general heap and shall never format on mount failure.
 Acceptance: Blank mount fails unchanged; explicit format succeeds; a file survives unmount/remount; invalid input and injected I/O fail explicitly.
-Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.
 Configuration: C++20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.
 Static budget: Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.
 Dependencies: NXR-002
@@ -3940,7 +3940,7 @@ TITLE: NOR simulation and reset boundaries
 STATEMENT: >>>
 The NOR simulator shall reject invalid ranges and zero-to-one programming before mutation and support reproducible operation-boundary failures.
 Acceptance: NOR bit rules and range tests pass; 64 injected reset boundaries retain the prior or new committed inline value; physical power-loss behavior remains unqualified.
-Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.
 Configuration: C++20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.
 Static budget: Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.
 Dependencies: NXR-262
@@ -3955,7 +3955,7 @@ TITLE: Pool-only lwIP ownership
 STATEMENT: >>>
 The lwIP profile shall use fixed packet, allocation and control-block pools owned by one permanent worker with no general heap fallback.
 Acceptance: PBUF and variable-size allocation exhaustion return failure; releasing blocks restores service; complete target ELF contains no forbidden allocator or dynamic initializer.
-Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.
 Configuration: C++20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.
 Static budget: Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.
 Dependencies: NXR-002
@@ -3970,7 +3970,7 @@ TITLE: Wire-level UDP echo
 STATEMENT: >>>
 The UDP service shall echo at most 512 payload bytes on its configured IPv4 port through the existing Ethernet adapter with synchronous ownership transfer.
 Acceptance: Independently built ARP/IPv4/UDP frames produce matching response payload, ports and checksums; bad checksums, oversized data and exhausted pools do not produce successful echoes.
-Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.
 Configuration: C++20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.
 Static budget: Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.
 Dependencies: NXR-264, NXR-051
@@ -3985,7 +3985,7 @@ TITLE: Independent optional-service removal
 STATEMENT: >>>
 Configuration shall exclude dependency resolution, compilation and linked storage for disabled littlefs, lwIP and ETL evaluation features independently.
 Acceptance: Disabled and each single-feature build pass; all-off configuration performs no dependency download; linked maps and symbols contain no disabled library implementation.
-Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.
 Configuration: C++20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.
 Static budget: Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.
 Dependencies: NXR-078, NXR-079
@@ -4000,7 +4000,7 @@ TITLE: ETL typed-pool evaluation
 STATEMENT: >>>
 The ETL evaluation shall measure fixed typed-pool alignment, exhaustion guarding, reuse and initialization constraints before replacing NexRT ownership helpers.
 Acceptance: Four aligned packet loans exhaust capacity and return to empty; constructor/exception policy and absence of generation handles are recorded; no kernel replacement is implied.
-Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.
 Configuration: C++20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.
 Static budget: Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.
 Dependencies: NXR-002
@@ -4015,11 +4015,116 @@ TITLE: Scheduled static-service firmware
 STATEMENT: >>>
 The simulation demo shall run littlefs remount and 32 wire-level UDP echoes in an actual NexRT worker while another worker and scheduling timer make progress.
 Acceptance: Instruction model reports completed, one persisted file, 32 echoes, nonzero peer progress, multiple dispatches and timer traps; target ELF passes no-heap/no-initializer audit; cutoff is not completion.
-Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.
 Configuration: C++20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.
 Static budget: Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.
 Dependencies: NXR-262, NXR-265
 Implementation: examples/static_services.cpp, sim/interpreter/main.cpp
 Verification sources: examples/static_service_probe.hpp, tests/static_services.cpp, tests/udp.cpp
+<<<
+
+[REQUIREMENT]
+UID: NXR-269
+STATUS: PartialSourceUnverified
+TITLE: QEMU RV32 host network profile
+STATEMENT: >>>
+The optional QEMU virt RV32 profile shall run the actual single-hart kernel with a 10 MHz CLINT timebase and independent address map.
+Acceptance: QEMU boots the audited no-heap ELF; a peer worker progresses while a host socket receives echoes.
+Verification: See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.
+Configuration: C++20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.
+Static budget: Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.
+Dependencies: NXR-268
+Implementation: ports/qemu-virt-rv32/link.ld, examples/qemu_udp_echo.cpp
+Verification sources: tools/NexRT.NetTest/Program.cs
+<<<
+
+[REQUIREMENT]
+UID: NXR-270
+STATUS: PartialSourceUnverified
+TITLE: Bounded modern virtio network
+STATEMENT: >>>
+The optional polled virtio-MMIO driver shall use eight permanently posted RX buffers and one copied outstanding TX with bounded initialization and malformed completion rejection.
+Acceptance: Host device model checks copy ownership, busy recovery, invalid features, malformed completions and 16-bit ring wrap; actual QEMU networking transfers packets.
+Verification: See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.
+Configuration: C++20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.
+Static budget: Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.
+Dependencies: NXR-051
+Implementation: include/rtos_virtio_net.hpp, src/virtio_net.cpp
+Verification sources: tests/virtio_net.cpp
+<<<
+
+[REQUIREMENT]
+UID: NXR-271
+STATUS: PartialSourceUnverified
+TITLE: Host UDP forwarding acceptance
+STATEMENT: >>>
+The native host client shall verify byte-exact bounded UDP echo through loopback QEMU forwarding and observe cleanup of its owned simulator.
+Acceptance: Seeded 0/1/511/512-byte and randomized datagrams echo; 513-byte input is rejected and following valid input succeeds; owned QEMU stops.
+Verification: See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.
+Configuration: C++20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.
+Static budget: Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.
+Dependencies: NXR-265, NXR-269
+Implementation: tools/NexRT.NetTest/Program.cs, src/udp.cpp
+Verification sources: tests/udp_address.cpp, tools/NexRT.NetTest/Program.cs
+<<<
+
+[REQUIREMENT]
+UID: NXR-272
+STATUS: PartialSourceUnverified
+TITLE: Optional bounded scheduler recording
+STATEMENT: >>>
+Optional RTOS instrumentation shall record scheduler, sleep, priority, mutex and termination events into a boot-static bounded ring without device IO inside kernel hooks.
+Acceptance: Disabled build has no recorder symbols; overflow drops new events with observable sequence discontinuity and cumulative loss record; FIFO and wrap checks pass.
+Verification: See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.
+Configuration: C++20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.
+Static budget: Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.
+Dependencies: NXR-002
+Implementation: include/rtos_monitor.hpp, src/monitor.cpp, src/kernel.cpp, src/mutex.cpp, src/scheduler.hpp, src/sync.cpp
+Verification sources: tests/monitor.cpp
+<<<
+
+[REQUIREMENT]
+UID: NXR-273
+STATUS: PartialSourceUnverified
+TITLE: Framed monitor UART transport
+STATEMENT: >>>
+One thread shall drain trace records through bounded partial writes using versioned little-endian COBS frames with CRC-32C and a startup delimiter.
+Acceptance: Every encoded frame is bounded at 34 bytes; independent reference decoding and seeded properties pass; blocked UART retains partial frame without blocking producers.
+Verification: See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.
+Configuration: C++20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.
+Static budget: Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.
+Dependencies: NXR-272
+Implementation: include/rtos_monitor.hpp, include/rtos_monitor_stream.hpp, examples/qemu_udp_echo.cpp
+Verification sources: tests/monitor.cpp
+<<<
+
+[REQUIREMENT]
+UID: NXR-274
+STATUS: PartialSourceUnverified
+TITLE: Native task timeline viewer
+STATEMENT: >>>
+The optional CSharp Avalonia application shall display captured or TCP-streamed task activity, base/effective priorities and mutex waits with bounded retention and explicit loss diagnostics.
+Acceptance: Parser tests reject corruption and malformed input, handle fragmentation, metadata and sequence wrap; actual QEMU priority-inheritance trace renders in a visually inspected window.
+Verification: See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.
+Configuration: C++20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.
+Static budget: Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.
+Dependencies: NXR-273
+Implementation: tools/NexRT.TaskView/Core/Trace.cs, tools/NexRT.TaskView/App/Program.cs
+Verification sources: docs/task-view.rst
+<<<
+
+[REQUIREMENT]
+UID: NXR-275
+STATUS: PartialSourceUnverified
+TITLE: Static littlefs file control ownership
+STATEMENT: >>>
+The NexRT littlefs adapter shall require no-malloc upstream compilation and permanently own file metadata, configuration and all caches, with one owner and reentry rejection.
+Acceptance: Negative no-malloc compile fixture fails; upstream allocator fallback returns null; error cleanup permits slot reuse and callback reentry fails explicitly.
+Verification: See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.
+Configuration: C++20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.
+Static budget: Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.
+Dependencies: NXR-262
+Implementation: include/rtos_littlefs.hpp, src/storage.cpp
+Verification sources: tests/static_services.cpp
 <<<
 

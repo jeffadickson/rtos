@@ -52,7 +52,7 @@ internal static class Program
         if(c.Targets.Select(t=>t.Id).Distinct().Count()!=c.Targets.Length||c.Profiles.Select(p=>p.Id).Distinct().Count()!=c.Profiles.Length) throw new InvalidDataException("Duplicate identity.");
         foreach(var t in c.Targets)
             if(!Id(t.Id)||t.PhysicalCpuLimit is <1 or >64||t.Status is not("planned" or "provisional" or "cross-built" or "simulation-bringup")||
-               t.FirmwareReady!=((t.Id=="riscue"&&t.Status=="cross-built")||(t.Id=="qemu-mps2-m3"&&t.Status=="simulation-bringup")))
+               t.FirmwareReady!=((t.Id=="riscue"&&t.Status=="cross-built")||((t.Id=="qemu-mps2-m3"||t.Id=="qemu-virt-rv32")&&t.Status=="simulation-bringup")))
                 throw new InvalidDataException("Invalid target/readiness.");
         foreach(var p in c.Profiles)
             if(!Id(p.Id)||p.MaxThreads is <1 or >255||p.TickHz is <1 or >1000000||p.IdleStackBytes is <512 or >1048576||p.IdleStackBytes%16!=0||p.Logging&&!p.Sync||p.Lwip&&!p.Ethernet) throw new InvalidDataException("Invalid profile capacity or feature dependency.");
@@ -71,7 +71,7 @@ internal static class Program
             $"set(RTOS_MAX_THREADS {p.MaxThreads} CACHE STRING \"Thread capacity\" FORCE)\nset(RTOS_TICK_HZ {p.TickHz} CACHE STRING \"Tick rate\" FORCE)\nset(RTOS_IDLE_STACK_BYTES {p.IdleStackBytes} CACHE STRING \"Idle stack\" FORCE)\n"+
             $"set(RTOS_METRICS {On(p.Metrics)} CACHE BOOL \"Metrics\" FORCE)\nset(RTOS_STACK_GUARD {On(p.StackGuard)} CACHE BOOL \"Guards\" FORCE)\nset(RTOS_ROUND_ROBIN {On(p.RoundRobin)} CACHE BOOL \"Slicing\" FORCE)\nset(RTOS_ETHERNET {On(p.Ethernet)} CACHE BOOL \"Ethernet adapter\" FORCE)\n"+
             $"set(RTOS_WEB {On(p.Web)} CACHE BOOL \"HTTP component\" FORCE)\nset(RTOS_STORAGE {On(p.Storage)} CACHE BOOL \"Flash storage\" FORCE)\nset(RTOS_SYNC {On(p.Sync)} CACHE BOOL \"Synchronization\" FORCE)\nset(RTOS_LOGGING {On(p.Logging)} CACHE BOOL \"Queued logging\" FORCE)\n"+
-            $"set(RTOS_LWIP {On(p.Lwip)} CACHE BOOL \"Static lwIP UDP\" FORCE)\nset(RTOS_ETL_EVALUATION OFF CACHE BOOL \"Host-only evaluation\" FORCE)\n";
+            $"set(RTOS_LWIP {On(p.Lwip)} CACHE BOOL \"Static lwIP UDP\" FORCE)\nset(RTOS_VIRTIO_NET OFF CACHE BOOL \"Optional virtio adapter\" FORCE)\nset(RTOS_TASK_TRACE OFF CACHE BOOL \"Optional monitor\" FORCE)\nset(RTOS_ETL_EVALUATION OFF CACHE BOOL \"Host-only evaluation\" FORCE)\n";
     }
     /// <summary>Exercises invalid topology, capacities and readiness, plus deterministic rendering and feature-off configuration.</summary>
     private static void SelfTest(Catalogue c)

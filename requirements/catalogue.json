@@ -7466,7 +7466,7 @@
     "statement": "The project shall build firmware, host tests and analysis configurations using C\u002B\u002B20 while preserving existing kernel behavior.",
     "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
     "acceptance": "Effective C\u002B\u002B commands use C\u002B\u002B20; existing host tests and target static audit pass; Release remains -O3 with loop and SLP vectorization enabled.",
-    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.",
+    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.",
     "dependencies": [
       "NXR-077"
     ],
@@ -7498,7 +7498,7 @@
     "statement": "The optional storage service shall use caller-owned volume and file caches without a general heap and shall never format on mount failure.",
     "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
     "acceptance": "Blank mount fails unchanged; explicit format succeeds; a file survives unmount/remount; invalid input and injected I/O fail explicitly.",
-    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.",
+    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.",
     "dependencies": [
       "NXR-002"
     ],
@@ -7528,7 +7528,7 @@
     "statement": "The NOR simulator shall reject invalid ranges and zero-to-one programming before mutation and support reproducible operation-boundary failures.",
     "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
     "acceptance": "NOR bit rules and range tests pass; 64 injected reset boundaries retain the prior or new committed inline value; physical power-loss behavior remains unqualified.",
-    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.",
+    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.",
     "dependencies": [
       "NXR-262"
     ],
@@ -7556,7 +7556,7 @@
     "statement": "The lwIP profile shall use fixed packet, allocation and control-block pools owned by one permanent worker with no general heap fallback.",
     "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
     "acceptance": "PBUF and variable-size allocation exhaustion return failure; releasing blocks restores service; complete target ELF contains no forbidden allocator or dynamic initializer.",
-    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.",
+    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.",
     "dependencies": [
       "NXR-002"
     ],
@@ -7588,7 +7588,7 @@
     "statement": "The UDP service shall echo at most 512 payload bytes on its configured IPv4 port through the existing Ethernet adapter with synchronous ownership transfer.",
     "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
     "acceptance": "Independently built ARP/IPv4/UDP frames produce matching response payload, ports and checksums; bad checksums, oversized data and exhausted pools do not produce successful echoes.",
-    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.",
+    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.",
     "dependencies": [
       "NXR-264",
       "NXR-051"
@@ -7621,7 +7621,7 @@
     "statement": "Configuration shall exclude dependency resolution, compilation and linked storage for disabled littlefs, lwIP and ETL evaluation features independently.",
     "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
     "acceptance": "Disabled and each single-feature build pass; all-off configuration performs no dependency download; linked maps and symbols contain no disabled library implementation.",
-    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.",
+    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.",
     "dependencies": [
       "NXR-078",
       "NXR-079"
@@ -7656,7 +7656,7 @@
     "statement": "The ETL evaluation shall measure fixed typed-pool alignment, exhaustion guarding, reuse and initialization constraints before replacing NexRT ownership helpers.",
     "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
     "acceptance": "Four aligned packet loans exhaust capacity and return to empty; constructor/exception policy and absence of generation handles are recorded; no kernel replacement is implied.",
-    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.",
+    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.",
     "dependencies": [
       "NXR-002"
     ],
@@ -7684,7 +7684,7 @@
     "statement": "The simulation demo shall run littlefs remount and 32 wire-level UDP echoes in an actual NexRT worker while another worker and scheduling timer make progress.",
     "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
     "acceptance": "Instruction model reports completed, one persisted file, 32 echoes, nonzero peer progress, multiple dispatches and timer traps; target ELF passes no-heap/no-initializer audit; cutoff is not completion.",
-    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.",
+    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst and requirements/qemu-network/evidence.rst for commands and limitations.",
     "dependencies": [
       "NXR-262",
       "NXR-265"
@@ -7711,5 +7711,228 @@
       "tests/udp.cpp"
     ],
     "finding": "Implementation and finite simulation evidence exist; board flash/MAC timing, full network conformance and formal qualification are not established."
+  },
+  {
+    "id": "NXR-269",
+    "title": "QEMU RV32 host network profile",
+    "category": "QEMU networking and task instrumentation",
+    "statement": "The optional QEMU virt RV32 profile shall run the actual single-hart kernel with a 10 MHz CLINT timebase and independent address map.",
+    "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
+    "acceptance": "QEMU boots the audited no-heap ELF; a peer worker progresses while a host socket receives echoes.",
+    "verification": "See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.",
+    "dependencies": [
+      "NXR-268"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "ports/qemu-virt-rv32/link.ld",
+      "examples/qemu_udp_echo.cpp"
+    ],
+    "verification_files": [
+      "tools/NexRT.NetTest/Program.cs"
+    ],
+    "planned_test": "TEST-NXR-269",
+    "configuration": "C\u002B\u002B20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.",
+    "resource_budget": "Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.",
+    "review_iteration": 269,
+    "inspected_files": [
+      "ports/qemu-virt-rv32/link.ld",
+      "examples/qemu_udp_echo.cpp",
+      "tools/NexRT.NetTest/Program.cs"
+    ],
+    "finding": "Finite QEMU and host evidence recorded; physical UART/DMA, target overhead bounds and full platform qualification remain open."
+  },
+  {
+    "id": "NXR-270",
+    "title": "Bounded modern virtio network",
+    "category": "QEMU networking and task instrumentation",
+    "statement": "The optional polled virtio-MMIO driver shall use eight permanently posted RX buffers and one copied outstanding TX with bounded initialization and malformed completion rejection.",
+    "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
+    "acceptance": "Host device model checks copy ownership, busy recovery, invalid features, malformed completions and 16-bit ring wrap; actual QEMU networking transfers packets.",
+    "verification": "See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.",
+    "dependencies": [
+      "NXR-051"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_virtio_net.hpp",
+      "src/virtio_net.cpp"
+    ],
+    "verification_files": [
+      "tests/virtio_net.cpp"
+    ],
+    "planned_test": "TEST-NXR-270",
+    "configuration": "C\u002B\u002B20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.",
+    "resource_budget": "Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.",
+    "review_iteration": 270,
+    "inspected_files": [
+      "include/rtos_virtio_net.hpp",
+      "src/virtio_net.cpp",
+      "tests/virtio_net.cpp"
+    ],
+    "finding": "Finite QEMU and host evidence recorded; physical UART/DMA, target overhead bounds and full platform qualification remain open."
+  },
+  {
+    "id": "NXR-271",
+    "title": "Host UDP forwarding acceptance",
+    "category": "QEMU networking and task instrumentation",
+    "statement": "The native host client shall verify byte-exact bounded UDP echo through loopback QEMU forwarding and observe cleanup of its owned simulator.",
+    "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
+    "acceptance": "Seeded 0/1/511/512-byte and randomized datagrams echo; 513-byte input is rejected and following valid input succeeds; owned QEMU stops.",
+    "verification": "See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.",
+    "dependencies": [
+      "NXR-265",
+      "NXR-269"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "tools/NexRT.NetTest/Program.cs",
+      "src/udp.cpp"
+    ],
+    "verification_files": [
+      "tests/udp_address.cpp",
+      "tools/NexRT.NetTest/Program.cs"
+    ],
+    "planned_test": "TEST-NXR-271",
+    "configuration": "C\u002B\u002B20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.",
+    "resource_budget": "Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.",
+    "review_iteration": 271,
+    "inspected_files": [
+      "tools/NexRT.NetTest/Program.cs",
+      "src/udp.cpp",
+      "tests/udp_address.cpp",
+      "tools/NexRT.NetTest/Program.cs"
+    ],
+    "finding": "Finite QEMU and host evidence recorded; physical UART/DMA, target overhead bounds and full platform qualification remain open."
+  },
+  {
+    "id": "NXR-272",
+    "title": "Optional bounded scheduler recording",
+    "category": "QEMU networking and task instrumentation",
+    "statement": "Optional RTOS instrumentation shall record scheduler, sleep, priority, mutex and termination events into a boot-static bounded ring without device IO inside kernel hooks.",
+    "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
+    "acceptance": "Disabled build has no recorder symbols; overflow drops new events with observable sequence discontinuity and cumulative loss record; FIFO and wrap checks pass.",
+    "verification": "See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.",
+    "dependencies": [
+      "NXR-002"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_monitor.hpp",
+      "src/monitor.cpp",
+      "src/kernel.cpp",
+      "src/mutex.cpp",
+      "src/scheduler.hpp",
+      "src/sync.cpp"
+    ],
+    "verification_files": [
+      "tests/monitor.cpp"
+    ],
+    "planned_test": "TEST-NXR-272",
+    "configuration": "C\u002B\u002B20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.",
+    "resource_budget": "Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.",
+    "review_iteration": 272,
+    "inspected_files": [
+      "include/rtos_monitor.hpp",
+      "src/monitor.cpp",
+      "src/kernel.cpp",
+      "src/mutex.cpp",
+      "src/scheduler.hpp",
+      "src/sync.cpp",
+      "tests/monitor.cpp"
+    ],
+    "finding": "Finite QEMU and host evidence recorded; physical UART/DMA, target overhead bounds and full platform qualification remain open."
+  },
+  {
+    "id": "NXR-273",
+    "title": "Framed monitor UART transport",
+    "category": "QEMU networking and task instrumentation",
+    "statement": "One thread shall drain trace records through bounded partial writes using versioned little-endian COBS frames with CRC-32C and a startup delimiter.",
+    "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
+    "acceptance": "Every encoded frame is bounded at 34 bytes; independent reference decoding and seeded properties pass; blocked UART retains partial frame without blocking producers.",
+    "verification": "See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.",
+    "dependencies": [
+      "NXR-272"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_monitor.hpp",
+      "include/rtos_monitor_stream.hpp",
+      "examples/qemu_udp_echo.cpp"
+    ],
+    "verification_files": [
+      "tests/monitor.cpp"
+    ],
+    "planned_test": "TEST-NXR-273",
+    "configuration": "C\u002B\u002B20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.",
+    "resource_budget": "Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.",
+    "review_iteration": 273,
+    "inspected_files": [
+      "include/rtos_monitor.hpp",
+      "include/rtos_monitor_stream.hpp",
+      "examples/qemu_udp_echo.cpp",
+      "tests/monitor.cpp"
+    ],
+    "finding": "Finite QEMU and host evidence recorded; physical UART/DMA, target overhead bounds and full platform qualification remain open."
+  },
+  {
+    "id": "NXR-274",
+    "title": "Native task timeline viewer",
+    "category": "QEMU networking and task instrumentation",
+    "statement": "The optional CSharp Avalonia application shall display captured or TCP-streamed task activity, base/effective priorities and mutex waits with bounded retention and explicit loss diagnostics.",
+    "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
+    "acceptance": "Parser tests reject corruption and malformed input, handle fragmentation, metadata and sequence wrap; actual QEMU priority-inheritance trace renders in a visually inspected window.",
+    "verification": "See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.",
+    "dependencies": [
+      "NXR-273"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "tools/NexRT.TaskView/Core/Trace.cs",
+      "tools/NexRT.TaskView/App/Program.cs"
+    ],
+    "verification_files": [
+      "docs/task-view.rst"
+    ],
+    "planned_test": "TEST-NXR-274",
+    "configuration": "C\u002B\u002B20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.",
+    "resource_budget": "Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.",
+    "review_iteration": 274,
+    "inspected_files": [
+      "tools/NexRT.TaskView/Core/Trace.cs",
+      "tools/NexRT.TaskView/App/Program.cs",
+      "docs/task-view.rst"
+    ],
+    "finding": "Finite QEMU and host evidence recorded; physical UART/DMA, target overhead bounds and full platform qualification remain open."
+  },
+  {
+    "id": "NXR-275",
+    "title": "Static littlefs file control ownership",
+    "category": "QEMU networking and task instrumentation",
+    "statement": "The NexRT littlefs adapter shall require no-malloc upstream compilation and permanently own file metadata, configuration and all caches, with one owner and reentry rejection.",
+    "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
+    "acceptance": "Negative no-malloc compile fixture fails; upstream allocator fallback returns null; error cleanup permits slot reuse and callback reentry fails explicitly.",
+    "verification": "See requirements/qemu-network/evidence.rst for exact finite execution, coverage and limitations. Source traceability is not full target qualification.",
+    "dependencies": [
+      "NXR-262"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_littlefs.hpp",
+      "src/storage.cpp"
+    ],
+    "verification_files": [
+      "tests/static_services.cpp"
+    ],
+    "planned_test": "TEST-NXR-275",
+    "configuration": "C\u002B\u002B20 -O3 RV32 QEMU; independent RTOS_VIRTIO_NET and RTOS_TASK_TRACE; optional CSharp net10 Avalonia host viewer.",
+    "resource_budget": "Guest boot-static buffers, default512 trace records and34-byte wire frames; host viewer bounded100000 retained and4000 rendered records; no target general heap.",
+    "review_iteration": 275,
+    "inspected_files": [
+      "include/rtos_littlefs.hpp",
+      "src/storage.cpp",
+      "tests/static_services.cpp"
+    ],
+    "finding": "Finite QEMU and host evidence recorded; physical UART/DMA, target overhead bounds and full platform qualification remain open."
   }
 ]

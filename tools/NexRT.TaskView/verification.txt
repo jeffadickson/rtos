@@ -1,0 +1,66 @@
+NexRT Task View verification — 2026-11-18, Windows
+Base repository revision: 04bb4a3; TaskView source is uncommitted during these checks.
+Final SDK: 10.0.404 (TaskView-local global.json: 10.0.400/latestPatch).
+Runtime target: net10.0. Avalonia Desktop/Fluent/Headless 12.1.6.
+NUnit 4.5.1; adapter 5.1.0; test SDK 17.14.1; Coverlet collector 6.0.4.
+
+Executed from existing tools/NexRT.TaskView/Tests:
+  dotnet build ../App/NexRT.TaskView.App.csproj -p:PublishAot=false
+  dotnet test NexRT.TaskView.Tests.csproj --collect:'XPlat Code Coverage' --results-directory 'E:/Artifacts/NexRT/qemu-network-20261118-114443/task-view/final-reviewed' --logger 'console;verbosity=normal' -p:PublishAot=false
+Environment for real capture and screenshots:
+  NEXRT_TASKVIEW_TRACE=E:/Artifacts/NexRT/qemu-network-20261118-114443/smoke-trace/uart.bin
+  NEXRT_TASKVIEW_TARGET_SCREENSHOT=E:/Artifacts/NexRT/qemu-network-20261118-114443/task-view/target-window.png
+  NEXRT_TASKVIEW_SCREENSHOT=E:/Artifacts/NexRT/qemu-network-20261118-114443/task-view/empty-window.png
+Build: passed, zero warnings and errors. Tests: 33 passed, zero failed/skipped.
+Final test elapsed: 7.4334 seconds (not a performance benchmark).
+Cobertura: E:/Artifacts/NexRT/qemu-network-20261118-114443/task-view/final-reviewed/871cc5eb-6f26-422f-afb3-25c353354422/coverage.cobertura.xml
+Core: 100% measured lines; 98.24% measured branches.
+GUI app: 90.78% measured lines; 62.24% measured branches.
+Coverage is instrumentation evidence, not proof. Hardware/native Linux/AOT, GUI keyboard marker interaction, failed live-network recovery, some guard branches, and physical serial are unmeasured.
+
+Real QEMU UART capture SHA256:
+  C9149AF00E96814948132C32B0984CDFA9420A1365010CDDC14B62CA3B9D298A
+2044 validated records; one rejected boot-ASCII prefix; zero sequence gaps.
+ClockInfo1, ThreadInfo6, Dispatch878, Sleep572, Block3, Ready574,
+MutexAcquire2, MutexWait1, Priority2, MutexRelease2, Finish3.
+One priority event raises effective above base; target clock metadata 10000000 Hz.
+Target drops remain unknown without a Loss130 record.
+Visually inspected actual full window and target-window-zoom.png: readable six task lanes, low-owner1/4 marker, high-waiter4/4 owner connector/arrowhead, medium task, complete toolbar/status/inspector. Rendering is headless Avalonia with actual decoded target events, not a claim of physical Windows interaction testing.
+
+Regression scope: independent CRC32C123456789 vector; all valid-frame chunk splits;
+all single-bit encoded-frame corruptions; oversized recovery; schema with recomputedCRC;
+metadata fields; retention and sequence wrap; actual file and chunked loopbackTCP;
+cancellation; missing file and malformed endpoints. Random malformed-input seed741923,
+5000 bounded chunks. This custom robustness campaign is not an established coverage-guidedfuzzer.
+Interval regressions include DispatchA seq10 t100, missing11, ReadyA12t300,
+DispatchA13t400: no running interval is produced. Loss, backward timestamp, rejectedframe
+across chunks and missing endpoint all yield unknown intervals. Metadata sequence numbers
+participate in continuity while metadata clock/name payloads are excluded from time checks.
+
+Mutation: Stryker.NET5.1.0,4workers,Trace.cs scope. Initial SDK11.0.100/net10.0
+pre-clock/loss/interval source campaign completed144generated,89killed,19survived,
+2timeouts,14compile-errors,3uncovered,17ignored; reported80.53%. Reports:
+E:/Artifacts/NexRT/qemu-network-20261118-114443/task-view/mutation/reports/mutation-report.json
+This is historical partial evidence, not a mutation score for final source.
+Subsequent SDK10 run stalled without report and was cancelled; filtered repeat failed
+initial test execution. Cause unresolved. Final clock/loss and interval changes are
+unmeasured by mutation. No memory caps were applied; no runaway workers were observed.
+Reproduction configuration: Tests/stryker-config.json; pinned tool .config/dotnet-tools.json.
+Normal builds/tests and Stryker must run sequentially because they share outputs.
+
+Pre-LF-normalization source SHA256 values follow (relative to repository root).
+08EBB13E715D54A4F375C7FC9D3B7FF7FD7871617E61407703B90BC8633628FF  tools\NexRT.TaskView\global.json
+B3F40C8A47D587DF8F8CD0127A143AAA3D0F0BB6D7CF93FC7E8EF937235BB168  tools\NexRT.TaskView\.config\dotnet-tools.json
+BFC43941A77FAF83C758F02B3B99A21D3C63F8737D3ADFD8E9F953A71B3932F8  tools\NexRT.TaskView\App\AssemblyInfo.cs
+F0D44B5FA2B1FF175A520A5D00A036F1622F71F39431525B9009913166DDEE8E  tools\NexRT.TaskView\App\NexRT.TaskView.App.csproj
+806F8072108806A7815A8B771AFE0D07E7882D6DC6E5B1C144A722F572BE7876  tools\NexRT.TaskView\App\Program.cs
+188A869D671EF1BA134CA633F25A99ACE03312AA79B44500F57F5AAC61BDF833  tools\NexRT.TaskView\Core\NexRT.TaskView.Core.csproj
+6FC492B9098E7858A784AA8A02F2DFC8E40D1CEF63E7F8ECD02EC5099AD308BB  tools\NexRT.TaskView\Core\Trace.cs
+BC1C26EE0DC1CFA86FC2BEA09D4DA1EF3534468C15562C5518A94BF42F1E9EDB  tools\NexRT.TaskView\Tests\DecoderTests.cs
+5C1C9B3DBD3F9D7E6C9E6BE41D8D93630208A41B1D1CB614116D6810D4FF51E1  tools\NexRT.TaskView\Tests\IntervalTests.cs
+E8A51AA1BA8B1289574CBDB8C183DC80CA8166A929E0D52408DB33C70FC451E2  tools\NexRT.TaskView\Tests\NexRT.TaskView.Tests.csproj
+ED9F69EC9371D331D8A0618583A2D13E0D2F46C317F02645A2EA74DF44E926A5  tools\NexRT.TaskView\Tests\RenderTests.cs
+1F603B8BC127D55A1D6D792D4D90C572F93D113A5C4B5A7787A75C6D9265A050  tools\NexRT.TaskView\Tests\SourceTests.cs
+22E57A745D4E64261A7CC160366132748A7D210214EBD7D7C2B508E203ABF4DC  tools\NexRT.TaskView\Tests\stryker-config.json
+
+Integration normalized line endings and trailing blank lines only. Current committed source hashes are in requirements/qemu-network/source-hashes.json; independent root verification reran33 tests after integration.

@@ -1,4 +1,5 @@
 #include "rtos_sync.hpp"
+#include "rtos_monitor.hpp"
 namespace rtos::detail {
 Thread* WaitQueue::best()const {
     // Enrollment order is stable; strict '>' preserves FIFO among equal priorities.
@@ -16,6 +17,7 @@ Result WaitQueue::wait(Tick timeout,void* data,uint32_t mask,uint8_t flags){
     t->wait.queue=this;t->wait.next=nullptr;t->wait.data=data;t->wait.mask=mask;
     t->wait.flags=flags;t->wait.observed=0;t->wait.result=Result::busy;
     t->wake=synchronization_now()+timeout;t->state=State::blocked;
+    NEXRT_TRACE(blocked,t,nullptr,timeout);
     if(last_)last_->wait.next=t;else first_=t;
     last_=t;++count_;
     if(on_change)on_change(observer);
@@ -34,6 +36,7 @@ void WaitQueue::complete(Thread& t,Result result){
     t.waiting_mutex=nullptr;
     --count_;t.wait.queue=nullptr;t.wait.next=nullptr;t.wait.data=nullptr;
     t.wait.result=result;t.state=State::ready;
+    NEXRT_TRACE(ready,&t,nullptr,uint32_t(result));
     if(on_change)on_change(observer);
 }
 void expire_wait(Thread& t,Tick now){

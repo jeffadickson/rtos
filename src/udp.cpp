@@ -45,11 +45,13 @@ void UdpEcho::received(void* context,udp_pcb* pcb,pbuf* packet,const ip_addr_t* 
     pbuf_free(reply);
     if(sent==ERR_OK)++self.echoes_;else ++self.errors_;
 }
-bool UdpEcho::initialize(Mac mac,uint16_t port){
+bool UdpEcho::initialize(Mac mac,uint16_t port,const Ipv4Configuration& addressing){
     if(initialized_||stack_claimed||!port||!mac.receive||!mac.transmit||!mac.link_up)return false;
     if(!ethernet_.initialize(mac,input,this))return false;
     stack_claimed=true;lwip_init();
-    ip4_addr_t ip,mask,gateway;IP4_ADDR(&ip,192,0,2,2);IP4_ADDR(&mask,255,255,255,0);IP4_ADDR(&gateway,0,0,0,0);
+    ip4_addr_t ip,mask,gateway;
+    const auto a=addressing.address,m=addressing.netmask,g=addressing.gateway;
+    IP4_ADDR(&ip,a.a,a.b,a.c,a.d);IP4_ADDR(&mask,m.a,m.b,m.c,m.d);IP4_ADDR(&gateway,g.a,g.b,g.c,g.d);
     if(!netif_add(&interface_,&ip,&mask,&gateway,this,configure,ethernet_input))return false;
     pcb_=udp_new();
     if(!pcb_){netif_remove(&interface_);return false;}

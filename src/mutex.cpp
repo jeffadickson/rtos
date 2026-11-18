@@ -1,6 +1,7 @@
 #include "rtos_mutex.hpp"
+#include "rtos_monitor.hpp"
 namespace rtos {
-void Mutex::attach(Thread& t){owner_=&t;next_owned_=t.owned_mutexes;t.owned_mutexes=this;++t.held_mutexes;}
+void Mutex::attach(Thread& t){owner_=&t;next_owned_=t.owned_mutexes;t.owned_mutexes=this;++t.held_mutexes;NEXRT_TRACE(mutex_acquire,&t,nullptr,0);}
 void Mutex::detach(){
     if(!owner_)return;
     auto** link=&owner_->owned_mutexes;
@@ -18,7 +19,13 @@ void Mutex::priority_changed(Thread& start){
         unsigned held=0;
         for(auto* m=t->owned_mutexes;m&&held<RTOS_MAX_HELD_MUTEXES;m=m->next_owned_,++held)
             if(auto* waiter=m->waiters_.best())if(waiter->effective_priority>effective)effective=waiter->effective_priority;
+#if RTOS_TASK_TRACE
+        const auto previous=t->effective_priority;
+#endif
         t->effective_priority=effective;
+#if RTOS_TASK_TRACE
+        if(previous!=effective)NEXRT_TRACE(priority,t,nullptr,previous);
+#endif
         t=t->waiting_mutex?t->waiting_mutex->owner_:nullptr;
     }
 }
@@ -40,6 +47,7 @@ Result Mutex::lock(Tick timeout){
         p=p->waiting_mutex?p->waiting_mutex->owner_:nullptr;
     }
     self->waiting_mutex=this;
+    NEXRT_TRACE(mutex_wait,self,owner_,0);
     auto result=waiters_.wait(timeout);
     self->waiting_mutex=nullptr;
     return result;
@@ -49,6 +57,7 @@ Result Mutex::unlock(){
     auto* self=detail::calling_thread();
     if(!self||owner_!=self)return Result::context;
     const auto before=self->effective_priority;
+    NEXRT_TRACE(mutex_release,self,nullptr,0);
     detach();
     if(auto* next=waiters_.best()){
         attach(*next); // Grant ownership before making the waiter runnable.

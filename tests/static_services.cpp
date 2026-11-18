@@ -66,6 +66,46 @@ int main() {
         assert(!std::memcmp(recovered,old_value,sizeof(recovered))||!std::memcmp(recovered,new_value,sizeof(recovered)));
         assert(after.unmount());
     }
-    std::puts("littlefs: static caches, NOR rules, persistence, injected I/O and 64 reset boundaries passed");
+    // Failed open/read/write/close paths must release the sole metadata/cache slot.
+    for(int cut=0;cut<32;++cut){
+        static SimFlash<32,512> failure_media;
+        failure_media.erase_all();Volume retry;
+        assert(retry.bind(failure_media.device())&&retry.format()&&retry.mount());
+        assert(retry.write("retry","initial",7));
+        char value[16]{};
+        failure_media.fail_after(cut);(void)retry.read("retry",value,sizeof(value));
+        failure_media.fail_after(-1);
+        assert(retry.unmount()&&retry.mount());assert(retry.read("retry",value,sizeof(value))==7);
+        failure_media.fail_after(cut);(void)retry.write("retry","replacement",11);
+        failure_media.fail_after(-1);
+        assert(retry.unmount()&&retry.mount());
+        assert(retry.write("retry","reused",6));
+        assert(retry.read("retry",value,sizeof(value))==6);
+        assert(!std::memcmp(value,"reused",6));assert(retry.unmount());
+    }
+    // Reentry from synchronous device callbacks is rejected before littlefs sees
+    // a second operation. This says nothing about simultaneous callers/threads.
+    struct Reentry {
+        Device underlying;Volume* volume;bool armed{},seen{};
+        static int read(void* opaque,uint32_t b,uint32_t o,void* p,uint32_t n){
+            auto& self=*static_cast<Reentry*>(opaque);
+            if(self.armed){self.armed=false;self.seen=true;
+                assert(self.volume->read("nested",nullptr,0)==LFS_ERR_INVAL);
+                assert(!self.volume->write("nested",nullptr,0));
+                assert(!self.volume->mount()&&!self.volume->unmount()&&!self.volume->format());
+                assert(!self.volume->bind(self.underlying));
+            }
+            return self.underlying.read(self.underlying.context,b,o,p,n);
+        }
+    };
+    static SimFlash<32,512> nested_media;static Volume nested;
+    nested_media.erase_all();Reentry reentry{nested_media.device(),&nested};
+    Device proxy=nested_media.device();proxy.context=&reentry;proxy.read=Reentry::read;
+    proxy.program=[](void* c,uint32_t b,uint32_t o,const void* p,uint32_t n){auto& s=*static_cast<Reentry*>(c);return s.underlying.program(s.underlying.context,b,o,p,n);};
+    proxy.erase=[](void* c,uint32_t b){auto& s=*static_cast<Reentry*>(c);return s.underlying.erase(s.underlying.context,b);};
+    proxy.sync=[](void* c){auto& s=*static_cast<Reentry*>(c);return s.underlying.sync(s.underlying.context);};
+    assert(nested.bind(proxy)&&nested.format());reentry.armed=true;
+    assert(nested.mount()&&reentry.seen);assert(nested.write("after","ok",2));assert(nested.unmount());
+    std::puts("littlefs: static caches, NOR rules, persistence, injected I/O 64 reset boundaries, 32 slot-reuse boundaries and callback reentry passed");
     return 0;
 }

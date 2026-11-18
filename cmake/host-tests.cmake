@@ -1,4 +1,14 @@
 # Host-only verification. Firmware consumers do not depend on these model libraries.
+add_executable(monitor_test tests/monitor.cpp)
+target_include_directories(monitor_test PRIVATE include)
+target_compile_definitions(monitor_test PRIVATE RTOS_TASK_TRACE=1)
+add_test(NAME monitor COMMAND monitor_test)
+if(MSVC)
+  target_compile_options(monitor_test PRIVATE /W4 /WX /UNDEBUG)
+else()
+  target_compile_options(monitor_test PRIVATE -Wall -Wextra -Werror -UNDEBUG)
+endif()
+set_tests_properties(monitor PROPERTIES TIMEOUT 30)
 function(rtos_memcheck target name)
   if(RTOS_HOST_VALGRIND)
     add_test(NAME memcheck_${name} COMMAND ${NXR_VALGRIND_EXECUTABLE}
@@ -48,6 +58,8 @@ target_compile_definitions(rtos_sync_model PRIVATE RTOS_SYNC=1)
 rtos_host_warnings(rtos_sync_model)
 
 if(DOTNET_EXECUTABLE)
+  add_test(NAME network_client_negative COMMAND ${network_test_tool_COMMAND} self-test)
+  set_tests_properties(network_client_negative PROPERTIES TIMEOUT 10)
   add_test(NAME tooling COMMAND ${rtos_tools_COMMAND} self-test)
   add_test(NAME evidence_tool COMMAND ${evidence_tool_COMMAND} self-test)
   set_tests_properties(evidence_tool PROPERTIES TIMEOUT 30)
