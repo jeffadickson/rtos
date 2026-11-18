@@ -59,6 +59,7 @@ worst-case execution time, or hardware validation.
    requirements-process
    requirements-campaign
    qualification-roadmap
+   static-services
 
 Scope and status
 ----------------
@@ -71,6 +72,11 @@ relative sleep, yield, thread completion, runtime priority updates, diagnostics,
 an optional polling Ethernet integration adapter, and optional static IPC,
 priority-inheriting mutexes and bounded queued logging. Hardware-specific MAC,
 PHY, UART, and other peripheral drivers are integration work.
+
+Optional littlefs on simulated NOR and lwIP IPv4 UDP echo now run in the
+larger-RAM RV32 instruction-model profile; see :doc:`static-services`. Both
+features remain independently removable. Physical flash and MAC drivers remain
+separate board integration work.
 
 All kernel storage is reserved statically before scheduling begins. Thread
 registration occurs at boot and is sealed by ``start()``. There is no kernel

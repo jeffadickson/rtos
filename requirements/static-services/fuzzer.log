@@ -1,0 +1,26 @@
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 1314411092
+INFO: Loaded 1 modules   (3769 inline 8-bit counters): 3769 [0x592672800d70, 0x592672801c29), 
+INFO: Loaded 1 PC tables (3769 PCs): 3769 [0x592672801c30,0x5926728107c0), 
+INFO:       43 files found in /mnt/e/Artifacts/NexRT/static-services-20261118-094531/fuzz-corpus
+INFO: seed corpus: files: 43 min: 1b max: 42b total: 1254b rss: 32Mb
+#44	INITED cov: 191 ft: 235 corp: 26/689b exec/s: 0 rss: 34Mb
+#55	NEW    cov: 191 ft: 236 corp: 27/731b lim: 42 exec/s: 0 rss: 34Mb L: 42/42 MS: 1 ChangeBinInt-
+#216	NEW    cov: 191 ft: 237 corp: 28/773b lim: 42 exec/s: 0 rss: 34Mb L: 42/42 MS: 1 CopyPart-
+	NEW_FUNC[1/3]: 0x592672768868 in lwip_cyclic_timer /home/jeffd/src/nexrt/rtos/build/static-deps/lwip/src/core/timeouts.c:233
+	NEW_FUNC[2/3]: 0x592672768d58 in sys_timeout_abs /home/jeffd/src/nexrt/rtos/build/static-deps/lwip/src/core/timeouts.c:185
+#1000	NEW    cov: 205 ft: 252 corp: 29/820b lim: 47 exec/s: 0 rss: 35Mb L: 47/47 MS: 4 InsertByte-ChangeByte-InsertRepeatedBytes-ChangeByte-
+#1027	NEW    cov: 206 ft: 253 corp: 30/865b lim: 47 exec/s: 0 rss: 35Mb L: 45/47 MS: 2 CrossOver-CopyPart-
+#1158	NEW    cov: 207 ft: 254 corp: 31/905b lim: 47 exec/s: 0 rss: 35Mb L: 40/47 MS: 1 CopyPart-
+#1214	NEW    cov: 207 ft: 255 corp: 32/947b lim: 47 exec/s: 0 rss: 35Mb L: 42/47 MS: 1 CrossOver-
+#1275	NEW    cov: 207 ft: 256 corp: 33/970b lim: 47 exec/s: 0 rss: 35Mb L: 23/47 MS: 1 ChangeByte-
+#1372	NEW    cov: 208 ft: 257 corp: 34/1002b lim: 47 exec/s: 0 rss: 35Mb L: 32/47 MS: 2 ChangeByte-EraseBytes-
+#2308	REDUCE cov: 208 ft: 257 corp: 34/998b lim: 52 exec/s: 0 rss: 35Mb L: 16/47 MS: 1 EraseBytes-
+#2514	REDUCE cov: 208 ft: 257 corp: 34/995b lim: 52 exec/s: 0 rss: 35Mb L: 42/47 MS: 1 EraseBytes-
+#3728	REDUCE cov: 208 ft: 257 corp: 34/987b lim: 62 exec/s: 0 rss: 36Mb L: 16/47 MS: 4 ChangeBinInt-ChangeBit-CopyPart-EraseBytes-
+#3795	REDUCE cov: 208 ft: 257 corp: 34/986b lim: 62 exec/s: 0 rss: 36Mb L: 41/47 MS: 2 InsertRepeatedBytes-EraseBytes-
+#4011	REDUCE cov: 208 ft: 257 corp: 34/971b lim: 62 exec/s: 4011 rss: 36Mb L: 27/47 MS: 1 EraseBytes-
+#4377	REDUCE cov: 208 ft: 257 corp: 34/970b lim: 62 exec/s: 4377 rss: 36Mb L: 15/47 MS: 1 EraseBytes-
+#4489	REDUCE cov: 208 ft: 257 corp: 34/965b lim: 62 exec/s: 4489 rss: 36Mb L: 27/47 MS: 2 ChangeByte-EraseBytes-
+#5000	DONE   cov: 208 ft: 257 corp: 34/965b lim: 67 exec/s: 5000 rss: 36Mb
+Done 5000 runs in 1 second(s)

@@ -175,8 +175,9 @@ void watch(void*){
                     record_failure(15,id,result.job.sequence);
                 else{
                     sequences[id]=result.job.sequence;expected_total+=result.value;
-                    ++nexrt_soak_status.completed;++nexrt_soak_status.worker_jobs[id];
-                    ++nexrt_soak_status.mode_counts[result.job.mode];
+                    nexrt_soak_status.completed=nexrt_soak_status.completed+1;
+                    nexrt_soak_status.worker_jobs[id]=nexrt_soak_status.worker_jobs[id]+1;
+                    nexrt_soak_status.mode_counts[result.job.mode]=nexrt_soak_status.mode_counts[result.job.mode]+1;
                 }
                 available.fetch_or(uint32_t(1)<<id);
             }

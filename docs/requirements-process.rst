@@ -4,8 +4,10 @@ Requirements review and implementation process
 The requirements tracker follows the local BenchForge pattern: stable
 requirement identities, a StrictDoc-format source export, CSV traceability,
 and C# validation. The canonical source here is requirements/catalogue.json.
-This project does not invoke the Python StrictDoc engine. Sphinx and its
-minimal configuration are the documentation-only Python exception.
+The C# tracker generates the canonical views, and the ``strictdoc`` build target
+invokes the real StrictDoc engine for parsing and HTML export. Sphinx and
+StrictDoc are required third-party tooling exceptions; no custom Python
+maintenance scripts are introduced.
 
 Review scope
 ------------

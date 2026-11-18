@@ -9,7 +9,7 @@ rtos::Stack<512> stack; // Example size, not a proven worst-case stack bound.
 constexpr uint32_t machine_timer_hz = 10'000'000;
 void work(void*) {
     for (;;) {
-        ++nano_iterations;
+        nano_iterations=nano_iterations+1; // Explicit volatile read/write, not an atomic RMW.
         rtos::sleep_for(1); // Tick units; blocking permits private idle to execute.
     }
 }

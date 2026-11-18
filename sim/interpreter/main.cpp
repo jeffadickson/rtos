@@ -61,27 +61,29 @@ int main(int argc,char** argv) {
             if(!uart.file)throw std::runtime_error("Cannot open UART log");
         }
         cpu.uart_sink=UartOutput::receive;cpu.uart_context=&uart;
-        uint32_t status=0;bool soak=false,atomics=false;
+        uint32_t status=0;bool soak=false,atomics=false,services=false;
         auto symbol=image.symbols.find("nexrt_soak_status");
         if(symbol!=image.symbols.end()){if(symbol->second.size!=228)throw std::runtime_error("Unexpected soak status layout");soak=true;status=symbol->second.address;}
         else if((symbol=image.symbols.find("nexrt_atomic_status"))!=image.symbols.end()){if(symbol->second.size!=48)throw std::runtime_error("Unexpected atomic status layout");atomics=true;status=symbol->second.address;}
-        if(soak||atomics){
-            const auto it=image.symbols.find(soak?"nexrt_soak_clock_hz":"nexrt_atomic_clock_hz");
+        else if((symbol=image.symbols.find("nexrt_services_status"))!=image.symbols.end()){if(symbol->second.size!=24)throw std::runtime_error("Unexpected service status layout");services=true;status=symbol->second.address;}
+        if(soak||atomics||services){
+            const auto it=image.symbols.find(soak?"nexrt_soak_clock_hz":atomics?"nexrt_atomic_clock_hz":"nexrt_services_clock_hz");
             if(it==image.symbols.end()||it->second.size!=4||cpu.peek32(it->second.address)!=clock)throw std::runtime_error("Firmware clock identity does not match model clock");
         }
         const auto started=std::chrono::steady_clock::now();auto elapsed=[&](){return std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count();};
         std::string outcome="instruction_limit_reached";uint32_t phase=0,failure=0;
         while(cpu.steps<maximum){
             cpu.run(std::min<uint64_t>(4096,maximum-cpu.steps));
-            if((soak||atomics)&&cpu.faults){
+            if((soak||atomics||services)&&cpu.faults){
                 std::cerr<<"Unexpected firmware fault cause="<<cpu.last_fault.cause<<" pc="<<cpu.last_fault.pc<<'\n';outcome="failed";break;
             }
-            if(soak||atomics){
-                phase=cpu.peek32(status);failure=cpu.peek32(status+8);
+            if(soak||atomics||services){
+                phase=cpu.peek32(status);failure=cpu.peek32(status+(services?4:8));
                 if(phase==3||failure){outcome="failed";break;}
                 if(phase==2){
                     outcome="completed";
                     if(atomics&&(cpu.peek32(status+4)!=uint32_t(profile.zaamo)||cpu.peek32(status+16)!=192||cpu.peek32(status+24)!=6||cpu.peek32(status+28)!=1||cpu.peek32(status+32)!=384||cpu.peek32(status+36)!=5))outcome="failed";
+                    if(services&&(cpu.peek32(status+8)!=1||cpu.peek32(status+12)!=32||cpu.peek32(status+16)==0||cpu.peek32(status+20)<2||cpu.timer_interrupts==0))outcome="failed";
                     break;
                 }
                 if(phase>3){outcome="failed";break;}
@@ -97,8 +99,9 @@ int main(int argc,char** argv) {
               <<",\"lastTrapCause\":"<<cpu.last_trap.cause<<",\"lastTrapPc\":"<<cpu.last_trap.pc;
         if(soak)result<<",\"targetTicks\":"<<cpu.peek32(status+20)<<",\"jobs\":"<<cpu.peek32(status+24)<<",\"modes\":"<<array(cpu,status,7,3)<<",\"workerJobs\":"<<array(cpu,status,10,4)<<",\"dispatches\":"<<array(cpu,status,19,6)<<",\"stackEstimates\":"<<array(cpu,status,31,6);
         if(atomics)result<<",\"atomicStatus\":"<<array(cpu,status,0,12);
+        if(services)result<<",\"serviceStatus\":"<<array(cpu,status,0,6);
         result<<"}\n";std::cout<<result.str();
         if(!output.empty()){std::ofstream file(output);if(!file)throw std::runtime_error("Cannot open report output");file<<result.str();if(!file)throw std::runtime_error("Report output failed");}
-        return outcome=="failed"?1:0;
+        return outcome=="failed"||(services&&outcome!="completed")?1:0;
     }catch(const std::exception& error){std::cerr<<"Interpreter error: "<<error.what()<<'\n';return 2;}
 }

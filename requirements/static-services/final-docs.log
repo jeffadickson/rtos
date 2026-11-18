@@ -1,0 +1,80 @@
+[0/2] Re-checking globbed directories...
+[1/3] cd /home/jeffd/src/nexrt/rtos/build/host && /home/jeffd/src/nexrt/rtos/build/host/native-tools/NexRT.Requirements/NexRT.Requirements check /home/jeffd/src/nexrt/rtos
+Tracker check passed: 268 substantive review iterations; 178 planned; no runtime verification claims.
+[2/3] cd /home/jeffd/src/nexrt/rtos/build/host && /home/jeffd/src/nexrt/rtos/build/docs-venv/bin/sphinx-build -n -W --keep-going -b html /home/jeffd/src/nexrt/rtos/docs /home/jeffd/src/nexrt/rtos/build/host/docs/html
+Running Sphinx v8.2.3
+loading translations [en]... done
+loading pickled environment... done
+building [mo]: targets for 0 po files that are out of date
+writing output... 
+building [html]: targets for 2 source files that are out of date
+updating environment: 0 added, 2 changed, 0 removed
+reading sources... [ 50%] getting-started
+reading sources... [100%] requirements-tracker
+
+looking for now-outdated files... none found
+pickling environment... done
+checking consistency... done
+preparing documents... done
+copying assets... 
+copying downloadable files... [ 50%] ../build/requirements/hil-design.csv
+copying downloadable files... [100%] ../build/requirements/static-services/evidence.rst
+
+copying static files... 
+Writing evaluated template result to /home/jeffd/src/nexrt/rtos/build/host/docs/html/_static/basic.css
+Writing evaluated template result to /home/jeffd/src/nexrt/rtos/build/host/docs/html/_static/documentation_options.js
+Writing evaluated template result to /home/jeffd/src/nexrt/rtos/build/host/docs/html/_static/language_data.js
+Writing evaluated template result to /home/jeffd/src/nexrt/rtos/build/host/docs/html/_static/alabaster.css
+copying static files: done
+copying extra files... 
+copying extra files: done
+copying assets: done
+writing output... [ 33%] getting-started
+writing output... [ 67%] index
+writing output... [100%] requirements-tracker
+
+generating indices... genindex done
+writing additional pages... search done
+dumping search index in English (code: en)... done
+dumping object inventory... done
+build succeeded.
+
+The HTML pages are in docs/html.
+[3/3] cd /home/jeffd/src/nexrt/rtos/build/host && /home/jeffd/src/nexrt/rtos/build/strictdoc-venv/bin/strictdoc export /home/jeffd/src/nexrt/rtos/requirements/nexrt.sdoc --output-dir /home/jeffd/src/nexrt/rtos/build/strictdoc-final --formats html --no-parallelization
+Parallelization: Disabled
+Step 'Parse SDoc project tree' start.
+Step 'Find and read SDoc files' start.
+Completed finding SDoc and assets ........................... 0.00s
+Reading SDOC: 1 tasks
+.
+Completed parsing all documents ............................. 1.58s
+Completed building document tree ............................ 1.58s
+Step 'Find and read SDoc files' took: 1.58 sec.
+Step 'Build traceability graph' start.
+Step 'Build traceability graph' took: 0.01 sec.
+Step 'Parse SDoc project tree' took: 1.61 sec.
+Step 'Export SDoc' start.
+Copying StrictDoc's assets: 47 files (47 files skipped as non-modified).
+Copying StrictDoc's assets: 2 files (2 files skipped as non-modified).
+Copying StrictDoc's assets: 1 files (1 files skipped as non-modified).
+Copying StrictDoc's assets: 26 files (26 files skipped as non-modified).
+Copying StrictDoc's assets: 1 files (1 files skipped as non-modified).
+Copying StrictDoc's assets: 1 files (1 files skipped as non-modified).
+Copying StrictDoc's assets: 4 files (4 files skipped as non-modified).
+Copying StrictDoc's assets: 3 files (3 files skipped as non-modified).
+Copying StrictDoc's assets: 2 files (2 files skipped as non-modified).
+Copying StrictDoc's assets: 2 files (2 files skipped as non-modified).
+Copying StrictDoc's assets: 2 files (2 files skipped as non-modified).
+Copying StrictDoc's assets: 3 files (3 files skipped as non-modified).
+Step 'Export static HTML search index' start.
+Build search index .......................................... 0.05s
+Serialize search index to JS ................................ 0.01s
+Serialize lookup map {MID => node} to JS .................... 0.00s
+Step 'Export static HTML search index' took: 0.07 sec.
+Skip: 1 tasks
+Export to HTML: 1 tasks
+.
+Export completed. Documentation tree can be found at:
+/home/jeffd/src/nexrt/rtos/build/strictdoc-final/html
+Step 'Export SDoc' took: 1.32 sec.
+Total execution time ........................................ 4.40s

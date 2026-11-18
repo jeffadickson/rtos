@@ -1,0 +1,10 @@
+Internal ctest changing into directory: /home/jeffd/src/nexrt/rtos/build/services-sanitized
+Test project /home/jeffd/src/nexrt/rtos/build/services-sanitized
+    Start 1: littlefs_service
+1/2 Test #1: littlefs_service .................   Passed    0.03 sec
+    Start 2: udp_service
+2/2 Test #2: udp_service ......................   Passed    0.01 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   0.05 sec

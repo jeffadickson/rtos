@@ -1,0 +1,9 @@
+[0/2] Re-checking globbed directories...
+[1/3] Building CXX object CMakeFiles/demo.dir/examples/nano.cpp.obj
+[2/3] cd /home/jeffd/src/nexrt/rtos/build/nano && /home/jeffd/src/nexrt/rtos/build/host/native-tools/NexRT.Requirements/NexRT.Requirements check /home/jeffd/src/nexrt/rtos
+Tracker check passed: 268 substantive review iterations; 178 planned; no runtime verification claims.
+[3/3] Linking CXX executable demo.elf
+/usr/lib/gcc/riscv64-unknown-elf/13.2.0/../../../riscv64-unknown-elf/bin/ld: warning: demo.elf has a LOAD segment with RWX permissions
+Static-only ELF audit passed: no allocator or dynamic C++ initializer symbols
+   text	   data	    bss	    dec	    hex	filename
+   3576	     24	   1136	   4736	   1280	/home/jeffd/src/nexrt/rtos/build/nano/demo.elf

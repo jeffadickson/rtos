@@ -40,7 +40,11 @@ internal static class ConfigurationChecks
         Check(false,"RTOS_MAX_HELD_MUTEXES","RTOS_MAX_HELD_MUTEXES=256");
         Check(false,"requires RTOS_SYNC","RTOS_LOGGING=ON","RTOS_SYNC=OFF");
         Check(true,"","RTOS_LOGGING=ON","RTOS_SYNC=ON");
-        Check(false,"Storage implementation","RTOS_STORAGE=ON");
+        Check(true,"","RTOS_STORAGE=ON");
+        Check(false,"RTOS_LWIP requires RTOS_ETHERNET","RTOS_LWIP=ON","RTOS_ETHERNET=OFF");
+        Check(true,"","RTOS_LWIP=ON","RTOS_ETHERNET=ON","RTOS_STORAGE=OFF");
+        Check(true,"","RTOS_STORAGE=ON","RTOS_LWIP=OFF","RTOS_ETHERNET=OFF");
+        Check(false,"host-only","RTOS_ETL_EVALUATION=ON","RTOS_BUILD_FIRMWARE=ON");
         Console.WriteLine($"PASS: {cases} CMake syntax, boundary, alignment and feature-dependency checks.");
     }
 }

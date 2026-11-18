@@ -1,0 +1,8 @@
+{
+  "littlefs": {"repository":"https://github.com/littlefs-project/littlefs","version":"2.11.3","commit":"6cb4e86540eca0d9ba62500a298385c9d863c8be","license":"BSD-3-Clause","notice":"littlefs-LICENSE.txt","use":"Optional unmodified C filesystem sources; RTOS_STORAGE only"},
+  "lwip": {"repository":"https://github.com/lwip-tcpip/lwip","version":"2.2.1","commit":"77dcd25a72509eb83f72b033d219b1d40cd8eb95","license":"BSD-3-Clause","notice":"lwip-LICENSE.txt","use":"Optional unmodified IPv4/ARP/ICMP/UDP core sources; RTOS_LWIP only"},
+  "etl": {"repository":"https://github.com/ETLCPP/etl","version":"20.40.0","commit":"c882a9c5004d546bb23bd0f758ae40cd57d1b063","license":"MIT","notice":"etl-LICENSE.txt","use":"Optional host pool evaluation; not linked into kernel or firmware demo"},
+  "newlib_headers": {"package":"Ubuntu libnewlib-dev 4.4.0.20231231-2","source":"https://sourceware.org/newlib/","use":"Build-only freestanding C declarations; no Newlib runtime archive linked or redistributed"},
+  "strictdoc": {"version":"0.30.4","use":"Real requirement parsing and export in a separate third-party build environment"},
+  "native_helper_runtime": {"version":"10.0.14","reason":"Patched Native AOT pack for GHSA-p3jp-9v83-76w9"}
+}

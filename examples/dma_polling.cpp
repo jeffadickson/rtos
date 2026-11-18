@@ -36,9 +36,9 @@ void run(void*){
                 (void)rtos::sleep_for(1);
             }
             size_t bytes=0;
-            if(result==Status::ok&&channel.collect(ticket,nullptr,0,bytes)==Status::ok&&bytes==sizeof(command))++dma_example_passes;
-            else{++dma_example_failures;(void)channel.cancel(ticket);}
-        }else ++dma_example_failures;
+            if(result==Status::ok&&channel.collect(ticket,nullptr,0,bytes)==Status::ok&&bytes==sizeof(command))dma_example_passes=dma_example_passes+1;
+            else{dma_example_failures=dma_example_failures+1;(void)channel.cancel(ticket);}
+        }else dma_example_failures=dma_example_failures+1;
         (void)rtos::sleep_for(1);
     }
 }

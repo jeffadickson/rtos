@@ -2,7 +2,8 @@ OUTPUT_ARCH(riscv)
 ENTRY(_start)
 /* Direct linker users retain the conservative default. CMake supplies --defsym. */
 PROVIDE(__boot_stack_bytes = 4096);
-MEMORY { RAM (rwx) : ORIGIN = 0, LENGTH = 0x7f00 }
+PROVIDE(__riscue_ram_bytes = 0x7f00);
+MEMORY { RAM (rwx) : ORIGIN = 0, LENGTH = __riscue_ram_bytes }
 SECTIONS {
  .text : { KEEP(*(.text.start)) *(.text*) } > RAM
  .rodata : { *(.rodata*) } > RAM

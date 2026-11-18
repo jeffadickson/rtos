@@ -1,0 +1,22 @@
+Internal ctest changing into directory: /home/jeffd/src/nexrt/rtos/build/services-coverage
+Test project /home/jeffd/src/nexrt/rtos/build/services-coverage
+    Start  1: etl_evaluation
+1/8 Test  #1: etl_evaluation ...................   Passed    0.00 sec
+    Start  2: littlefs_service
+2/8 Test  #2: littlefs_service .................   Passed    0.01 sec
+    Start  3: udp_service
+3/8 Test  #3: udp_service ......................   Passed    0.01 sec
+    Start  6: memory
+4/8 Test  #6: memory ...........................   Passed    0.00 sec
+    Start 57: rv_architecture
+5/8 Test #57: rv_architecture ..................   Passed    0.06 sec
+    Start 58: rv_static_services
+6/8 Test #58: rv_static_services ...............   Passed    0.22 sec
+    Start 59: rv_static_services_cutoff
+7/8 Test #59: rv_static_services_cutoff ........   Passed    0.01 sec
+    Start 60: rv_static_services_wrong_clock
+8/8 Test #60: rv_static_services_wrong_clock ...   Passed    0.01 sec
+
+100% tests passed, 0 tests failed out of 8
+
+Total Test time (real) =   0.34 sec

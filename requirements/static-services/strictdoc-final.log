@@ -1,0 +1,42 @@
+[0/2] Re-checking globbed directories...
+[1/2] cd /home/jeffd/src/nexrt/rtos/build/host && /home/jeffd/src/nexrt/rtos/build/host/native-tools/NexRT.Requirements/NexRT.Requirements check /home/jeffd/src/nexrt/rtos
+Tracker check passed: 268 substantive review iterations; 178 planned; no runtime verification claims.
+[2/2] cd /home/jeffd/src/nexrt/rtos/build/host && /home/jeffd/src/nexrt/rtos/build/strictdoc-venv/bin/strictdoc export /home/jeffd/src/nexrt/rtos/requirements/nexrt.sdoc --output-dir /home/jeffd/src/nexrt/rtos/build/strictdoc-final --formats html --no-parallelization
+Parallelization: Disabled
+Step 'Parse SDoc project tree' start.
+Step 'Find and read SDoc files' start.
+Completed finding SDoc and assets ........................... 0.00s
+Reading SDOC: 1 tasks
+.
+Completed parsing all documents ............................. 1.33s
+Completed building document tree ............................ 1.33s
+Step 'Find and read SDoc files' took: 1.33 sec.
+Step 'Build traceability graph' start.
+Step 'Build traceability graph' took: 0.02 sec.
+Step 'Parse SDoc project tree' took: 1.36 sec.
+Step 'Export SDoc' start.
+Compile Jinja templates ..................................... 0.71s
+Copying StrictDoc's assets: 47 files.
+Copying StrictDoc's assets: 2 files.
+Copying StrictDoc's assets: 1 files.
+Copying StrictDoc's assets: 26 files.
+Copying StrictDoc's assets: 1 files.
+Copying StrictDoc's assets: 1 files.
+Copying StrictDoc's assets: 4 files.
+Copying StrictDoc's assets: 3 files.
+Copying StrictDoc's assets: 2 files.
+Copying StrictDoc's assets: 2 files.
+Copying StrictDoc's assets: 2 files.
+Copying StrictDoc's assets: 3 files.
+Step 'Export static HTML search index' start.
+Build search index .......................................... 0.05s
+Serialize search index to JS ................................ 0.01s
+Serialize lookup map {MID => node} to JS .................... 0.00s
+Step 'Export static HTML search index' took: 0.07 sec.
+Skip: 1 tasks
+Export to HTML: 1 tasks
+.
+Export completed. Documentation tree can be found at:
+/home/jeffd/src/nexrt/rtos/build/strictdoc-final/html
+Step 'Export SDoc' took: 2.47 sec.
+Total execution time ........................................ 5.19s

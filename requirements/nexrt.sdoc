@@ -1,7 +1,7 @@
 [DOCUMENT]
 TITLE: NexRT Implementation Requirements
 UID: NXR-BASELINE
-VERSION: 2026-10-18
+VERSION: catalogue-f6a9c4071f51
 
 [REQUIREMENT]
 UID: NXR-001
@@ -14,6 +14,8 @@ Verification: Host capacity/duplicate tests and target registration API/seal tes
 Configuration: RTOS_MAX_THREADS 1..255.
 Static budget: Configured application pointer table plus one private idle thread.
 Dependencies: 
+Implementation: include/rtos.hpp, src/kernel.cpp, src/scheduler.hpp
+Verification sources: tests/scheduler.cpp
 <<<
 
 [REQUIREMENT]
@@ -27,6 +29,8 @@ Verification: ELF audit, ownership review and target resource-inventory stress.
 Configuration: All enabled features.
 Static budget: Zero general heap bytes; boot-fixed capacities.
 Dependencies: NXR-001
+Implementation: include/rtos.hpp, src/kernel.cpp
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -40,6 +44,8 @@ Verification: Host boundary tests and target registration failure atomicity.
 Configuration: Minimum 512 bytes; alignment 16.
 Static budget: One scan of configured registered ranges.
 Dependencies: NXR-001
+Implementation: src/kernel.cpp, src/scheduler.hpp
+Verification sources: tests/scheduler.cpp
 <<<
 
 [REQUIREMENT]
@@ -53,6 +59,8 @@ Verification: Host small-state model and target wakeup/idle tests.
 Configuration: Priorities 0..255; larger first.
 Static budget: At most RTOS_MAX_THREADS candidates per selection.
 Dependencies: NXR-001
+Implementation: src/scheduler.hpp, src/kernel.cpp
+Verification sources: tests/scheduler.cpp, tests/thread_stress.cpp
 <<<
 
 [REQUIREMENT]
@@ -66,6 +74,8 @@ Verification: Peer counts, cursor wrap, blocked peers and target timer slicing t
 Configuration: RTOS_ROUND_ROBIN = 0 or 1.
 Static budget: Existing registry and one cursor; no extra allocations.
 Dependencies: NXR-004
+Implementation: include/rtos_config.hpp, src/scheduler.hpp, src/kernel.cpp
+Verification sources: tests/scheduler.cpp, tests/thread_stress.cpp, tests/campaign/batch_16.cpp
 <<<
 
 [REQUIREMENT]
@@ -79,6 +89,8 @@ Verification: Target priority changes, invalid IDs, sleeping and donated-priorit
 Configuration: Base/effective priorities 0..255.
 Static budget: Recomputation bounded by thread/mutex capacities.
 Dependencies: NXR-004
+Implementation: include/rtos.hpp, src/kernel.cpp
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -92,6 +104,8 @@ Verification: Assembly-assisted target register stress with nested C++ calls and
 Configuration: Single-hart RV32 integer machine mode; no FP/vector.
 Static budget: 144-byte frame plus analyzed kernel call depth.
 Dependencies: NXR-004
+Implementation: ports/riscue/context.S, src/kernel.cpp
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -105,6 +119,8 @@ Verification: Compiler/disassembly review and target optimization/LTO matrix whe
 Configuration: Documented optimization/compiler configurations.
 Static budget: No new runtime storage; fixed assembly boundaries.
 Dependencies: NXR-007
+Implementation: src/kernel.cpp, ports/riscue/context.S
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -118,6 +134,8 @@ Verification: Host modular arithmetic and target sleep API boundary tests.
 Configuration: 32-bit ticks; relative delay at most INT32_MAX.
 Static budget: One deadline/thread; one bounded wake scan.
 Dependencies: NXR-004
+Implementation: src/kernel.cpp, src/scheduler.hpp
+Verification sources: tests/scheduler.cpp
 <<<
 
 [REQUIREMENT]
@@ -131,6 +149,8 @@ Verification: Scan-count instrumentation and masked-interrupt/exact-boundary/hor
 Configuration: Nonzero integer timer period; half-range horizon.
 Static budget: One arithmetic catch-up and one thread scan.
 Dependencies: NXR-009
+Implementation: src/scheduler.hpp, src/kernel.cpp
+Verification sources: tests/scheduler.cpp
 <<<
 
 [REQUIREMENT]
@@ -144,6 +164,8 @@ Verification: Instrumented MMIO and target rollover/write-order tests.
 Configuration: Timer/compare addresses and supplied clock/tick rates.
 Static budget: Three compare writes; read retry assumptions documented for hardware.
 Dependencies: NXR-010
+Implementation: src/kernel.cpp
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -157,6 +179,8 @@ Verification: On-time, missed-release, wrap and invalid-period tests.
 Configuration: Optional helper; period 1..INT32_MAX; saturating miss counter.
 Static budget: Fixed state per boot-created periodic activity.
 Dependencies: NXR-009
+Implementation: include/rtos_periodic.hpp
+Verification sources: tests/campaign/batch_01.cpp
 <<<
 
 [REQUIREMENT]
@@ -170,6 +194,8 @@ Verification: Target nested-lock/blocking/preemption MIE observation.
 Configuration: Single hart; no implicit interrupt nesting.
 Static budget: One saved status word per lock; nesting bounded by reviewed call depth.
 Dependencies: NXR-007
+Implementation: src/kernel.cpp
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -183,6 +209,8 @@ Verification: External, invalid, spurious, disabled and repeated acknowledgment 
 Configuration: Fixed boot source capacity and board acknowledgment operations.
 Static budget: Fixed source table and bounded handling/acknowledgment.
 Dependencies: NXR-007
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -196,6 +224,8 @@ Verification: Burst, full, coalescing, wakeup and forbidden blocking-context tes
 Configuration: Optional worker count, queue capacity and coalescing policy.
 Static budget: Boot worker stacks and fixed pending-work slots.
 Dependencies: NXR-014, NXR-020
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -209,6 +239,8 @@ Verification: Contention, recursion, wrong-owner, timeout-race and context-misus
 Configuration: Optional fixed mutex capacity; nonrecursive initially.
 Static budget: One owner/control record per mutex; bounded thread waiters.
 Dependencies: NXR-001, NXR-009, NXR-020
+Implementation: include/rtos_mutex.hpp, src/mutex.cpp
+Verification sources: tests/campaign/batch_15.cpp
 <<<
 
 [REQUIREMENT]
@@ -222,6 +254,8 @@ Verification: H/M/L, chained, multiple-owner, withdrawal and base-priority chang
 Configuration: Mutex inheritance with priorities 0..255.
 Static budget: Traversal bounded by thread/mutex capacities; static graph storage.
 Dependencies: NXR-004, NXR-016
+Implementation: include/rtos_mutex.hpp, src/mutex.cpp
+Verification sources: tests/mutex.cpp, tests/campaign/batch_15.cpp
 <<<
 
 [REQUIREMENT]
@@ -235,6 +269,8 @@ Verification: Cycle, maximum-chain and owner-return/exit fault tests.
 Configuration: Documented deadlock error and owner-exit fault policy.
 Static budget: At most RTOS_MAX_THREADS search nodes; fixed fault storage.
 Dependencies: NXR-016, NXR-017
+Implementation: include/rtos_mutex.hpp, src/mutex.cpp
+Verification sources: tests/mutex.cpp, tests/campaign/batch_15.cpp
 <<<
 
 [REQUIREMENT]
@@ -248,6 +284,8 @@ Verification: Zero/max/overflow, waiter ordering, timeout-race and ISR tests.
 Configuration: Optional boot counts/max; binary maximum 1.
 Static budget: Fixed records and one wait membership/thread.
 Dependencies: NXR-009, NXR-014, NXR-020
+Implementation: include/rtos_sync.hpp, src/sync.cpp
+Verification sources: tests/campaign/batch_13.cpp
 <<<
 
 [REQUIREMENT]
@@ -261,6 +299,8 @@ Verification: Deterministic scheduling/reference interleavings and repeated reus
 Configuration: Shared substrate for all blocking features.
 Static budget: One active wait record/thread; bounded object wait queues.
 Dependencies: NXR-001, NXR-004, NXR-009
+Implementation: include/rtos_queue.hpp, src/sync.cpp
+Verification sources: tests/campaign/batch_11.cpp, tests/campaign/batch_12.cpp
 <<<
 
 [REQUIREMENT]
@@ -274,6 +314,8 @@ Verification: Small-width exhaustive combinations, multiwaiter, timeout and ISR-
 Configuration: RTOS_EVENT_BITS = 1..32; boot reserved mask; priority/FIFO waiter order; explicit clear-on-exit.
 Static budget: Fixed flag/control record per group; bounded thread waiters.
 Dependencies: NXR-014, NXR-020
+Implementation: include/rtos_sync.hpp, src/sync.cpp
+Verification sources: tests/campaign/batch_14.cpp
 <<<
 
 [REQUIREMENT]
@@ -287,6 +329,8 @@ Verification: Capacity 1/N, wrap, full/empty, concurrency, payload and compile-f
 Configuration: Optional payload type and positive static capacity.
 Static budget: N times payload bytes plus fixed metadata and bounded waiters.
 Dependencies: NXR-001, NXR-020
+Implementation: include/rtos_queue.hpp, src/sync.cpp
+Verification sources: tests/campaign/batch_11.cpp
 <<<
 
 [REQUIREMENT]
@@ -300,6 +344,8 @@ Verification: Maximum-payload, full/empty, interleaving, scheduling and misuse t
 Configuration: Explicit ISR subset and maximum payload bytes.
 Static budget: One configured bounded payload copy and fixed metadata changes.
 Dependencies: NXR-014, NXR-022
+Implementation: include/rtos_queue.hpp, src/sync.cpp
+Verification sources: tests/campaign/batch_12.cpp
 <<<
 
 [REQUIREMENT]
@@ -313,6 +359,8 @@ Verification: Capacity, cancel/expire, restart, wrap, long-callback, backlog and
 Configuration: Optional timer count and worker priority/stack; one pending callback per timer; 32-bit unsigned saturating miss counter; explicit Cancelled/Busy results.
 Static budget: Fixed records/callback queue; scan bounded by configured timer count.
 Dependencies: NXR-012, NXR-015, NXR-020
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -326,6 +374,8 @@ Verification: Instrument worst capacities, wait chains, snapshot sizes and timer
 Configuration: All supported profiles; application-defined latency thresholds.
 Static budget: Bounds use fixed thread, mutex, timer, queue and snapshot capacities; fixed instrumentation storage.
 Dependencies: NXR-004, NXR-010, NXR-013, NXR-017, NXR-020, NXR-024
+Implementation: src/scheduler.hpp, src/kernel.cpp, docs/architecture.rst, docs/verification.rst
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -339,6 +389,8 @@ Verification: Registry capacity, duplicate, seal and lookup tests.
 Configuration: Optional devices; positive maximum device count; names at most 31 bytes.
 Static budget: Fixed registry entries and copied bounded names; zero runtime allocation.
 Dependencies: NXR-001
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -352,6 +404,8 @@ Verification: Mock-driver short transfer, unsupported, deadline and control vali
 Configuration: Fixed operation table per device; finite control command set.
 Static budget: Caller buffers accessed only during synchronous ownership; abort-uncertain DMA uses fixed driver-owned staging; request state and concurrent operations boot-bounded.
 Dependencies: NXR-009, NXR-013, NXR-020, NXR-026
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -365,6 +419,8 @@ Verification: Exhaustion, stale handle, invalid index and near-generation-limit 
 Configuration: Optional descriptors; configured slot count; 32-bit generation.
 Static budget: Fixed descriptor records; no heap; retired slots remain counted unavailable.
 Dependencies: NXR-026, NXR-027
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -378,6 +434,8 @@ Verification: Close versus read/write races, timeout retry and injected close-fa
 Configuration: Finite per-slot active-operation counter; close uses absolute deadline.
 Static budget: Fixed closing state and active count per descriptor; no detached cleanup allocation.
 Dependencies: NXR-028, NXR-020
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -391,6 +449,8 @@ Verification: Path normalization model and malformed/boundary input tests.
 Configuration: Optional VFS; positive maximum path bytes, component bytes and component count.
 Static budget: Fixed normalization workspace per configured concurrent resolver; traversal bounded by component count.
 Dependencies: NXR-026
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -404,6 +464,8 @@ Verification: Registry-to-devfs mapping, stable enumeration and forbidden mutati
 Configuration: Optional devfs; boot export flag per device.
 Static budget: No duplicated driver objects; at most one fixed directory record per exported device.
 Dependencies: NXR-026, NXR-028, NXR-030
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -417,6 +479,8 @@ Verification: ROM image table validation, offset boundaries and content checksum
 Configuration: Optional ROMFS; fixed file count and linked asset byte budget.
 Static budget: Immutable table and linked bytes; per-open offset stored in descriptor slot.
 Dependencies: NXR-028, NXR-030
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -430,6 +494,8 @@ Verification: Pool exhaustion, short write, open-unlink, truncate and repeated c
 Configuration: Optional RAMFS; fixed inode count, block size, block count and directory-entry capacity.
 Static budget: Exactly configured inode, directory and block pools; ownership counters conserve every slot.
 Dependencies: NXR-028, NXR-029, NXR-030
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -443,6 +509,8 @@ Verification: Prefix boundary, nested mount, duplicate, capacity and boot seal t
 Configuration: Fixed mount count; optional devfs, ROMFS and RAMFS providers.
 Static budget: Fixed mount table and bounded copied prefixes; lookup scans at most configured mounts.
 Dependencies: NXR-030, NXR-031, NXR-032
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -456,6 +524,8 @@ Verification: Ring wrap, full/empty, deadline, endpoint-close races and endpoint
 Configuration: Optional pipes; fixed pipe count, bytes per pipe and reader/writer endpoint limits.
 Static budget: Fixed rings and endpoint records; total queued bytes never exceeds configured storage.
 Dependencies: NXR-020, NXR-028, NXR-029
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -469,6 +539,8 @@ Verification: Registry validation, unknown command and dispatch identity tests.
 Configuration: Optional shell; fixed command count and maximum command-name bytes.
 Static budget: Fixed command table; all command code linked into firmware.
 Dependencies: NXR-026
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -482,6 +554,8 @@ Verification: Grammar corpus, boundary tests and deterministic fuzzing against r
 Configuration: Fixed maximum line bytes and argument count; no environment expansion or command substitution.
 Static budget: One fixed line buffer and argument-index array per shell session.
 Dependencies: NXR-036
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -495,6 +569,8 @@ Verification: Maximum sessions, oversized line recovery, slow output and disconn
 Configuration: Fixed session count, worker priority/stack and input/output ring bytes.
 Static budget: Exactly configured session buffers and stacks; no runtime worker creation.
 Dependencies: NXR-027, NXR-036, NXR-037
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -508,6 +584,8 @@ Verification: Pool exhaustion, stale IDs, completion/cancel races and noncoopera
 Configuration: Optional jobs; fixed worker/job count, stacks and cancellation grace ticks.
 Static budget: One permanent stack/control block per worker plus fixed job records and bounded copied arguments.
 Dependencies: NXR-001, NXR-020, NXR-036, NXR-038
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -521,6 +599,8 @@ Verification: Snapshot-to-command golden outputs, truncation, disabled metrics a
 Configuration: Optional diagnostics; fixed maximum rows and output bytes per command invocation.
 Static budget: Fixed snapshot rows and formatting buffer per session; one snapshot per refresh.
 Dependencies: NXR-006, NXR-026, NXR-036, NXR-038
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -534,6 +614,8 @@ Verification: Hardware/model loopback, ring saturation, error injection and dead
 Configuration: Optional UART instances; fixed ring bytes, baud and framing selected at boot.
 Static budget: Fixed per-instance rings/control state; ISR work capped at configured bytes per interrupt.
 Dependencies: NXR-014, NXR-015, NXR-027
+Implementation: include/rtos_uart.hpp
+Verification sources: tests/campaign/batch_05.cpp
 <<<
 
 [REQUIREMENT]
@@ -547,6 +629,8 @@ Verification: Slow/stuck UART, recursive panic and scheduler-disabled output tes
 Configuration: One boot console; optional panic output with positive byte and tick/cycle limits.
 Static budget: Fixed panic buffer and recursion flag; no worker or memory acquisition in panic.
 Dependencies: NXR-027, NXR-041
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -560,6 +644,8 @@ Verification: Mock-register ownership/mask tests and board safe-state measuremen
 Configuration: Optional fixed pin table and owner map; board safe values required for outputs.
 Static budget: One fixed record per declared pin; no runtime pin claims.
 Dependencies: NXR-026, NXR-027
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -573,6 +659,8 @@ Verification: Mode validation, contention, full queue, timeout and chip-select w
 Configuration: Optional buses; fixed request count, maximum segments/bytes and supported rates/modes.
 Static budget: Fixed request/control slots and boot driver-owned DMA staging; hardware cannot retain caller or stack buffer references after any return, including errors.
 Dependencies: NXR-009, NXR-016, NXR-026, NXR-027
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -586,6 +674,8 @@ Verification: NACK, arbitration loss, clock stretch, stuck SDA and recovery wave
 Configuration: Optional buses; fixed request count/bytes; standard 7-bit addressing initially.
 Static budget: Fixed transaction slots and one bus recovery state per instance.
 Dependencies: NXR-009, NXR-016, NXR-026, NXR-027
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -599,6 +689,8 @@ Verification: Stalled worker, interrupt-only activity, token wrap, false-positiv
 Configuration: Optional supervisor; fixed critical participant list and positive per-participant deadlines.
 Static budget: Fixed token/deadline records plus one boot supervisor stack; one scan per supervision period.
 Dependencies: NXR-001, NXR-009, NXR-012, NXR-026
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -612,6 +704,8 @@ Verification: Dependency graph validation and failure injection at every boot-ta
 Configuration: Fixed init entry count; critical/optional classification and bounded init/shutdown deadlines.
 Static budget: Fixed table and visited/state arrays; traversal bounded by configured entries/edges.
 Dependencies: NXR-026, NXR-043
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -625,6 +719,8 @@ Verification: Delayed DMA completion, abort success/failure, stale completion an
 Configuration: Fixed abort deadline and request-generation width; asynchronous drivers use driver-owned buffers.
 Static budget: Fixed request slots and staging buffers; quarantined capacity never silently reused.
 Dependencies: NXR-027, NXR-029
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -638,6 +734,8 @@ Verification: Ready-before-wait, transition race, close race, invalid handle and
 Configuration: Optional readiness; configured maximum descriptors per wait.
 Static budget: One boot-reserved readiness record per waiting thread and bounded descriptor indices.
 Dependencies: NXR-020, NXR-027, NXR-028, NXR-029
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -651,6 +749,8 @@ Verification: Concurrent update/snapshot, saturation, disabled driver and bounde
 Configuration: Optional device metrics with fixed per-driver schema and maximum snapshot rows.
 Static budget: Fixed per-device counters/state and caller-owned snapshot rows; no formatting under driver locks.
 Dependencies: NXR-026, NXR-027, NXR-047
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -664,6 +764,8 @@ Verification: Initialization boundaries and target callback-lifetime review.
 Configuration: Optional RTOS_ETHERNET; fixed adapter instance count.
 Static budget: One permanent 1536-byte RX scratch buffer and fixed callback/statistics state per instance.
 Dependencies: NXR-001, NXR-002
+Implementation: include/rtos_ethernet.hpp, src/ethernet.cpp
+Verification sources: tests/ethernet.cpp
 <<<
 
 [REQUIREMENT]
@@ -677,6 +779,8 @@ Verification: Budget/length boundaries, malformed frames and guarded-buffer MAC 
 Configuration: Per-call receive budget; standard/tagged frames without FCS; no jumbo support.
 Static budget: One fixed scratch frame; no per-frame allocation; callback execution independently bounded.
 Dependencies: NXR-051
+Implementation: src/ethernet.cpp, include/rtos_ethernet.hpp
+Verification sources: tests/ethernet.cpp
 <<<
 
 [REQUIREMENT]
@@ -690,6 +794,8 @@ Verification: Caller overwrite, staging exhaustion, duplicate/late completion an
 Configuration: Configured TX staging slots and maximum 1536-byte frame.
 Static budget: Fixed staging frames and completion metadata; no pool growth.
 Dependencies: NXR-048, NXR-051
+Implementation: include/rtos_ethernet.hpp, src/ethernet.cpp
+Verification sources: tests/ethernet.cpp
 <<<
 
 [REQUIREMENT]
@@ -703,6 +809,8 @@ Verification: DMA ownership model, barrier instrumentation and saturation/reset 
 Configuration: Board alignment/cache requirements and fixed RX/TX descriptor counts.
 Static budget: Fixed aligned rings and packet storage; ownership-state counts equal configured slots.
 Dependencies: NXR-048, NXR-053
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -716,6 +824,8 @@ Verification: Busy, missing-PHY, identity and negotiation timeout tests.
 Configuration: Optional PHY; fixed address and supported identity table.
 Static budget: Fixed transaction state and one sampled link record per interface.
 Dependencies: NXR-009, NXR-026, NXR-027
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -729,6 +839,8 @@ Verification: Cable flap, pending-TX loss, stale completion and recovery tests.
 Configuration: Fixed interfaces and bounded transition/recovery deadlines.
 Static budget: One fixed state/generation record per interface; no reconnect allocation.
 Dependencies: NXR-054, NXR-055
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -742,6 +854,8 @@ Verification: Owner/reentrancy misuse, concurrent requests and bounded fairness 
 Configuration: Fixed worker priority/stack, nonzero RX/request/timer budgets and maximum residency plus mandatory blocking interval.
 Static budget: One boot stack plus fixed request/completion queues per stack.
 Dependencies: NXR-015, NXR-022, NXR-051
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -755,6 +869,8 @@ Verification: Pinned-stack build, negative allocation fixture and ownership audi
 Configuration: Optional raw single-owner stack initially; no blanket POSIX claim.
 Static budget: Explicit pool/table budgets; link fits selected board RAM; no claim full networking fits default RAM.
 Dependencies: NXR-002, NXR-057
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -768,6 +884,8 @@ Verification: Flood, timer burst, wrap and owner-context tests.
 Configuration: Fixed maximum timers and per-loop timer budget.
 Static budget: Boot timer records; at most configured callbacks per loop.
 Dependencies: NXR-009, NXR-012, NXR-057, NXR-058
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -781,6 +899,8 @@ Verification: Exhaustion, double release, foreign-pointer and conservation stres
 Configuration: Fixed block sizes/counts and maximum chain length.
 Static budget: Exact pool bytes; no fallback allocator or unbounded chains.
 Dependencies: NXR-002, NXR-054, NXR-058
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -794,6 +914,8 @@ Verification: Exhaustion, stale ID, close/request races and timeout ownership te
 Configuration: Optional endpoint subset; fixed endpoints/requests.
 Static budget: Fixed endpoint records and staging; bounded loans allowed.
 Dependencies: NXR-028, NXR-029, NXR-057, NXR-060
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -807,6 +929,8 @@ Verification: Static routing, ARP capacity/expiry and malformed packet tests.
 Configuration: Optional IPv4; fixed ARP entries; fragmentation/reassembly disabled initially.
 Static budget: Fixed ARP/routes; no fragment buffers; board total-memory gate.
 Dependencies: NXR-058, NXR-059, NXR-060
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -820,6 +944,8 @@ Verification: Lease acquire/renew/expire, absent server, flaps and malformed opt
 Configuration: Optional DHCPv4; fixed transactions, retry ceiling and acquisition deadline. Enables internal UDP without requiring public endpoints.
 Static budget: One fixed client state and bounded message buffer/interface. Dedicated internal UDP PCB/slot reservation included.
 Dependencies: NXR-056, NXR-059, NXR-062, NXR-066
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -833,6 +959,8 @@ Verification: Query/cache exhaustion, timeout, mismatches and compression-loop c
 Configuration: Optional A records initially; fixed names/queries/cache and decode-step limit. Enables internal UDP without requiring public endpoints.
 Static budget: Fixed query/cache/message bytes; no recursive allocation. Dedicated internal UDP PCB/slot reservation included.
 Dependencies: NXR-059, NXR-062, NXR-066
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -846,6 +974,8 @@ Verification: Loss/reorder, capacity, partial I/O, retry exhaustion and close co
 Configuration: Optional TCP; fixed windows/segments/retries and close deadline.
 Static budget: Fixed control blocks and windows; profiles may need larger board RAM.
 Dependencies: NXR-059, NXR-060, NXR-061, NXR-062
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -859,6 +989,8 @@ Verification: Boundary/truncation, queue full, checksum and send-pressure tests.
 Configuration: Optional UDP; fixed endpoints, queued datagrams and payload maximum.
 Static budget: Fixed slots backed by packet loans; no growth.
 Dependencies: NXR-057, NXR-059, NXR-060, NXR-062
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -872,6 +1004,8 @@ Verification: Traffic/snapshot, saturation, owner requests and truncation tests.
 Configuration: Optional fixed snapshot capacity.
 Static budget: Fixed counters and queued/caller snapshot storage; no formatting under critical paths.
 Dependencies: NXR-050, NXR-057, NXR-060
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -885,6 +1019,8 @@ Verification: Target snapshot boundaries, priority changes, finished/idle and gu
 Configuration: Snapshots available with metrics disabled; bounded rows.
 Static budget: Caller rows; masked copy bounded by min(capacity, registered threads+idle).
 Dependencies: NXR-006, NXR-017
+Implementation: include/rtos.hpp, src/kernel.cpp
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -898,6 +1034,8 @@ Verification: Target conservation, repeated snapshots, idle/busy and disabled-pr
 Configuration: RTOS_METRICS; fixed-frequency hardware timer never reset or wrapped in session.
 Static budget: Two 64-bit counters/thread and fixed globals; no floating point.
 Dependencies: NXR-011, NXR-068
+Implementation: src/kernel.cpp, include/rtos.hpp
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -911,6 +1049,8 @@ Verification: Target outgoing/incoming corruption and disabled-profile tests.
 Configuration: RTOS_STACK_GUARD; no MPU/MMU claim.
 Static budget: One word per stack plus fixed fault record.
 Dependencies: NXR-003, NXR-007, NXR-073
+Implementation: src/kernel.cpp, include/rtos.hpp
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -924,6 +1064,8 @@ Verification: Fill/frame boundaries, budgets and deep-call/preemption sampling t
 Configuration: Optional watermark; fixed fill and scan budget.
 Static budget: No extra stack buffer; fixed cursor/lowest-observed index per thread.
 Dependencies: NXR-003, NXR-007, NXR-068
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -937,6 +1079,8 @@ Verification: Wrap, preemption/extraction, saturation and disabled-build tests.
 Configuration: Optional fixed event width, capacity and mask.
 Static budget: Exact ring bytes and fixed indices/counters.
 Dependencies: NXR-011, NXR-025
+Implementation: include/rtos_trace.hpp
+Verification sources: tests/campaign/batch_02.cpp
 <<<
 
 [REQUIREMENT]
@@ -950,6 +1094,8 @@ Verification: Trap, guard, nested-fault and partial-retention injection tests.
 Configuration: Optional board retention region; halt/watchdog-reset policy.
 Static budget: One fixed record; no allocation, blocking locks or unbounded output.
 Dependencies: NXR-007, NXR-011
+Implementation: include/rtos_fault_record.hpp
+Verification sources: tests/campaign/batch_03.cpp
 <<<
 
 [REQUIREMENT]
@@ -963,6 +1109,8 @@ Verification: Init/abort failure, retry ceiling, stale request and unrelated-ser
 Configuration: Optional per-service retries, backoff and deadline.
 Static budget: Boot workers and fixed recovery records; quarantine remains until reset-safe.
 Dependencies: NXR-001, NXR-012, NXR-020, NXR-047, NXR-048, NXR-073
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -976,6 +1124,8 @@ Verification: Early-wake, nearest-deadline, wrap, catch-up and metrics conservat
 Configuration: Optional tickless; maximum suppression <= INT32_MAX ticks.
 Static budget: Fixed next-deadline metadata; bounded thread/timer scans.
 Dependencies: NXR-010, NXR-011, NXR-012, NXR-014, NXR-024, NXR-069
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -989,6 +1139,8 @@ Verification: Inventory and negative undocumented-tool/Python fixtures.
 Configuration: Pinned .NET SDK; scoped docs exception.
 Static budget: Bounded host inputs; no firmware cost.
 Dependencies: NXR-002
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1002,6 +1154,8 @@ Verification: Preset matrix, incompatible compiler and ELF attribute tests.
 Configuration: CMake>=3.22; Ninja; RV32IM+Zicsr ILP32.
 Static budget: No runtime storage; bounded build artifacts.
 Dependencies: NXR-007, NXR-008
+Implementation: CMakeLists.txt, CMakePresets.json, cmake/riscue-toolchain.cmake
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1015,6 +1169,8 @@ Verification: C# dependency-matrix configure and boundary tests.
 Configuration: Explicit feature dependency table; positive finite enabled capacities.
 Static budget: Validated capacities determine storage; disabled pools zero.
 Dependencies: NXR-077
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1028,6 +1184,8 @@ Verification: Paired ELF/map comparison and OFF tests.
 Configuration: Explicit supported combinations.
 Static budget: Bounded host map inputs; no instrumentation.
 Dependencies: NXR-078
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1041,6 +1199,8 @@ Verification: Mismatch and matching-profile fixtures.
 Configuration: Signature includes public layouts, ISA, ABI and relevant features.
 Static budget: Small immutable record; no hot-path checks.
 Dependencies: NXR-077, NXR-078
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1054,6 +1214,8 @@ Verification: C# map budget and overflow fixtures.
 Configuration: Authoritative board linker map/capacities.
 Static budget: Default RAM ends before0x7f00;4KiB boot reserve; explicit other-board maps.
 Dependencies: NXR-002, NXR-077, NXR-078
+Implementation: ports/riscue/link.ld
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1067,6 +1229,8 @@ Verification: C# .su aggregation, assembly/indirect review and target depth stre
 Configuration: Exact release compiler/optimization and worker margin.
 Static budget: Every configured stack covered; no heap or full-stack temporaries.
 Dependencies: NXR-007, NXR-081
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1080,6 +1244,8 @@ Verification: Audit negative/tool-failure fixtures and pool review.
 Configuration: Versioned forbidden symbols; every final ELF audited.
 Static budget: Zero general heap; inventoried finite pools.
 Dependencies: NXR-002, NXR-081
+Implementation: tools/Rtos.Tools/Program.cs, CMakeLists.txt
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1090,9 +1256,11 @@ STATEMENT: >>>
 Firmware linking shall reject runtime constructor/preinitializer arrays and unsupported initialization helpers despite section garbage collection.
 Acceptance: Constant initialization links; constructor/preinit negatives fail for intended reason; guard/atexit helpers fail audit; GC cannot silently hide unsupported initializers.
 Verification: Constant and constructor/preinit/helper fixtures.
-Configuration: Freestanding C++17; no exceptions/RTTI/runtime initialization.
+Configuration: Freestanding C++20; no exceptions/RTTI/runtime initialization.
 Static budget: Zero constructor/preinit section bytes.
 Dependencies: NXR-077, NXR-083
+Implementation: ports/riscue/link.ld, tools/Rtos.Tools/Program.cs
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1106,6 +1274,8 @@ Verification: Completeness, archive mutation and missing-license tests.
 Configuration: Pinned revisions/packages and reviewed updates.
 Static budget: Bounded host inventory; no firmware heap.
 Dependencies: NXR-076, NXR-077
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1119,6 +1289,8 @@ Verification: Two-directory rebuild and mutation tests.
 Configuration: Deterministic path/timestamp policy; complete normalized config.
 Static budget: Small immutable firmware identity; bounded host manifests.
 Dependencies: NXR-080, NXR-081, NXR-085
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1132,6 +1304,8 @@ Verification: C# self-tests and reorder/status fixtures.
 Configuration: Strict canonical JSON/status vocabulary.
 Static budget: Finite catalogue maximum and bounded fields; no firmware cost.
 Dependencies: NXR-076
+Implementation: tools/NexRT.Requirements/Program.cs
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1145,6 +1319,8 @@ Verification: Determinism, stale, read-only and interrupted-generation fixtures.
 Configuration: Canonical JSON authoritative; explicit generation.
 Static budget: Finite exports; one temporary artifact copy.
 Dependencies: NXR-087
+Implementation: tools/NexRT.Requirements/Program.cs, cmake/requirements.cmake
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1158,6 +1334,8 @@ Verification: Import, path/symlink and input-limit negatives.
 Configuration: Configured batch/record/field limits.
 Static budget: Bounded host parsing/temp storage; no firmware impact.
 Dependencies: NXR-087, NXR-088
+Implementation: tools/NexRT.Requirements/Program.cs
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1171,6 +1349,8 @@ Verification: Defect, missing-tool, wrong-definition, suppression-expiry fixture
 Configuration: Opt-in cppcheck, clang_tidy and cpp_analysis CMake targets; compile database per preset; reviewed .clang-tidy profile and scoped Cppcheck suppressions. Release tool pinning remains planned.
 Static budget: Bounded host time/output; no firmware cost.
 Dependencies: NXR-077, NXR-078, NXR-085
+Implementation: cmake/static-analysis.cmake, .clang-tidy, config/cppcheck-suppressions.txt
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1184,6 +1364,8 @@ Verification: Model comparison and seeded operation sequences.
 Configuration: Finite state/seed/sequence limits.
 Static budget: Host bounded states; production unchanged.
 Dependencies: NXR-004, NXR-020, NXR-037, NXR-060
+Implementation: sim/interpreter/machine.cpp, sim/interpreter/elf.cpp
+Verification sources: tests/campaign/batch_19.cpp, tests/campaign/batch_20.cpp
 <<<
 
 [REQUIREMENT]
@@ -1197,6 +1379,8 @@ Verification: Sanitizer negatives and parser/frame/path fuzz campaigns.
 Configuration: Optional host profiles; fixed campaigns.
 Static budget: Capped host runs/input/artifacts; no firmware cost.
 Dependencies: NXR-030, NXR-037, NXR-052, NXR-077, NXR-091
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1210,6 +1394,8 @@ Verification: RTL/board matrix and missing-cell gate fixture.
 Configuration: Explicit single-hart M-mode variants.
 Static budget: Each board map fits; bounded run/log budgets.
 Dependencies: NXR-007, NXR-011, NXR-014, NXR-086
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1223,6 +1409,8 @@ Verification: Mutation, missing-log, failed-process, retry preservation tests.
 Configuration: Versioned evidence schema; process/log limits.
 Static budget: Bounded retention with explicit archive policy.
 Dependencies: NXR-086, NXR-087, NXR-093
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1236,6 +1424,8 @@ Verification: API inventory and outcome contract tests.
 Configuration: Enabled API inventory; versioned errors.
 Static budget: Bounded inventory; existing runtime budgets.
 Dependencies: NXR-027, NXR-087
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1249,6 +1439,8 @@ Verification: Documentation/API review and compatibility negatives.
 Configuration: RV32 integer single-hart M-mode; enumerated optional compatibility.
 Static budget: No hidden process/loader/runtime stacks; subset static budgets.
 Dependencies: NXR-007, NXR-034, NXR-039, NXR-095
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1262,6 +1454,8 @@ Verification: Queue, descriptor, file, job, packet, socket, timer fault stress.
 Configuration: Explicit per-profile classes; finite time/operations/logs.
 Static budget: Boot pools only; bounded evidence; no fallback heap.
 Dependencies: NXR-002, NXR-033, NXR-039, NXR-060, NXR-061, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1275,6 +1469,8 @@ Verification: Sphinx, traceability and example compile gates.
 Configuration: Sphinx mandatory; minimal conf.py exception; pinned dependencies.
 Static budget: Bounded manual artifacts; no firmware cost.
 Dependencies: NXR-087, NXR-088, NXR-095, NXR-096
+Implementation: docs/conf.py, docs/index.rst, CMakeLists.txt, cmake/requirements.cmake
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1288,6 +1484,8 @@ Verification: Negative builds and model/target fault campaigns.
 Configuration: Supported profiles; finite cases/seeds.
 Static budget: Boot resources; injection metadata absent when OFF.
 Dependencies: NXR-078, NXR-093, NXR-094, NXR-097
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1301,6 +1499,8 @@ Verification: Checkpoint schema/missing-gate/failure tests and four recorded exe
 Configuration: Four fixed boundaries; separate implementation qualification.
 Static budget: Finite command/log limits and immutable attempts; no firmware cost.
 Dependencies: NXR-077, NXR-087, NXR-088, NXR-098
+Implementation: tools/NexRT.Requirements/Program.cs, docs/requirements-process.rst
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1314,6 +1514,8 @@ Verification: C# configuration tests, supported preset builds and negative CMake
 Configuration: config/system.json; CMake cache; CPU_COUNT=1 and up initially.
 Static budget: All configured firmware storage fixed before start; configurator catalogue <=1MiB.
 Dependencies: NXR-002, NXR-076, NXR-078
+Implementation: tools/NexRT.Configure/Program.cs, cmake/platform.cmake, cmake/modules.cmake
+Verification sources: tools/NexRT.Configure/Program.cs
 <<<
 
 [REQUIREMENT]
@@ -1327,6 +1529,8 @@ Verification: RV32 cross-build, disassembly/frame review and per-port register c
 Configuration: Compile-time selected port; no runtime virtual dispatch.
 Static budget: Fixed per-thread frame and per-CPU port state; no heap.
 Dependencies: NXR-007, NXR-008, NXR-080, NXR-101
+Implementation: src/kernel.cpp, ports/riscue/rtos_port.hpp
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1340,6 +1544,8 @@ Verification: Exact-part cross-build plus vector, full register, preemption, fau
 Configuration: Separate armv6-m and armv7e-m profiles; soft-float initial unless qualified otherwise.
 Static budget: Vendor SRAM/code map; boot stacks and frames budgeted per part.
 Dependencies: NXR-101, NXR-102, NXR-111
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1353,6 +1559,8 @@ Verification: Board-specific cross-build, context/IRQ/timer/cache ownership and 
 Configuration: A9 profile; select exact7000/7000S SKU; UP first.
 Static budget: Boot-reserved DDR/OCM regions, exception stacks and BSP pools; no dynamic allocation.
 Dependencies: NXR-101, NXR-102, NXR-111
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1366,6 +1574,8 @@ Verification: R5 board context, timer, fault, TCM, interprocessor visibility and
 Configuration: ARMv7-R; UP initially; AMP separately qualified; no R5 SMP claim.
 Static budget: Static per-image TCM/DDR, IRQ stacks and shared mailbox limits.
 Dependencies: NXR-101, NXR-102, NXR-110, NXR-111
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1379,6 +1589,8 @@ Verification: AArch64 compile/layout fixtures and exact-board register/timer/int
 Configuration: ARMv8-A AArch64; selected two/four-core part; UP first.
 Static budget: 64-bit aligned boot context/exception stacks and explicit reserved memory.
 Dependencies: NXR-080, NXR-101, NXR-102, NXR-111
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1392,6 +1604,8 @@ Verification: Hardware/compiler mismatch negatives and context/IRQ/timer/cache/n
 Configuration: Exact Vivado hardware design and tool version; single CPU initially.
 Static budget: Static BRAM/DDR sections, exception stack and descriptors from hardware map.
 Dependencies: NXR-085, NXR-101, NXR-102, NXR-111
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1405,6 +1619,8 @@ Verification: Bitstream identity, CSR/IRQ/timer and memory timing tests plus boa
 Configuration: Provisional RISCue RV32 profile on Gowin GW1NR-9; board/core selection explicit.
 Static budget: Critical stacks/internal RAM unless external access bounded; no invented MMIO/linker defaults.
 Dependencies: NXR-081, NXR-086, NXR-101, NXR-102, NXR-111
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1418,6 +1634,8 @@ Verification: Multicore race/model tests, IPI/affinity/migration and cache/conse
 Configuration: Homogeneous ISA/ABI only; explicit CPU count, affinity and lock policy; disabled initially.
 Static budget: Boot per-CPU stacks/state and fixed shared pools; no online dynamic CPU/thread creation.
 Dependencies: NXR-002, NXR-017, NXR-069, NXR-101, NXR-102, NXR-111
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1431,6 +1649,8 @@ Verification: Dual-image boot/reset, mailbox saturation, cache visibility and is
 Configuration: Independent per-ISA static images; fixed mailboxes; AMP disabled initially.
 Static budget: Boot-reserved per-image memory and bounded shared regions; no shared heap.
 Dependencies: NXR-002, NXR-020, NXR-101, NXR-102, NXR-111
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1444,6 +1664,8 @@ Verification: Per-port compile/disassembly and exact RTL/board matrix with failu
 Configuration: Explicit architecture/board/configuration matrix; enabled optional state enumerated.
 Static budget: Fixed test stacks/pools and bounded retained evidence per target.
 Dependencies: NXR-082, NXR-083, NXR-084, NXR-086, NXR-094, NXR-101
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1457,6 +1679,8 @@ Verification: Native publish logs, executable format inspection, CTest command i
 Configuration: RTOS_NATIVE_TOOLS=ON default; OFF explicitly enables managed compatibility; host-specific RID.
 Static budget: Native host tools may use host heap; firmware pools/stacks and noheap audits unchanged; separate host build output directories.
 Dependencies: NXR-076, NXR-085, NXR-087, NXR-101
+Implementation: cmake/host-tools.cmake, tools/NexRT.Requirements/NativeJson.cs, tools/NexRT.Configure/NativeJson.cs
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1470,6 +1694,8 @@ Verification: Future boot-registry boundary review and tests.
 Configuration: RTOS_DEVICE proposed, off in nano.
 Static budget: Fixed object table and per-device state; zero runtime allocation.
 Dependencies: NXR-001, NXR-002
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1483,6 +1709,8 @@ Verification: Future API review and example-driver checks.
 Configuration: Optional direct-access driver module.
 Static budget: One permanent object and operations table per device; target size reported.
 Dependencies: NXR-113
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1496,6 +1724,8 @@ Verification: Future forced-preemption transaction scenarios.
 Configuration: Direct locked access default when device sharing is enabled.
 Static budget: One static mutex per serialization domain; no mandatory request queue.
 Dependencies: NXR-114, NXR-116
+Implementation: include/rtos_mutex.hpp, src/mutex.cpp, src/kernel.cpp
+Verification sources: tests/sync.cpp, tests/queue.cpp, tests/mutex.cpp, tests/log.cpp, tests/sync_edges.cpp
 <<<
 
 [REQUIREMENT]
@@ -1509,6 +1739,8 @@ Verification: Future inversion, chained donation and cycle scenarios.
 Configuration: RTOS_MUTEX_PI proposed; dependency required by shared-device locking.
 Static budget: Static mutex objects and thread wait metadata; traversal bounded by thread count.
 Dependencies: NXR-001
+Implementation: include/rtos_mutex.hpp, src/mutex.cpp, src/kernel.cpp
+Verification sources: tests/sync.cpp, tests/queue.cpp, tests/mutex.cpp, tests/log.cpp, tests/sync_edges.cpp
 <<<
 
 [REQUIREMENT]
@@ -1522,6 +1754,8 @@ Verification: Future MMIO fake-backend review and target ordering qualification.
 Configuration: Per-device register map and per-port ordering hooks.
 Static budget: Compile-time register descriptors plus bounded validation; no heap.
 Dependencies: NXR-114
+Implementation: include/rtos_mmio.hpp
+Verification sources: tests/campaign/batch_04.cpp
 <<<
 
 [REQUIREMENT]
@@ -1535,6 +1769,8 @@ Verification: Future interrupt-at-each-boundary and timeout-race scenarios.
 Configuration: Per-device completion predicate and finite deadline.
 Static budget: Static completion generation, predicate and waiter metadata.
 Dependencies: NXR-115, NXR-128
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1548,6 +1784,8 @@ Verification: Future external-interrupt dispatch and nesting qualification.
 Configuration: Per-port external interrupt support explicitly enabled only when qualified.
 Static budget: Static handlers and bounded deferred state; no ISR heap.
 Dependencies: NXR-118
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1561,6 +1799,8 @@ Verification: Future stalled-device and interconnect fault qualification.
 Configuration: Board-specified AXI error responder, timeout and reset policy.
 Static budget: Static fault state and counters; hardware timeout resource declared separately.
 Dependencies: NXR-117, NXR-118
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1574,6 +1814,8 @@ Verification: Future worker ownership and cancellation scenarios.
 Configuration: Optional worker, capacity and FIFO or priority policy.
 Static budget: Fixed request storage plus explicit worker control block and stack.
 Dependencies: NXR-114, NXR-122, NXR-128
+Implementation: include/rtos_uart.hpp, include/rtos_log.hpp
+Verification sources: tests/campaign/batch_06.cpp
 <<<
 
 [REQUIREMENT]
@@ -1587,6 +1829,8 @@ Verification: Future queue ownership, boundary and footprint scenarios.
 Configuration: RTOS_QUEUE proposed; capacity and message type fixed at boot.
 Static budget: N times sizeof(T) plus exact control/alignment and static wait metadata.
 Dependencies: NXR-002
+Implementation: include/rtos_queue.hpp, src/sync.cpp
+Verification sources: tests/sync.cpp, tests/queue.cpp, tests/mutex.cpp, tests/log.cpp, tests/sync_edges.cpp
 <<<
 
 [REQUIREMENT]
@@ -1600,6 +1844,8 @@ Verification: Future queue full, empty, handoff and simultaneous-timeout scenari
 Configuration: NoWait, bounded timeout and documented indefinite-wait option.
 Static budget: Wait state lives in permanent thread metadata; no per-wait allocation.
 Dependencies: NXR-122, NXR-128
+Implementation: include/rtos_queue.hpp, src/sync.cpp
+Verification sources: tests/sync.cpp, tests/queue.cpp, tests/mutex.cpp, tests/log.cpp, tests/sync_edges.cpp, tests/sync_deadlines.cpp
 <<<
 
 [REQUIREMENT]
@@ -1613,6 +1859,8 @@ Verification: Future nested-interrupt queue and work-bound qualification.
 Configuration: Explicit ISR transfer methods and maximum ISR message bytes.
 Static budget: Same fixed queue storage plus port critical-section state.
 Dependencies: NXR-119, NXR-122
+Implementation: include/rtos_queue.hpp, src/sync.cpp
+Verification sources: tests/sync.cpp, tests/queue.cpp, tests/mutex.cpp, tests/log.cpp, tests/sync_edges.cpp
 <<<
 
 [REQUIREMENT]
@@ -1626,6 +1874,8 @@ Verification: Future mask, any/all and clear-on-success scenarios.
 Configuration: RTOS_EVENTS proposed; documented usable mask and clear mode.
 Static budget: One static flag word and bounded waiter metadata per event object.
 Dependencies: NXR-128
+Implementation: include/rtos_sync.hpp, src/sync.cpp, src/scheduler.hpp
+Verification sources: tests/sync.cpp, tests/queue.cpp, tests/mutex.cpp, tests/log.cpp, tests/sync_edges.cpp, tests/sync_deadlines.cpp
 <<<
 
 [REQUIREMENT]
@@ -1639,6 +1889,8 @@ Verification: Future multi-waiter clear, broadcast and ISR-set scenarios.
 Configuration: Explicit broadcast versus consuming wait policy.
 Static budget: Fixed event state and existing thread wait metadata.
 Dependencies: NXR-125, NXR-119
+Implementation: include/rtos_sync.hpp, src/sync.cpp, src/scheduler.hpp
+Verification sources: tests/sync.cpp, tests/queue.cpp, tests/mutex.cpp, tests/log.cpp, tests/sync_edges.cpp, tests/sync_deadlines.cpp
 <<<
 
 [REQUIREMENT]
@@ -1652,6 +1904,8 @@ Verification: Future count conservation and release-timeout race scenarios.
 Configuration: RTOS_SEMAPHORE proposed; boot-fixed initial and maximum counts.
 Static budget: Fixed count, maximum and waiter metadata; zero heap.
 Dependencies: NXR-128, NXR-119
+Implementation: include/rtos_sync.hpp, src/sync.cpp, src/scheduler.hpp
+Verification sources: tests/sync.cpp, tests/queue.cpp, tests/mutex.cpp, tests/log.cpp, tests/sync_edges.cpp, tests/sync_deadlines.cpp
 <<<
 
 [REQUIREMENT]
@@ -1665,6 +1919,8 @@ Verification: Future wait-state transition and stale-wakeup scenarios.
 Configuration: One active wait per thread; supported finite tick range documented.
 Static budget: Permanent thread wait metadata with bounded object lookup.
 Dependencies: NXR-001
+Implementation: include/rtos_sync.hpp, src/sync.cpp, src/scheduler.hpp
+Verification sources: tests/sync.cpp, tests/queue.cpp, tests/mutex.cpp, tests/log.cpp, tests/sync_edges.cpp, tests/sync_deadlines.cpp
 <<<
 
 [REQUIREMENT]
@@ -1678,6 +1934,8 @@ Verification: Future owner-exit at each transaction boundary scenarios.
 Configuration: Explicit owner-dead recovery policy; no dynamic thread reclamation.
 Static budget: Static abandonment and recovery state; no reallocation.
 Dependencies: NXR-115, NXR-116, NXR-120, NXR-128
+Implementation: include/rtos_mutex.hpp, src/mutex.cpp, src/kernel.cpp
+Verification sources: tests/sync.cpp, tests/queue.cpp, tests/mutex.cpp, tests/log.cpp, tests/sync_edges.cpp, tests/sync_deadlines.cpp
 <<<
 
 [REQUIREMENT]
@@ -1691,6 +1949,8 @@ Verification: Future snapshot coherence and saturation scenarios.
 Configuration: Metrics independently configurable; costs reported when enabled.
 Static budget: Fixed per-object counters and caller-owned output arrays.
 Dependencies: NXR-116, NXR-122, NXR-128
+Implementation: include/rtos_queue.hpp, include/rtos_mutex.hpp, include/rtos_log.hpp, src/kernel.cpp
+Verification sources: tests/sync.cpp, tests/queue.cpp, tests/mutex.cpp, tests/log.cpp, tests/sync_edges.cpp
 <<<
 
 [REQUIREMENT]
@@ -1704,6 +1964,8 @@ Verification: Future configuration matrix and target footprint audits.
 Configuration: Proposed RTOS_DEVICE, RTOS_QUEUE, RTOS_EVENTS, RTOS_SEMAPHORE and RTOS_MUTEX_PI.
 Static budget: Disabled features contribute zero module storage; enabled sizes measured per target.
 Dependencies: NXR-002
+Implementation: cmake/configuration.cmake, include/rtos_config.hpp
+Verification sources: tests/sync.cpp, tests/queue.cpp, tests/mutex.cpp, tests/log.cpp, tests/sync_edges.cpp
 <<<
 
 [REQUIREMENT]
@@ -1717,6 +1979,8 @@ Verification: Future logging capacity, drain budget and ownership scenarios.
 Configuration: Logging off in nano; explicit fixed depth and message bytes.
 Static budget: Depth times actual slot size plus formatting and synchronization metadata reported separately.
 Dependencies: NXR-002, NXR-131
+Implementation: include/rtos_log.hpp, src/log.cpp
+Verification sources: tests/sync.cpp, tests/queue.cpp, tests/mutex.cpp, tests/log.cpp, tests/sync_edges.cpp, tests/log_edges.cpp
 <<<
 
 [REQUIREMENT]
@@ -1730,6 +1994,8 @@ Verification: Future selected-engine transfer and configuration qualification.
 Configuration: Proposed RTOS_DMA optional, off in nano; actual engine selected by BSP.
 Static budget: Static channel state and explicit buffer capacities/alignment; report exact target costs.
 Dependencies: NXR-115, NXR-118, NXR-119, NXR-131
+Implementation: include/rtos_dma.hpp, src/dma.cpp
+Verification sources: tests/campaign/batch_08.cpp
 <<<
 
 [REQUIREMENT]
@@ -1743,6 +2009,8 @@ Verification: Future timeout, delayed completion, reset and owner-exit fault sce
 Configuration: Per-engine bounded completion/reset policy; no generic cancellation promise.
 Static budget: Fixed ownership/generation and quarantine state; retained buffers remain charged to static budget.
 Dependencies: NXR-133, NXR-120, NXR-129
+Implementation: include/rtos_dma.hpp, src/dma.cpp
+Verification sources: tests/campaign/batch_09.cpp, tests/campaign/batch_10.cpp
 <<<
 
 [REQUIREMENT]
@@ -1756,6 +2024,8 @@ Verification: Future BSP mapping review and coherency qualification.
 Configuration: Selected engine and memory-region manifest; coherent or maintained buffers explicit.
 Static budget: Static aligned regions and mapping metadata; cache-line padding reported.
 Dependencies: NXR-117, NXR-133
+Implementation: include/rtos_dma.hpp, src/dma.cpp
+Verification sources: tests/campaign/batch_08.cpp
 <<<
 
 [REQUIREMENT]
@@ -1769,6 +2039,8 @@ Verification: Future hardware selection and interface design review.
 Configuration: Proposed RTOS_PCIE off by default; role and IP remain undecided.
 Static budget: Declared BAR/control storage only; root-port tables and DMA buffers separately budgeted.
 Dependencies: NXR-114, NXR-117, NXR-131
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1782,6 +2054,8 @@ Verification: Future peer conformance and malformed-message scenarios.
 Configuration: Static mailbox depth and message bounds; register-only mode supported where hardware permits.
 Static budget: Fixed mailbox storage and protocol state; no mandatory DMA buffers.
 Dependencies: NXR-136, NXR-118
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1795,6 +2069,8 @@ Verification: Future link-drop, reset, range-validation and late-write qualifica
 Configuration: Board-specific windows, interrupt mechanism and reset/quiescence policy.
 Static budget: Static window, request-generation and health records; quarantine budget explicit.
 Dependencies: NXR-134, NXR-135, NXR-136, NXR-137
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1808,6 +2084,8 @@ Verification: Host operation/HAL fixtures and matched baseline/Zaamo real-kernel
 Configuration: RTOS_SYNC; current single-hart ports. RTOS_ZAAMO defaults OFF and requires RISCue firmware plus explicit atomic-capable RAM; separate matched baseline and feature builds.
 Static budget: One 32-bit word plus alignment; bounded interrupt masking and no runtime allocation.
 Dependencies: NXR-002, NXR-128
+Implementation: include/rtos_atomic.hpp, include/rtos_hal_atomic.hpp, ports/riscue/rtos_hal_atomic_port.hpp
+Verification sources: tests/queue.cpp, tests/atomic_hal.cpp, examples/atomic_stress.cpp, sim/SharpDemo/Atomics.cs
 <<<
 
 [REQUIREMENT]
@@ -1821,6 +2099,8 @@ Verification: Host format/queue/backpressure fixtures, RV32 static-only link and
 Configuration: RTOS_LOGGING requires RTOS_SYNC; fixed logger depth and record size.
 Static budget: RV32 Logger of 8 records with 64 message bytes occupies 720 bytes in the measured example; private formatter consumes reserved thread stack space.
 Dependencies: NXR-122, NXR-123, NXR-132
+Implementation: include/rtos_log.hpp, src/log.cpp
+Verification sources: tests/log.cpp, tests/log_edges.cpp, tests/campaign/batch_07.cpp
 <<<
 
 [REQUIREMENT]
@@ -1834,6 +2114,8 @@ Verification: Public-header host fixtures, console firmware link/audit, document
 Configuration: RTOS_SYNC and optional RTOS_LOGGING; existing nano remains feature-off.
 Static budget: Convenience includes have no independent runtime storage; example objects and stacks are statically reserved.
 Dependencies: NXR-115, NXR-122, NXR-140
+Implementation: include/rtos_ipc.hpp, include/rtos_sync.hpp, examples/console.cpp
+Verification sources: tests/public_api.cpp
 <<<
 
 [REQUIREMENT]
@@ -1847,6 +2129,8 @@ Verification: Strict Sphinx build, source/frame review, cross-build and comparis
 Configuration: Existing nano profile and documentation build; no new runtime service.
 Static budget: Comments and host-side manual add no firmware objects; example retains one static application stack and control block.
 Dependencies: NXR-007, NXR-141
+Implementation: include/rtos.hpp, ports/riscue/start.S, ports/riscue/context.S, ports/riscue/rtos_port.hpp, examples/nano.cpp, docs/assembly-port.rst, docs/source-reference.rst, docs/minimal-application.rst
+Verification sources: CMakeLists.txt, cmake/firmware.cmake
 <<<
 
 [REQUIREMENT]
@@ -1860,6 +2144,8 @@ Verification: Native generation, local HTML preview, strict Sphinx references an
 Configuration: Host-side HTML and native Workbench; no new RTOS runtime module.
 Static budget: Host documentation only; complete source listings do not add nano firmware storage.
 Dependencies: NXR-142
+Implementation: site/how-it-works.template.html, tools/NexRT.Workbench/Program.cs, docs/how-it-works.rst
+Verification sources: CMakeLists.txt
 <<<
 
 [REQUIREMENT]
@@ -1873,6 +2159,8 @@ Verification: Native configuration self-tests, incomplete-template rejection and
 Configuration: Staged Tang Nano RISCue and classic MicroBlaze; firmware remains disabled.
 Static budget: Host metadata only; no runtime allocation or guessed hardware register map.
 Dependencies: NXR-101, NXR-107, NXR-108
+Implementation: tools/NexRT.Configure/BoardContracts.cs, cmake/microblaze-toolchain.cmake, config/boards/tang-nano-9k.example.json, config/boards/microblaze.example.json, ports/microblaze/README.rst, ports/tang-nano-9k/README.rst
+Verification sources: tools/NexRT.Configure/BoardContracts.cs
 <<<
 
 [REQUIREMENT]
@@ -1886,6 +2174,8 @@ Verification: Default and reduced-reserve cross-links, invalid configuration rej
 Configuration: RTOS_BOOT_STACK_BYTES decimal 512..32512 aligned 16; default 4096.
 Static budget: No new runtime storage; reserved boot stack is explicit and separate from thread stacks.
 Dependencies: NXR-142
+Implementation: cmake/configuration.cmake, cmake/firmware.cmake, ports/riscue/link.ld, tools/NexRT.Workbench/Program.cs
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1899,6 +2189,8 @@ Verification: Future native C# packager checks, malformed package cases, exact-s
 Configuration: Optional default-off service; fixed address and capacity; native C# XDoc ground tooling.
 Static budget: Fixed slot includes code/constants/data/BSS; no heap or runtime thread registration.
 Dependencies: NXR-144
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1912,6 +2204,8 @@ Verification: Future transfer state-machine and stale-reference checks, cache pu
 Configuration: One optional permanent worker and slot; default off; no forced concurrent unload.
 Static budget: Fixed worker stack/control, bounded receiver state/buffer; avoid a second full image buffer.
 Dependencies: NXR-146
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1925,6 +2219,8 @@ Verification: Future board memory-map review, boot/data-copy execution, flash-bu
 Configuration: Board-specific optional boot/XIP adapter; existing flat RAM remains supported.
 Static budget: Writable data and stacks remain in RAM; account bootstrap, RAM handlers and controller buffers explicitly.
 Dependencies: NXR-144
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -1938,6 +2234,8 @@ Verification: Native C# runner, actual RV32 cross-build/allocation audit, Verila
 Configuration: Optional RTOS_SIMULATION host tools; uart firmware preset with SYNC, LOGGING, METRICS, guards and round robin; PLAIN CPU and ordinary simulation RAM.
 Static budget: Three permanent 1536-byte worker stacks, 512-byte idle stack, fixed logger and 4096-byte boot reserve; measure the larger final demo separately from nano.
 Dependencies: NXR-140, NXR-142
+Implementation: examples/axi_uart_threads.cpp, sim/rtl/riscue_demo.sv, sim/SharpDemo/Tests.cs, tools/NexRT.Sim/Program.cs
+Verification sources: sim/SharpDemo/Tests.cs
 <<<
 
 [REQUIREMENT]
@@ -1951,6 +2249,8 @@ Verification: Native C# runner, Cortex-M3 firmware link and no-heap audit, three
 Configuration: Optional RTOS_ARM_SIMULATION; arm-stress preset with SYNC, metrics, guards and round robin; one privileged Cortex-M3 with SVC/SysTick and no external IRQ dispatch.
 Static budget: Nine permanent 2048-byte application stacks, 1024-byte idle stack, eight-slot FIFO, fixed synchronization objects and 4096-byte exception/boot reserve; no target heap.
 Dependencies: NXR-090, NXR-140, NXR-142
+Implementation: ports/arm-mps2/rtos_port.hpp, ports/arm-mps2/context.S, ports/arm-mps2/start.S, examples/arm_stress.cpp, cmake/arm-simulation.cmake, tools/NexRT.ArmSim/Program.cs
+Verification sources: examples/arm_stress.cpp, tools/NexRT.ArmSim/Program.cs
 <<<
 
 [REQUIREMENT]
@@ -1964,6 +2264,8 @@ Verification: Host scanner boundary matrix, ARM real-stack observations, no-heap
 Configuration: RTOS_STACK_WATERMARK defaults off; explicit stack_usage scan budget defaults to 256 bytes.
 Static budget: No target heap and no new thread-control fields; constant result storage; scan work bounded by caller budget and registered extent.
 Dependencies: NXR-150
+Implementation: include/rtos/detail/stack_watermark.hpp, src/kernel.cpp, tests/stack_watermark.cpp, examples/arm_stress.cpp
+Verification sources: tests/stack_watermark.cpp, examples/arm_stress.cpp
 <<<
 
 [REQUIREMENT]
@@ -1977,6 +2279,8 @@ Verification: Native C# process fixtures and actual ARM/UART simulation reruns.
 Configuration: Native AOT C# runners with XDoc; one deadline for exit and drains, bounded cleanup and eight-million-character output cap.
 Static budget: Host-only bounded capture; no firmware RAM, heap or thread changes.
 Dependencies: NXR-149, NXR-150
+Implementation: tools/HostProcess.cs, tools/NexRT.ArmSim/Program.cs, tools/NexRT.Sim/Program.cs, cmake/host-tools.cmake
+Verification sources: tools/NexRT.ArmSim/Program.cs
 <<<
 
 [REQUIREMENT]
@@ -1990,6 +2294,8 @@ Verification: Native C# symbol self-tests and real ARM/RV32 compiler-linker fixt
 Configuration: Architecture-selected static_contract_check; no default libc or libgloss linking.
 Static budget: Host fixtures only; no target heap or runtime constructor machinery.
 Dependencies: NXR-085, NXR-150
+Implementation: ports/arm-mps2/link.ld, ports/riscue/link.ld, tools/Rtos.Tools/Program.cs, cmake/firmware.cmake
+Verification sources: tools/Rtos.Tools/Program.cs
 <<<
 
 [REQUIREMENT]
@@ -2003,6 +2309,8 @@ Verification: Three QEMU timer shifts per configured stress image.
 Configuration: Assembly harnesses preserve AAPCS caller state and avoid C calls on a deliberately misaligned stack.
 Static budget: No heap; validation-only stack frames removed from ordinary images when unreferenced.
 Dependencies: NXR-150
+Implementation: ports/arm-mps2/canaries.S, ports/arm-mps2/rtos_port.hpp, examples/arm_stress.cpp
+Verification sources: examples/arm_stress.cpp
 <<<
 
 [REQUIREMENT]
@@ -2016,6 +2324,8 @@ Verification: QEMU normal, near-wrap and faster-tick runs with retained logs.
 Configuration: CMSDK timer initial value configurable separately from full 32-bit reload; stress follows configured tick rate.
 Static budget: No dynamic firmware storage; variant queue capacity fixed at compilation.
 Dependencies: NXR-150
+Implementation: ports/arm-mps2/rtos_port.hpp, examples/arm_stress.cpp, cmake/firmware.cmake
+Verification sources: examples/arm_stress.cpp
 <<<
 
 [REQUIREMENT]
@@ -2029,6 +2339,8 @@ Verification: Host CTest and actual ARM QEMU campaigns with retained logs.
 Configuration: Fixed-capacity host oracles; optional ARM stress witness hooks default off outside stress presets.
 Static budget: No heap or TCB growth in ordinary firmware; stress-only observer state documented.
 Dependencies: NXR-154, NXR-155
+Implementation: tests/ipc_random.cpp, tests/ipc_wait_order.cpp, examples/arm_stress.cpp, ports/arm-mps2/canaries.S, src/kernel.cpp
+Verification sources: tests/ipc_random.cpp, tests/ipc_wait_order.cpp, examples/arm_stress.cpp
 <<<
 
 [REQUIREMENT]
@@ -2042,6 +2354,8 @@ Verification: Actual sanitizer/Memcheck CTest and ARM/RV32 compiler contracts.
 Configuration: CMake native checks and XDoc C# bounded executor; no custom Python tooling.
 Static budget: No target heap, RAM fields or runtime instrumentation; host model results do not qualify firmware.
 Dependencies: NXR-085, NXR-152, NXR-156
+Implementation: cmake/host-memory.cmake, cmake/host-tests.cmake, tools/Rtos.Tools/Program.cs, tools/HostProcess.cs
+Verification sources: tools/Rtos.Tools/Program.cs, tests/ipc_random.cpp
 <<<
 
 [REQUIREMENT]
@@ -2055,6 +2369,8 @@ Verification: Native evidence self-tests, actual controlled-failure gates and fi
 Configuration: XDoc C# Native AOT collector with bounded inputs; probe output captured by shared bounded executor.
 Static budget: No firmware services or RAM; intentionally invalid host probe excluded from ordinary builds.
 Dependencies: NXR-152, NXR-157
+Implementation: tools/NexRT.Evidence/Program.cs, cmake/host-tests.cmake, tests/memory_negative.cpp
+Verification sources: tools/NexRT.Evidence/Program.cs, tests/memory_negative.cpp
 <<<
 
 [REQUIREMENT]
@@ -2068,6 +2384,8 @@ Verification: Enabled host ownership model, memory tooling, cross-compilation an
 Configuration: RTOS_DMA requires RTOS_SYNC; nexrt::dma is a separate library; polled BSP interface rather than assumed external IRQ support.
 Static budget: Per explicitly instantiated channel control plus caller-selected aligned permanent staging; no heap, mandatory worker, descriptor ring or global pool.
 Dependencies: NXR-133, NXR-134, NXR-135
+Implementation: include/rtos_dma.hpp, src/dma.cpp, cmake/modules.cmake, cmake/configuration.cmake
+Verification sources: tests/dma.cpp
 <<<
 
 [REQUIREMENT]
@@ -2081,6 +2399,8 @@ Verification: Native handoff self-test, real archive restoration, dependency doc
 Configuration: Native AOT default with managed fallback; host docs analysis ARM RISC-V RTL profiles are explicit.
 Static budget: Host tooling only; zero firmware RAM or flash cost.
 Dependencies: NXR-159
+Implementation: tools/NexRT.Handoff/Program.cs, tools/NexRT.Handoff/Archive.cs, tools/NexRT.Handoff/Doctor.cs, cmake/dependencies.cmake
+Verification sources: tools/NexRT.Handoff/Archive.cs
 <<<
 
 [REQUIREMENT]
@@ -2094,6 +2414,8 @@ Verification: Compare linker map and ELF program headers with a separately autho
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Zero unexplained RAM bytes; board capacity is a hard ceiling.
 Dependencies: NXR-081, NXR-025
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2107,6 +2429,8 @@ Verification: Build positive and negative ELF fixtures with the same release fla
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Zero permitted allocator references; fixtures remain host build artifacts.
 Dependencies: NXR-081, NXR-025
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2120,6 +2444,8 @@ Verification: Instrument target mask entry and exit; test minimum and maximum co
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Per-profile maximum mask duration is declared before measurement; no unbounded callback under mask.
 Dependencies: NXR-081, NXR-025
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2133,6 +2459,8 @@ Verification: Combine compiler stack usage, call-chain review and target waterma
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Every enabled stack has a byte ceiling including nested exception frames.
 Dependencies: NXR-081, NXR-025
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2146,6 +2474,8 @@ Verification: Retain map diffs and ELF symbol checks for one toggle at a time.
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Disabled feature contributes zero feature-owned RAM and code beyond documented shared dependencies.
 Dependencies: NXR-081, NXR-025
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2159,6 +2489,8 @@ Verification: Exercise two clock profiles and counter wrap with known interval f
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Conversions use checked arithmetic and a declared rounding bound of at most one target tick.
 Dependencies: NXR-081, NXR-025
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2172,6 +2504,8 @@ Verification: Run independent reference models and target boundary fixtures; ret
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: No capacity-dependent allocation; total execution budget declared for each sweep.
 Dependencies: NXR-081, NXR-025
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2185,6 +2519,8 @@ Verification: Compare target counter accounting with external GPIO intervals and
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Accounting work is constant per transition; error ceiling declared in target counter units.
 Dependencies: NXR-081, NXR-025
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2198,6 +2534,8 @@ Verification: Inspect compilation databases and embedded build identity; execute
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: C++20 interpreter; -O3 release profile; debug and sanitizer profiles remain separately named.
 Dependencies: NXR-081, NXR-025
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2211,6 +2549,8 @@ Verification: Retain baseline distributions, repetitions, machine identity and c
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Per-workload threshold and repeat count fixed before candidate execution.
 Dependencies: NXR-081, NXR-025
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2224,6 +2564,8 @@ Verification: Compile both profiles and execute default registration regressions
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Fixed slot and stack pool; zero general heap; lifecycle remains opt-in.
 Dependencies: NXR-001, NXR-128, NXR-129
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2237,6 +2579,8 @@ Verification: Use a reduced-width generation fixture and validate real-width bou
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: One generation word per reserved slot; exhausted slots remain unavailable until reset.
 Dependencies: NXR-001, NXR-128, NXR-129
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2250,6 +2594,8 @@ Verification: Pause workers at each ownership transition and issue duplicate sto
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: One stop flag and acknowledgement per permanent worker; finite grace deadline.
 Dependencies: NXR-001, NXR-128, NXR-129
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2263,6 +2609,8 @@ Verification: Enumerate completion-before-wait, wait-before-completion and timeo
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Fixed join waiter capacity; no allocation and no infinite cleanup scan.
 Dependencies: NXR-001, NXR-128, NXR-129
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2276,6 +2624,8 @@ Verification: Inject each retained reference separately and verify no stack or c
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Reference metadata bounded by configured threads and waiters; no runtime stack growth.
 Dependencies: NXR-001, NXR-128, NXR-129
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2289,6 +2639,8 @@ Verification: Exercise nested ownership and inherited priority chains with an in
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: No forced unlock; reporting bounded by configured owned-mutex metadata.
 Dependencies: NXR-001, NXR-128, NXR-129
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2302,6 +2654,8 @@ Verification: Exhaustively model finite interleavings and run seeded target race
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: At most configured waiter scans; no callback or device access inside the wait lock.
 Dependencies: NXR-001, NXR-128, NXR-129
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2315,6 +2669,8 @@ Verification: Build chained donation fixtures and reuse each retired slot positi
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Cleanup bounded by configured mutex and thread counts.
 Dependencies: NXR-001, NXR-128, NXR-129
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2328,6 +2684,8 @@ Verification: Use a bounded command queue with replayed commands and delayed ack
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: One active job per worker and a fixed outstanding command window.
 Dependencies: NXR-001, NXR-128, NXR-129
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2341,6 +2699,8 @@ Verification: Inject failed stop and incomplete resource release and verify the 
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: No automatic force-delete; finite stop deadline and retained first failure.
 Dependencies: NXR-001, NXR-128, NXR-129
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2354,6 +2714,8 @@ Verification: Compile and execute profile-specific positive and illegal-operatio
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Single hart; fixed four-region PMP profile where enabled; no implicit MMU.
 Dependencies: NXR-102, NXR-139
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2367,6 +2729,8 @@ Verification: Run manifest mismatch controls and RAM versus MMIO atomic address 
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: No atomics on device memory; no silent runtime emulation inside the hardware qualification profile.
 Dependencies: NXR-102, NXR-139
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2380,6 +2744,8 @@ Verification: Execute edge operands and randomized word pairs; mutate return-val
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Fixed operand corpus plus declared seed and operation count; no heap on target.
 Dependencies: NXR-102, NXR-139
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2393,6 +2759,8 @@ Verification: Run interrupt handoff litmus tests and inspect emitted fences with
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: No SMP qualification claim; bounded shared ordinary-RAM words.
 Dependencies: NXR-102, NXR-139
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2406,6 +2774,8 @@ Verification: Use register-pattern fixtures and inspect mstatus, mepc and return
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: One declared user frame per slot; no FP or vector state unless separately enabled.
 Dependencies: NXR-102, NXR-139
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2419,6 +2789,8 @@ Verification: Generate byte, halfword and word probes including region-crossing 
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Exactly four declared regions; reject unrepresentable layouts before enabling user execution.
 Dependencies: NXR-102, NXR-139
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2432,6 +2804,8 @@ Verification: Attempt configuration and address rewrites and compare reset and p
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: No runtime unlock API; fixed board reset domain.
 Dependencies: NXR-102, NXR-139
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2445,6 +2819,8 @@ Verification: Compare saved status and cause against independently calculated tr
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Fixed trap frames; bounded nesting policy explicitly declared.
 Dependencies: NXR-102, NXR-139
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2458,6 +2834,8 @@ Verification: Use known-deadline instruction streams, branch loops and masked-in
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Batch parameter finite and recorded; no timing-accuracy label for relaxed delivery.
 Dependencies: NXR-102, NXR-139
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2471,6 +2849,8 @@ Verification: Run short deterministic instruction, atomic and privilege corpora 
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Bounded trace window and operation count; model speed does not imply cycle accuracy.
 Dependencies: NXR-102, NXR-139
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2484,6 +2864,8 @@ Verification: Publish fixed seed vectors including zero and maximal seeds and co
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Fixed generator state per worker; no entropy dependency for replay.
 Dependencies: NXR-072, NXR-073, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2497,6 +2879,8 @@ Verification: Repeat workloads with shifted interrupt points and compare input a
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Fixed trace ring with explicit loss counters; loss disables exact replay claims.
 Dependencies: NXR-072, NXR-073, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2510,6 +2894,8 @@ Verification: Use separately authored reference functions and mutation fixtures 
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Fixed input and result sizes; bounded outstanding jobs.
 Dependencies: NXR-072, NXR-073, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2523,6 +2909,8 @@ Verification: Validate bundle schema against intentionally missing fields and ha
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Host storage quota declared per run; archive exhaustion cannot be reported as a pass.
 Dependencies: NXR-072, NXR-073, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2536,6 +2924,8 @@ Verification: Trigger two distinct faults and then each supported reset kind; co
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: One fixed first-fault record per capture epoch; no allocation in capture.
 Dependencies: NXR-072, NXR-073, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2549,6 +2939,8 @@ Verification: Exercise capacity one, full and counter-boundary fixtures and malf
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Configured event capacity only; overflow never blocks producers.
 Dependencies: NXR-072, NXR-073, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2562,6 +2954,8 @@ Verification: Replay a seeded injected failure, remove operations and verify sta
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Finite reduction attempts and host time budget; no autonomous unbounded search.
 Dependencies: NXR-072, NXR-073, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2575,6 +2969,8 @@ Verification: Inject a known bad job followed by a second fault and saturate nor
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: One fixed witness record plus bounded context window.
 Dependencies: NXR-072, NXR-073, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2588,6 +2984,8 @@ Verification: Run deliberately slow simulation with short host cutoff and a sepa
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Finite host cutoff plus cleanup allowance; target goals recorded before start.
 Dependencies: NXR-072, NXR-073, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2601,6 +2999,8 @@ Verification: Create explicit controls for context corruption, duplicate jobs, s
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Fault injection confined to named test profiles; no release default activation.
 Dependencies: NXR-072, NXR-073, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2614,6 +3014,8 @@ Verification: Cross-check independent encoders and a published offset table incl
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: 512 decoded bytes: 40 header, 468 payload region and 4 CRC bytes.
 Dependencies: NXR-137
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2627,6 +3029,8 @@ Verification: Use independent bitwise and optimized implementations plus fixed k
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Four-byte little-endian CRC; polynomial 82F63B78 with declared initial and final XOR.
 Dependencies: NXR-137
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2640,6 +3044,8 @@ Verification: Feed arbitrary read fragments, consecutive delimiters and corrupte
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: At most 516 encoded bytes including delimiter; statically reserved 576-byte slots.
 Dependencies: NXR-137
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2653,6 +3059,8 @@ Verification: Compare state snapshots around one-field mutations and wrong-endia
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Constant frame ceiling; no payload-dependent allocation or callback before validation.
 Dependencies: NXR-137
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2666,6 +3074,8 @@ Verification: Replay frames across reconnection and controlled resets with uncha
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: 128-bit session nonce and 64-bit boot identity per wire proposal; entropy quality stated separately.
 Dependencies: NXR-137
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2679,6 +3089,8 @@ Verification: Drop the first response, resend identical and modified requests an
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: One command in flight; one bounded request-response cache.
 Dependencies: NXR-137
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2692,6 +3104,8 @@ Verification: Inject reordered, duplicate and wrapping transport sequences with 
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Fixed tracking window and documented sequence wrap comparison.
 Dependencies: NXR-137
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2705,6 +3119,8 @@ Verification: Mutate worker counters between pages and test missing, duplicate a
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Eight 32-byte thread slots per status frame; bounded page count declared by profile.
 Dependencies: NXR-137
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2718,6 +3134,8 @@ Verification: Round-trip absent, valid-zero, saturated and stale metrics in sche
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Validity bits and typed units fit the fixed schema; no implicit feature inference.
 Dependencies: NXR-137
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2731,6 +3149,8 @@ Verification: Run old/new schema fixture pairs and unsupported-command probes.
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Bounded capability bitmap and finite handshake deadline.
 Dependencies: NXR-137
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2744,6 +3164,8 @@ Verification: Use fake serial endpoints plus two real processes contending for o
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: One bounded session per configured board; OS lease lifetime tied to owner process.
 Dependencies: NXR-076, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2757,6 +3179,8 @@ Verification: Execute a three-endpoint scenario with bounded asynchronous cancel
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Finite per-board queues and deadlines; no unbounded task creation.
 Dependencies: NXR-076, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2770,6 +3194,8 @@ Verification: Tamper with each manifest component between configuration and armi
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: One immutable manifest per run; checked file sizes and hashes.
 Dependencies: NXR-076, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2783,6 +3209,8 @@ Verification: Use a quota-limited sink and injected I/O failures with a healthy 
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Declared bytes-per-run ceiling and bounded writer queue; no unlimited RAM buffering.
 Dependencies: NXR-076, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2796,6 +3224,8 @@ Verification: Drive fake-device state transitions and physical unplug/reset case
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: One terminal result per run with append-only transition history.
 Dependencies: NXR-076, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2809,6 +3239,8 @@ Verification: Kill the host after START and before terminal persistence, then re
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Bounded recovery handshake deadline and one active lease.
 Dependencies: NXR-076, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2822,6 +3254,8 @@ Verification: Use cancellation injection at every awaited operation and a target
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Finite cleanup allowance; no indefinite wait after host cutoff.
 Dependencies: NXR-076, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2835,6 +3269,8 @@ Verification: Replay an archived byte stream through two schema versions and com
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Raw capture quota declared; any discarded bytes have explicit counters.
 Dependencies: NXR-076, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2848,6 +3284,8 @@ Verification: Fuzz command selection and validate that no raw debug command reac
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Finite test registry and bounded parameter schema.
 Dependencies: NXR-076, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2861,6 +3299,8 @@ Verification: Replay maximal frames from simulated endpoints and sample memory, 
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Maximum board count, queue depth and host memory ceiling fixed before qualification.
 Dependencies: NXR-076, NXR-094
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2874,6 +3314,8 @@ Verification: Exhaustively exercise the finite state-command matrix including du
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Fixed state enum and one active run; bounded command processing.
 Dependencies: NXR-039, NXR-048
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2887,6 +3329,8 @@ Verification: Gate workers individually and compare acknowledgements with extern
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: One acknowledgement bit per configured worker and finite start deadline.
 Dependencies: NXR-039, NXR-048
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2900,6 +3344,8 @@ Verification: Hold each resource type in turn and verify stop classification and
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Finite reconciliation pass over declared test resources.
 Dependencies: NXR-039, NXR-048
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2913,6 +3359,8 @@ Verification: Repeat configure-run-stop-rearm cycles with queued old-generation 
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: No blanket queue reset; fixed run-generation metadata.
 Dependencies: NXR-039, NXR-048
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2926,6 +3374,8 @@ Verification: Model fault and stop transitions and inspect hardware ownership un
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Separate fault and quiescence fields; one retained first-fault slot.
 Dependencies: NXR-039, NXR-048
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2939,6 +3389,8 @@ Verification: Measure target cycles and external GPIO timing under summary and t
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Default summary rate one per second; fixed service budget per dispatch.
 Dependencies: NXR-039, NXR-048
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2952,6 +3404,8 @@ Verification: Fill every pool slot and inject parse failures, duplicate response
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Static frame pool and descriptor queue; proposed protocol storage ceiling 6784 bytes excluding stacks and descriptors.
 Dependencies: NXR-039, NXR-048
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2965,6 +3419,8 @@ Verification: Exercise lost acknowledgement, duplicate fetch and stale acknowled
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: One retained terminal result and first fault; finite fetch payloads.
 Dependencies: NXR-039, NXR-048
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2978,6 +3434,8 @@ Verification: Test each parameter boundary and a compound invalid configuration 
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Checked arithmetic and declared fixed capacities; no allocation on configure.
 Dependencies: NXR-039, NXR-048
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -2991,6 +3449,8 @@ Verification: Run exit-focused fixtures and then attempt rearm and start with th
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: No runtime thread resurrection in the default kernel profile.
 Dependencies: NXR-039, NXR-048
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3004,6 +3464,8 @@ Verification: Feed synthetic UART waveforms and physical target streams with ind
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Fixed per-worker oracle state and declared maximum worker count.
 Dependencies: NXR-099
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3017,6 +3479,8 @@ Verification: Apply a reference pulse train at boundary widths and compare captu
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Calibration version and finite validity interval recorded per checker.
 Dependencies: NXR-099
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3030,6 +3494,8 @@ Verification: Generate controlled waveforms and throttle the checker input sink.
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Declared baud tolerance, FIFO depth and maximum record length.
 Dependencies: NXR-099
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3043,6 +3509,8 @@ Verification: Drive an external stimulus and capture three GPIO witnesses with c
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Per-board limits declared before arming; GPIO overhead measured.
 Dependencies: NXR-099
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3056,6 +3524,8 @@ Verification: Race checker reset and host START while validating a physical star
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: One active checker run and finite arming deadline.
 Dependencies: NXR-099
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3069,6 +3539,8 @@ Verification: Run byte corruption, missing sequence, timing overrun and reset in
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Finite preflight corpus and explicit injection-enabled profile.
 Dependencies: NXR-099
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3082,6 +3554,8 @@ Verification: Correlate reset line, target boot identity and retained hardware r
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Bounded reset event history and declared reset-domain wiring.
 Dependencies: NXR-099
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3095,6 +3569,8 @@ Verification: Execute the declared wiring matrix and verify reconnect identity a
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Equipment current and voltage limits declared per board; no undeclared reset assumptions.
 Dependencies: NXR-099
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3108,6 +3584,8 @@ Verification: Validate image hashes, feature manifests and one controlled hardwa
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Declared FPGA image and exposed counter widths; unsupported checks skipped explicitly.
 Dependencies: NXR-099
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3121,6 +3599,8 @@ Verification: Drive maximal-rate streams and delayed host drains at the declared
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Fixed FIFO and capture RAM; no silent circular overwrite of mandatory first-fault evidence.
 Dependencies: NXR-099
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3134,6 +3614,8 @@ Verification: Compare exact output with an independent record parser while forci
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Configured static record slots and message size; no producer waits for device readiness.
 Dependencies: NXR-041, NXR-119, NXR-149
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3147,6 +3629,8 @@ Verification: Use known record lengths and controlled transport errors with coun
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Saturating diagnostic counters; fixed queue capacity.
 Dependencies: NXR-041, NXR-119, NXR-149
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3160,6 +3644,8 @@ Verification: Combine address-validation host fixtures with board clock and pin-
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: No runtime driver discovery; one permanent owner per configured UART.
 Dependencies: NXR-041, NXR-119, NXR-149
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3173,6 +3659,8 @@ Verification: Inject framing errors, bursts beyond capacity and consumer pauses 
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Fixed RX ring and finite ISR work per entry; no heap.
 Dependencies: NXR-041, NXR-119, NXR-149
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3186,6 +3674,8 @@ Verification: Use hardware-generated edge and level stimuli and an independent e
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Fixed handler table; bounded per-entry service and declared nesting policy.
 Dependencies: NXR-041, NXR-119, NXR-149
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3199,6 +3689,8 @@ Verification: Inject a stuck source while measuring timer and high-priority work
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Finite events-per-entry budget and bounded deferred queue.
 Dependencies: NXR-041, NXR-119, NXR-149
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3212,6 +3704,8 @@ Verification: Capture pins externally and exercise write-one and read-modify-wri
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Fixed pin table; critical section limit declared for non-atomic hardware.
 Dependencies: NXR-041, NXR-119, NXR-149
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3225,6 +3719,8 @@ Verification: Inject worker stalls at differing priorities and compare independe
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Fixed worker bitmap and finite epoch; optional workers explicitly excluded.
 Dependencies: NXR-041, NXR-119, NXR-149
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3238,6 +3734,8 @@ Verification: Observe chip select and clock while injecting completion delay and
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Fixed transaction slots and finite cancellation deadline; uncertain hardware quarantined.
 Dependencies: NXR-041, NXR-119, NXR-149
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3251,6 +3749,8 @@ Verification: Use programmable pull-down fixtures and capture recovery pulses an
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Finite stretch and recovery pulse limits; no unconditional bus-reset loops.
 Dependencies: NXR-041, NXR-119, NXR-149
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3264,6 +3764,8 @@ Verification: Use an independently scripted backend and physical delayed IRQ whe
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: One active ticket per channel; generations never wrap within object lifetime.
 Dependencies: NXR-134, NXR-135, NXR-159
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3277,6 +3779,8 @@ Verification: Instrument bus writes or FPGA markers and compare final access aga
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Finite drain deadline; uncertain stop enters quarantine.
 Dependencies: NXR-134, NXR-135, NXR-159
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3290,6 +3794,8 @@ Verification: Exercise first and last cache-line boundaries on a cached board wi
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Staging alignment and rounded capacity cover the hardware cache-line size.
 Dependencies: NXR-134, NXR-135, NXR-159
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3303,6 +3809,8 @@ Verification: Script rejected starts and monitor bus activity or FPGA transfer c
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: No application pointer retained; fixed channel staging allocation.
 Dependencies: NXR-134, NXR-135, NXR-159
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3316,6 +3824,8 @@ Verification: Inject stop failure, attempt reuse and verify only the qualified r
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Staging remains reserved during quarantine; no automatic generation reset.
 Dependencies: NXR-134, NXR-135, NXR-159
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3329,6 +3839,8 @@ Verification: Validate result aggregation with mixed result fixtures and missing
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Finite declared test matrix; no implicit default-pass entries.
 Dependencies: NXR-134, NXR-135, NXR-159
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3342,6 +3854,8 @@ Verification: Cross-check release manifest, requirement IDs, board identities an
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: One finite support matrix; planned work is never promoted by documentation generation.
 Dependencies: NXR-134, NXR-135, NXR-159
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3355,6 +3869,8 @@ Verification: Retain complete build inputs, measurement method and raw repeated 
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Comparison scope and memory accounting fixed before measurements.
 Dependencies: NXR-134, NXR-135, NXR-159
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3368,6 +3884,8 @@ Verification: Run negative tracker fixtures and tamper with one generated task t
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Exactly one task per imported qualification review; at most 100 in this campaign.
 Dependencies: NXR-134, NXR-135, NXR-159
+Implementation: none
+Verification sources: none
 <<<
 
 [REQUIREMENT]
@@ -3381,5 +3899,127 @@ Verification: Run the documented local checkpoint workflow and verify milestone 
 Configuration: Opt-in qualification profile; boot-static storage; single CPU unless explicitly qualified otherwise.
 Static budget: Ten bounded milestones; no push; source and build evidence retained separately.
 Dependencies: NXR-134, NXR-135, NXR-159
+Implementation: none
+Verification sources: none
+<<<
+
+[REQUIREMENT]
+UID: NXR-261
+STATUS: PartialSourceUnverified
+TITLE: Project C++20 migration
+STATEMENT: >>>
+The project shall build firmware, host tests and analysis configurations using C++20 while preserving existing kernel behavior.
+Acceptance: Effective C++ commands use C++20; existing host tests and target static audit pass; Release remains -O3 with loop and SLP vectorization enabled.
+Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+Configuration: C++20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.
+Static budget: Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.
+Dependencies: NXR-077
+Implementation: CMakeLists.txt, cmake/static-analysis.cmake, cmake/riscue-toolchain.cmake
+Verification sources: tests/public_api.cpp
+<<<
+
+[REQUIREMENT]
+UID: NXR-262
+STATUS: PartialSourceUnverified
+TITLE: Static littlefs service
+STATEMENT: >>>
+The optional storage service shall use caller-owned volume and file caches without a general heap and shall never format on mount failure.
+Acceptance: Blank mount fails unchanged; explicit format succeeds; a file survives unmount/remount; invalid input and injected I/O fail explicitly.
+Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+Configuration: C++20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.
+Static budget: Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.
+Dependencies: NXR-002
+Implementation: src/storage.cpp, include/rtos_littlefs.hpp
+Verification sources: tests/static_services.cpp
+<<<
+
+[REQUIREMENT]
+UID: NXR-263
+STATUS: PartialSourceUnverified
+TITLE: NOR simulation and reset boundaries
+STATEMENT: >>>
+The NOR simulator shall reject invalid ranges and zero-to-one programming before mutation and support reproducible operation-boundary failures.
+Acceptance: NOR bit rules and range tests pass; 64 injected reset boundaries retain the prior or new committed inline value; physical power-loss behavior remains unqualified.
+Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+Configuration: C++20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.
+Static budget: Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.
+Dependencies: NXR-262
+Implementation: include/rtos_littlefs.hpp
+Verification sources: tests/static_services.cpp
+<<<
+
+[REQUIREMENT]
+UID: NXR-264
+STATUS: PartialSourceUnverified
+TITLE: Pool-only lwIP ownership
+STATEMENT: >>>
+The lwIP profile shall use fixed packet, allocation and control-block pools owned by one permanent worker with no general heap fallback.
+Acceptance: PBUF and variable-size allocation exhaustion return failure; releasing blocks restores service; complete target ELF contains no forbidden allocator or dynamic initializer.
+Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+Configuration: C++20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.
+Static budget: Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.
+Dependencies: NXR-002
+Implementation: include/lwip/lwipopts.h, include/lwip/lwippools.h, src/udp.cpp
+Verification sources: tests/udp.cpp
+<<<
+
+[REQUIREMENT]
+UID: NXR-265
+STATUS: PartialSourceUnverified
+TITLE: Wire-level UDP echo
+STATEMENT: >>>
+The UDP service shall echo at most 512 payload bytes on its configured IPv4 port through the existing Ethernet adapter with synchronous ownership transfer.
+Acceptance: Independently built ARP/IPv4/UDP frames produce matching response payload, ports and checksums; bad checksums, oversized data and exhausted pools do not produce successful echoes.
+Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+Configuration: C++20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.
+Static budget: Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.
+Dependencies: NXR-264, NXR-051
+Implementation: src/udp.cpp, include/rtos_udp.hpp
+Verification sources: tests/udp.cpp, examples/static_service_probe.hpp
+<<<
+
+[REQUIREMENT]
+UID: NXR-266
+STATUS: PartialSourceUnverified
+TITLE: Independent optional-service removal
+STATEMENT: >>>
+Configuration shall exclude dependency resolution, compilation and linked storage for disabled littlefs, lwIP and ETL evaluation features independently.
+Acceptance: Disabled and each single-feature build pass; all-off configuration performs no dependency download; linked maps and symbols contain no disabled library implementation.
+Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+Configuration: C++20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.
+Static budget: Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.
+Dependencies: NXR-078, NXR-079
+Implementation: cmake/static-services.cmake, cmake/configuration.cmake
+Verification sources: tests/static_services.cpp, tests/udp.cpp, tests/etl_evaluation.cpp
+<<<
+
+[REQUIREMENT]
+UID: NXR-267
+STATUS: PartialSourceUnverified
+TITLE: ETL typed-pool evaluation
+STATEMENT: >>>
+The ETL evaluation shall measure fixed typed-pool alignment, exhaustion guarding, reuse and initialization constraints before replacing NexRT ownership helpers.
+Acceptance: Four aligned packet loans exhaust capacity and return to empty; constructor/exception policy and absence of generation handles are recorded; no kernel replacement is implied.
+Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+Configuration: C++20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.
+Static budget: Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.
+Dependencies: NXR-002
+Implementation: cmake/static-services.cmake
+Verification sources: tests/etl_evaluation.cpp
+<<<
+
+[REQUIREMENT]
+UID: NXR-268
+STATUS: PartialSourceUnverified
+TITLE: Scheduled static-service firmware
+STATEMENT: >>>
+The simulation demo shall run littlefs remount and 32 wire-level UDP echoes in an actual NexRT worker while another worker and scheduling timer make progress.
+Acceptance: Instruction model reports completed, one persisted file, 32 echoes, nonzero peer progress, multiple dispatches and timer traps; target ELF passes no-heap/no-initializer audit; cutoff is not completion.
+Verification: Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.
+Configuration: C++20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.
+Static budget: Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.
+Dependencies: NXR-262, NXR-265
+Implementation: examples/static_services.cpp, sim/interpreter/main.cpp
+Verification sources: examples/static_service_probe.hpp, tests/static_services.cpp, tests/udp.cpp
 <<<
 

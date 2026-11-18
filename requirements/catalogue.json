@@ -2346,7 +2346,7 @@
     ],
     "verification_files": [],
     "planned_test": "TEST-NXR-084",
-    "configuration": "Freestanding C\u002B\u002B17; no exceptions/RTTI/runtime initialization.",
+    "configuration": "Freestanding C\u002B\u002B20; no exceptions/RTTI/runtime initialization.",
     "resource_budget": "Zero constructor/preinit section bytes.",
     "review_iteration": 84,
     "inspected_files": [
@@ -7458,5 +7458,258 @@
       "docs/dma.rst"
     ],
     "finding": "Counting authored rows is not equivalent to executing 100 runtime engineering changes and must remain labeled as requirements review."
+  },
+  {
+    "id": "NXR-261",
+    "title": "Project C\u002B\u002B20 migration",
+    "category": "Static service integration",
+    "statement": "The project shall build firmware, host tests and analysis configurations using C\u002B\u002B20 while preserving existing kernel behavior.",
+    "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
+    "acceptance": "Effective C\u002B\u002B commands use C\u002B\u002B20; existing host tests and target static audit pass; Release remains -O3 with loop and SLP vectorization enabled.",
+    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.",
+    "dependencies": [
+      "NXR-077"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "CMakeLists.txt",
+      "cmake/static-analysis.cmake",
+      "cmake/riscue-toolchain.cmake"
+    ],
+    "verification_files": [
+      "tests/public_api.cpp"
+    ],
+    "planned_test": "TEST-NXR-261",
+    "configuration": "C\u002B\u002B20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.",
+    "resource_budget": "Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.",
+    "review_iteration": 261,
+    "inspected_files": [
+      "CMakeLists.txt",
+      "cmake/static-analysis.cmake",
+      "cmake/riscue-toolchain.cmake",
+      "tests/public_api.cpp"
+    ],
+    "finding": "Implementation and finite simulation evidence exist; board flash/MAC timing, full network conformance and formal qualification are not established."
+  },
+  {
+    "id": "NXR-262",
+    "title": "Static littlefs service",
+    "category": "Static service integration",
+    "statement": "The optional storage service shall use caller-owned volume and file caches without a general heap and shall never format on mount failure.",
+    "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
+    "acceptance": "Blank mount fails unchanged; explicit format succeeds; a file survives unmount/remount; invalid input and injected I/O fail explicitly.",
+    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.",
+    "dependencies": [
+      "NXR-002"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "src/storage.cpp",
+      "include/rtos_littlefs.hpp"
+    ],
+    "verification_files": [
+      "tests/static_services.cpp"
+    ],
+    "planned_test": "TEST-NXR-262",
+    "configuration": "C\u002B\u002B20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.",
+    "resource_budget": "Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.",
+    "review_iteration": 262,
+    "inspected_files": [
+      "src/storage.cpp",
+      "include/rtos_littlefs.hpp",
+      "tests/static_services.cpp"
+    ],
+    "finding": "Implementation and finite simulation evidence exist; board flash/MAC timing, full network conformance and formal qualification are not established."
+  },
+  {
+    "id": "NXR-263",
+    "title": "NOR simulation and reset boundaries",
+    "category": "Static service integration",
+    "statement": "The NOR simulator shall reject invalid ranges and zero-to-one programming before mutation and support reproducible operation-boundary failures.",
+    "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
+    "acceptance": "NOR bit rules and range tests pass; 64 injected reset boundaries retain the prior or new committed inline value; physical power-loss behavior remains unqualified.",
+    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.",
+    "dependencies": [
+      "NXR-262"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/rtos_littlefs.hpp"
+    ],
+    "verification_files": [
+      "tests/static_services.cpp"
+    ],
+    "planned_test": "TEST-NXR-263",
+    "configuration": "C\u002B\u002B20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.",
+    "resource_budget": "Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.",
+    "review_iteration": 263,
+    "inspected_files": [
+      "include/rtos_littlefs.hpp",
+      "tests/static_services.cpp"
+    ],
+    "finding": "Implementation and finite simulation evidence exist; board flash/MAC timing, full network conformance and formal qualification are not established."
+  },
+  {
+    "id": "NXR-264",
+    "title": "Pool-only lwIP ownership",
+    "category": "Static service integration",
+    "statement": "The lwIP profile shall use fixed packet, allocation and control-block pools owned by one permanent worker with no general heap fallback.",
+    "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
+    "acceptance": "PBUF and variable-size allocation exhaustion return failure; releasing blocks restores service; complete target ELF contains no forbidden allocator or dynamic initializer.",
+    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.",
+    "dependencies": [
+      "NXR-002"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "include/lwip/lwipopts.h",
+      "include/lwip/lwippools.h",
+      "src/udp.cpp"
+    ],
+    "verification_files": [
+      "tests/udp.cpp"
+    ],
+    "planned_test": "TEST-NXR-264",
+    "configuration": "C\u002B\u002B20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.",
+    "resource_budget": "Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.",
+    "review_iteration": 264,
+    "inspected_files": [
+      "include/lwip/lwipopts.h",
+      "include/lwip/lwippools.h",
+      "src/udp.cpp",
+      "tests/udp.cpp"
+    ],
+    "finding": "Implementation and finite simulation evidence exist; board flash/MAC timing, full network conformance and formal qualification are not established."
+  },
+  {
+    "id": "NXR-265",
+    "title": "Wire-level UDP echo",
+    "category": "Static service integration",
+    "statement": "The UDP service shall echo at most 512 payload bytes on its configured IPv4 port through the existing Ethernet adapter with synchronous ownership transfer.",
+    "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
+    "acceptance": "Independently built ARP/IPv4/UDP frames produce matching response payload, ports and checksums; bad checksums, oversized data and exhausted pools do not produce successful echoes.",
+    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.",
+    "dependencies": [
+      "NXR-264",
+      "NXR-051"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "src/udp.cpp",
+      "include/rtos_udp.hpp"
+    ],
+    "verification_files": [
+      "tests/udp.cpp",
+      "examples/static_service_probe.hpp"
+    ],
+    "planned_test": "TEST-NXR-265",
+    "configuration": "C\u002B\u002B20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.",
+    "resource_budget": "Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.",
+    "review_iteration": 265,
+    "inspected_files": [
+      "src/udp.cpp",
+      "include/rtos_udp.hpp",
+      "tests/udp.cpp",
+      "examples/static_service_probe.hpp"
+    ],
+    "finding": "Implementation and finite simulation evidence exist; board flash/MAC timing, full network conformance and formal qualification are not established."
+  },
+  {
+    "id": "NXR-266",
+    "title": "Independent optional-service removal",
+    "category": "Static service integration",
+    "statement": "Configuration shall exclude dependency resolution, compilation and linked storage for disabled littlefs, lwIP and ETL evaluation features independently.",
+    "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
+    "acceptance": "Disabled and each single-feature build pass; all-off configuration performs no dependency download; linked maps and symbols contain no disabled library implementation.",
+    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.",
+    "dependencies": [
+      "NXR-078",
+      "NXR-079"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "cmake/static-services.cmake",
+      "cmake/configuration.cmake"
+    ],
+    "verification_files": [
+      "tests/static_services.cpp",
+      "tests/udp.cpp",
+      "tests/etl_evaluation.cpp"
+    ],
+    "planned_test": "TEST-NXR-266",
+    "configuration": "C\u002B\u002B20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.",
+    "resource_budget": "Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.",
+    "review_iteration": 266,
+    "inspected_files": [
+      "cmake/static-services.cmake",
+      "cmake/configuration.cmake",
+      "tests/static_services.cpp",
+      "tests/udp.cpp",
+      "tests/etl_evaluation.cpp"
+    ],
+    "finding": "Implementation and finite simulation evidence exist; board flash/MAC timing, full network conformance and formal qualification are not established."
+  },
+  {
+    "id": "NXR-267",
+    "title": "ETL typed-pool evaluation",
+    "category": "Static service integration",
+    "statement": "The ETL evaluation shall measure fixed typed-pool alignment, exhaustion guarding, reuse and initialization constraints before replacing NexRT ownership helpers.",
+    "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
+    "acceptance": "Four aligned packet loans exhaust capacity and return to empty; constructor/exception policy and absence of generation handles are recorded; no kernel replacement is implied.",
+    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.",
+    "dependencies": [
+      "NXR-002"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "cmake/static-services.cmake"
+    ],
+    "verification_files": [
+      "tests/etl_evaluation.cpp"
+    ],
+    "planned_test": "TEST-NXR-267",
+    "configuration": "C\u002B\u002B20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.",
+    "resource_budget": "Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.",
+    "review_iteration": 267,
+    "inspected_files": [
+      "cmake/static-services.cmake",
+      "tests/etl_evaluation.cpp"
+    ],
+    "finding": "Implementation and finite simulation evidence exist; board flash/MAC timing, full network conformance and formal qualification are not established."
+  },
+  {
+    "id": "NXR-268",
+    "title": "Scheduled static-service firmware",
+    "category": "Static service integration",
+    "statement": "The simulation demo shall run littlefs remount and 32 wire-level UDP echoes in an actual NexRT worker while another worker and scheduling timer make progress.",
+    "rationale": "Reuse pinned libraries while preserving static capacity, optional linkage and honest target evidence.",
+    "acceptance": "Instruction model reports completed, one persisted file, 32 echoes, nonzero peer progress, multiple dispatches and timer traps; target ELF passes no-heap/no-initializer audit; cutoff is not completion.",
+    "verification": "Host regression and negative fixtures; seeded wire tests; linked ELF audit; RV32 instruction-model run. See requirements/static-services/evidence.rst for commands and limitations.",
+    "dependencies": [
+      "NXR-262",
+      "NXR-265"
+    ],
+    "status": "PartialSourceUnverified",
+    "implementation_files": [
+      "examples/static_services.cpp",
+      "sim/interpreter/main.cpp"
+    ],
+    "verification_files": [
+      "examples/static_service_probe.hpp",
+      "tests/static_services.cpp",
+      "tests/udp.cpp"
+    ],
+    "planned_test": "TEST-NXR-268",
+    "configuration": "C\u002B\u002B20; independent RTOS_STORAGE/RTOS_LWIP/RTOS_ETL_EVALUATION; Release -O3; larger-RAM simulation explicitly named.",
+    "resource_budget": "Fixed volume/file caches; four RX packet blocks and four malloc-pool blocks; 512-byte echo ceiling; fixed worker stacks; no general heap.",
+    "review_iteration": 268,
+    "inspected_files": [
+      "examples/static_services.cpp",
+      "sim/interpreter/main.cpp",
+      "examples/static_service_probe.hpp",
+      "tests/static_services.cpp",
+      "tests/udp.cpp"
+    ],
+    "finding": "Implementation and finite simulation evidence exist; board flash/MAC timing, full network conformance and formal qualification are not established."
   }
 ]

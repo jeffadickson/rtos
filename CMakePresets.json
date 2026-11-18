@@ -7,6 +7,16 @@
   },
   "configurePresets": [
     {
+      "name": "host-static-services", "inherits": "host",
+      "binaryDir": "${sourceDir}/build/static-services",
+      "cacheVariables": { "RTOS_STORAGE": "ON", "RTOS_LWIP": "ON", "RTOS_ETHERNET": "ON", "RTOS_ETL_EVALUATION": "ON", "RTOS_WEB": "OFF", "RTOS_INTERPRETER": "ON" }
+    },
+    {
+      "name": "services-rv32-sim", "inherits": "riscue",
+      "binaryDir": "${sourceDir}/build/services-firmware",
+      "cacheVariables": { "RTOS_APPLICATION": "examples/static_services.cpp", "RTOS_RISCUE_RAM_BYTES": "262144", "RTOS_STORAGE": "ON", "RTOS_LWIP": "ON", "RTOS_ETHERNET": "ON", "RTOS_WEB": "OFF", "RTOS_MAX_THREADS": "2", "RTOS_METRICS": "ON" }
+    },
+    {
       "name": "atomic-baseline",
       "inherits": "riscue",
       "binaryDir": "${sourceDir}/build/atomic-baseline",
@@ -212,6 +222,8 @@
     }
   ],
   "buildPresets": [
+    { "name": "host-static-services", "configurePreset": "host-static-services" },
+    { "name": "services-rv32-sim", "configurePreset": "services-rv32-sim" },
     { "name": "atomic-baseline", "configurePreset": "atomic-baseline" },
     { "name": "atomic-zaamo", "configurePreset": "atomic-zaamo" },
     { "name": "overnight-stress", "configurePreset": "overnight-stress" },

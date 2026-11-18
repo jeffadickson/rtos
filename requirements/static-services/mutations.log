@@ -1,0 +1,4 @@
+KILLED: mount-state
+KILLED: nor-overwrite
+KILLED: udp-destination
+Three targeted controls killed; this is not a comprehensive mutation score.

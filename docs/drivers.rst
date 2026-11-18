@@ -151,9 +151,10 @@ path appropriate for Ethernet framing. Follow the upstream version's
 `initialization instructions <https://www.nongnu.org/lwip/2_1_x/sys_init.html>`_
 and `NO_SYS constraints <https://www.nongnu.org/lwip/2_1_x/group__lwip__opts__nosys.html>`_.
 
-This project does not yet provide that glue, lwIP sources, sockets, DHCP, DNS,
-or TCP/IP tests. NO_SYS=0 integration needs a complete sys_arch port and verified
-static synchronization/mailbox primitives, which are not implemented here.
+The optional ``RTOS_LWIP`` profile now supplies pinned lwIP sources, NO_SYS=1
+glue, fixed pools and a wire-tested UDP echo service; see :doc:`static-services`.
+Sockets, DHCP, DNS and TCP remain excluded. NO_SYS=0 still needs a complete
+sys_arch port; the current kernel IPC implementation alone is not that port.
 
 For any stack, reserve protocol storage and frame pools at boot. Bounded loans
 from fixed pools require explicit return paths and exhaustion tests. A static

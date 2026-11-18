@@ -1,0 +1,16 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- Configuring done (0.4s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/jeffd/src/nexrt/rtos/build/services-firmware
+[0/2] Re-checking globbed directories...
+[1/6] Building CXX object CMakeFiles/rtos_littlefs.dir/src/storage.cpp.obj
+[2/6] Building CXX object CMakeFiles/rtos_lwip.dir/src/udp.cpp.obj
+[3/6] Building CXX object CMakeFiles/demo.dir/examples/static_services.cpp.obj
+[4/6] Linking CXX static library librtos_lwip.a
+[5/6] Linking CXX static library librtos_littlefs.a
+[6/6] Linking CXX executable demo.elf
+/usr/lib/gcc/riscv64-unknown-elf/13.2.0/../../../riscv64-unknown-elf/bin/ld: warning: demo.elf has a LOAD segment with RWX permissions
+Static-only ELF audit passed: no allocator or dynamic C++ initializer symbols
+   text	   data	    bss	    dec	    hex	filename
+  67652	  16422	  40720	 124794	  1e77a	/home/jeffd/src/nexrt/rtos/build/services-firmware/demo.elf
