@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NexRT — how it works</title><style>
 :root{color-scheme:dark;--bg:#101922;--ink:#e9f1ef;--muted:#b7cbcf;--line:#344b59;--accent:#8de6bc}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 system-ui,sans-serif}main{max-width:1080px;margin:auto;padding:32px 24px}a{color:var(--accent)}nav{display:flex;flex-wrap:wrap;gap:20px;border-bottom:1px solid var(--line);padding-bottom:18px}h1{font-size:clamp(36px,6vw,64px);line-height:1.1}h2{margin-top:64px;line-height:1.2}h3{margin-top:30px}p,li{max-width:84ch}.lead{font-size:22px;color:var(--muted)}pre{background:#0b1117;border:1px solid var(--line);border-radius:8px;padding:20px;overflow:auto;font:14px/1.65 ui-monospace,monospace;tab-size:4}code{font-family:ui-monospace,monospace}details{margin:20px 0}summary{cursor:pointer;color:var(--accent);font-weight:600}.flow{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:30px 0}.flow span{padding:14px;border:1px solid var(--line);border-radius:6px}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid var(--line);padding:12px;text-align:left}.note{border-left:3px solid var(--accent);padding-left:18px;color:var(--muted)}footer{margin-top:64px;border-top:1px solid var(--line);padding-top:20px}:focus-visible{outline:3px solid var(--accent);outline-offset:4px}</style></head>
-<body><main><nav aria-label="Guide"><a href="index.html">NexRT introduction</a><a href="#overview">Overview</a><a href="#applications">Write an application</a><a href="#drivers">Write a driver</a><a href="#assembly">Assembly</a><a href="#ports">Ports</a></nav>
+<body><main><nav aria-label="Guide"><a href="index.html">NexRT introduction</a><a href="#overview">Overview</a><a href="#applications">Write an application</a><a href="#drivers">Write a driver</a><a href="#assembly">Assembly</a><a href="#hw-sched">Hardware scheduler</a><a href="#formal">Formal proof &amp; safety</a><a href="#ports">Ports</a></nav>
 <h1>Small kernel.<br>Explicit ownership.</h1><p class="lead">How NexRT schedules work, how to write an application, and where drivers meet the CPU.</p>
 <p class="note">This is a host-side developer guide generated from the checked-in examples and assembly. RISCue firmware cross-builds; hardware execution, other CPU ports and board qualification remain separate work.</p>
 <section id="overview"><h2>What the kernel does</h2><div class="flow" aria-label="Architecture"><span>Static application threads</span><b aria-hidden="true">→</b><span>Scheduler + optional IPC</span><b aria-hidden="true">→</b><span>CPU port</span><b aria-hidden="true">→</b><span>Board hardware</span></div>
@@ -66,7 +66,7 @@ static Device shared_device;</code></pre>
 <p>For a first integration, prefer bounded polling and a single owning worker. DMA is a later adapter with explicit buffer ownership, address/cache policy, completion and cancellation/quiescence. PCIe/SpaceVPX additionally needs versioned peer messages and fault/window isolation. No generic cache flush or bus address is guessed.</p></section>
 <section id="assembly"><h2>How preemption crosses assembly</h2><p>Reset disables interrupts, establishes sp/gp, clears BSS and calls main. There is no constructor runner or ROM-to-RAM data copy. A loader must place initialized data correctly.</p><p>A trap may interrupt any live register. The vector saves every integer register and machine continuation state before calling C++. The scheduler returns a different saved-frame pointer; assembly changes stacks only after the C++ call unwinds, restores the selected frame and executes <code>mret</code>.</p>
 <table><thead><tr><th>Frame bytes</th><th>State</th></tr></thead><tbody><tr><td>0</td><td>Unused x0 slot</td></tr><tr><td>4..124</td><td>x1..x31; original sp at byte 8, restored last</td></tr><tr><td>128</td><td>mepc; ECALL advances by four, timer keeps the interrupted PC</td></tr><tr><td>132</td><td>mstatus; MIE remains clear during restoration</td></tr><tr><td>136..143</td><td>Alignment padding; frame total is 144 bytes</td></tr></tbody></table>
-<p>The frame constructor uses the same layout. Initial status <code>0x1880</code> selects machine mode with MPIE set and MIE clear. First <code>mret</code> enables interrupts after restore. Runtime traps use each interrupted thread's stack; the boot reserve is not a separate ISR stack.</p>
+<p>The frame constructor uses the same layout. Initial status <code>0x1880</code> selects machine mode with MPIE set and MIE clear. First <code>mret</code> enables interrupts after restore. Runtime traps save the 144-byte frame on the interrupted thread's stack and then switch <code>sp</code> to the dedicated linker-reserved trap stack via <code>mscratch</code> (<code>_stack_top</code>) before calling <code>rtos_trap</code>, isolating kernel C++ frames from application stacks.</p>
 <details><summary>Every startup instruction</summary><pre><code>/* Reset entry for the flat RAM image. The loader must place .text/.rodata/.data
  * at their linked addresses; there is no ROM-to-RAM data copy or constructor
  * runner. link.ld supplies aligned BSS bounds and the reserved boot stack top.
@@ -142,8 +142,9 @@ rtos_vector:
  sw t0,132(sp)                /* Keep this thread&#39;s return mode and interrupt state. */
  mv a0,sp                     /* C ABI argument 0: interrupted frame pointer. */
  csrr a1,mcause               /* C ABI argument 1: complete cause, including interrupt bit. */
+ csrr sp,mscratch             /* Run kernel C++ on dedicated trap stack, isolating thread stacks. */
  call rtos_trap               /* Save/account/select; returns the next frame in a0. */
- mv sp,a0                     /* Switch stacks only after the C++ call has returned. */
+ mv sp,a0                     /* Switch to selected thread frame after C++ unwinds. */
  lw t0,128(sp)                /* Read the selected thread&#39;s continuation PC. */
  csrw mepc,t0                 /* Set mret destination before restoring its temporary. */
  lw t0,132(sp)                /* Read the selected thread&#39;s saved machine status. */
@@ -184,6 +185,7 @@ rtos_vector:
 #include &lt;stddef.h&gt;
 #include &lt;stdint.h&gt;
 extern &quot;C&quot; void rtos_vector();
+extern &quot;C&quot; char _stack_top[];
 namespace rtos::port {
 using InterruptState = uint32_t;
 /** Atomically read mstatus and clear MIE (bit 3) on this hart. The &#39;=r&#39; output
@@ -226,22 +228,68 @@ inline uint32_t* initialize_context(void* stack,size_t bytes,void (*entry)()) {
     frame[32]=reinterpret_cast&lt;uintptr_t&gt;(entry); frame[33]=0x1880u;
     return frame;
 }
-/// Set the aligned direct mtvec using an allocated &#39;r&#39; operand and compiler barrier.
-inline void install_vector() { asm volatile(&quot;csrw mtvec, %0&quot; :: &quot;r&quot;(&amp;rtos_vector) : &quot;memory&quot;); }
-/// Enable MTIE (bit 7) only; external interrupt sources remain disabled.
-inline void enable_timer() { asm volatile(&quot;csrw mie, %0&quot; :: &quot;r&quot;(0x80u) : &quot;memory&quot;); }
+/// Set the dedicated trap stack in mscratch and aligned direct mtvec.
+inline void install_vector() {
+    asm volatile(&quot;csrw mscratch, %0&quot; :: &quot;r&quot;(_stack_top) : &quot;memory&quot;);
+    asm volatile(&quot;csrw mtvec, %0&quot; :: &quot;r&quot;(&amp;rtos_vector) : &quot;memory&quot;);
+}
+/// Enable MTIE (bit 7); external interrupts remain masked unless explicitly enabled.
+inline void enable_timer() { asm volatile(&quot;csrs mie, %0&quot; :: &quot;r&quot;(0x80u) : &quot;memory&quot;); }
+/// Enable MEIE (bit 11) for a registered external peripheral IRQ handler.
+inline void enable_external_irq() { asm volatile(&quot;csrs mie, %0&quot; :: &quot;r&quot;(0x800u) : &quot;memory&quot;); }
+/// Optional PMP stack-guard region for PMP-equipped RISC-V cores.
+inline void configure_protection(uintptr_t stack_begin, size_t stack_bytes) {
+#if RTOS_HW_PROTECT
+    const uintptr_t guard_base = (stack_begin + 31u) &amp; ~uintptr_t(31u);
+    if (guard_base + 32u &gt; stack_begin + stack_bytes) return;
+    // Region 0: 32-byte NAPOT read-only guard (R=1, W=0, X=0, A=NAPOT=3 -&gt; 0x19).
+    // Region 1: full 4 GiB NAPOT RWX background (R=1, W=1, X=1, A=NAPOT=3 -&gt; 0x1F).
+    const uint32_t pmp0 = static_cast&lt;uint32_t&gt;(((guard_base &gt;&gt; 2) &amp; ~uintptr_t(7u)) | 3u);
+    const uint32_t pmp1 = 0xFFFFFFFFu;
+    const uint32_t cfg0 = 0x00001F19u;
+    asm volatile(&quot;csrw pmpaddr0, %0\ncsrw pmpaddr1, %1\ncsrw pmpcfg0, %2&quot;
+                 :: &quot;r&quot;(pmp0), &quot;r&quot;(pmp1), &quot;r&quot;(cfg0) : &quot;memory&quot;);
+#else
+    (void)stack_begin; (void)stack_bytes;
+#endif
+}
 /// A synchronous 32-bit ECALL traps even with MIE clear; memory clobber orders RAM.
 inline void reschedule() { asm volatile(&quot;ecall&quot; ::: &quot;memory&quot;); }
 /// Machine-mode ECALL: exception code 11, interrupt bit clear.
 inline bool is_yield(uint32_t cause) { return cause==11; }
 /// Machine timer: interrupt bit 31 set plus exception code 7.
 inline bool is_tick(uint32_t cause) { return cause==0x80000007u; }
+/// Machine external interrupt: interrupt bit 31 set plus exception code 11.
+inline bool is_external_irq(uint32_t cause) { return cause==0x8000000bu; }
 /// Skip only ECALL&#39;s four bytes; a timer trap retains the interrupted PC.
 inline void resume_after_yield(uint32_t* frame) { frame[32]+=4; }
 }
 </code></pre></details>
 <p>Inline assembly uses compiler-allocated registers and memory clobbers where required. A memory clobber orders compiler operations; it is not a hardware fence, DMA cache operation or multicore lock. Nested traps, user mode, TLS and floating-point/vector context are outside this port.</p></section>
+<section id="hw-sched"><h2>Hardware scheduler &amp; banked RISCue-MT contexts</h2>
+<div class="flow" aria-label="Hardware Scheduler Architecture"><span>16-Thread TMR Arbiter (1 cycle)</span><b aria-hidden="true">→</b><span>Parallel 64-bit Deadline Comparators (Tickless)</span><b aria-hidden="true">→</b><span>8-Bank TMR Register File (~5-cycle switch)</span></div>
+<p>On FPGA soft cores such as RISCue, NexRT can offload scheduling decisions and context storage directly into synthesizable SystemVerilog without compromising the static-only contract:</p>
+<ul><li><strong>NexRT-HWSched v1</strong> (<code>rtl/nexrt_hw_sched.sv</code>, <code>rtl/nexrt_hw_sched_axi.sv</code>): a 16-thread AXI4-Lite peripheral at <code>0x1001_0000</code> providing 1-cycle combinational priority + starvation-free per-priority round-robin arbitration, 16 parallel 64-bit hardware deadline comparators against <code>mtime</code> (eliminating periodic tick interrupts when idle), 4 hardware peripheral IRQ-to-thread 1-cycle wake routes, hardware residency/dispatch/WCET watchdog counters, and Triple-Modular Redundancy (<code>TMR_ENABLE=1</code>) with automatic 1-cycle scrubbing.</li>
+<li><strong>RISCue-MT Banked Register File</strong> (<code>rtl/riscue_banked_rf.sv</code>, <code>ports/riscue/context_banked.S</code>): 8 TMR-protected hardware register banks (<code>x1..x31</code>, <code>mepc</code>, <code>mstatus</code>) indexed directly by <code>NexRT-HWSched</code>'s <code>active_tid</code>. Pinned real-time threads skip all 72 AXI register transfers (~5-cycle switch vs. ~200+ cycles over AXI), while threads with <code>tid &gt;= 8</code> assert <code>spill_required</code> and fall back transparently to standard RAM frames.</li></ul></section>
+<section id="formal"><h2>Formal verification &amp; compile-time thread safety</h2>
+<p>Testing alone catches only observed interleavings. NexRT combines <strong>type-level prevention in zero-overhead C++17</strong> with <strong>machine-checked SMT formal proofs in Dafny (Z3)</strong> and closes the Proof-to-Silicon loop by executing the Z3-verified Dafny code directly against Verilated SystemVerilog RTL.</p>
+<div class="flow" aria-label="Proof-to-Silicon Chain"><span>Dafny / Z3 SMT Proofs (<code>formal/*.dfy</code>)</span><b aria-hidden="true">→</b><span><code>dafny translate cs</code> Verified C# Oracle</span><b aria-hidden="true">→</b><span>Lockstep Check vs. Verilated RTL (<code>nexrt_hw_sched.sv</code>)</span><b aria-hidden="true">→</b><span>Static-Audited RV32IM Firmware (<code>rtos_safe.hpp</code>)</span></div>
+<h3>Layer 1: Compile-time defect elimination (<code>include/rtos_safe.hpp</code>)</h3>
+<p>Whole classes of concurrency defects become compile errors with zero heap, zero RTTI, and zero runtime constructors (validated on RV32IM in <code>examples/flagship_stateforge.cpp</code>):</p>
+<ul><li><strong>Deadlock impossibility</strong> (<code>OrderedLock&lt;T, Level&gt;</code> + <code>LockToken&lt;HeldLevel&gt;</code>): acquiring a lock requires a token satisfying <code>static_assert(Level &gt; PrevLevel)</code>. Out-of-order lock cycles cannot compile, and protected state <code>T</code> is private inside the wrapper so unsynchronized data races cannot compile either.</li>
+<li><strong>Zero priority inversion &amp; single blocking</strong> (<code>CeilingResource&lt;T, CeilingPriority&gt;</code>): Immediate Priority Ceiling Protocol (IPCP/SRP) raises <code>effective_priority</code> to the resource ceiling on entry and rejects callers whose base priority exceeds the ceiling.</li>
+<li><strong>Stack/TCB binding</strong> (<code>StaticTask&lt;StackBytes, Priority&gt;</code>): bundles one non-copyable <code>Thread</code> and aligned <code>Stack</code> so stack aliasing or size mismatches cannot occur.</li>
+<li><strong>ISR vs. thread capability separation</strong> (<code>TypedChannel&lt;T, Capacity&gt;</code>): separates <code>ThreadSender</code>, <code>ThreadReceiver</code>, and nonblocking <code>IsrSender</code> handles so blocking sends from ISR context fail to compile.</li></ul>
+<h3>Layer 2: Machine-checked Dafny + Z3 formal proofs (<code>formal/*.dfy</code>)</h3>
+<p>Why keep Dafny on the host verification plane instead of compiling Dafny C++ into the bare-metal kernel? Dafny's experimental C++ backend emits <code>DafnyRuntime.h</code>, <code>std::shared_ptr</code>, and heap-allocated sequences—violating NexRT's <code>-nostdlib</code> and zero-heap ELF audit. Instead, Dafny proves the core algorithms for all inputs and compiles to a rock-solid .NET 10 C# executable oracle (<code>tools/NexRT.FormalOracle</code>) that verifies live arbitration traces from the Verilated hardware scheduler inside CTest (<code>dafny_rtl_lockstep</code>).</p>
+<table><thead><tr><th>Formal Module</th><th>Verified Obligations</th><th>Proved Properties</th></tr></thead><tbody>
+<tr><td><code>formal/SchedulerProof.dfy</code></td><td>9 verified, 0 errors</td><td><code>order[]</code> bijection preserved across <code>MoveToBack</code>; priority optimality &amp; FIFO tie-breaking in <code>Pick</code>; strict rank progress (non-starvation); exact 32-bit wrap-safe deadline arithmetic across rollover.</td></tr>
+<tr><td><code>formal/LockFreedomProof.dfy</code></td><td>7 verified, 0 errors</td><td>Strict ascending <code>OrderedLock</code> hierarchy admits zero wait cycles of any length (deadlock impossible); IPCP <code>CeilingResource</code> prevents co-user preemption and chained blocking.</td></tr>
+<tr><td><code>formal/DmaOwnershipProof.dfy</code></td><td>10 verified, 0 errors</td><td>DMA staging is never <code>Idle</code> while hardware owns RAM; failed <code>stop()</code> always forces <code>Quarantined</code>; non-wrapping generation tickets reject stale completions; overflow-free <code>ranges_overlap</code> is symmetric and exact.</td></tr>
+<tr><td><code>formal/TmrVoterProof.dfy</code></td><td>4 verified, 0 errors</td><td>Bitwise 2-of-3 majority voting over <code>bv32</code> masks any arbitrary single-replica corruption; mismatch detection is exact; 1-cycle scrubbing restores exact triple equality.</td></tr>
+</tbody></table>
+<p class="note">Formal proofs cover the modeled algorithms, state machines, and lockstep RTL traces; physical board timing, external memory controllers, and radiation beam testing remain hardware qualification activities.</p></section>
 <section id="ports"><h2>Port the CPU and the board separately</h2><p>Tang Nano 9K is an FPGA board, so its selected soft core determines the interrupt ISA, timer and memory map. Classic MicroBlaze is a separate architecture from MicroBlaze V. Do not substitute RISC-V assembly for a classic MicroBlaze context switch.</p><p>A port needs an exact hardware design/export, compiler ABI, endianness, RAM, timer frequency/registers, interrupt routing, startup/vector policy and cache policy. Until these are checked, configuration status stays provisional/planned. Cross-build evidence does not establish board execution.</p><p>The Sphinx manual contains the detailed API, source reference, driver inventory, platform status and target qualification checklist.</p></section>
-<section id="uploads"><h2>Small uploaded diagnostics and QSPI boot</h2><p>Planned: reserve one optional RAM slot and one permanent diagnostic worker at boot. Ground tools link an image for that exact slot and firmware/service ABI, retain ELF symbols for debugging, and upload a flat payload plus a checked manifest. The target needs bounded transfer, validation and activation, without an ELF parser or runtime symbol resolver. Slot and worker storage still count toward RAM; the minimal build has neither.</p><p>Replacement requires a stopped worker and no outstanding references or device operations. Uploaded native code shares kernel privilege; a qualified watchdog/reset path is needed for hung code. Cache and instruction-fetch synchronization must be supplied by the actual board port before activation.</p><p>QSPI can store boot and diagnostic images. Copying boot code into RAM does not reduce execution RAM; XIP can, when the FPGA controller supports memory-mapped instruction fetch. The current flat-RAM port has no QSPI/XIP driver or flash-to-RAM data initialization. See the Sphinx manual's Uploaded diagnostics and QSPI boot chapter for the full planned contract.</p><p><code>RTOS_BOOT_STACK_BYTES</code> now makes the boot reserve explicit and configurable. Its default stays 4096 bytes; smaller values require startup call-chain and board validation. Runtime traps consume each thread's own stack.</p></section>
-<section id="arm-simulation"><h2>ARM simulation and verification</h2><p>The Cortex-M3 QEMU port runs privileged threads on PSP and kernel handlers on a separate MSP stack. Hardware saves eight integer-frame words; assembly prefixes BASEPRI, EXC_RETURN and r4–r11. SVC handles blocking calls; SysTick preempts. This differs from the RISCue frame shown above.</p><p>The stress application uses nine worker/coordinator stacks, static queues and extra test state. Its memory use is not the minimal configuration measured at the top. Register and NZCV canaries, interrupted-PC witnesses, timer catch-up, rollover and queue variants exercise real exception paths. Host models add repeatable IPC checks; optional ASan/UBSan and Valgrind inspect host C++.</p><p>The Sphinx manual contains the complete ARM assembly, stack layouts, driver contracts, libgloss explanation, build examples and evidence limitations. VORAGO, Zynq, classic MicroBlaze and a specific Tang Nano soft SoC still need their exact BSP and port work.</p></section>
+<section id="uploads"><h2>Small uploaded diagnostics and QSPI boot</h2><p>Planned: reserve one optional RAM slot and one permanent diagnostic worker at boot. Ground tools link an image for that exact slot and firmware/service ABI, retain ELF symbols for debugging, and upload a flat payload plus a checked manifest. The target needs bounded transfer, validation and activation, without an ELF parser or runtime symbol resolver. Slot and worker storage still count toward RAM; the minimal build has neither.</p><p>Replacement requires a stopped worker and no outstanding references or device operations. Uploaded native code shares kernel privilege; a qualified watchdog/reset path is needed for hung code. Cache and instruction-fetch synchronization must be supplied by the actual board port before activation.</p><p>QSPI can store boot and diagnostic images. Copying boot code into RAM does not reduce execution RAM; XIP can, when the FPGA controller supports memory-mapped instruction fetch. The current flat-RAM port has no QSPI/XIP driver or flash-to-RAM data initialization. See the Sphinx manual's Uploaded diagnostics and QSPI boot chapter for the full planned contract.</p><p><code>RTOS_BOOT_STACK_BYTES</code> now makes the boot reserve explicit and configurable. Its default stays 4096 bytes; smaller values require startup call-chain and board validation. Runtime traps switch to this dedicated reserve via <code>mscratch</code>.</p></section>
+<section id="arm-simulation"><h2>ARM simulation and verification</h2><p>The Cortex-M3 QEMU port runs privileged threads on PSP and kernel handlers on a separate MSP stack. Hardware saves eight integer-frame words; assembly prefixes BASEPRI, EXC_RETURN and r4–r11. SVC handles blocking calls; SysTick preempts. This differs from the RISCue frame shown above.</p><p>The stress application uses nine worker/coordinator stacks, static queues and extra test state. Its memory use is not the minimal configuration measured at the top. Register and NZCV canaries, interrupted-PC witnesses, timer catch-up, rollover, ARMv7-M MPU stack-guard protection (<code>arm-stress-mpu</code>) and queue variants exercise real exception paths. Host models add repeatable IPC checks; optional ASan/UBSan and Valgrind inspect host C++.</p><p>The Sphinx manual contains the complete ARM assembly, stack layouts, driver contracts, libgloss explanation, build examples and evidence limitations. VORAGO, Zynq, classic MicroBlaze and a specific Tang Nano soft SoC still need their exact BSP and port work.</p></section>
 <footer><p>Generated from repository source. Minimal ELF SHA-256: <code>42f44b0a19328a3672774838a8d82f6568eeb0d58b1046bb7bb6ba1375815a5e</code>.</p></footer></main></body></html>

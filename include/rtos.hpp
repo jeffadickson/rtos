@@ -11,12 +11,14 @@
 
 namespace rtos {
 using Entry = void (*)(void*);
+using IrqHandler = void (*)(void*);
 using Tick = uint32_t;
-enum class State : uint8_t { unused, ready, sleeping, finished, blocked };
+enum class State : uint8_t { unused, ready, sleeping, finished, blocked, quarantined };
 /** @brief Permanent thread control block, default-initialized before create().
  * Fields are kernel-owned after registration; use set_priority() and snapshot()
  * rather than editing or concurrently inspecting them. The running thread is
- * represented as ready. A finished thread keeps its reserved storage forever.
+ * represented as ready. A finished or quarantined thread keeps its reserved
+ * storage forever.
  */
 struct Thread {
     /// Saved frame belongs to the port; entry/argument are the application call.
@@ -35,6 +37,9 @@ struct Thread {
     uint8_t held_mutexes{};
 #endif
     State state{State::unused};
+#if RTOS_HW_SCHED
+    uint8_t hw_slot{};
+#endif
     const char* name{}; // Borrowed immutable string; must outlive the kernel.
     uintptr_t stack_begin{};
     size_t stack_bytes{};
@@ -43,7 +48,13 @@ struct Thread {
     uint64_t runtime_cycles{};
     uint64_t dispatches{};
 #endif
+#if RTOS_BUDGET_WATCHDOG
+    /// Maximum continuous execution cycles before quarantine (0 = unlimited).
+    uint64_t budget_cycles{};
+    uint64_t slice_cycles{};
+#endif
 };
+using BudgetFaultHook = void (*)(const Thread&, uint64_t used_cycles);
 /** @brief Boot-owned, ABI-aligned stack; Bytes includes the initial saved frame.
  * The compile-time minimum is a layout check, not a proven application bound.
  * Budget call chains, formatter scratch and trap/C++ handler use separately.
@@ -67,6 +78,20 @@ template<size_t N>
 bool create(Thread& t, Entry e, void* arg, uint8_t p, Stack<N>& s, const char* name = nullptr) {
     return create(t, e, arg, p, s.words, N, name);
 }
+/** @brief Register a single boot-static external peripheral IRQ handler.
+ * Must be called before start(). The handler runs in interrupt context and may
+ * invoke *_from_isr() primitives; any woken higher-priority thread is scheduled
+ * immediately upon IRQ exit without waiting for the next timer tick.
+ */
+bool register_external_irq(IrqHandler handler, void* context = nullptr);
+/** @brief Configure a per-thread continuous execution budget (WCET watchdog).
+ * Requires RTOS_BUDGET_WATCHDOG=1; returns false when disabled or unregistered.
+ * Zero disables enforcement for that thread. Overrun transitions the thread to
+ * State::quarantined and abandons owned mutexes with Result::owner_dead.
+ */
+bool set_execution_budget(Thread&, uint64_t max_slice_cycles);
+/** @brief Register an optional boot-time supervisor hook for WCET overruns. */
+bool register_budget_fault_hook(BudgetFaultHook hook);
 /** @brief Seal registration, install the timer/vector and dispatch; never returns.
  * clock_hz is the real machine-timer frequency, not a measured CPU-usage value.
  * Zero tick rate, clock below tick rate, repeated start or private-idle storage
@@ -81,7 +106,7 @@ bool sleep_for(Tick ticks);
 Tick ticks();
 /// Finish the caller permanently; owned mutexes become explicitly owner-dead.
 [[noreturn]] void exit();
-// Boot-registered threads only; yields immediately to reconsider priorities.
+// Boot-registered threads only; reconsiders priorities immediately without rotating peers.
 bool set_priority(Thread&, uint8_t priority);
 struct ThreadInfo {
     /// Borrowed identities and names remain valid for the kernel lifetime.
