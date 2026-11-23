@@ -28,7 +28,8 @@ inline void restore_interrupts(InterruptState previous){
     asm volatile("msr basepri, %0\ndsb\nisb" :: "r"(previous) : "memory");
 }
 inline void idle(){asm volatile("wfi" ::: "memory");}
-[[noreturn]] inline void halt(){(void)mask_interrupts();for(;;)idle();}
+/// Fail closed: disable all configurable exceptions via PRIMASK and remain halted.
+[[noreturn]] inline void halt(){asm volatile("cpsid i\ndsb\nisb" ::: "memory");for(;;)idle();}
 inline uint32_t last_counter{};
 inline uint64_t counter_epoch{};
 /// CMSDK timer zero is a free-running 25 MHz downcounter, without its IRQ.
@@ -70,13 +71,37 @@ inline void install_vector(){
     *reinterpret_cast<volatile uint32_t*>(0xe000ed08)=reinterpret_cast<uintptr_t>(arm_vectors);
     *reinterpret_cast<volatile uint8_t*>(0xe000ed1f)=0; // SVC priority zero.
     *reinterpret_cast<volatile uint8_t*>(0xe000ed23)=0x80; // SysTick priority.
+#if RTOS_HW_PROTECT
+    // Enable MemManage fault handler so MPU stack-guard violations trap synchronously.
+    *reinterpret_cast<volatile uint32_t*>(0xe000ed24)|=(1u<<16);
+#endif
     auto* timer=reinterpret_cast<volatile uint32_t*>(0x40000000);
     timer[0]=0;timer[2]=UINT32_MAX;timer[1]=RTOS_ARM_TIMER_INITIAL;timer[0]=1;
 }
 inline void enable_timer(){} // arm() enables SysTick; BASEPRI holds it until dispatch.
+inline void enable_external_irq(){} // Board BSP enables specific NVIC lines when wired.
+/// Optional ARMv7-M MPU Region 0 read-only 32-byte stack guard.
+inline void configure_protection(uintptr_t stack_begin, size_t stack_bytes){
+#if RTOS_HW_PROTECT
+    auto* mpu=reinterpret_cast<volatile uint32_t*>(0xe000ed90);
+    if(((mpu[0]>>8)&0xffu)==0)return; // CPU has no MPU regions.
+    const uintptr_t guard_base=(stack_begin+31u)&~uintptr_t(31u);
+    if(guard_base+32u>stack_begin+stack_bytes)return;
+    mpu[1]=0; // Disable MPU while reprogramming Region 0.
+    mpu[2]=0; // RNR = Region 0.
+    mpu[3]=static_cast<uint32_t>(guard_base); // RBAR (32-byte aligned).
+    // RASR: XN=1, AP=0b101 (Priv RO, Unpriv No Access), SIZE=4 (32 bytes), ENABLE=1.
+    mpu[4]=(1u<<28)|(5u<<24)|(4u<<1)|1u;
+    mpu[1]=5u; // ENABLE | PRIVDEFENA (keep background map for privileged kernel/app RAM).
+    asm volatile("dsb\nisb" ::: "memory");
+#else
+    (void)stack_begin;(void)stack_bytes;
+#endif
+}
 /// Synchronous SVC works with BASEPRI=0x80. Calling with PRIMASK set is unsupported.
 inline void reschedule(){asm volatile("svc 0" ::: "memory");}
 inline bool is_yield(uint32_t cause){return cause==11;}
 inline bool is_tick(uint32_t cause){return cause==15;}
+inline bool is_external_irq(uint32_t cause){return cause>=16;}
 inline void resume_after_yield(uint32_t*){} // Hardware stacked PC already follows SVC.
 }

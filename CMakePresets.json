@@ -164,6 +164,48 @@
         "RTOS_ETHERNET": "OFF",
         "RTOS_WEB": "OFF"
       }
+    },
+    {
+      "name": "arm-stress-mpu",
+      "inherits": "arm-stress",
+      "binaryDir": "${sourceDir}/build/arm-stress-mpu",
+      "cacheVariables": {
+        "RTOS_HW_PROTECT": "ON",
+        "RTOS_BUDGET_WATCHDOG": "ON"
+      }
+    },
+    {
+      "name": "flagship-riscue",
+      "inherits": "riscue",
+      "binaryDir": "${sourceDir}/build/flagship-riscue",
+      "cacheVariables": {
+        "RTOS_APPLICATION": "examples/flagship_stateforge.cpp",
+        "RTOS_MAX_THREADS": "4",
+        "RTOS_IDLE_STACK_BYTES": "512",
+        "RTOS_BOOT_STACK_BYTES": "2048",
+        "RTOS_SYNC": "ON",
+        "RTOS_LOGGING": "ON",
+        "RTOS_WEB": "ON",
+        "RTOS_ETHERNET": "OFF",
+        "RTOS_BUDGET_WATCHDOG": "ON"
+      }
+    },
+    {
+      "name": "flagship-hwsched",
+      "inherits": "flagship-riscue",
+      "binaryDir": "${sourceDir}/build/flagship-hwsched",
+      "cacheVariables": {
+        "RTOS_HW_SCHED": "ON"
+      }
+    },
+    {
+      "name": "flagship-banked",
+      "inherits": "flagship-hwsched",
+      "binaryDir": "${sourceDir}/build/flagship-banked",
+      "cacheVariables": {
+        "RTOS_RISCUE_BANKED": "ON",
+        "RTOS_RISCUE_BANKS": "8"
+      }
     }
   ],
   "buildPresets": [
@@ -173,6 +215,7 @@
     { "name": "arm-stress-fast", "configurePreset": "arm-stress-fast" },
     { "name": "arm-stress-no-watermark", "configurePreset": "arm-stress-no-watermark" },
     { "name": "arm-stress-no-guards", "configurePreset": "arm-stress-no-guards" },
+    { "name": "arm-stress-mpu", "configurePreset": "arm-stress-mpu" },
     {
       "name": "arm-stress",
       "configurePreset": "arm-stress"
@@ -208,7 +251,10 @@
     {
       "name": "host-sync",
       "configurePreset": "host-sync"
-    }
+    },
+    { "name": "flagship-riscue", "configurePreset": "flagship-riscue" },
+    { "name": "flagship-hwsched", "configurePreset": "flagship-hwsched" },
+    { "name": "flagship-banked", "configurePreset": "flagship-banked" }
   ],
   "testPresets": [
     { "name": "host-asan", "configurePreset": "host-asan", "output": { "outputOnFailure": true } },

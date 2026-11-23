@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 extern "C" void rtos_vector();
+extern "C" char _stack_top[];
 namespace rtos::port {
 using InterruptState = uint32_t;
 /** Atomically read mstatus and clear MIE (bit 3) on this hart. The '=r' output
@@ -44,16 +45,39 @@ inline uint32_t* initialize_context(void* stack,size_t bytes,void (*entry)()) {
     frame[32]=reinterpret_cast<uintptr_t>(entry); frame[33]=0x1880u;
     return frame;
 }
-/// Set the aligned direct mtvec using an allocated 'r' operand and compiler barrier.
-inline void install_vector() { asm volatile("csrw mtvec, %0" :: "r"(&rtos_vector) : "memory"); }
-/// Enable MTIE (bit 7) only; external interrupt sources remain disabled.
-inline void enable_timer() { asm volatile("csrw mie, %0" :: "r"(0x80u) : "memory"); }
+/// Set the dedicated trap stack in mscratch and aligned direct mtvec.
+inline void install_vector() {
+    asm volatile("csrw mscratch, %0" :: "r"(_stack_top) : "memory");
+    asm volatile("csrw mtvec, %0" :: "r"(&rtos_vector) : "memory");
+}
+/// Enable MTIE (bit 7); external interrupts remain masked unless explicitly enabled.
+inline void enable_timer() { asm volatile("csrs mie, %0" :: "r"(0x80u) : "memory"); }
+/// Enable MEIE (bit 11) for a registered external peripheral IRQ handler.
+inline void enable_external_irq() { asm volatile("csrs mie, %0" :: "r"(0x800u) : "memory"); }
+/// Optional PMP stack-guard region for PMP-equipped RISC-V cores.
+inline void configure_protection(uintptr_t stack_begin, size_t stack_bytes) {
+#if RTOS_HW_PROTECT
+    const uintptr_t guard_base = (stack_begin + 31u) & ~uintptr_t(31u);
+    if (guard_base + 32u > stack_begin + stack_bytes) return;
+    // Region 0: 32-byte NAPOT read-only guard (R=1, W=0, X=0, A=NAPOT=3 -> 0x19).
+    // Region 1: full 4 GiB NAPOT RWX background (R=1, W=1, X=1, A=NAPOT=3 -> 0x1F).
+    const uint32_t pmp0 = static_cast<uint32_t>(((guard_base >> 2) & ~uintptr_t(7u)) | 3u);
+    const uint32_t pmp1 = 0xFFFFFFFFu;
+    const uint32_t cfg0 = 0x00001F19u;
+    asm volatile("csrw pmpaddr0, %0\ncsrw pmpaddr1, %1\ncsrw pmpcfg0, %2"
+                 :: "r"(pmp0), "r"(pmp1), "r"(cfg0) : "memory");
+#else
+    (void)stack_begin; (void)stack_bytes;
+#endif
+}
 /// A synchronous 32-bit ECALL traps even with MIE clear; memory clobber orders RAM.
 inline void reschedule() { asm volatile("ecall" ::: "memory"); }
 /// Machine-mode ECALL: exception code 11, interrupt bit clear.
 inline bool is_yield(uint32_t cause) { return cause==11; }
 /// Machine timer: interrupt bit 31 set plus exception code 7.
 inline bool is_tick(uint32_t cause) { return cause==0x80000007u; }
+/// Machine external interrupt: interrupt bit 31 set plus exception code 11.
+inline bool is_external_irq(uint32_t cause) { return cause==0x8000000bu; }
 /// Skip only ECALL's four bytes; a timer trap retains the interrupted PC.
 inline void resume_after_yield(uint32_t* frame) { frame[32]+=4; }
 }

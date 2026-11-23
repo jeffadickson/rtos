@@ -45,6 +45,24 @@ static_assert(RTOS_MAX_HELD_MUTEXES>0 && RTOS_MAX_HELD_MUTEXES<=255);
 #ifndef RTOS_SYNC
 #define RTOS_SYNC 0
 #endif
+#ifndef RTOS_HW_PROTECT
+#define RTOS_HW_PROTECT 0
+#endif
+#ifndef RTOS_BUDGET_WATCHDOG
+#define RTOS_BUDGET_WATCHDOG 0
+#endif
+#ifndef RTOS_HW_SCHED
+#define RTOS_HW_SCHED 0
+#endif
+#ifndef RTOS_HWSCHED_BASE
+#define RTOS_HWSCHED_BASE 0x10010000u
+#endif
+#ifndef RTOS_RISCUE_BANKED
+#define RTOS_RISCUE_BANKED 0
+#endif
+#ifndef RTOS_RISCUE_BANKS
+#define RTOS_RISCUE_BANKS 8
+#endif
 static_assert(RTOS_SYNC == 0 || RTOS_SYNC == 1);
 static_assert(RTOS_LOGGING == 0 || RTOS_LOGGING == 1);
 static_assert(RTOS_MAX_THREADS >= 1 && RTOS_MAX_THREADS <= 255);
@@ -54,6 +72,14 @@ static_assert(RTOS_ROUND_ROBIN == 0 || RTOS_ROUND_ROBIN == 1);
 static_assert(RTOS_METRICS == 0 || RTOS_METRICS == 1);
 static_assert(RTOS_STACK_GUARD == 0 || RTOS_STACK_GUARD == 1);
 static_assert(RTOS_STACK_WATERMARK == 0 || RTOS_STACK_WATERMARK == 1);
+static_assert(RTOS_HW_PROTECT == 0 || RTOS_HW_PROTECT == 1);
+static_assert(RTOS_BUDGET_WATCHDOG == 0 || RTOS_BUDGET_WATCHDOG == 1);
+static_assert(RTOS_HW_SCHED == 0 || RTOS_HW_SCHED == 1);
+static_assert(RTOS_RISCUE_BANKED == 0 || RTOS_RISCUE_BANKED == 1);
+static_assert(RTOS_RISCUE_BANKS >= 1 && RTOS_RISCUE_BANKS <= 16);
 static_assert(RTOS_MTIME_ADDRESS % 4 == 0 && RTOS_MTIMECMP_ADDRESS % 4 == 0);
+static_assert(RTOS_HWSCHED_BASE % 4 == 0);
+static_assert(!RTOS_HW_SCHED || RTOS_MAX_THREADS <= 16);
+static_assert(!RTOS_RISCUE_BANKED || RTOS_HW_SCHED);
 
 static_assert(!RTOS_LOGGING || RTOS_SYNC);

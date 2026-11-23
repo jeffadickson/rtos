@@ -19,11 +19,16 @@ struct Scheduler {
 #endif
     }
     Thread* threads[capacity]{};
-    unsigned count{}, cursor{capacity - 1};
+    uint8_t order[capacity]{};
+    unsigned count{};
     Tick now{};
     bool contains(const Thread& t) const {
         for (unsigned i=0; i<count; ++i) if (threads[i] == &t) return true;
         return false;
+    }
+    int index_of(const Thread& t) const {
+        for (unsigned i=0; i<count; ++i) if (threads[i] == &t) return static_cast<int>(i);
+        return -1;
     }
     bool overlaps(uintptr_t begin, size_t bytes) const {
         for (unsigned i=0; i<count; ++i) {
@@ -45,8 +50,23 @@ struct Scheduler {
     bool add(Thread& t) {
         if (count == capacity) return false;
         for (unsigned i=0; i<count; ++i) if (threads[i] == &t) return false;
+        order[count] = static_cast<uint8_t>(count);
         threads[count++] = &t;
         return true;
+    }
+    void move_to_back(uint8_t slot) {
+        if constexpr (capacity <= 1) {
+            (void)slot;
+            return;
+        } else {
+            const unsigned limit = count < capacity ? count : capacity;
+            if (limit <= 1) return;
+            unsigned pos = 0;
+            while (pos < limit && order[pos] != slot) ++pos;
+            if (pos >= limit) return;
+            for (unsigned i = pos; i + 1 < limit; ++i) order[i] = order[i + 1];
+            order[limit - 1] = slot;
+        }
     }
     void advance(Tick elapsed) {
         now += elapsed;
@@ -62,20 +82,29 @@ struct Scheduler {
     Thread* pick(Thread* previous = nullptr, bool rotate = true) {
         if (!rotate && previous && previous->state == State::ready && contains(*previous)) {
             bool higher = false;
-            for (unsigned i=0; i<count; ++i)
-                if (threads[i]->state == State::ready && priority(*threads[i]) > priority(*previous)) higher = true;
+            for (unsigned i=0; i<count; ++i) {
+                if (threads[i]->state == State::ready && priority(*threads[i]) > priority(*previous)) {
+                    higher = true;
+                    break;
+                }
+            }
             if (!higher) return previous;
         }
+        if (rotate && previous) {
+            const int prev_slot = index_of(*previous);
+            if (prev_slot >= 0) move_to_back(static_cast<uint8_t>(prev_slot));
+        }
         Thread* best = nullptr;
-        unsigned selected = cursor;
-        for (unsigned n=1; n<=count; ++n) {
-            unsigned i = (cursor + n) % count;
-            auto* t = threads[i];
+        uint8_t best_slot = 0;
+        for (unsigned i=0; i<count; ++i) {
+            const uint8_t slot = order[i];
+            auto* t = threads[slot];
             if (t->state == State::ready && (!best || priority(*t) > priority(*best))) {
-                best = t; selected = i;
+                best = t;
+                best_slot = slot;
             }
         }
-        if (best) cursor = selected;
+        if (rotate && !previous && best) move_to_back(best_slot);
         return best;
     }
 };

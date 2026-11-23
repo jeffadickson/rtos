@@ -16,6 +16,9 @@ bool synchronization_running();
 Tick synchronization_now();
 void park_thread();
 void schedule_ready();
+#if RTOS_HW_SCHED
+void hw_sync_thread(const Thread& t);
+#endif
 class Critical {
     // A completion requests scheduling only after restoring the saved IRQ state.
     CriticalState saved_;

@@ -25,6 +25,8 @@ worst-case execution time, or hardware validation.
    getting-started
    architecture
    assembly-port
+   hardware-scheduler
+   formal-verification
    source-reference
    configuration
    platforms

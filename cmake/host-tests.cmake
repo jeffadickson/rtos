@@ -51,6 +51,8 @@ if(DOTNET_EXECUTABLE)
   add_test(NAME tooling COMMAND ${rtos_tools_COMMAND} self-test)
   add_test(NAME evidence_tool COMMAND ${evidence_tool_COMMAND} self-test)
   set_tests_properties(evidence_tool PROPERTIES TIMEOUT 30)
+  add_test(NAME flagship_tool COMMAND ${flagship_tool_COMMAND} self-test)
+  set_tests_properties(flagship_tool PROPERTIES TIMEOUT 30)
 endif()
 rtos_host_test(memory_test NAME memory SOURCES tests/memory.cpp src/memory.cpp LIBRARIES rtos_options)
 if(MSVC)
@@ -61,6 +63,10 @@ endif()
 rtos_host_test(scheduler_test NAME scheduler SOURCES tests/scheduler.cpp LIBRARIES rtos_options)
 if(RTOS_SYNC)
   target_sources(scheduler_test PRIVATE src/sync.cpp)
+endif()
+rtos_host_test(hw_sched_model_test NAME hw_sched_model SOURCES tests/hw_sched_model.cpp LIBRARIES rtos_options)
+if(RTOS_SYNC)
+  target_sources(hw_sched_model_test PRIVATE src/sync.cpp)
 endif()
 if(RTOS_ETHERNET)
   rtos_host_test(ethernet_test NAME ethernet SOURCES tests/ethernet.cpp LIBRARIES rtos_ethernet)
@@ -88,6 +94,100 @@ foreach(seed IN ITEMS 42 3735928559 4294967295)
   rtos_memcheck(ipc_random_test ipc_random_seed_${seed} ${seed})
 endforeach()
 rtos_host_test(ipc_wait_order_test NAME ipc_wait_order SYNC SOURCES tests/ipc_wait_order.cpp LIBRARIES rtos_sync_model)
+rtos_host_test(safe_concurrency_test NAME safe_concurrency SYNC SOURCES tests/safe_concurrency.cpp LIBRARIES rtos_sync_model)
+
+find_program(NXR_DAFNY_EXECUTABLE NAMES dafny HINTS "$ENV{HOME}/.dotnet/tools")
+find_program(NXR_Z3_EXECUTABLE NAMES z3)
+if(NXR_DAFNY_EXECUTABLE AND NXR_Z3_EXECUTABLE AND NOT RTOS_HOST_SANITIZERS AND NOT RTOS_HOST_VALGRIND)
+  foreach(dfy_name IN ITEMS SchedulerProof LockFreedomProof DmaOwnershipProof TmrVoterProof)
+    add_test(NAME dafny_${dfy_name}
+      COMMAND ${NXR_DAFNY_EXECUTABLE} verify --solver-path ${NXR_Z3_EXECUTABLE}
+              "${CMAKE_SOURCE_DIR}/formal/${dfy_name}.dfy")
+    set_tests_properties(dafny_${dfy_name} PROPERTIES TIMEOUT 120)
+  endforeach()
+endif()
+
+find_program(NXR_VERILATOR_EXECUTABLE NAMES verilator)
+if(NXR_VERILATOR_EXECUTABLE AND NOT RTOS_HOST_SANITIZERS AND NOT RTOS_HOST_VALGRIND)
+  set(nxr_v_sched_dir "${CMAKE_BINARY_DIR}/verilator_hw_sched")
+  set(nxr_v_sched_bin "${nxr_v_sched_dir}/Vnexrt_hw_sched")
+  add_custom_command(
+    OUTPUT "${nxr_v_sched_bin}"
+    COMMAND ${NXR_VERILATOR_EXECUTABLE} -Wall --cc --exe --build -j 0
+      --Mdir "${nxr_v_sched_dir}"
+      -CFLAGS "-std=c++17 -O2 -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/src -UNDEBUG"
+      "${CMAKE_SOURCE_DIR}/rtl/nexrt_hw_sched.sv"
+      "${CMAKE_SOURCE_DIR}/tests/hw_sched_verilator.cpp"
+    DEPENDS "${CMAKE_SOURCE_DIR}/rtl/nexrt_hw_sched.sv"
+            "${CMAKE_SOURCE_DIR}/tests/hw_sched_verilator.cpp"
+            "${CMAKE_SOURCE_DIR}/include/rtos_hw_sched.hpp"
+    VERBATIM)
+  add_custom_target(hw_sched_verilator_sim ALL DEPENDS "${nxr_v_sched_bin}")
+  add_test(NAME hw_sched_verilator COMMAND "${nxr_v_sched_bin}")
+  set_tests_properties(hw_sched_verilator PROPERTIES TIMEOUT 120)
+
+  set(nxr_v_rf_dir "${CMAKE_BINARY_DIR}/verilator_banked_rf")
+  set(nxr_v_rf_bin "${nxr_v_rf_dir}/Vriscue_banked_rf")
+  add_custom_command(
+    OUTPUT "${nxr_v_rf_bin}"
+    COMMAND ${NXR_VERILATOR_EXECUTABLE} -Wall --cc --exe --build -j 0
+      --Mdir "${nxr_v_rf_dir}"
+      -CFLAGS "-std=c++17 -O2 -UNDEBUG"
+      "${CMAKE_SOURCE_DIR}/rtl/riscue_banked_rf.sv"
+      "${CMAKE_SOURCE_DIR}/tests/banked_rf_verilator.cpp"
+    DEPENDS "${CMAKE_SOURCE_DIR}/rtl/riscue_banked_rf.sv"
+            "${CMAKE_SOURCE_DIR}/tests/banked_rf_verilator.cpp"
+    VERBATIM)
+  add_custom_target(banked_rf_verilator_sim ALL DEPENDS "${nxr_v_rf_bin}")
+  add_test(NAME banked_rf_verilator COMMAND "${nxr_v_rf_bin}")
+  set_tests_properties(banked_rf_verilator PROPERTIES TIMEOUT 120)
+
+  if(DOTNET_EXECUTABLE)
+    add_test(NAME flagship_evidence
+      COMMAND ${flagship_tool_COMMAND} verify "${nxr_v_sched_bin}" "${nxr_v_rf_bin}"
+              "${CMAKE_BINARY_DIR}/flagship-evidence.json")
+    set_tests_properties(flagship_evidence PROPERTIES TIMEOUT 120)
+  endif()
+
+  if(NXR_DAFNY_EXECUTABLE AND NXR_Z3_EXECUTABLE AND DOTNET_EXECUTABLE)
+    file(GLOB_RECURSE NXR_DAFNY_RUNTIME_DLLS
+      "$ENV{HOME}/.dotnet/tools/.store/dafny/*/DafnyRuntime.dll")
+    if(NXR_DAFNY_RUNTIME_DLLS)
+      list(GET NXR_DAFNY_RUNTIME_DLLS 0 NXR_DAFNY_RUNTIME_DLL)
+      set(nxr_dfy_cs_dir "${CMAKE_BINARY_DIR}/dafny_cs")
+      set(nxr_dfy_cs_file "${nxr_dfy_cs_dir}/SchedulerProof.cs")
+      set(nxr_formal_oracle_out "${CMAKE_BINARY_DIR}/formal-oracle")
+      set(nxr_formal_oracle_dll "${nxr_formal_oracle_out}/NexRT.FormalOracle.dll")
+      add_custom_command(
+        OUTPUT "${nxr_dfy_cs_file}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${nxr_dfy_cs_dir}"
+        COMMAND ${NXR_DAFNY_EXECUTABLE} translate cs
+          --solver-path "${NXR_Z3_EXECUTABLE}"
+          --output "${nxr_dfy_cs_dir}/SchedulerProof"
+          "${CMAKE_SOURCE_DIR}/formal/SchedulerProof.dfy"
+        DEPENDS "${CMAKE_SOURCE_DIR}/formal/SchedulerProof.dfy"
+        VERBATIM)
+      add_custom_command(
+        OUTPUT "${nxr_formal_oracle_dll}"
+        COMMAND ${DOTNET_EXECUTABLE} build
+          "${CMAKE_SOURCE_DIR}/tools/NexRT.FormalOracle/NexRT.FormalOracle.csproj"
+          --configuration Release --nologo
+          --output "${nxr_formal_oracle_out}"
+          "-p:BaseIntermediateOutputPath=${CMAKE_BINARY_DIR}/formal-oracle-obj/"
+          "-p:GeneratedDafnyCs=${nxr_dfy_cs_file}"
+          "-p:DafnyRuntimeDll=${NXR_DAFNY_RUNTIME_DLL}"
+        DEPENDS "${nxr_dfy_cs_file}"
+                "${CMAKE_SOURCE_DIR}/tools/NexRT.FormalOracle/Program.cs"
+                "${CMAKE_SOURCE_DIR}/tools/NexRT.FormalOracle/NexRT.FormalOracle.csproj"
+                "${CMAKE_SOURCE_DIR}/tools/HostProcess.cs"
+        VERBATIM)
+      add_custom_target(formal_oracle_tool ALL DEPENDS "${nxr_formal_oracle_dll}")
+      add_test(NAME dafny_rtl_lockstep
+        COMMAND ${DOTNET_EXECUTABLE} "${nxr_formal_oracle_dll}" "${nxr_v_sched_bin}")
+      set_tests_properties(dafny_rtl_lockstep PROPERTIES TIMEOUT 120)
+    endif()
+  endif()
+endif()
 
 # Deliberately invalid probes are never ordinary tests or firmware dependencies.
 if(RTOS_HOST_SANITIZERS OR RTOS_HOST_VALGRIND)

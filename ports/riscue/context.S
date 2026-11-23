@@ -50,8 +50,9 @@ rtos_vector:
  sw t0,132(sp)                /* Keep this thread's return mode and interrupt state. */
  mv a0,sp                     /* C ABI argument 0: interrupted frame pointer. */
  csrr a1,mcause               /* C ABI argument 1: complete cause, including interrupt bit. */
+ csrr sp,mscratch             /* Run kernel C++ on dedicated trap stack, isolating thread stacks. */
  call rtos_trap               /* Save/account/select; returns the next frame in a0. */
- mv sp,a0                     /* Switch stacks only after the C++ call has returned. */
+ mv sp,a0                     /* Switch to selected thread frame after C++ unwinds. */
  lw t0,128(sp)                /* Read the selected thread's continuation PC. */
  csrw mepc,t0                 /* Set mret destination before restoring its temporary. */
  lw t0,132(sp)                /* Read the selected thread's saved machine status. */
