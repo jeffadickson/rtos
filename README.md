@@ -1,6 +1,6 @@
 # RISCue RTOS
 
-A small C++17 RTOS with static boot allocation, preemptive priorities, optional
+A small C++20 RTOS with static boot allocation, preemptive priorities, optional
 round-robin time slicing, sleep/yield/exit, runtime priority updates, and thread
 snapshots with CPU residency counters. Inline assembly handles CSR operations;
 a small `.S` boundary preserves all registers during preemption.
@@ -33,7 +33,7 @@ cmake --preset riscue -DRISCV_TOOLCHAIN_PREFIX=/path/to/riscv64-unknown-elf-
 cmake --build --preset riscue
 ```
 
-CMake 3.22+, Ninja, .NET 10 SDK, and C++17 are required. Custom tooling uses C#
+CMake 3.22+, Ninja, .NET 10 SDK, and C++20 are required. Custom tooling uses C#
 with generated XML documentation (XDoc). Python is confined to the Sphinx
 documentation dependency and its minimal configuration. The `minimal` preset tests
 optional feature removal. The firmware build runs an allocator-symbol audit;

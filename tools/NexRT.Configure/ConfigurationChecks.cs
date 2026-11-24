@@ -41,6 +41,13 @@ internal static class ConfigurationChecks
         Check(false,"requires RTOS_SYNC","RTOS_LOGGING=ON","RTOS_SYNC=OFF");
         Check(true,"","RTOS_LOGGING=ON","RTOS_SYNC=ON");
         Check(true,"","RTOS_STORAGE=ON");
-        Console.WriteLine($"PASS: {cases} CMake syntax, boundary, alignment and feature-dependency checks.");
+        // Modular Tier 1-4 and developer-configurable flight build checks
+        Check(true,"","RTOS_FLIGHT_BUILD=ON","RTOS_BOOT=ON","RTOS_RM_PERIOD=ON","RTOS_POOL=ON","RTOS_WORKQUEUE=ON","RTOS_CLOCK_EPOCH=ON","RTOS_TICKLESS=ON","RTOS_TOPIC=ON","RTOS_TRACE=ON");
+        Check(true,"","RTOS_FLIGHT_BUILD=ON","RTOS_MONITOR=ON");
+        Check(true,"","RTOS_FLIGHT_BUILD=ON","RTOS_ELF_LOADER=ON");
+        Check(true,"","RTOS_FLIGHT_BUILD=ON","RTOS_SCRIPT=ON");
+        Check(true,"","RTOS_FLIGHT_BUILD=ON","RTOS_MONITOR=ON","RTOS_SCRIPT=ON","RTOS_ELF_LOADER=ON","RTOS_AMP=ON");
+        Check(true,"","RTOS_FLIGHT_BUILD=OFF","RTOS_MONITOR=ON","RTOS_SCRIPT=ON","RTOS_ELF_LOADER=ON","RTOS_AMP=ON");
+        Console.WriteLine($"PASS: {cases} CMake syntax, boundary, alignment, modular option and feature-dependency checks.");
     }
 }

@@ -276,7 +276,7 @@ void coordinator(void*){
 extern "C" void rtos_arm_stress_tick(const uint32_t* frame,uint64_t elapsed){
     const auto pc=uintptr_t(frame[16]);
     if(pc>=reinterpret_cast<uintptr_t>(rtos_arm_irq_live_begin)&&
-       pc<reinterpret_cast<uintptr_t>(rtos_arm_irq_live_end))++live_window_hits;
+       pc<reinterpret_cast<uintptr_t>(rtos_arm_irq_live_end))live_window_hits=live_window_hits+1u;
     if(catchup_pending){first_elapsed=uint32_t(elapsed);catchup_pending=false;}
 }
 /// Serialized timer observation validates preload, extension and monotonicity.

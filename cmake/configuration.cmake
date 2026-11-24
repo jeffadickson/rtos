@@ -42,6 +42,31 @@ set(RTOS_RISCUE_BANKS 8 CACHE STRING "Number of hardware register banks in RISCu
 if(RTOS_RISCUE_BANKED AND NOT RTOS_HW_SCHED)
   message(FATAL_ERROR "RTOS_RISCUE_BANKED requires RTOS_HW_SCHED")
 endif()
+
+# Modular build configuration and optional Tier 1 / Tier 2 / Scripting / Loader modules.
+# All optional services default OFF so nano and flight profiles include only what the developer selects.
+option(RTOS_FLIGHT_BUILD "Tag build as a flight configuration in the build manifest (developer retains full module choice)" OFF)
+
+# Tier 1 flight-heritage kernel services
+option(RTOS_BOOT "Enable BootHandoff ABI and HealthManager Golden/Flight fallback" OFF)
+option(RTOS_RM_PERIOD "Enable RateMonotonicPeriod WCET and deadline service" OFF)
+option(RTOS_POOL "Enable O(1) static FixedPool block allocator" OFF)
+option(RTOS_WORKQUEUE "Enable static WorkQueue ISR deferral and Barrier" OFF)
+option(RTOS_CLOCK_EPOCH "Enable dual-clock EpochClock (monotonic + TAI/UTC)" OFF)
+option(RTOS_TICKLESS "Enable tickless idle timer suppression" OFF)
+
+# Tier 2 diagnostics, pub/sub, and modular monitor
+option(RTOS_TOPIC "Enable compile-time static Pub/Sub Topic channels" OFF)
+option(RTOS_TRACE "Enable lock-free binary TraceRing flight recorder" OFF)
+option(RTOS_MONITOR "Build optional diagnostic monitor (NXR-038..040; default OFF)" OFF)
+
+# Tier 3 sandboxed diagnostic scripting
+option(RTOS_SCRIPT "Build zero-heap fuel-bounded diagnostic bytecode VM (default OFF)" OFF)
+
+# Tier 4 optional dynamic ELF32 loader and AMP shared-memory mailbox
+option(RTOS_ELF_LOADER "Build static-arena ELF32 ET_REL module loader (default OFF)" OFF)
+option(RTOS_AMP "Enable lock-free SPSC shared-memory AMP mailbox channels" OFF)
+
 # These values become C++ literals. Reject leading zeroes (octal), expressions,
 # lists and oversized input at configure time, before compiler diagnostics.
 function(rtos_decimal key minimum maximum)
@@ -70,3 +95,37 @@ math(EXPR idle_remainder "${RTOS_IDLE_STACK_BYTES} % 16")
 if(NOT idle_remainder EQUAL 0)
   message(FATAL_ERROR "RTOS_IDLE_STACK_BYTES must be a multiple of 16")
 endif()
+
+# Emit a concise NexRT Build Configuration Manifest banner.
+set(nxr_optin_diag "")
+foreach(dmod IN ITEMS MONITOR SCRIPT ELF_LOADER)
+  if(RTOS_${dmod})
+    list(APPEND nxr_optin_diag "${dmod}")
+  endif()
+endforeach()
+if(RTOS_FLIGHT_BUILD)
+  if(nxr_optin_diag)
+    string(JOIN "+" nxr_diag_str ${nxr_optin_diag})
+    set(nxr_build_badge "[FLIGHT + OPT-IN: ${nxr_diag_str}]")
+  else()
+    set(nxr_build_badge "[FLIGHT]")
+  endif()
+elseif(nxr_optin_diag)
+  set(nxr_build_badge "[BENCH/DIAGNOSTIC]")
+else()
+  set(nxr_build_badge "[STANDARD]")
+endif()
+set(nxr_enabled_modules "")
+foreach(mod IN ITEMS SYNC LOGGING DMA STORAGE ETHERNET WEB HW_PROTECT BUDGET_WATCHDOG HW_SCHED RISCUE_BANKED
+                     BOOT RM_PERIOD POOL WORKQUEUE CLOCK_EPOCH TICKLESS TOPIC TRACE MONITOR SCRIPT ELF_LOADER AMP)
+  if(RTOS_${mod})
+    list(APPEND nxr_enabled_modules "${mod}")
+  endif()
+endforeach()
+if(NOT nxr_enabled_modules)
+  set(nxr_enabled_modules "CORE-ONLY")
+endif()
+string(JOIN ", " nxr_enabled_str ${nxr_enabled_modules})
+message(STATUS "=== NexRT Build Manifest ${nxr_build_badge} ===")
+message(STATUS "  Target: ${RTOS_TARGET_ID} | Threads: ${RTOS_MAX_THREADS} | Tick: ${RTOS_TICK_HZ} Hz | Flight: ${RTOS_FLIGHT_BUILD}")
+message(STATUS "  Modules: ${nxr_enabled_str}")

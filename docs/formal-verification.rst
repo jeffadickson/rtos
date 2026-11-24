@@ -4,7 +4,7 @@ Formal Verification & Compile-Time Thread Safety
 Preventing thread defects by construction combines two layers:
 
 1. **Zero-overhead compile-time concurrency safety** (``include/rtos_safe.hpp``)
-   that makes entire defect classes unrepresentable in C++17.
+   that makes entire defect classes unrepresentable in C++20.
 2. **Machine-checked SMT proofs in Dafny** (``formal/*.dfy``) verified by Z3
    directly inside CTest.
 

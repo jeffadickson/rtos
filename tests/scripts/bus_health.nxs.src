@@ -1,0 +1,21 @@
+# NexRT diagnostic script: sample bus voltage sensor 5 times, log low readings, emit average
+let sum = 0
+let i = 0
+let reg_addr = 0x40001000
+let board_id = peek(reg_addr)
+log(99, board_id)
+
+loop:
+  let v = sensor(0)
+  sum = sum + v
+  if v < 3100 goto low_volt
+  goto next
+low_volt:
+  log(1, v)
+next:
+  i = i + 1
+  if i < 5 goto loop
+
+let avg = sum / 5
+emit(10, avg)
+return avg

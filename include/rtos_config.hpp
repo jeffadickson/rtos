@@ -87,3 +87,57 @@ static_assert(!RTOS_RISCUE_BANKED || RTOS_HW_SCHED);
 #endif
 static_assert(RTOS_STORAGE == 0 || RTOS_STORAGE == 1);
 static_assert(!RTOS_LOGGING || RTOS_SYNC);
+
+#ifndef RTOS_FLIGHT_BUILD
+#define RTOS_FLIGHT_BUILD 0
+#endif
+#ifndef RTOS_BOOT
+#define RTOS_BOOT 0
+#endif
+#ifndef RTOS_RM_PERIOD
+#define RTOS_RM_PERIOD 0
+#endif
+#ifndef RTOS_POOL
+#define RTOS_POOL 0
+#endif
+#ifndef RTOS_WORKQUEUE
+#define RTOS_WORKQUEUE 0
+#endif
+#ifndef RTOS_CLOCK_EPOCH
+#define RTOS_CLOCK_EPOCH 0
+#endif
+#ifndef RTOS_TICKLESS
+#define RTOS_TICKLESS 0
+#endif
+#ifndef RTOS_TOPIC
+#define RTOS_TOPIC 0
+#endif
+#ifndef RTOS_TRACE
+#define RTOS_TRACE 0
+#endif
+#ifndef RTOS_MONITOR
+#define RTOS_MONITOR 0
+#endif
+#ifndef RTOS_SCRIPT
+#define RTOS_SCRIPT 0
+#endif
+#ifndef RTOS_ELF_LOADER
+#define RTOS_ELF_LOADER 0
+#endif
+#ifndef RTOS_AMP
+#define RTOS_AMP 0
+#endif
+
+static_assert(RTOS_FLIGHT_BUILD == 0 || RTOS_FLIGHT_BUILD == 1);
+static_assert(RTOS_BOOT == 0 || RTOS_BOOT == 1);
+static_assert(RTOS_RM_PERIOD == 0 || RTOS_RM_PERIOD == 1);
+static_assert(RTOS_POOL == 0 || RTOS_POOL == 1);
+static_assert(RTOS_WORKQUEUE == 0 || RTOS_WORKQUEUE == 1);
+static_assert(RTOS_CLOCK_EPOCH == 0 || RTOS_CLOCK_EPOCH == 1);
+static_assert(RTOS_TICKLESS == 0 || RTOS_TICKLESS == 1);
+static_assert(RTOS_TOPIC == 0 || RTOS_TOPIC == 1);
+static_assert(RTOS_TRACE == 0 || RTOS_TRACE == 1);
+static_assert(RTOS_MONITOR == 0 || RTOS_MONITOR == 1);
+static_assert(RTOS_SCRIPT == 0 || RTOS_SCRIPT == 1);
+static_assert(RTOS_ELF_LOADER == 0 || RTOS_ELF_LOADER == 1);
+static_assert(RTOS_AMP == 0 || RTOS_AMP == 1);

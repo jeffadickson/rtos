@@ -5,7 +5,15 @@ namespace NexRT.Configure;
 /// <summary>A researched CPU/board profile; physical CPU capacity does not imply RTOS SMP support.</summary>
 internal sealed record Target(string Id,string Architecture,string Cpu,string Status,int PhysicalCpuLimit,bool FirmwareReady,string[] Sources);
 /// <summary>A bounded static feature set, shared by every target.</summary>
-internal sealed record Profile(string Id,int MaxThreads,int TickHz,int IdleStackBytes,bool Metrics,bool StackGuard,bool RoundRobin,bool Ethernet,bool Web=false,bool Storage=false,bool Sync=false,bool Logging=false);
+internal sealed record Profile(
+    string Id,int MaxThreads,int TickHz,int IdleStackBytes,
+    bool Metrics,bool StackGuard,bool RoundRobin,bool Ethernet,
+    bool Web=false,bool Storage=false,bool Sync=false,bool Logging=false,
+    bool FlightBuild=false,
+    bool Boot=false,bool RmPeriod=false,bool Pool=false,bool Workqueue=false,
+    bool ClockEpoch=false,bool Tickless=false,
+    bool Topic=false,bool Trace=false,bool Monitor=false,
+    bool Script=false,bool ElfLoader=false,bool Amp=false);
 /// <summary>Explicit target and profile catalogue.</summary>
 internal sealed record Catalogue(int SchemaVersion,Target[] Targets,Profile[] Profiles);
 /// <summary>Generates deterministic CMake initial caches and checks configuration contracts.</summary>
@@ -44,7 +52,7 @@ internal static class Program
         }
         catch(Exception error){Console.Error.WriteLine(error.Message);return 1;}
     }
-    /// <summary>Checks identifiers, sizes, unique identities and allowed readiness states before generating CMake.</summary>
+    /// <summary>Checks identifiers, sizes, unique identities, and allowed readiness states before generating CMake.</summary>
     private static void Validate(Catalogue c)
     {
         bool Id(string value)=>!string.IsNullOrEmpty(value)&&value.Length<=64&&value.All(ch=>char.IsAsciiLetterOrDigit(ch)||ch=='-');
@@ -55,9 +63,12 @@ internal static class Program
                t.FirmwareReady!=((t.Id=="riscue"&&t.Status=="cross-built")||(t.Id=="qemu-mps2-m3"&&t.Status=="simulation-bringup")))
                 throw new InvalidDataException("Invalid target/readiness.");
         foreach(var p in c.Profiles)
-            if(!Id(p.Id)||p.MaxThreads is <1 or >255||p.TickHz is <1 or >1000000||p.IdleStackBytes is <512 or >1048576||p.IdleStackBytes%16!=0||p.Logging&&!p.Sync) throw new InvalidDataException("Invalid profile capacity or logging dependency.");
+        {
+            if(!Id(p.Id)||p.MaxThreads is <1 or >255||p.TickHz is <1 or >1000000||p.IdleStackBytes is <512 or >1048576||p.IdleStackBytes%16!=0||p.Logging&&!p.Sync)
+                throw new InvalidDataException("Invalid profile capacity or logging dependency.");
+        }
     }
-    /// <summary>Renders static capacities and features; rejects multiprocessing until a qualified implementation exists.</summary>
+    /// <summary>Renders static capacities and developer-selected optional modules.</summary>
     private static string Render(Target t,Profile p,int cpus,string mode)
     {
         if(cpus<1||cpus>t.PhysicalCpuLimit) throw new ArgumentException("CPU count exceeds selected hardware profile.");
@@ -69,9 +80,13 @@ internal static class Program
             $"set(RTOS_CPU_COUNT {cpus} CACHE STRING \"CPUs\" FORCE)\nset(RTOS_MULTIPROCESSING {mode} CACHE STRING \"Mode\" FORCE)\n"+
             $"set(RTOS_MAX_THREADS {p.MaxThreads} CACHE STRING \"Thread capacity\" FORCE)\nset(RTOS_TICK_HZ {p.TickHz} CACHE STRING \"Tick rate\" FORCE)\nset(RTOS_IDLE_STACK_BYTES {p.IdleStackBytes} CACHE STRING \"Idle stack\" FORCE)\n"+
             $"set(RTOS_METRICS {On(p.Metrics)} CACHE BOOL \"Metrics\" FORCE)\nset(RTOS_STACK_GUARD {On(p.StackGuard)} CACHE BOOL \"Guards\" FORCE)\nset(RTOS_ROUND_ROBIN {On(p.RoundRobin)} CACHE BOOL \"Slicing\" FORCE)\nset(RTOS_ETHERNET {On(p.Ethernet)} CACHE BOOL \"Ethernet adapter\" FORCE)\n"+
-            $"set(RTOS_WEB {On(p.Web)} CACHE BOOL \"HTTP component\" FORCE)\nset(RTOS_STORAGE {On(p.Storage)} CACHE BOOL \"Flash storage\" FORCE)\nset(RTOS_SYNC {On(p.Sync)} CACHE BOOL \"Synchronization\" FORCE)\nset(RTOS_LOGGING {On(p.Logging)} CACHE BOOL \"Queued logging\" FORCE)\n";
+            $"set(RTOS_WEB {On(p.Web)} CACHE BOOL \"HTTP component\" FORCE)\nset(RTOS_STORAGE {On(p.Storage)} CACHE BOOL \"Flash storage\" FORCE)\nset(RTOS_SYNC {On(p.Sync)} CACHE BOOL \"Synchronization\" FORCE)\nset(RTOS_LOGGING {On(p.Logging)} CACHE BOOL \"Queued logging\" FORCE)\n"+
+            $"set(RTOS_FLIGHT_BUILD {On(p.FlightBuild)} CACHE BOOL \"Flight profile tag\" FORCE)\n"+
+            $"set(RTOS_BOOT {On(p.Boot)} CACHE BOOL \"Boot handoff\" FORCE)\nset(RTOS_RM_PERIOD {On(p.RmPeriod)} CACHE BOOL \"Rate-monotonic period\" FORCE)\nset(RTOS_POOL {On(p.Pool)} CACHE BOOL \"Fixed block pool\" FORCE)\nset(RTOS_WORKQUEUE {On(p.Workqueue)} CACHE BOOL \"Workqueue\" FORCE)\n"+
+            $"set(RTOS_CLOCK_EPOCH {On(p.ClockEpoch)} CACHE BOOL \"Epoch clock\" FORCE)\nset(RTOS_TICKLESS {On(p.Tickless)} CACHE BOOL \"Tickless idle\" FORCE)\nset(RTOS_TOPIC {On(p.Topic)} CACHE BOOL \"Static pub/sub\" FORCE)\nset(RTOS_TRACE {On(p.Trace)} CACHE BOOL \"Binary flight recorder\" FORCE)\n"+
+            $"set(RTOS_MONITOR {On(p.Monitor)} CACHE BOOL \"Diagnostic monitor\" FORCE)\nset(RTOS_SCRIPT {On(p.Script)} CACHE BOOL \"Sandboxed bytecode VM\" FORCE)\nset(RTOS_ELF_LOADER {On(p.ElfLoader)} CACHE BOOL \"Optional ELF32 loader\" FORCE)\nset(RTOS_AMP {On(p.Amp)} CACHE BOOL \"AMP shared-memory channel\" FORCE)\n";
     }
-    /// <summary>Exercises invalid topology, capacities and readiness, plus deterministic rendering and feature-off configuration.</summary>
+    /// <summary>Exercises invalid topology, capacities and readiness, plus deterministic rendering of modular profiles.</summary>
     private static void SelfTest(Catalogue c)
     {
         void Reject(Action operation){try{operation();}catch(ArgumentException){return;}catch(InvalidDataException){return;}throw new InvalidOperationException("Invalid configuration accepted.");}
@@ -83,11 +98,14 @@ internal static class Program
         Reject(()=>Validate(c with{Targets=[t with{Id="fake",FirmwareReady=true}]}));
         Reject(()=>Render(t,p with{Logging=true,Sync=false},1,"up"));
         Reject(()=>Validate(c with{Profiles=[p with{Logging=true,Sync=false}]}));
+        var flightOptIn=Render(t,p with{FlightBuild=true,Monitor=true,Script=true,ElfLoader=true},1,"up");
+        if(!flightOptIn.Contains("set(RTOS_FLIGHT_BUILD ON")||!flightOptIn.Contains("set(RTOS_MONITOR ON")||!flightOptIn.Contains("set(RTOS_SCRIPT ON")||!flightOptIn.Contains("set(RTOS_ELF_LOADER ON"))
+            throw new InvalidOperationException("Developer opt-in flight flags missing.");
         var logging=Render(t,p with{Logging=true,Sync=true},1,"up");
         if(!logging.Contains("set(RTOS_LOGGING ON")||!logging.Contains("set(RTOS_SYNC ON")) throw new InvalidOperationException("Logging flags missing.");
         var first=Render(t,p,1,"up");
         if(first!=Render(t,p,1,"up")||!first.Contains("set(RTOS_ETHERNET OFF")||!first.Contains("set(RTOS_METRICS OFF")) throw new InvalidOperationException("Non-deterministic or incorrect minimal output.");
         foreach(var target in c.Targets) _=Render(target,p,1,"up");
-        Console.WriteLine("PASS: topology, capacity, injection, readiness, deterministic generation and all planned target configurations.");
+        Console.WriteLine("PASS: topology, capacity, modular developer choice, injection, readiness, deterministic generation and all planned target configurations.");
     }
 }

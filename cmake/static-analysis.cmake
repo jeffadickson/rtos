@@ -30,7 +30,7 @@ if(CMAKE_GENERATOR MATCHES "Ninja|Makefiles")
       COMMAND ${NXR_CPPCHECK_EXECUTABLE}
         --project=${CMAKE_BINARY_DIR}/compile_commands.json
         --enable=warning,performance,portability --error-exitcode=1
-        --std=c++17 --inline-suppr --template=gcc
+        --std=c++20 --inline-suppr --template=gcc
         --suppressions-list=${CMAKE_SOURCE_DIR}/config/cppcheck-suppressions.txt
         ${nxr_cppcheck_target_args}
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} USES_TERMINAL VERBATIM)
@@ -64,7 +64,7 @@ find_program(NXR_CLANG_EXECUTABLE NAMES clang++)
 if(NXR_CLANG_EXECUTABLE)
   add_custom_target(static_analysis
     COMMAND ${NXR_CLANG_EXECUTABLE} --target=riscv32-unknown-elf -march=rv32im_zicsr -mabi=ilp32
-      -std=c++17 -ffreestanding -fno-exceptions -fno-rtti -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/src -I${CMAKE_SOURCE_DIR}/ports/riscue
+      -std=c++20 -ffreestanding -fno-exceptions -fno-rtti -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/src -I${CMAKE_SOURCE_DIR}/ports/riscue
       -DRTOS_MAX_THREADS=${RTOS_MAX_THREADS} -DRTOS_TICK_HZ=${RTOS_TICK_HZ}
       -DRTOS_IDLE_STACK_BYTES=${RTOS_IDLE_STACK_BYTES} -DRTOS_ROUND_ROBIN=$<BOOL:${RTOS_ROUND_ROBIN}>
       -DRTOS_METRICS=$<BOOL:${RTOS_METRICS}> -DRTOS_STACK_GUARD=$<BOOL:${RTOS_STACK_GUARD}>
@@ -80,7 +80,7 @@ endif()
 if(NXR_CLANG_EXECUTABLE)
   add_custom_target(sync_static_analysis
     COMMAND ${NXR_CLANG_EXECUTABLE} --target=riscv32-unknown-elf -march=rv32im_zicsr -mabi=ilp32
-      -std=c++17 -ffreestanding -fno-exceptions -fno-rtti -DRTOS_SYNC=1 -DRTOS_LOGGING=1
+      -std=c++20 -ffreestanding -fno-exceptions -fno-rtti -DRTOS_SYNC=1 -DRTOS_LOGGING=1
       -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/src -I${CMAKE_SOURCE_DIR}/ports/riscue
       --analyze -Xanalyzer -analyzer-output=text
       ${CMAKE_SOURCE_DIR}/src/kernel.cpp ${CMAKE_SOURCE_DIR}/src/sync.cpp

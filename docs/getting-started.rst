@@ -4,7 +4,7 @@ Building and first application
 Prerequisites
 -------------
 
-Use CMake 3.22 or newer, Ninja, the .NET 10 SDK, and a native C++17 compiler for
+Use CMake 3.22 or newer, Ninja, the .NET 10 SDK, and a native C++20 compiler for
 host tests. Firmware requires a RISC-V bare-metal GNU toolchain with RV32
 ILP32 multilib support. The firmware requires no C++ standard library.
 Sphinx 8.2.3 requires Python 3.11 or newer.

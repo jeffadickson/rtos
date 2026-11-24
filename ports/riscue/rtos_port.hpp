@@ -30,6 +30,8 @@ inline void arm(uint64_t deadline) {
     auto* compare=reinterpret_cast<volatile uint32_t*>(RTOS_MTIMECMP_ADDRESS);
     compare[1]=0xffffffffu; compare[0]=uint32_t(deadline); compare[1]=deadline>>32;
 }
+/// Maximum single tickless hardware sleep span in cycles (64-bit mtimecmp bounded to 32-bit span).
+constexpr uint64_t max_tickless_cycles() { return 0x7fffffffULL; }
 /** Construct context.S's 36-word frame in validated permanent stack storage.
  * Slot 2 is the original stack top, slot 32 the entry trampoline. 0x1880 means
  * MPP=M, MPIE=1, MIE=0: the first mret enables IRQs after restoring all registers.

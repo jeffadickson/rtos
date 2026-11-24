@@ -31,6 +31,7 @@ worst-case execution time, or hardware validation.
    configuration
    platforms
    datasheets
+   bootloader-spec
    port-bringup
    api
    metrics

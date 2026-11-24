@@ -221,6 +221,57 @@
         "RTOS_WEB": "OFF",
         "RTOS_ETHERNET": "OFF"
       }
+    },
+    {
+      "name": "flight-riscue",
+      "inherits": "riscue",
+      "binaryDir": "${sourceDir}/build/flight-riscue",
+      "cacheVariables": {
+        "RTOS_APPLICATION": "examples/flight_demo.cpp",
+        "RTOS_MAX_THREADS": "6",
+        "RTOS_IDLE_STACK_BYTES": "512",
+        "RTOS_BOOT_STACK_BYTES": "2048",
+        "RTOS_FLIGHT_BUILD": "ON",
+        "RTOS_SYNC": "ON",
+        "RTOS_STORAGE": "ON",
+        "RTOS_BOOT": "ON",
+        "RTOS_RM_PERIOD": "ON",
+        "RTOS_POOL": "ON",
+        "RTOS_WORKQUEUE": "ON",
+        "RTOS_CLOCK_EPOCH": "ON",
+        "RTOS_TICKLESS": "ON",
+        "RTOS_TOPIC": "ON",
+        "RTOS_TRACE": "ON",
+        "RTOS_WEB": "OFF",
+        "RTOS_ETHERNET": "OFF"
+      }
+    },
+    {
+      "name": "bench-riscue",
+      "inherits": "riscue",
+      "binaryDir": "${sourceDir}/build/bench-riscue",
+      "cacheVariables": {
+        "RTOS_APPLICATION": "examples/bench_demo.cpp",
+        "RTOS_MAX_THREADS": "6",
+        "RTOS_IDLE_STACK_BYTES": "512",
+        "RTOS_BOOT_STACK_BYTES": "2048",
+        "RTOS_FLIGHT_BUILD": "OFF",
+        "RTOS_SYNC": "ON",
+        "RTOS_STORAGE": "OFF",
+        "RTOS_BOOT": "ON",
+        "RTOS_RM_PERIOD": "ON",
+        "RTOS_POOL": "ON",
+        "RTOS_WORKQUEUE": "ON",
+        "RTOS_CLOCK_EPOCH": "ON",
+        "RTOS_TOPIC": "ON",
+        "RTOS_TRACE": "ON",
+        "RTOS_MONITOR": "ON",
+        "RTOS_SCRIPT": "ON",
+        "RTOS_ELF_LOADER": "ON",
+        "RTOS_AMP": "ON",
+        "RTOS_WEB": "OFF",
+        "RTOS_ETHERNET": "OFF"
+      }
     }
   ],
   "buildPresets": [
@@ -270,7 +321,9 @@
     { "name": "flagship-riscue", "configurePreset": "flagship-riscue" },
     { "name": "flagship-hwsched", "configurePreset": "flagship-hwsched" },
     { "name": "flagship-banked", "configurePreset": "flagship-banked" },
-    { "name": "storage-riscue", "configurePreset": "storage-riscue" }
+    { "name": "storage-riscue", "configurePreset": "storage-riscue" },
+    { "name": "flight-riscue", "configurePreset": "flight-riscue" },
+    { "name": "bench-riscue", "configurePreset": "bench-riscue" }
   ],
   "testPresets": [
     { "name": "host-asan", "configurePreset": "host-asan", "output": { "outputOnFailure": true } },

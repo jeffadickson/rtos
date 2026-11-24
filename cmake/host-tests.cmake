@@ -96,14 +96,43 @@ endforeach()
 rtos_host_test(ipc_wait_order_test NAME ipc_wait_order SYNC SOURCES tests/ipc_wait_order.cpp LIBRARIES rtos_sync_model)
 rtos_host_test(safe_concurrency_test NAME safe_concurrency SYNC SOURCES tests/safe_concurrency.cpp LIBRARIES rtos_sync_model)
 rtos_host_test(rtos_gaps_test NAME rtos_gaps SYNC SOURCES tests/rtos_gaps.cpp LIBRARIES rtos_sync_model)
+rtos_host_test(tier1_flight_test NAME tier1_flight SYNC SOURCES tests/tier1_flight.cpp LIBRARIES rtos_sync_model)
+rtos_host_test(tier2_monitor_test NAME tier2_monitor SOURCES tests/tier2_monitor.cpp src/monitor.cpp LIBRARIES rtos_options)
+rtos_host_test(elf_loader_amp_test NAME elf_loader_amp SOURCES tests/elf_loader_amp.cpp src/elf_loader.cpp LIBRARIES rtos_options)
 rtos_host_test(storage_test NAME storage SOURCES tests/storage.cpp src/storage.cpp LIBRARIES rtos_options)
 rtos_host_test(flash_emulators_test NAME flash_emulators SOURCES tests/flash_emulators.cpp src/storage.cpp LIBRARIES rtos_options)
 rtos_host_test(nand_lifecycle_sim_test NAME nand_lifecycle_sim SOURCES tests/nand_lifecycle_sim.cpp src/storage.cpp LIBRARIES rtos_options)
 
+# Sandboxed diagnostic scripting VM + C# NexRT.Script compiler end-to-end test.
+add_executable(script_vm_test tests/script_vm.cpp src/script_vm.cpp)
+target_include_directories(script_vm_test PRIVATE include src tests)
+target_link_libraries(script_vm_test PRIVATE rtos_options)
+rtos_host_warnings(script_vm_test)
+if(DOTNET_EXECUTABLE)
+  add_test(NAME script_compiler COMMAND ${script_tool_COMMAND} self-test)
+  set_tests_properties(script_compiler PROPERTIES TIMEOUT 30)
+  set(nxr_bus_health_nxs "${CMAKE_BINARY_DIR}/bus_health.nxs")
+  add_custom_command(
+    OUTPUT "${nxr_bus_health_nxs}"
+    COMMAND ${script_tool_COMMAND} compile
+      "${CMAKE_SOURCE_DIR}/tests/scripts/bus_health.nxs.src"
+      "${nxr_bus_health_nxs}" --fuel 512
+    DEPENDS script_tool "${script_tool_OUTPUT}" "${CMAKE_SOURCE_DIR}/tests/scripts/bus_health.nxs.src"
+    VERBATIM)
+  add_custom_target(bus_health_script ALL DEPENDS "${nxr_bus_health_nxs}")
+  add_test(NAME script_vm_e2e COMMAND script_vm_test "${nxr_bus_health_nxs}")
+  set_tests_properties(script_vm_e2e PROPERTIES TIMEOUT 120)
+  rtos_memcheck(script_vm_test script_vm_e2e "${nxr_bus_health_nxs}")
+else()
+  add_test(NAME script_vm COMMAND script_vm_test)
+  set_tests_properties(script_vm PROPERTIES TIMEOUT 120)
+  rtos_memcheck(script_vm_test script_vm)
+endif()
+
 find_program(NXR_DAFNY_EXECUTABLE NAMES dafny HINTS "$ENV{HOME}/.dotnet/tools")
 find_program(NXR_Z3_EXECUTABLE NAMES z3)
 if(NXR_DAFNY_EXECUTABLE AND NXR_Z3_EXECUTABLE AND NOT RTOS_HOST_SANITIZERS AND NOT RTOS_HOST_VALGRIND)
-  foreach(dfy_name IN ITEMS SchedulerProof LockFreedomProof DmaOwnershipProof TmrVoterProof StorageProof)
+  foreach(dfy_name IN ITEMS SchedulerProof LockFreedomProof DmaOwnershipProof TmrVoterProof StorageProof PoolProof ScriptVmProof)
     add_test(NAME dafny_${dfy_name}
       COMMAND ${NXR_DAFNY_EXECUTABLE} verify --solver-path ${NXR_Z3_EXECUTABLE}
               "${CMAKE_SOURCE_DIR}/formal/${dfy_name}.dfy")
@@ -119,7 +148,7 @@ if(NXR_VERILATOR_EXECUTABLE AND NOT RTOS_HOST_SANITIZERS AND NOT RTOS_HOST_VALGR
     OUTPUT "${nxr_v_sched_bin}"
     COMMAND ${NXR_VERILATOR_EXECUTABLE} -Wall --cc --exe --build -j 0
       --Mdir "${nxr_v_sched_dir}"
-      -CFLAGS "-std=c++17 -O2 -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/src -UNDEBUG"
+      -CFLAGS "-std=c++20 -O2 -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/src -UNDEBUG"
       "${CMAKE_SOURCE_DIR}/rtl/nexrt_hw_sched.sv"
       "${CMAKE_SOURCE_DIR}/tests/hw_sched_verilator.cpp"
     DEPENDS "${CMAKE_SOURCE_DIR}/rtl/nexrt_hw_sched.sv"
@@ -136,7 +165,7 @@ if(NXR_VERILATOR_EXECUTABLE AND NOT RTOS_HOST_SANITIZERS AND NOT RTOS_HOST_VALGR
     OUTPUT "${nxr_v_rf_bin}"
     COMMAND ${NXR_VERILATOR_EXECUTABLE} -Wall --cc --exe --build -j 0
       --Mdir "${nxr_v_rf_dir}"
-      -CFLAGS "-std=c++17 -O2 -UNDEBUG"
+      -CFLAGS "-std=c++20 -O2 -UNDEBUG"
       "${CMAKE_SOURCE_DIR}/rtl/riscue_banked_rf.sv"
       "${CMAKE_SOURCE_DIR}/tests/banked_rf_verilator.cpp"
     DEPENDS "${CMAKE_SOURCE_DIR}/rtl/riscue_banked_rf.sv"

@@ -54,6 +54,8 @@ inline void arm(uint64_t deadline){
     auto* systick=reinterpret_cast<volatile uint32_t*>(0xe000e010);
     systick[0]=0;systick[1]=uint32_t(remaining-1);systick[2]=0;systick[0]=7;
 }
+/// Maximum single tickless hardware sleep span in cycles (bounded safely below 24-bit SysTick reload).
+constexpr uint64_t max_tickless_cycles() { return 0x00f00000ULL; }
 /// Frame: BASEPRI, EXC_RETURN, r4..r11, then hardware r0..r3/r12/lr/pc/xPSR.
 inline uint32_t* initialize_context(void* stack,size_t bytes,void(*entry)()){
     auto* frame=reinterpret_cast<uint32_t*>(static_cast<char*>(stack)+bytes)-18;
@@ -67,13 +69,15 @@ inline uint32_t* initialize_context(void* stack,size_t bytes,void(*entry)()){
 inline void install_vector(){
     // AAPCS handler calls require 8-byte MSP alignment, including interrupted
     // leaf assembly with a four-byte-aligned PSP. Hardware records padding in xPSR.
-    *reinterpret_cast<volatile uint32_t*>(0xe000ed14)|=0x200;
+    auto* ccr=reinterpret_cast<volatile uint32_t*>(0xe000ed14);
+    *ccr=*ccr|0x200u;
     *reinterpret_cast<volatile uint32_t*>(0xe000ed08)=reinterpret_cast<uintptr_t>(arm_vectors);
     *reinterpret_cast<volatile uint8_t*>(0xe000ed1f)=0; // SVC priority zero.
     *reinterpret_cast<volatile uint8_t*>(0xe000ed23)=0x80; // SysTick priority.
 #if RTOS_HW_PROTECT
     // Enable MemManage fault handler so MPU stack-guard violations trap synchronously.
-    *reinterpret_cast<volatile uint32_t*>(0xe000ed24)|=(1u<<16);
+    auto* shcsr=reinterpret_cast<volatile uint32_t*>(0xe000ed24);
+    *shcsr=*shcsr|(1u<<16);
 #endif
     auto* timer=reinterpret_cast<volatile uint32_t*>(0x40000000);
     timer[0]=0;timer[2]=UINT32_MAX;timer[1]=RTOS_ARM_TIMER_INITIAL;timer[0]=1;

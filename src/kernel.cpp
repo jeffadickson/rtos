@@ -25,6 +25,9 @@ bool reschedule_pending;
 #endif
 uint32_t period, clock_hz;
 uint64_t deadline;
+#if RTOS_TICKLESS
+bool tickless_armed;
+#endif
 #if RTOS_METRICS || RTOS_BUDGET_WATCHDOG
 uint64_t boot_time, last_account;
 #endif
@@ -46,7 +49,24 @@ struct Lock {
 
 [[noreturn]] void stop() { rtos::port::halt(); }
 void idle(void*) {
-    for (;;) rtos::port::idle();
+    for (;;) {
+#if RTOS_TICKLESS
+        {
+            Lock lock;
+            const rtos::Tick delay = scheduler.next_wake_delay();
+            if (delay > 1 && period > 0) {
+                const uint64_t max_ticks = rtos::port::max_tickless_cycles() / period;
+                const uint64_t suppress = static_cast<uint64_t>(delay) < max_ticks ? delay : max_ticks;
+                if (suppress > 1) {
+                    const uint64_t wake_at = deadline + (suppress - 1u) * period;
+                    rtos::port::arm(wake_at);
+                    tickless_armed = true;
+                }
+            }
+        }
+#endif
+        rtos::port::idle();
+    }
 }
 
 // Every synthesized frame enters here; returning application entries finish via exit().
@@ -494,6 +514,19 @@ extern "C" uint32_t* rtos_trap(uint32_t* frame, uint32_t cause) {
 
     if (rtos::port::is_yield(cause)) {
         if (current && frame) rtos::port::resume_after_yield(frame);
+#if RTOS_TICKLESS
+        if (tickless_armed) {
+            const auto now = time_now();
+            const auto elapsed = rtos::detail::elapsed_ticks(now, deadline, period);
+            if (elapsed > 0x7fffffffu) stop();
+            if (elapsed > 0) {
+                deadline += elapsed * period;
+                scheduler.advance(static_cast<rtos::Tick>(elapsed));
+            }
+            tickless_armed = false;
+            arm();
+        }
+#endif
     } else if (rtos::port::is_tick(cause)) {
         const auto now = time_now();
         const auto elapsed = rtos::detail::elapsed_ticks(now, deadline, period);
@@ -504,11 +537,27 @@ extern "C" uint32_t* rtos_trap(uint32_t* frame, uint32_t cause) {
 #endif
         deadline += elapsed * period;
         scheduler.advance(static_cast<rtos::Tick>(elapsed));
+#if RTOS_TICKLESS
+        tickless_armed = false;
+#endif
         arm();
         rotate = (RTOS_ROUND_ROBIN != 0);
     } else if (rtos::port::is_external_irq(cause)) {
         if (!external_irq_handler) stop();
         external_irq_handler(external_irq_context);
+#if RTOS_TICKLESS
+        if (tickless_armed) {
+            const auto now = time_now();
+            const auto elapsed = rtos::detail::elapsed_ticks(now, deadline, period);
+            if (elapsed > 0x7fffffffu) stop();
+            if (elapsed > 0) {
+                deadline += elapsed * period;
+                scheduler.advance(static_cast<rtos::Tick>(elapsed));
+            }
+            tickless_armed = false;
+            arm();
+        }
+#endif
         rotate = false;
     } else {
         stop();
