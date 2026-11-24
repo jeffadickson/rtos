@@ -206,6 +206,21 @@
         "RTOS_RISCUE_BANKED": "ON",
         "RTOS_RISCUE_BANKS": "8"
       }
+    },
+    {
+      "name": "storage-riscue",
+      "inherits": "riscue",
+      "binaryDir": "${sourceDir}/build/storage-riscue",
+      "cacheVariables": {
+        "RTOS_APPLICATION": "examples/storage_demo.cpp",
+        "RTOS_MAX_THREADS": "4",
+        "RTOS_IDLE_STACK_BYTES": "512",
+        "RTOS_BOOT_STACK_BYTES": "2048",
+        "RTOS_SYNC": "ON",
+        "RTOS_STORAGE": "ON",
+        "RTOS_WEB": "OFF",
+        "RTOS_ETHERNET": "OFF"
+      }
     }
   ],
   "buildPresets": [
@@ -254,7 +269,8 @@
     },
     { "name": "flagship-riscue", "configurePreset": "flagship-riscue" },
     { "name": "flagship-hwsched", "configurePreset": "flagship-hwsched" },
-    { "name": "flagship-banked", "configurePreset": "flagship-banked" }
+    { "name": "flagship-banked", "configurePreset": "flagship-banked" },
+    { "name": "storage-riscue", "configurePreset": "storage-riscue" }
   ],
   "testPresets": [
     { "name": "host-asan", "configurePreset": "host-asan", "output": { "outputOnFailure": true } },

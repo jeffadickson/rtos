@@ -35,6 +35,10 @@ struct Thread {
     Mutex* owned_mutexes{};
     Mutex* waiting_mutex{};
     uint8_t held_mutexes{};
+    /// Direct-to-task 32-bit notification state (zero extra kernel objects).
+    uint32_t notify_value{};
+    bool notify_pending{};
+    bool waiting_notify{};
 #endif
     State state{State::unused};
 #if RTOS_HW_SCHED
@@ -55,6 +59,10 @@ struct Thread {
 #endif
 };
 using BudgetFaultHook = void (*)(const Thread&, uint64_t used_cycles);
+#if RTOS_SYNC
+/// Direct-to-task notification update policy.
+enum class NotifyAction : uint8_t { set_bits, overwrite, increment };
+#endif
 /** @brief Boot-owned, ABI-aligned stack; Bytes includes the initial saved frame.
  * The compile-time minimum is a layout check, not a proven application bound.
  * Budget call chains, formatter scratch and trap/C++ handler use separately.
@@ -102,6 +110,19 @@ bool register_budget_fault_hook(BudgetFaultHook hook);
 void yield();
 // Zero yields. Delays must be <= INT32_MAX ticks. Returns false for invalid delay.
 bool sleep_for(Tick ticks);
+/** @brief Drift-free periodic sleep: advances next_wake by period and sleeps until due.
+ * Period must be in 1..INT32_MAX. If next_wake is already reached, advances next_wake
+ * and returns true immediately without blocking.
+ */
+bool sleep_until(Tick& next_wake, Tick period);
+#if RTOS_SYNC
+/// Deliver a lightweight 32-bit direct-to-task notification from thread context.
+detail::WaitResult notify(Thread& target, uint32_t value, NotifyAction action = NotifyAction::set_bits);
+/// Deliver a lightweight 32-bit direct-to-task notification from ISR context.
+detail::WaitResult notify_from_isr(Thread& target, uint32_t value, NotifyAction action = NotifyAction::set_bits);
+/// Wait at most timeout ticks for a direct-to-task notification; clears selected bits on receipt.
+detail::WaitResult wait_notification(uint32_t& received, Tick timeout = 0, uint32_t clear_mask = 0xFFFFFFFFu);
+#endif
 /// Read the wrapping logical tick count under IRQ masking; zero before start.
 Tick ticks();
 /// Finish the caller permanently; owned mutexes become explicitly owner-dead.

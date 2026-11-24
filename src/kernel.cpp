@@ -260,6 +260,109 @@ bool sleep_for(Tick delay) {
     return true;
 }
 
+bool sleep_until(Tick& next_wake, Tick step_ticks) {
+    if (!running || step_ticks == 0 || step_ticks > 0x7fffffffu) return false;
+    Lock lock;
+    const Tick target = next_wake + step_ticks;
+    next_wake = target;
+    const Tick remaining = static_cast<Tick>(target - scheduler.now);
+    if (remaining == 0 || remaining >= 0x80000000u) {
+        return true; // Deadline already due; no drift accumulated.
+    }
+    current->wake = target;
+    current->state = State::sleeping;
+#if RTOS_BUDGET_WATCHDOG
+    current->slice_cycles = 0;
+#endif
+#if RTOS_HW_SCHED
+    hw_driver.set_wake(current->hw_slot, hw_driver.mtime() + static_cast<uint64_t>(remaining) * period);
+    sync_hw_slot(*current);
+#endif
+    port::reschedule();
+    return true;
+}
+
+#if RTOS_SYNC
+namespace {
+Result notify_locked(Thread& target, uint32_t value, NotifyAction action, bool& should_reschedule) {
+    if (!scheduler.contains(target) || target.state == State::finished || target.state == State::quarantined) {
+        return Result::invalid;
+    }
+    if (action == NotifyAction::set_bits) {
+        target.notify_value |= value;
+    } else if (action == NotifyAction::overwrite) {
+        target.notify_value = value;
+    } else {
+        target.notify_value += value;
+    }
+    target.notify_pending = true;
+    if (target.state == State::blocked && target.waiting_notify) {
+        target.waiting_notify = false;
+        target.wait.result = Result::ok;
+        target.state = State::ready;
+#if RTOS_HW_SCHED
+        sync_hw_slot(target);
+#endif
+        should_reschedule = true;
+    }
+    return Result::ok;
+}
+} // namespace
+
+Result notify(Thread& target, uint32_t value, NotifyAction action) {
+    bool wake = false;
+    Result r = Result::context;
+    {
+        Lock lock;
+        if (!running || handling_interrupt || current == &idle_thread) return Result::context;
+        r = notify_locked(target, value, action, wake);
+    }
+    if (wake) port::reschedule();
+    return r;
+}
+
+Result notify_from_isr(Thread& target, uint32_t value, NotifyAction action) {
+    Lock lock;
+    if (!running || !handling_interrupt) return Result::context;
+    bool wake = false;
+    const Result r = notify_locked(target, value, action, wake);
+    if (wake) reschedule_pending = true;
+    return r;
+}
+
+Result wait_notification(uint32_t& received, Tick timeout, uint32_t clear_mask) {
+    Lock lock;
+    if (!running || handling_interrupt || !current || current == &idle_thread) return Result::context;
+    if (timeout > 0x7fffffffu) return Result::invalid;
+    if (current->notify_pending) {
+        received = current->notify_value;
+        current->notify_value &= ~clear_mask;
+        current->notify_pending = false;
+        return Result::ok;
+    }
+    if (timeout == 0) return Result::empty;
+    current->wake = scheduler.now + timeout;
+    current->waiting_notify = true;
+    current->wait.result = Result::busy;
+    current->state = State::blocked;
+#if RTOS_BUDGET_WATCHDOG
+    current->slice_cycles = 0;
+#endif
+#if RTOS_HW_SCHED
+    hw_driver.set_wake(current->hw_slot, hw_driver.mtime() + static_cast<uint64_t>(timeout) * period);
+    sync_hw_slot(*current);
+#endif
+    port::reschedule();
+    const Result result = current->wait.result;
+    if (result == Result::ok) {
+        received = current->notify_value;
+        current->notify_value &= ~clear_mask;
+        current->notify_pending = false;
+    }
+    return result;
+}
+#endif
+
 Tick ticks() {
     Lock lock;
     return scheduler.now;

@@ -30,6 +30,7 @@ worst-case execution time, or hardware validation.
    source-reference
    configuration
    platforms
+   datasheets
    port-bringup
    api
    metrics

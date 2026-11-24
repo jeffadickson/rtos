@@ -82,4 +82,8 @@ static_assert(RTOS_HWSCHED_BASE % 4 == 0);
 static_assert(!RTOS_HW_SCHED || RTOS_MAX_THREADS <= 16);
 static_assert(!RTOS_RISCUE_BANKED || RTOS_HW_SCHED);
 
+#ifndef RTOS_STORAGE
+#define RTOS_STORAGE 0
+#endif
+static_assert(RTOS_STORAGE == 0 || RTOS_STORAGE == 1);
 static_assert(!RTOS_LOGGING || RTOS_SYNC);
