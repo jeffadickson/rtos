@@ -74,10 +74,33 @@ struct Scheduler {
             auto& t = *threads[i];
 #if RTOS_SYNC
             expire_wait(t,now);
+            if (t.state == State::blocked && t.waiting_notify && Tick(now - t.wake) < 0x80000000u) {
+                t.waiting_notify = false;
+                t.wait.result = detail::WaitResult::timeout;
+                t.state = State::ready;
+            }
 #endif
             if (t.state == State::sleeping && Tick(now - t.wake) < 0x80000000u)
                 t.state = State::ready;
         }
+    }
+    /// Minimum remaining ticks until the next sleeping/blocked deadline (0 if any thread is ready, due, or none exist).
+    Tick next_wake_delay() const {
+        bool any = false;
+        Tick soonest = 0;
+        for (unsigned i = 0; i < count; ++i) {
+            const auto& t = *threads[i];
+            if (t.state == State::ready) return 0;
+            if (t.state == State::sleeping || t.state == State::blocked) {
+                const Tick remaining = static_cast<Tick>(t.wake - now);
+                if (remaining >= 0x80000000u || remaining == 0) return 0;
+                if (!any || remaining < soonest) {
+                    any = true;
+                    soonest = remaining;
+                }
+            }
+        }
+        return soonest;
     }
     Thread* pick(Thread* previous = nullptr, bool rotate = true) {
         if (!rotate && previous && previous->state == State::ready && contains(*previous)) {

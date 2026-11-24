@@ -51,6 +51,9 @@
   if(RTOS_WEB)
     target_link_libraries(demo PRIVATE nexrt::web)
   endif()
+  if(RTOS_STORAGE)
+    target_link_libraries(demo PRIVATE nexrt::storage)
+  endif()
   target_link_libraries(demo PRIVATE rtos gcc)
   set_target_properties(demo PROPERTIES SUFFIX .elf)
   target_link_options(demo PRIVATE -nostdlib -T${CMAKE_SOURCE_DIR}/${nxr_port}/link.ld

@@ -70,8 +70,10 @@ Headers also provide defaults for non-CMake consumers. Header boolean settings
 must be 0 or 1. Address correctness and available memory remain board-level
 responsibilities. The default Ethernet frame capacity is a compile-time constant
 of 1536 bytes and RX poll budget is a per-call parameter.
-``RTOS_STORAGE`` remains OFF; selecting ON fails explicitly until the flash
-service is implemented. CMake checks idle-stack alignment and representability;
+``RTOS_STORAGE`` defaults to OFF and enables the boot-static, zero-heap
+journaling flash storage library (``nexrt::storage`` / ``include/rtos_storage.hpp``)
+supporting Serial SPI NOR, Serial SPI NAND, Parallel ONFI NAND, and Parallel
+CFI NOR (see :doc:`datasheets`). CMake checks idle-stack alignment and representability;
 the linker and board integration establish whether the requested storage fits.
 
 Recommended profiles

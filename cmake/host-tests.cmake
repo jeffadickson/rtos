@@ -95,11 +95,15 @@ foreach(seed IN ITEMS 42 3735928559 4294967295)
 endforeach()
 rtos_host_test(ipc_wait_order_test NAME ipc_wait_order SYNC SOURCES tests/ipc_wait_order.cpp LIBRARIES rtos_sync_model)
 rtos_host_test(safe_concurrency_test NAME safe_concurrency SYNC SOURCES tests/safe_concurrency.cpp LIBRARIES rtos_sync_model)
+rtos_host_test(rtos_gaps_test NAME rtos_gaps SYNC SOURCES tests/rtos_gaps.cpp LIBRARIES rtos_sync_model)
+rtos_host_test(storage_test NAME storage SOURCES tests/storage.cpp src/storage.cpp LIBRARIES rtos_options)
+rtos_host_test(flash_emulators_test NAME flash_emulators SOURCES tests/flash_emulators.cpp src/storage.cpp LIBRARIES rtos_options)
+rtos_host_test(nand_lifecycle_sim_test NAME nand_lifecycle_sim SOURCES tests/nand_lifecycle_sim.cpp src/storage.cpp LIBRARIES rtos_options)
 
 find_program(NXR_DAFNY_EXECUTABLE NAMES dafny HINTS "$ENV{HOME}/.dotnet/tools")
 find_program(NXR_Z3_EXECUTABLE NAMES z3)
 if(NXR_DAFNY_EXECUTABLE AND NXR_Z3_EXECUTABLE AND NOT RTOS_HOST_SANITIZERS AND NOT RTOS_HOST_VALGRIND)
-  foreach(dfy_name IN ITEMS SchedulerProof LockFreedomProof DmaOwnershipProof TmrVoterProof)
+  foreach(dfy_name IN ITEMS SchedulerProof LockFreedomProof DmaOwnershipProof TmrVoterProof StorageProof)
     add_test(NAME dafny_${dfy_name}
       COMMAND ${NXR_DAFNY_EXECUTABLE} verify --solver-path ${NXR_Z3_EXECUTABLE}
               "${CMAKE_SOURCE_DIR}/formal/${dfy_name}.dfy")
