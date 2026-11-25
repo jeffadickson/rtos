@@ -14,5 +14,11 @@ if(RTOS_ARM_SIMULATION)
       COMMAND ${arm_sim_tool_COMMAND} ${NXR_QEMU_ARM_EXECUTABLE}
         $<TARGET_FILE:demo> ${CMAKE_BINARY_DIR}/runs
       DEPENDS demo arm_sim_tool USES_TERMINAL VERBATIM)
+    if(RTOS_CAMEO_EMBED)
+      add_custom_target(arm_cameo_embed
+        COMMAND ${arm_sim_tool_COMMAND} --cameo-embed ${NXR_QEMU_ARM_EXECUTABLE}
+          $<TARGET_FILE:demo> ${CMAKE_SOURCE_DIR}/tests/scripts/mps2_live_probe.hex
+        DEPENDS demo arm_sim_tool USES_TERMINAL VERBATIM)
+    endif()
   endif()
 endif()

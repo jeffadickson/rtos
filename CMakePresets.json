@@ -65,6 +65,29 @@
       }
     },
     {
+      "name": "arm-cameo-embed",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/arm-cameo-embed",
+      "toolchainFile": "${sourceDir}/cmake/arm-mps2-toolchain.cmake",
+      "cacheVariables": {
+        "RTOS_TARGET_ID": "qemu-mps2-m3",
+        "RTOS_APPLICATION": "examples/cameo_embed_arm.cpp",
+        "CMAKE_BUILD_TYPE": "MinSizeRel",
+        "RTOS_BUILD_FIRMWARE": "ON",
+        "RTOS_ARM_SIMULATION": "ON",
+        "RTOS_MAX_THREADS": "3",
+        "RTOS_IDLE_STACK_BYTES": "1024",
+        "RTOS_BOOT_STACK_BYTES": "4096",
+        "RTOS_SYNC": "ON",
+        "RTOS_LOGGING": "OFF",
+        "RTOS_TRACE": "ON",
+        "RTOS_MONITOR": "ON",
+        "RTOS_CAMEO_EMBED": "ON",
+        "RTOS_ETHERNET": "OFF",
+        "RTOS_WEB": "OFF"
+      }
+    },
+    {
       "name": "uart",
       "inherits": "riscue",
       "binaryDir": "${sourceDir}/build/uart",
@@ -285,6 +308,10 @@
     {
       "name": "arm-stress",
       "configurePreset": "arm-stress"
+    },
+    {
+      "name": "arm-cameo-embed",
+      "configurePreset": "arm-cameo-embed"
     },
     {
       "name": "uart",

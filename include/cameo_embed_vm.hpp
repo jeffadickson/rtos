@@ -26,11 +26,19 @@
 #define CAMEO_EMBED_ENABLE_MATH 0
 #endif
 
+#ifndef CAMEO_EMBED_COMPACT_32
+#define CAMEO_EMBED_COMPACT_32 0
+#endif
+
 #if CAMEO_EMBED_ENABLE_MATH && !CAMEO_EMBED_ENABLE_FLOAT
 #error "CAMEO_EMBED_ENABLE_MATH=1 requires CAMEO_EMBED_ENABLE_FLOAT=1"
 #endif
 
-#if defined(__has_include) && __has_include(<span>) && __has_include(<string_view>)
+#if CAMEO_EMBED_COMPACT_32 && CAMEO_EMBED_ENABLE_FLOAT
+#error "CAMEO_EMBED_COMPACT_32=1 requires CAMEO_EMBED_ENABLE_FLOAT=0"
+#endif
+
+#if (!defined(__STDC_HOSTED__) || (__STDC_HOSTED__ != 0)) && defined(__has_include) && __has_include(<span>) && __has_include(<string_view>)
 #include <span>
 #include <string_view>
 #define CAMEO_EMBED_HAS_STD_VIEWS 1
@@ -228,6 +236,9 @@ enum class Status : uint8_t {
     MemoryFault = 24,
     AssertionFailed = 25,
     WriteDenied = 26,
+    Breakpoint = 27,
+    Stepped = 28,
+    WatchpointHit = 29,
 };
 
 /// Opcodes matching Cameo.Embed.EmbedOpCode bit-for-bit.
@@ -325,6 +336,15 @@ enum class StandardHostId : uint16_t {
     DbgHexdump = 19,
     DbgTrace = 20,
     DbgBreakpoint = 21,
+    DmaState = 22,
+    DmaTransferred = 23,
+    DmaCapacity = 24,
+    DmaGeneration = 25,
+    HwSchedStatus = 26,
+    HwSchedReadyMask = 27,
+    HwSchedFaultMask = 28,
+    HwSchedSeuCount = 29,
+    HwSchedDispatches = 30,
     CustomBase = 32,
 };
 
@@ -340,7 +360,7 @@ enum class BuiltinId : uint16_t {
     Fmod = 105, ToInteger = 106, Ult = 107,
     IsNan = 108, IsInf = 109, IsFinite = 110, IsClose = 111,
     Atan2 = 112,
-    // First-class Ptr constructors & methods (200..220)
+    // First-class Ptr constructors, methods, and typed MMIO offset/bitfield overlays (200..229)
     PtrOf = 200,
     PtrNull = 201,
     PtrAddr = 202,
@@ -358,7 +378,17 @@ enum class BuiltinId : uint16_t {
     PtrWrite16 = 214,
     PtrWrite32 = 215,
     PtrWrite64 = 216,
-    // Explicit axi.* MMIO / AXI4-Lite / AXI4 burst builtins (230..250)
+    PtrRead8At = 217,
+    PtrRead16At = 218,
+    PtrRead32At = 219,
+    PtrRead64At = 220,
+    PtrWrite8At = 221,
+    PtrWrite16At = 222,
+    PtrWrite32At = 223,
+    PtrWrite64At = 224,
+    PtrBits32At = 225,
+    PtrRmwBits32At = 226,
+    // Explicit axi.* MMIO / AXI4-Lite / AXI4 burst & watchpoint builtins (230..255)
     AxiRead8 = 230,
     AxiRead16 = 231,
     AxiRead32 = 232,
@@ -376,6 +406,11 @@ enum class BuiltinId : uint16_t {
     AxiScratchLen = 244,
     AxiFence = 245,
     AxiWindowCheck = 246,
+    AxiWatch = 247,
+    AxiUnwatch = 248,
+    AxiWatchHits = 249,
+    AxiTraceEnable = 250,
+    AxiTraceCount = 251,
     // Hardware debugging dbg.* builtins (260..280)
     DbgBits = 260,
     DbgSetBits = 261,
@@ -405,20 +440,30 @@ enum class ValueKind : uint8_t {
     Ptr = 11,
 };
 
-/// 16-byte trivially copyable tagged VM value (zero raw host pointers, zero heap).
+/// Trivially copyable tagged VM value (16 bytes default; 8 bytes when CAMEO_EMBED_COMPACT_32=1).
 struct Value {
     ValueKind kind{ValueKind::Nil};
     uint8_t pad0_{0};
     uint16_t aux_{0};
+#if CAMEO_EMBED_COMPACT_32
+    uint32_t bits_{0};
+#else
     uint32_t aux2_{0};
     uint64_t bits_{0};
+#endif
 
     [[nodiscard]] static constexpr Value nil() noexcept { return Value{}; }
     [[nodiscard]] static constexpr Value from_bool(bool b) noexcept {
         Value v; v.kind = ValueKind::Bool; v.bits_ = b ? 1u : 0u; return v;
     }
     [[nodiscard]] static constexpr Value from_int(int64_t i) noexcept {
-        Value v; v.kind = ValueKind::Int; v.bits_ = static_cast<uint64_t>(i); return v;
+        Value v; v.kind = ValueKind::Int;
+#if CAMEO_EMBED_COMPACT_32
+        v.bits_ = static_cast<uint32_t>(i);
+#else
+        v.bits_ = static_cast<uint64_t>(i);
+#endif
+        return v;
     }
 #if CAMEO_EMBED_ENABLE_FLOAT
     [[nodiscard]] static constexpr Value from_float(double d) noexcept {
@@ -447,7 +492,13 @@ struct Value {
         Value v; v.kind = ValueKind::Box; v.bits_ = id; return v;
     }
     [[nodiscard]] static constexpr Value from_ptr(uint64_t addr) noexcept {
-        Value v; v.kind = ValueKind::Ptr; v.bits_ = addr; return v;
+        Value v; v.kind = ValueKind::Ptr;
+#if CAMEO_EMBED_COMPACT_32
+        v.bits_ = static_cast<uint32_t>(addr);
+#else
+        v.bits_ = addr;
+#endif
+        return v;
     }
 
     [[nodiscard]] constexpr bool is_nil() const noexcept { return kind == ValueKind::Nil; }
@@ -463,8 +514,16 @@ struct Value {
     }
 
     [[nodiscard]] constexpr bool as_bool() const noexcept { return is_truthy(); }
-    [[nodiscard]] constexpr int64_t as_int() const noexcept { return static_cast<int64_t>(bits_); }
-    [[nodiscard]] constexpr uint64_t as_ptr() const noexcept { return bits_; }
+    [[nodiscard]] constexpr int64_t as_int() const noexcept {
+#if CAMEO_EMBED_COMPACT_32
+        return static_cast<int64_t>(static_cast<int32_t>(bits_));
+#else
+        return static_cast<int64_t>(bits_);
+#endif
+    }
+    [[nodiscard]] constexpr uint64_t as_ptr() const noexcept {
+        return static_cast<uint64_t>(bits_);
+    }
 #if CAMEO_EMBED_ENABLE_FLOAT
     [[nodiscard]] constexpr double as_float() const noexcept { return std::bit_cast<double>(bits_); }
     [[nodiscard]] constexpr double as_double() const noexcept {
@@ -475,7 +534,11 @@ struct Value {
     [[nodiscard]] constexpr uint16_t as_handle() const noexcept { return static_cast<uint16_t>(bits_); }
 };
 
+#if CAMEO_EMBED_COMPACT_32
+static_assert(sizeof(Value) == 8u, "Compact 32-bit Value must be 8 bytes");
+#else
 static_assert(sizeof(Value) == 16u, "Value must remain compact 16 bytes");
+#endif
 
 /// Board MMIO / RAM address window descriptor enforced before any Ptr or axi.* transaction.
 struct MemoryWindow {
@@ -485,6 +548,61 @@ struct MemoryWindow {
     uint8_t min_width{0u};     ///< Minimum bus access width in bytes (e.g. 4 for AXI4-Lite).
     uint8_t max_width{0u};     ///< Maximum bus access width in bytes (1, 2, 4, or 8).
     bool strict_align{false};  ///< Require natural alignment (addr % width == 0).
+};
+
+/// Flags controlling hardware watchpoint matching and break behavior.
+namespace WatchFlags {
+inline constexpr uint8_t kNone      = 0u;
+inline constexpr uint8_t kRead      = 1u << 0;
+inline constexpr uint8_t kWrite     = 1u << 1;
+inline constexpr uint8_t kReadWrite = kRead | kWrite;
+inline constexpr uint8_t kBreak     = 1u << 2; ///< Pause VM with Status::WatchpointHit when triggered.
+} // namespace WatchFlags
+
+/// Static watchpoint entry (all-zero default keeps StaticVm 100% in .bss).
+struct Watchpoint {
+    uint64_t base{0};
+    uint64_t size{0};
+    uint8_t flags{0};
+    bool active{false};
+};
+
+/// Flags encoded in BusTraceEvent::flags.
+namespace BusTraceFlags {
+inline constexpr uint8_t kWrite         = 1u << 0;
+inline constexpr uint8_t kWatchpointHit = 1u << 1;
+inline constexpr uint8_t kFault         = 1u << 2;
+} // namespace BusTraceFlags
+
+/// Compact 24-byte AXI/MMIO bus transaction trace record (zero-heap, FST-exportable).
+struct BusTraceEvent {
+    uint32_t seq{0};
+    uint32_t addr_lo{0};
+    uint32_t addr_hi{0};
+    uint32_t val_lo{0};
+    uint32_t val_hi{0};
+    uint8_t width{0};
+    uint8_t flags{0};
+    uint16_t watch_id{0};
+
+    [[nodiscard]] constexpr uint64_t addr() const noexcept {
+        return static_cast<uint64_t>(addr_lo) | (static_cast<uint64_t>(addr_hi) << 32u);
+    }
+    [[nodiscard]] constexpr uint64_t value() const noexcept {
+        return static_cast<uint64_t>(val_lo) | (static_cast<uint64_t>(val_hi) << 32u);
+    }
+};
+
+static_assert(sizeof(BusTraceEvent) == 24u, "BusTraceEvent must remain compact 24 bytes");
+
+/// Optional callback invoked on every traced bus event or watchpoint hit.
+using BusTraceCallback = void (*)(void* ctx, const BusTraceEvent& ev) noexcept;
+
+/// Static PC breakpoint entry (all-zero default keeps StaticVm 100% in .bss).
+struct BreakpointEntry {
+    uint16_t proto_id{0};
+    uint32_t pc{0};
+    bool active{false};
 };
 
 /// Optional pluggable bus backend (for host simulation, Verilator AXI, or QEMU).
@@ -933,7 +1051,10 @@ template<
     size_t MaxRecordSlots = 256,
     size_t MaxHostFunctions = 64,
     size_t ScratchWords = 64,
-    size_t MaxMemoryWindows = 16
+    size_t MaxMemoryWindows = 16,
+    size_t MaxWatchpoints = 8,
+    size_t BusTraceCapacity = 64,
+    size_t MaxBreakpoints = 8
 >
 class StaticVm {
     static_assert(StackSlots >= 32 && StackSlots <= 65535);
@@ -946,6 +1067,10 @@ class StaticVm {
     static_assert(MaxHostFunctions >= 32 && MaxHostFunctions <= 1024);
     static_assert(ScratchWords >= 4 && ScratchWords <= 4096);
     static_assert(MaxMemoryWindows >= 1 && MaxMemoryWindows <= 64);
+    static_assert(MaxWatchpoints >= 1 && MaxWatchpoints <= 32);
+    static_assert(BusTraceCapacity >= 4 && (BusTraceCapacity & (BusTraceCapacity - 1u)) == 0u,
+                  "BusTraceCapacity must be a power of two >= 4");
+    static_assert(MaxBreakpoints >= 1 && MaxBreakpoints <= 32);
 
     static constexpr size_t kMaxClosureUpvals = MaxClosures * 4u;
 
@@ -1023,6 +1148,24 @@ class StaticVm {
     uint16_t window_count_{0};
     bool axi_read_only_{false};
     BusBackend bus_{};
+
+    // Hardware watchpoints & AXI bus-trace ring (100% .bss)
+    Watchpoint watchpoints_[MaxWatchpoints]{};
+    uint32_t watch_hits_{0};
+    bool watch_break_pending_{false};
+    uint64_t last_watch_addr_{0};
+    BusTraceEvent bus_trace_[BusTraceCapacity]{};
+    uint32_t bus_trace_total_{0};
+    bool bus_trace_enabled_{false};
+    BusTraceCallback bus_trace_cb_{nullptr};
+    void* bus_trace_cb_ctx_{nullptr};
+
+    // On-target PC breakpoints & resumable single-stepping state (100% .bss)
+    BreakpointEntry breakpoints_[MaxBreakpoints]{};
+    size_t active_frame_count_{0};
+    size_t active_top_{0};
+    bool paused_{false};
+    bool skip_bp_once_{false};
 
     // Optional built-in debug text sink (for dbg.hexdump / dbg.log_hex)
     DebugWriteFn debug_writer_{nullptr};
@@ -1414,6 +1557,155 @@ public:
         return string_view_of(v.as_string_id());
     }
 
+    // ---------------- Hardware Watchpoints & AXI Bus-Trace Ring ----------------
+
+    /// Enable or disable recording all AXI/Ptr transactions into the static BusTraceRing.
+    void set_bus_trace_enabled(bool enabled) noexcept { bus_trace_enabled_ = enabled; }
+    [[nodiscard]] bool bus_trace_enabled() const noexcept { return bus_trace_enabled_; }
+
+    /// Attach an optional callback fired on every traced bus event or watchpoint hit.
+    void set_bus_trace_callback(BusTraceCallback cb, void* ctx = nullptr) noexcept {
+        bus_trace_cb_ = cb;
+        bus_trace_cb_ctx_ = ctx;
+    }
+
+    /// Number of retained bus-trace events (0..BusTraceCapacity).
+    [[nodiscard]] size_t bus_trace_count() const noexcept {
+        return bus_trace_total_ < BusTraceCapacity ? static_cast<size_t>(bus_trace_total_) : BusTraceCapacity;
+    }
+    [[nodiscard]] uint32_t bus_trace_total() const noexcept { return bus_trace_total_; }
+
+    /// Read a retained bus-trace event by oldest-first index (0 = oldest, count()-1 = newest).
+    [[nodiscard]] bool read_bus_trace_oldest(size_t offset, BusTraceEvent& out) const noexcept {
+        const size_t n = bus_trace_count();
+        if (offset >= n) return false;
+        const size_t oldest = (bus_trace_total_ >= BusTraceCapacity)
+            ? (static_cast<size_t>(bus_trace_total_) & (BusTraceCapacity - 1u))
+            : 0u;
+        out = bus_trace_[(oldest + offset) & (BusTraceCapacity - 1u)];
+        return true;
+    }
+
+    void clear_bus_trace() noexcept {
+        bus_trace_total_ = 0u;
+    }
+
+    /// Install a hardware watchpoint over [base, base+size). Returns slot ID (0..MaxWatchpoints-1) or -1.
+    [[nodiscard]] int add_watchpoint(uint64_t base, uint64_t size, uint8_t flags) noexcept {
+        if (size == 0u || (flags & WatchFlags::kReadWrite) == 0u) return -1;
+        for (size_t i = 0; i < MaxWatchpoints; ++i) {
+            if (!watchpoints_[i].active) {
+                watchpoints_[i] = {base, size, flags, true};
+                return static_cast<int>(i);
+            }
+        }
+        return -1;
+    }
+
+    [[nodiscard]] bool remove_watchpoint(size_t id) noexcept {
+        if (id >= MaxWatchpoints || !watchpoints_[id].active) return false;
+        watchpoints_[id] = Watchpoint{};
+        return true;
+    }
+
+    void clear_watchpoints() noexcept {
+        for (size_t i = 0; i < MaxWatchpoints; ++i) watchpoints_[i] = Watchpoint{};
+        watch_hits_ = 0u;
+        watch_break_pending_ = false;
+        last_watch_addr_ = 0u;
+    }
+
+    [[nodiscard]] uint32_t watch_hits() const noexcept { return watch_hits_; }
+    [[nodiscard]] uint64_t last_watch_addr() const noexcept { return last_watch_addr_; }
+
+    // ---------------- On-Target PC Breakpoints & Single-Stepping ----------------
+
+    [[nodiscard]] bool set_breakpoint(uint16_t proto_id, uint32_t pc) noexcept {
+        for (size_t i = 0; i < MaxBreakpoints; ++i) {
+            if (breakpoints_[i].active && breakpoints_[i].proto_id == proto_id && breakpoints_[i].pc == pc)
+                return true;
+        }
+        for (size_t i = 0; i < MaxBreakpoints; ++i) {
+            if (!breakpoints_[i].active) {
+                breakpoints_[i] = {proto_id, pc, true};
+                return true;
+            }
+        }
+        return false;
+    }
+
+    [[nodiscard]] bool clear_breakpoint(uint16_t proto_id, uint32_t pc) noexcept {
+        for (size_t i = 0; i < MaxBreakpoints; ++i) {
+            if (breakpoints_[i].active && breakpoints_[i].proto_id == proto_id && breakpoints_[i].pc == pc) {
+                breakpoints_[i] = BreakpointEntry{};
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void clear_breakpoints() noexcept {
+        for (size_t i = 0; i < MaxBreakpoints; ++i) breakpoints_[i] = BreakpointEntry{};
+    }
+
+    /// Prepare an exported function call without executing instructions (ready for step_one / continue_run).
+    [[nodiscard]] Status start_export(StringView name, Span<const Value> args = {}) noexcept {
+        if (!loaded_) return Status::NotLoaded;
+        Value fn{};
+        if (!get_export(name, fn)) return Status::NotFound;
+        return start_value(fn, args);
+    }
+
+    /// Prepare a closure call without executing instructions (ready for step_one / continue_run).
+    [[nodiscard]] Status start_value(Value callee, Span<const Value> args = {}) noexcept {
+        if (!loaded_) return Status::NotLoaded;
+        if (callee.kind != ValueKind::Closure) return Status::TypeError;
+        return prepare_closure_frame(callee.as_handle(), args);
+    }
+
+    /// Execute a single VM instruction from the currently paused call frame.
+    [[nodiscard]] ExecResult step_one(Span<Value> results = {}) noexcept {
+        if (!loaded_) return {Status::NotLoaded, 0, 0, 0, 0};
+        if (!paused_ || active_frame_count_ == 0u) return {Status::NotFound, 0, 0, 0, 0};
+        return resume_frames(results, 1u, true);
+    }
+
+    /// Resume a paused call frame until return, PC breakpoint, watchpoint break, or step limit.
+    [[nodiscard]] ExecResult continue_run(Span<Value> results = {}, uint32_t step_budget = 100000u) noexcept {
+        if (!loaded_) return {Status::NotLoaded, 0, 0, 0, 0};
+        if (!paused_ || active_frame_count_ == 0u) return {Status::NotFound, 0, 0, 0, 0};
+        return resume_frames(results, step_budget, false);
+    }
+
+    [[nodiscard]] bool is_paused() const noexcept { return paused_ && active_frame_count_ > 0u; }
+    [[nodiscard]] size_t call_depth() const noexcept { return active_frame_count_; }
+    [[nodiscard]] uint16_t current_proto() const noexcept {
+        return active_frame_count_ > 0u ? frames_[active_frame_count_ - 1u].proto_id : 0u;
+    }
+    [[nodiscard]] uint32_t current_pc() const noexcept {
+        return active_frame_count_ > 0u ? frames_[active_frame_count_ - 1u].pc : 0u;
+    }
+    [[nodiscard]] uint16_t frame_proto(size_t depth) const noexcept {
+        return depth < active_frame_count_ ? frames_[depth].proto_id : 0u;
+    }
+    [[nodiscard]] uint32_t frame_pc(size_t depth) const noexcept {
+        return depth < active_frame_count_ ? frames_[depth].pc : 0u;
+    }
+    [[nodiscard]] uint16_t current_frame_max_stack() const noexcept {
+        if (!loaded_ || active_frame_count_ == 0u) return 0u;
+        return read_proto(frames_[active_frame_count_ - 1u].proto_id).max_stack;
+    }
+    [[nodiscard]] bool inspect_reg(size_t reg_idx, Value& out) const noexcept {
+        if (!loaded_ || active_frame_count_ == 0u) return false;
+        const Frame& fr = frames_[active_frame_count_ - 1u];
+        const detail::ProtoHeader ph = read_proto(fr.proto_id);
+        if (reg_idx >= ph.max_stack) return false;
+        const size_t slot = static_cast<size_t>(fr.base) + reg_idx;
+        if (slot >= StackSlots) return false;
+        out = stack_[slot];
+        return true;
+    }
+
 private:
     void reset_runtime_pools() noexcept {
         for (size_t i = 0; i < StackSlots; ++i) stack_[i] = Value::nil();
@@ -1428,24 +1720,89 @@ private:
         records_used_ = 0;
         record_slots_used_ = 0;
         module_exports_ = Value::nil();
+        active_frame_count_ = 0;
+        active_top_ = 0;
+        paused_ = false;
+        skip_bp_once_ = false;
+        watch_break_pending_ = false;
+        last_watch_addr_ = 0;
         last_fault_addr_ = 0;
         last_assert_code_ = 0;
         last_expect_actual_ = 0;
         last_expect_expected_ = 0;
     }
 
+    [[nodiscard]] bool has_breakpoint_at(uint16_t proto_id, uint32_t pc) const noexcept {
+        for (size_t i = 0; i < MaxBreakpoints; ++i) {
+            if (breakpoints_[i].active && breakpoints_[i].proto_id == proto_id && breakpoints_[i].pc == pc)
+                return true;
+        }
+        return false;
+    }
+
+    void record_bus_event(uint64_t addr, uint8_t width, uint64_t val, bool is_write, bool is_fault) noexcept {
+        bool wp_hit = false;
+        uint16_t wp_id = 0u;
+        const uint8_t rw_bit = is_write ? WatchFlags::kWrite : WatchFlags::kRead;
+        if (!is_fault) {
+            for (size_t i = 0; i < MaxWatchpoints; ++i) {
+                const Watchpoint& wp = watchpoints_[i];
+                if (!wp.active || (wp.flags & rw_bit) == 0u) continue;
+                const uint64_t a_end = (addr <= UINT64_MAX - width) ? (addr + width) : UINT64_MAX;
+                const uint64_t w_end = (wp.base <= UINT64_MAX - wp.size) ? (wp.base + wp.size) : UINT64_MAX;
+                if (addr < w_end && a_end > wp.base) {
+                    wp_hit = true;
+                    wp_id = static_cast<uint16_t>(i);
+                    ++watch_hits_;
+                    last_watch_addr_ = addr;
+                    if ((wp.flags & WatchFlags::kBreak) != 0u) {
+                        watch_break_pending_ = true;
+                    }
+                    break;
+                }
+            }
+        }
+        if (!bus_trace_enabled_ && !wp_hit && !is_fault) return;
+        const uint32_t seq = bus_trace_total_++;
+        uint8_t fl = 0u;
+        if (is_write) fl |= BusTraceFlags::kWrite;
+        if (wp_hit) fl |= BusTraceFlags::kWatchpointHit;
+        if (is_fault) fl |= BusTraceFlags::kFault;
+        const BusTraceEvent ev{
+            seq,
+            static_cast<uint32_t>(addr & 0xFFFFFFFFu),
+            static_cast<uint32_t>(addr >> 32u),
+            static_cast<uint32_t>(val & 0xFFFFFFFFu),
+            static_cast<uint32_t>(val >> 32u),
+            width,
+            fl,
+            wp_id,
+        };
+        bus_trace_[static_cast<size_t>(seq) & (BusTraceCapacity - 1u)] = ev;
+        if (bus_trace_cb_ != nullptr) {
+            bus_trace_cb_(bus_trace_cb_ctx_, ev);
+        }
+    }
+
     [[nodiscard]] bool bus_read(uint64_t addr, uint8_t width, uint64_t& out) noexcept {
         if (!check_memory_access(addr, width, false)) {
             last_fault_addr_ = addr;
+            record_bus_event(addr, width, 0u, false, true);
             return false;
         }
         if (bus_.read != nullptr) {
             const bool ok = bus_.read(bus_.ctx, addr, width, out);
-            if (!ok) last_fault_addr_ = addr;
-            return ok;
+            if (!ok) {
+                last_fault_addr_ = addr;
+                record_bus_event(addr, width, 0u, false, true);
+                return false;
+            }
+            record_bus_event(addr, width, out, false, false);
+            return true;
         }
         if (sizeof(uintptr_t) < 8u && addr > static_cast<uint64_t>(UINTPTR_MAX)) {
             last_fault_addr_ = addr;
+            record_bus_event(addr, width, 0u, false, true);
             return false;
         }
         const auto p = static_cast<uintptr_t>(addr);
@@ -1455,24 +1812,32 @@ private:
             case 2u: out = *reinterpret_cast<const volatile uint16_t*>(p); break;
             case 4u: out = *reinterpret_cast<const volatile uint32_t*>(p); break;
             case 8u: out = *reinterpret_cast<const volatile uint64_t*>(p); break;
-            default: last_fault_addr_ = addr; return false;
+            default: last_fault_addr_ = addr; record_bus_event(addr, width, 0u, false, true); return false;
         }
         memory_barrier();
+        record_bus_event(addr, width, out, false, false);
         return true;
     }
 
     [[nodiscard]] bool bus_write(uint64_t addr, uint8_t width, uint64_t val) noexcept {
         if (!check_memory_access(addr, width, true)) {
             last_fault_addr_ = addr;
+            record_bus_event(addr, width, val, true, true);
             return false;
         }
         if (bus_.write != nullptr) {
             const bool ok = bus_.write(bus_.ctx, addr, width, val);
-            if (!ok) last_fault_addr_ = addr;
-            return ok;
+            if (!ok) {
+                last_fault_addr_ = addr;
+                record_bus_event(addr, width, val, true, true);
+                return false;
+            }
+            record_bus_event(addr, width, val, true, false);
+            return true;
         }
         if (sizeof(uintptr_t) < 8u && addr > static_cast<uint64_t>(UINTPTR_MAX)) {
             last_fault_addr_ = addr;
+            record_bus_event(addr, width, val, true, true);
             return false;
         }
         const auto p = static_cast<uintptr_t>(addr);
@@ -1482,9 +1847,10 @@ private:
             case 2u: *reinterpret_cast<volatile uint16_t*>(p) = static_cast<uint16_t>(val); break;
             case 4u: *reinterpret_cast<volatile uint32_t*>(p) = static_cast<uint32_t>(val); break;
             case 8u: *reinterpret_cast<volatile uint64_t*>(p) = val; break;
-            default: last_fault_addr_ = addr; return false;
+            default: last_fault_addr_ = addr; record_bus_event(addr, width, val, true, true); return false;
         }
         memory_barrier();
+        record_bus_event(addr, width, val, true, false);
         return true;
     }
 
@@ -1913,6 +2279,16 @@ private:
         if (detail::eq_sv(field, "write16")) return Value::from_builtin_fn(BuiltinId::PtrWrite16);
         if (detail::eq_sv(field, "write32")) return Value::from_builtin_fn(BuiltinId::PtrWrite32);
         if (detail::eq_sv(field, "write64")) return Value::from_builtin_fn(BuiltinId::PtrWrite64);
+        if (detail::eq_sv(field, "read8_at")) return Value::from_builtin_fn(BuiltinId::PtrRead8At);
+        if (detail::eq_sv(field, "read16_at")) return Value::from_builtin_fn(BuiltinId::PtrRead16At);
+        if (detail::eq_sv(field, "read32_at")) return Value::from_builtin_fn(BuiltinId::PtrRead32At);
+        if (detail::eq_sv(field, "read64_at")) return Value::from_builtin_fn(BuiltinId::PtrRead64At);
+        if (detail::eq_sv(field, "write8_at")) return Value::from_builtin_fn(BuiltinId::PtrWrite8At);
+        if (detail::eq_sv(field, "write16_at")) return Value::from_builtin_fn(BuiltinId::PtrWrite16At);
+        if (detail::eq_sv(field, "write32_at")) return Value::from_builtin_fn(BuiltinId::PtrWrite32At);
+        if (detail::eq_sv(field, "write64_at")) return Value::from_builtin_fn(BuiltinId::PtrWrite64At);
+        if (detail::eq_sv(field, "bits32_at")) return Value::from_builtin_fn(BuiltinId::PtrBits32At);
+        if (detail::eq_sv(field, "rmw_bits32_at")) return Value::from_builtin_fn(BuiltinId::PtrRmwBits32At);
         return Value::nil();
     }
 
@@ -1978,6 +2354,11 @@ private:
             if (detail::eq_sv(field, "scratch_len")) return Value::from_builtin_fn(BuiltinId::AxiScratchLen);
             if (detail::eq_sv(field, "fence")) return Value::from_builtin_fn(BuiltinId::AxiFence);
             if (detail::eq_sv(field, "window_check")) return Value::from_builtin_fn(BuiltinId::AxiWindowCheck);
+            if (detail::eq_sv(field, "watch")) return Value::from_builtin_fn(BuiltinId::AxiWatch);
+            if (detail::eq_sv(field, "unwatch")) return Value::from_builtin_fn(BuiltinId::AxiUnwatch);
+            if (detail::eq_sv(field, "watch_hits")) return Value::from_builtin_fn(BuiltinId::AxiWatchHits);
+            if (detail::eq_sv(field, "trace_enable")) return Value::from_builtin_fn(BuiltinId::AxiTraceEnable);
+            if (detail::eq_sv(field, "trace_count")) return Value::from_builtin_fn(BuiltinId::AxiTraceCount);
             return Value::nil();
         }
         if (ns == NamespaceId::Dbg) {
@@ -2025,6 +2406,15 @@ private:
             if (detail::eq_sv(field, "task_guard_ok")) return Value::from_host_fn(static_cast<uint16_t>(StandardHostId::TaskGuardOk));
             if (detail::eq_sv(field, "task_cycles")) return Value::from_host_fn(static_cast<uint16_t>(StandardHostId::TaskCycles));
             if (detail::eq_sv(field, "queue_depth")) return Value::from_host_fn(static_cast<uint16_t>(StandardHostId::QueueDepth));
+            if (detail::eq_sv(field, "dma_state")) return Value::from_host_fn(static_cast<uint16_t>(StandardHostId::DmaState));
+            if (detail::eq_sv(field, "dma_transferred")) return Value::from_host_fn(static_cast<uint16_t>(StandardHostId::DmaTransferred));
+            if (detail::eq_sv(field, "dma_capacity")) return Value::from_host_fn(static_cast<uint16_t>(StandardHostId::DmaCapacity));
+            if (detail::eq_sv(field, "dma_generation")) return Value::from_host_fn(static_cast<uint16_t>(StandardHostId::DmaGeneration));
+            if (detail::eq_sv(field, "hwsched_status")) return Value::from_host_fn(static_cast<uint16_t>(StandardHostId::HwSchedStatus));
+            if (detail::eq_sv(field, "hwsched_ready_mask")) return Value::from_host_fn(static_cast<uint16_t>(StandardHostId::HwSchedReadyMask));
+            if (detail::eq_sv(field, "hwsched_fault_mask")) return Value::from_host_fn(static_cast<uint16_t>(StandardHostId::HwSchedFaultMask));
+            if (detail::eq_sv(field, "hwsched_seu_count")) return Value::from_host_fn(static_cast<uint16_t>(StandardHostId::HwSchedSeuCount));
+            if (detail::eq_sv(field, "hwsched_dispatches")) return Value::from_host_fn(static_cast<uint16_t>(StandardHostId::HwSchedDispatches));
             return Value::nil();
         }
         return Value::nil();
@@ -2157,6 +2547,67 @@ private:
                                     : (fn == BuiltinId::PtrWrite32) ? 4u : 8u;
                 const bool ok = bus_write(args[0].as_ptr(), width, static_cast<uint64_t>(args[1].as_int()));
                 emit1(Value::from_bool(ok));
+                return Status::Ok;
+            }
+            case BuiltinId::PtrRead8At:
+            case BuiltinId::PtrRead16At:
+            case BuiltinId::PtrRead32At:
+            case BuiltinId::PtrRead64At: {
+                if (nargs < 2 || !args[0].is_ptr() || !args[1].is_int()) return Status::TypeError;
+                const uint8_t width = (fn == BuiltinId::PtrRead8At) ? 1u
+                                    : (fn == BuiltinId::PtrRead16At) ? 2u
+                                    : (fn == BuiltinId::PtrRead32At) ? 4u : 8u;
+                const uint64_t addr = args[0].as_ptr() + static_cast<uint64_t>(args[1].as_int());
+                uint64_t val = 0;
+                if (!bus_read(addr, width, val)) return Status::MemoryFault;
+                emit1(Value::from_int(static_cast<int64_t>(val)));
+                return Status::Ok;
+            }
+            case BuiltinId::PtrWrite8At:
+            case BuiltinId::PtrWrite16At:
+            case BuiltinId::PtrWrite32At:
+            case BuiltinId::PtrWrite64At: {
+                if (nargs < 3 || !args[0].is_ptr() || !args[1].is_int() || !args[2].is_int()) return Status::TypeError;
+                const uint8_t width = (fn == BuiltinId::PtrWrite8At) ? 1u
+                                    : (fn == BuiltinId::PtrWrite16At) ? 2u
+                                    : (fn == BuiltinId::PtrWrite32At) ? 4u : 8u;
+                const uint64_t addr = args[0].as_ptr() + static_cast<uint64_t>(args[1].as_int());
+                const bool ok = bus_write(addr, width, static_cast<uint64_t>(args[2].as_int()));
+                emit1(Value::from_bool(ok));
+                return Status::Ok;
+            }
+            case BuiltinId::PtrBits32At: {
+                if (nargs < 4 || !args[0].is_ptr() || !args[1].is_int() ||
+                    !args[2].is_int() || !args[3].is_int()) return Status::TypeError;
+                const uint64_t addr = args[0].as_ptr() + static_cast<uint64_t>(args[1].as_int());
+                const int64_t lsb = args[2].as_int();
+                const int64_t width = args[3].as_int();
+                uint64_t raw = 0;
+                if (!bus_read(addr, 4u, raw)) return Status::MemoryFault;
+                if (lsb < 0 || lsb >= 32 || width <= 0) { emit1(Value::from_int(0)); return Status::Ok; }
+                const uint32_t shifted = static_cast<uint32_t>(raw) >> static_cast<unsigned>(lsb);
+                const uint32_t mask = (width >= 32) ? 0xFFFFFFFFu : ((uint32_t(1u) << static_cast<unsigned>(width)) - 1u);
+                emit1(Value::from_int(static_cast<int64_t>(shifted & mask)));
+                return Status::Ok;
+            }
+            case BuiltinId::PtrRmwBits32At: {
+                if (nargs < 5 || !args[0].is_ptr() || !args[1].is_int() ||
+                    !args[2].is_int() || !args[3].is_int() || !args[4].is_int()) return Status::TypeError;
+                const uint64_t addr = args[0].as_ptr() + static_cast<uint64_t>(args[1].as_int());
+                const int64_t lsb = args[2].as_int();
+                const int64_t width = args[3].as_int();
+                const uint32_t fv = static_cast<uint32_t>(args[4].as_int());
+                uint64_t raw = 0;
+                if (!bus_read(addr, 4u, raw)) { emit2(Value::from_int(0), Value::from_bool(false)); return Status::Ok; }
+                if (lsb < 0 || lsb >= 32 || width <= 0) {
+                    emit2(Value::from_int(static_cast<int64_t>(raw)), Value::from_bool(false));
+                    return Status::Ok;
+                }
+                const uint32_t mask = (width >= 32) ? 0xFFFFFFFFu : ((uint32_t(1u) << static_cast<unsigned>(width)) - 1u);
+                const uint32_t smask = mask << static_cast<unsigned>(lsb);
+                const uint32_t next = (static_cast<uint32_t>(raw) & ~smask) | ((fv & mask) << static_cast<unsigned>(lsb));
+                if (!bus_write(addr, 4u, next)) { emit2(Value::from_int(0), Value::from_bool(false)); return Status::Ok; }
+                emit2(Value::from_int(static_cast<int64_t>(next)), Value::from_bool(true));
                 return Status::Ok;
             }
 
@@ -2316,6 +2767,35 @@ private:
                 emit1(Value::from_bool(ok));
                 return Status::Ok;
             }
+            case BuiltinId::AxiWatch: {
+                uint64_t addr = 0;
+                if (!extract_addr(args, nargs, 0, addr) || nargs < 3 || !args[1].is_int() || !args[2].is_int())
+                    return Status::TypeError;
+                const int64_t sz = args[1].as_int();
+                const uint8_t fl = static_cast<uint8_t>(args[2].as_int() & 0x7);
+                const int id = (sz > 0) ? add_watchpoint(addr, static_cast<uint64_t>(sz), fl) : -1;
+                emit1(Value::from_int(id));
+                return Status::Ok;
+            }
+            case BuiltinId::AxiUnwatch: {
+                if (nargs < 1 || !args[0].is_int()) return Status::TypeError;
+                const int64_t id = args[0].as_int();
+                const bool ok = id >= 0 && remove_watchpoint(static_cast<size_t>(id));
+                emit1(Value::from_bool(ok));
+                return Status::Ok;
+            }
+            case BuiltinId::AxiWatchHits:
+                emit1(Value::from_int(static_cast<int64_t>(watch_hits_)));
+                return Status::Ok;
+            case BuiltinId::AxiTraceEnable: {
+                if (nargs < 1) return Status::TypeError;
+                set_bus_trace_enabled(args[0].is_truthy());
+                emit1(Value::from_bool(bus_trace_enabled_));
+                return Status::Ok;
+            }
+            case BuiltinId::AxiTraceCount:
+                emit1(Value::from_int(static_cast<int64_t>(bus_trace_count())));
+                return Status::Ok;
 
             // ---------------- Hardware debugging dbg.* ----------------
             case BuiltinId::DbgBits: {
@@ -2687,22 +3167,39 @@ private:
         }
     }
 
-    [[nodiscard]] ExecResult invoke_closure(uint16_t entry_cl,
-                                            Span<const Value> args,
-                                            Span<Value> out_results,
-                                            uint32_t step_budget) noexcept {
-        if (entry_cl >= closures_used_) return {Status::InvalidBytecode, 0, 0, 0, 0};
+    [[nodiscard]] Status prepare_closure_frame(uint16_t entry_cl, Span<const Value> args) noexcept {
+        if (entry_cl >= closures_used_) return Status::InvalidBytecode;
         const uint16_t entry_pid = closures_[entry_cl].proto_id;
         const detail::ProtoHeader entry_ph = read_proto(entry_pid);
-        if (entry_ph.max_stack > StackSlots) return {Status::ValueStackOverflow, 0, 0, entry_pid, 0};
+        if (entry_ph.max_stack > StackSlots) return Status::ValueStackOverflow;
 
         for (size_t i = 0; i < entry_ph.max_stack; ++i) stack_[i] = Value::nil();
         const size_t copy_n = args.size() < entry_ph.num_params ? args.size() : entry_ph.num_params;
         for (size_t i = 0; i < copy_n; ++i) stack_[i] = args[i];
 
-        size_t frame_count = 1u;
+        active_frame_count_ = 1u;
         frames_[0] = {entry_cl, entry_pid, 0u, 0u, -1, 0u};
-        size_t top = entry_ph.max_stack;
+        active_top_ = entry_ph.max_stack;
+        paused_ = true;
+        skip_bp_once_ = false;
+        watch_break_pending_ = false;
+        return Status::Ok;
+    }
+
+    [[nodiscard]] ExecResult invoke_closure(uint16_t entry_cl,
+                                            Span<const Value> args,
+                                            Span<Value> out_results,
+                                            uint32_t step_budget) noexcept {
+        const Status pst = prepare_closure_frame(entry_cl, args);
+        if (pst != Status::Ok) return {pst, 0, 0, 0, 0};
+        return resume_frames(out_results, step_budget, false);
+    }
+
+    [[nodiscard]] ExecResult resume_frames(Span<Value> out_results,
+                                           uint32_t step_budget,
+                                           bool single_step) noexcept {
+        size_t& frame_count = active_frame_count_;
+        size_t& top = active_top_;
         uint32_t steps = 0u;
         size_t final_res_count = 0u;
 
@@ -2719,9 +3216,20 @@ private:
             };
 
             for (;;) {
+                if (watch_break_pending_) {
+                    watch_break_pending_ = false;
+                    paused_ = true;
+                    return {Status::WatchpointHit, steps, 0, fr.proto_id, fr.pc};
+                }
+                if (single_step && steps >= 1u) {
+                    paused_ = true;
+                    return {Status::Stepped, steps, 0, fr.proto_id, fr.pc};
+                }
                 if (fr.pc >= ph.code_count) {
                     --frame_count;
                     if (frame_count == 0u) {
+                        paused_ = false;
+                        skip_bp_once_ = false;
                         final_res_count = 0u;
                         return {Status::Ok, steps, final_res_count, ph.name_str_id, 0u};
                     }
@@ -2733,11 +3241,26 @@ private:
                     }
                     goto next_frame;
                 }
+                if (!single_step && has_breakpoint_at(fr.proto_id, fr.pc)) {
+                    if (skip_bp_once_) {
+                        skip_bp_once_ = false;
+                    } else {
+                        paused_ = true;
+                        skip_bp_once_ = true;
+                        return {Status::Breakpoint, steps, 0, fr.proto_id, fr.pc};
+                    }
+                } else {
+                    skip_bp_once_ = false;
+                }
 
                 if (steps >= step_budget) {
+                    paused_ = false;
+                    frame_count = 0u;
                     return {Status::StepLimitExceeded, steps, 0, fr.proto_id, fr.pc};
                 }
                 if (abort_flag_ != nullptr && *abort_flag_) {
+                    paused_ = false;
+                    frame_count = 0u;
                     return {Status::Aborted, steps, 0, fr.proto_id, fr.pc};
                 }
                 ++steps;
@@ -2746,6 +3269,8 @@ private:
                 const detail::Instr i = read_instr(ph.code_offset + fr.pc++);
 
                 auto fail = [&](Status st) noexcept -> ExecResult {
+                    paused_ = false;
+                    frame_count = 0u;
                     return {st, steps, 0, fr.proto_id, cur_pc};
                 };
 
@@ -3275,6 +3800,8 @@ private:
                         const int16_t want = fr.want_results;
                         --frame_count;
                         if (frame_count == 0u) {
+                            paused_ = false;
+                            skip_bp_once_ = false;
                             final_res_count = n < out_results.size() ? n : out_results.size();
                             for (size_t k = 0; k < final_res_count; ++k) out_results[k] = stack_[ra + k];
                             return {Status::Ok, steps, final_res_count, 0, 0};

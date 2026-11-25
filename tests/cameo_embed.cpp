@@ -10,6 +10,7 @@
  *     (script reset / script hex / script load / script run / script status + 1-bit CRC rejection)
  */
 #include "rtos_cameo_embed.hpp"
+#include "rtos_flash_mocks.hpp"
 #include "scripts/cameo_axi_diag_image.hpp"
 
 #include <cassert>
@@ -281,11 +282,229 @@ void test_monitor_uart_hot_loading() {
     assert(bridge.last_status() == cameo::embed::Status::ChecksumMismatch);
 }
 
+void test_flash_slot_persistence_watchpoints_and_stepping() {
+    using NorMock = rtos::storage::mocks::SerialNorMock<16, 16, 512>;
+    using Fs = rtos::storage::JournalFs<16, 128, 512>;
+    using ScriptStore = cameo::nexrt::JournalFsScriptStore<Fs, 4, 24>;
+
+    static NorMock nor;
+    nor.reset_erased();
+
+    rtos::storage::SerialNorAdapter adapter1{};
+    assert(adapter1.initialize(nor.spi_bus(), 16u, 16u, 512u));
+    static Fs fs1;
+    assert(fs1.format(adapter1.backend()) == rtos::storage::FsResult::ok);
+
+    static ScriptStore store1;
+    store1.bind(fs1, 0u);
+
+    static DiagVm vm1;
+    static cameo::nexrt::MonitorBridge<DiagVm, 8192> bridge1;
+    MockSoC soc1{};
+    configure_soc(soc1, vm1);
+
+    FakeKernelTasks tasks{};
+    tasks.rows[0] = {nullptr, "ctrl", rtos::State::ready, 3, 3, true, false, true, 2048, 12000, 10};
+    tasks.count = 1u;
+
+    TextCapture logs1{};
+    cameo::nexrt::HostServices host1{};
+    host1.log_ctx = &logs1;
+    host1.log_write = &TextCapture::write_log;
+    host1.bind_snapshot(&FakeKernelTasks::snapshot_cb, &tasks);
+    host1.install_into(vm1);
+    bridge1.attach(vm1, 50000u);
+    bridge1.attach_storage(store1.adapter());
+
+    TextCapture mon_out{};
+    rtos::monitor::Session mon1{};
+    rtos::monitor::Hooks hooks1{};
+    hooks1.run_script = &cameo::nexrt::MonitorBridge<DiagVm, 8192>::hook_run_script;
+    hooks1.context = &bridge1;
+    mon1.initialize(&TextCapture::write_monitor, &mon_out, hooks1);
+
+    // Stage and persist kAxiDiagImage to flash slot 0
+    assert(mon1.execute_line("script reset"));
+    const auto img = std::span<const uint8_t>(nexrt::tests::cameo_diag::kAxiDiagImage);
+    for (size_t off = 0; off < img.size(); off += 40u) {
+        const size_t n = (off + 40u <= img.size()) ? 40u : (img.size() - off);
+        std::string cmd = "script hex ";
+        for (size_t j = 0; j < n; ++j) {
+            char pair[3]{};
+            cameo::embed::detail::write_hex_digits(pair, img[off + j], 2u);
+            cmd.append(pair, 2u);
+        }
+        assert(mon1.execute_line(cmd.c_str()));
+    }
+    mon_out.text.clear();
+    assert(mon1.execute_line("script save 0"));
+    assert(mon_out.text.find("ok saved slot=0") != std::string::npos);
+
+    // Simulate a cold reboot: fresh JournalFs mounted from the exact same NOR flash, fresh VM & MonitorBridge!
+    rtos::storage::SerialNorAdapter adapter2{};
+    assert(adapter2.initialize(nor.spi_bus(), 16u, 16u, 512u));
+    static Fs fs2;
+    assert(fs2.mount(adapter2.backend()) == rtos::storage::FsResult::ok);
+
+    static ScriptStore store2;
+    store2.bind(fs2, 0u);
+
+    static DiagVm vm2;
+    static cameo::nexrt::MonitorBridge<DiagVm, 8192> bridge2;
+    MockSoC soc2{};
+    configure_soc(soc2, vm2);
+
+    rtos::trace::TraceRing<32> trace_ring;
+    TextCapture logs2{};
+    cameo::nexrt::HostServices host2{};
+    host2.log_ctx = &logs2;
+    host2.log_write = &TextCapture::write_log;
+    host2.bind_trace(trace_ring);
+    host2.bind_snapshot(&FakeKernelTasks::snapshot_cb, &tasks);
+    host2.install_into(vm2);
+    bridge2.attach(vm2, 50000u);
+    bridge2.attach_storage(store2.adapter());
+
+    rtos::monitor::Session mon2{};
+    rtos::monitor::Hooks hooks2{};
+    hooks2.run_script = &cameo::nexrt::MonitorBridge<DiagVm, 8192>::hook_run_script;
+    hooks2.context = &bridge2;
+    mon2.initialize(&TextCapture::write_monitor, &mon_out, hooks2);
+
+    // Boot directly from flash slot 0
+    mon_out.text.clear();
+    assert(mon2.execute_line("script boot 0"));
+    assert(mon_out.text.find("ok booted slot=0 crc=0x") != std::string::npos);
+    assert(vm2.image_crc32c() == Req::crc32c);
+
+    // Enable bus tracing + write watchpoint with kBreak on UART control reg 0x1000000C
+    vm2.set_bus_trace_enabled(true);
+    const int wp_id = vm2.add_watchpoint(0x1000000CULL, 4u,
+        cameo::embed::WatchFlags::kWrite | cameo::embed::WatchFlags::kBreak);
+    assert(wp_id >= 0);
+
+    // Start diagnose_bus(11) paused at PC 0, inspect regs, single-step, set PC breakpoint, continue
+    mon_out.text.clear();
+    assert(mon2.execute_line("script start diagnose_bus 11"));
+    assert(mon_out.text.find("ok paused proto=") != std::string::npos);
+    const uint16_t diag_proto = vm2.current_proto();
+    assert(vm2.is_paused() && vm2.current_pc() == 0u);
+
+    mon_out.text.clear();
+    assert(mon2.execute_line("script regs"));
+    assert(mon_out.text.find("paused=1 proto=") != std::string::npos);
+    assert(mon_out.text.find("r0=11") != std::string::npos);
+
+    mon_out.text.clear();
+    assert(mon2.execute_line("script step"));
+    assert(mon_out.text.find("ok stepped proto=") != std::string::npos);
+    assert(vm2.current_pc() == 1u);
+
+    // Set PC breakpoint at PC 3, continue until hit, then clearbp
+    const std::string bp_cmd = "script break " + std::to_string(diag_proto) + " 3";
+    mon_out.text.clear();
+    assert(mon2.execute_line(bp_cmd.c_str()));
+    assert(mon_out.text.find("ok bp set") != std::string::npos);
+
+    mon_out.text.clear();
+    assert(mon2.execute_line("script cont"));
+    assert(mon_out.text.find("ok bp proto=") != std::string::npos);
+    assert(vm2.current_pc() == 3u);
+
+    mon_out.text.clear();
+    assert(mon2.execute_line("script clearbp"));
+    assert(mon_out.text.find("ok clearbp") != std::string::npos);
+
+    // Continuing now must hit the write watchpoint on 0x1000000C!
+    mon_out.text.clear();
+    assert(mon2.execute_line("script cont"));
+    assert(mon_out.text.find("ok watch proto=") != std::string::npos);
+    assert(mon_out.text.find("addr=0x1000000C") != std::string::npos);
+    assert(vm2.is_paused());
+
+    // Continue to completion and verify exact XOR result
+    const int64_t expected_xor = static_cast<int64_t>(0x11223344u ^ 0x55667788u ^ 0xAABBCCDDu ^ 0x13579BDFu);
+    mon_out.text.clear();
+    assert(mon2.execute_line("script cont"));
+    assert(mon_out.text.find("ok ret=" + std::to_string(expected_xor)) != std::string::npos);
+    assert(!vm2.is_paused());
+
+    // Verify BusTraceRing dump via MonitorBridge and watchpoint forwarding into rtos::trace::TraceRing
+    mon_out.text.clear();
+    assert(mon2.execute_line("script bustrace"));
+    assert(mon_out.text.find("addr=0x1000000C") != std::string::npos);
+    assert(mon_out.text.find("wp=1") != std::string::npos);
+    assert(mon_out.text.find("ok bustrace count=") != std::string::npos);
+
+    bool found_wp_trace = false;
+    for (size_t i = 0; i < trace_ring.count(); ++i) {
+        rtos::trace::Event ev{};
+        if (trace_ring.read_oldest(i, ev) && ev.event_id == 0x0101u && ev.arg == 0x1000000Cu) {
+            found_wp_trace = true;
+            break;
+        }
+    }
+    assert(found_wp_trace);
+
+    mon_out.text.clear();
+    assert(mon2.execute_line("script bustrace clear"));
+    assert(mon_out.text.find("ok bustrace cleared") != std::string::npos);
+    assert(vm2.bus_trace_count() == 0u);
+
+    // Erase slot 0 and confirm subsequent boot fails cleanly
+    mon_out.text.clear();
+    assert(mon2.execute_line("script erase 0"));
+    assert(mon_out.text.find("ok erased slot=0") != std::string::npos);
+
+    mon_out.text.clear();
+    assert(mon2.execute_line("script boot 0"));
+    assert(mon_out.text.find("err boot=") != std::string::npos);
+    assert(bridge2.last_status() == cameo::embed::Status::NotFound);
+}
+
+void test_dma_and_hwsched_host_services() {
+    // Verify HostServices DMA inspector and NexRT-HWSched Model bindings execute cleanly through StandardHostId
+    struct FakeDma {
+        int64_t state{2};
+        int64_t transferred{1024};
+        int64_t capacity{4096};
+        int64_t generation{7};
+        static bool inspect(void* ctx, int64_t& st, int64_t& xfer, int64_t& cap, int64_t& gen) noexcept {
+            auto* self = static_cast<FakeDma*>(ctx);
+            st = self->state;
+            xfer = self->transferred;
+            cap = self->capacity;
+            gen = self->generation;
+            return true;
+        }
+    } fake_dma{};
+
+    rtos::hw_sched::Model hw_model{};
+    hw_model.write(rtos::hw_sched::thread_offset(2u, rtos::hw_sched::kThrStatePrio),
+                   rtos::hw_sched::pack_state_prio(rtos::State::ready, 5u, 5u));
+    hw_model.write(rtos::hw_sched::kRegQuantum, 100u);
+    hw_model.write(rtos::hw_sched::kRegCtrl, rtos::hw_sched::kCtrlEnable | rtos::hw_sched::kCtrlIrqEn);
+    hw_model.write(rtos::hw_sched::kRegCommit, rtos::hw_sched::kCommitSwitch);
+
+    static DiagVm vm;
+    cameo::nexrt::HostServices host{};
+    assert(host.bind_dma_inspector(0u, &FakeDma::inspect, &fake_dma));
+    host.bind_hwsched_model(hw_model);
+    host.install_into(vm);
+
+    // Confirm bound model state matches what cb_hwsched_* exposes
+    assert((hw_model.read(rtos::hw_sched::kRegReadyMask) & (1u << 2u)) != 0u);
+    assert(hw_model.read(rtos::hw_sched::thread_offset(2u, rtos::hw_sched::kThrDispatches)) == 1u);
+    assert((hw_model.read(rtos::hw_sched::kRegStatus) & rtos::hw_sched::kStatusCurrentTidMask) == 2u);
+}
+
 } // namespace
 
 int main() {
     test_flash_rodata_axi_diagnostics();
     test_monitor_uart_hot_loading();
+    test_flash_slot_persistence_watchpoints_and_stepping();
+    test_dma_and_hwsched_host_services();
     std::printf("cameo_embed NexRT integration tests passed (image=%zu bytes, crc=0x%08X)\n",
                 Req::image_bytes, Req::crc32c);
     return 0;
