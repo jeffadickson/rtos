@@ -121,6 +121,9 @@ static_assert(!RTOS_LOGGING || RTOS_SYNC);
 #ifndef RTOS_SCRIPT
 #define RTOS_SCRIPT 0
 #endif
+#ifndef RTOS_CAMEO_EMBED
+#define RTOS_CAMEO_EMBED 0
+#endif
 #ifndef RTOS_ELF_LOADER
 #define RTOS_ELF_LOADER 0
 #endif
@@ -139,5 +142,6 @@ static_assert(RTOS_TOPIC == 0 || RTOS_TOPIC == 1);
 static_assert(RTOS_TRACE == 0 || RTOS_TRACE == 1);
 static_assert(RTOS_MONITOR == 0 || RTOS_MONITOR == 1);
 static_assert(RTOS_SCRIPT == 0 || RTOS_SCRIPT == 1);
+static_assert(RTOS_CAMEO_EMBED == 0 || RTOS_CAMEO_EMBED == 1);
 static_assert(RTOS_ELF_LOADER == 0 || RTOS_ELF_LOADER == 1);
 static_assert(RTOS_AMP == 0 || RTOS_AMP == 1);

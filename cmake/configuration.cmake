@@ -62,6 +62,7 @@ option(RTOS_MONITOR "Build optional diagnostic monitor (NXR-038..040; default OF
 
 # Tier 3 sandboxed diagnostic scripting
 option(RTOS_SCRIPT "Build zero-heap fuel-bounded diagnostic bytecode VM (default OFF)" OFF)
+option(RTOS_CAMEO_EMBED "Enable Cameo.Embed static C++20 VM for pointers, AXI MMIO, and hardware debug scripts (default OFF)" OFF)
 
 # Tier 4 optional dynamic ELF32 loader and AMP shared-memory mailbox
 option(RTOS_ELF_LOADER "Build static-arena ELF32 ET_REL module loader (default OFF)" OFF)
@@ -98,7 +99,7 @@ endif()
 
 # Emit a concise NexRT Build Configuration Manifest banner.
 set(nxr_optin_diag "")
-foreach(dmod IN ITEMS MONITOR SCRIPT ELF_LOADER)
+foreach(dmod IN ITEMS MONITOR SCRIPT CAMEO_EMBED ELF_LOADER)
   if(RTOS_${dmod})
     list(APPEND nxr_optin_diag "${dmod}")
   endif()
@@ -117,7 +118,7 @@ else()
 endif()
 set(nxr_enabled_modules "")
 foreach(mod IN ITEMS SYNC LOGGING DMA STORAGE ETHERNET WEB HW_PROTECT BUDGET_WATCHDOG HW_SCHED RISCUE_BANKED
-                     BOOT RM_PERIOD POOL WORKQUEUE CLOCK_EPOCH TICKLESS TOPIC TRACE MONITOR SCRIPT ELF_LOADER AMP)
+                     BOOT RM_PERIOD POOL WORKQUEUE CLOCK_EPOCH TICKLESS TOPIC TRACE MONITOR SCRIPT CAMEO_EMBED ELF_LOADER AMP)
   if(RTOS_${mod})
     list(APPEND nxr_enabled_modules "${mod}")
   endif()
