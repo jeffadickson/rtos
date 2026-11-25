@@ -184,6 +184,36 @@ if(NXR_VERILATOR_EXECUTABLE AND NOT RTOS_HOST_SANITIZERS AND NOT RTOS_HOST_VALGR
   add_test(NAME banked_rf_verilator COMMAND "${nxr_v_rf_bin}")
   set_tests_properties(banked_rf_verilator PROPERTIES TIMEOUT 120)
 
+  set(nxr_v_flash_dir "${CMAKE_BINARY_DIR}/verilator_flash_axi")
+  set(nxr_v_flash_bin "${nxr_v_flash_dir}/Vnexrt_flash_subsys_axi")
+  add_custom_command(
+    OUTPUT "${nxr_v_flash_bin}"
+    COMMAND ${NXR_VERILATOR_EXECUTABLE} -Wall --cc --exe --build -j 0
+      --Mdir "${nxr_v_flash_dir}"
+      --top-module nexrt_flash_subsys_axi
+      -CFLAGS "-std=c++20 -O2 -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/src -UNDEBUG"
+      "${CMAKE_SOURCE_DIR}/rtl/nexrt_axi_lite_slave.sv"
+      "${CMAKE_SOURCE_DIR}/rtl/nexrt_spi_flash_axi.sv"
+      "${CMAKE_SOURCE_DIR}/rtl/nexrt_onfi_nand_axi.sv"
+      "${CMAKE_SOURCE_DIR}/rtl/nexrt_cfi_nor_axi.sv"
+      "${CMAKE_SOURCE_DIR}/rtl/nexrt_flash_subsys_axi.sv"
+      "${CMAKE_SOURCE_DIR}/tests/flash_axi_verilator.cpp"
+      "${CMAKE_SOURCE_DIR}/src/storage.cpp"
+    DEPENDS "${CMAKE_SOURCE_DIR}/rtl/nexrt_axi_lite_slave.sv"
+            "${CMAKE_SOURCE_DIR}/rtl/nexrt_spi_flash_axi.sv"
+            "${CMAKE_SOURCE_DIR}/rtl/nexrt_onfi_nand_axi.sv"
+            "${CMAKE_SOURCE_DIR}/rtl/nexrt_cfi_nor_axi.sv"
+            "${CMAKE_SOURCE_DIR}/rtl/nexrt_flash_subsys_axi.sv"
+            "${CMAKE_SOURCE_DIR}/tests/flash_axi_verilator.cpp"
+            "${CMAKE_SOURCE_DIR}/src/storage.cpp"
+            "${CMAKE_SOURCE_DIR}/include/rtos_storage.hpp"
+            "${CMAKE_SOURCE_DIR}/include/rtos_storage_axi.hpp"
+            "${CMAKE_SOURCE_DIR}/include/rtos_flash_mocks.hpp"
+    VERBATIM)
+  add_custom_target(flash_axi_verilator_sim ALL DEPENDS "${nxr_v_flash_bin}")
+  add_test(NAME flash_axi_verilator COMMAND "${nxr_v_flash_bin}")
+  set_tests_properties(flash_axi_verilator PROPERTIES TIMEOUT 120)
+
   if(DOTNET_EXECUTABLE)
     add_test(NAME flagship_evidence
       COMMAND ${flagship_tool_COMMAND} verify "${nxr_v_sched_bin}" "${nxr_v_rf_bin}"

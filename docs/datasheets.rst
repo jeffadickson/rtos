@@ -193,3 +193,34 @@ All four emulators expose a shared ``FaultConfig`` (``busy_polls``,
 ``ChipTelemetry`` (``read_ops``, ``program_ops``, ``erase_ops``,
 ``busy_polls_served``, ``torn_cuts``, and per-block ``block_erase_count()``).
 
+Synthesizable AXI4-Lite Verilog Flash Controllers (``rtl/``)
+------------------------------------------------------------
+
+To connect ``RTOS_STORAGE`` directly to FPGA SoCs (RISCue, Zynq-7000/ZynqMP PL,
+MicroBlaze), NexRT includes synthesizable SystemVerilog AXI4-Lite flash
+controllers verified end-to-end under Verilator (``flash_axi_verilator``):
+
+* ``rtl/nexrt_axi_lite_if.sv`` & ``rtl/nexrt_axi_lite_slave.sv``: reusable
+  SystemVerilog AXI4-Lite ``interface`` (``master``/``slave`` modports) and
+  32-bit word-aligned register bridge with ``OKAY``/``SLVERR`` decoding.
+* ``rtl/nexrt_spi_flash_axi.sv`` (``BASE + 0x0000``): SPI Mode 0/3 master with
+  programmable clock divider, manual CS framing, and multi-chip-select support
+  (``CS0#`` = Serial SPI NOR, ``CS1#`` = Serial SPI SLC NAND).
+* ``rtl/nexrt_onfi_nand_axi.sv`` (``BASE + 0x1000``): Parallel ONFI 1.0 x8 NAND
+  controller (CLE/ALE/WE#/RE#/CE#/WP#/split DQ/2-FF synchronized R/B#) with
+  programmable setup/pulse/hold cycles and an inline **hardware 22-bit
+  complementary Hamming-256 SECDED ECC engine** bit-exact with
+  ``rtos::storage::hamming256_encode()``.
+* ``rtl/nexrt_cfi_nor_axi.sv`` (``BASE + 0x2000``): Parallel 16-bit CFI/JEDEC
+  NOR controller (CE#/OE#/WE#/RESET#/ADDR/split DQ[15:0]/RY_BY#) with
+  programmable asynchronous wait states.
+* ``rtl/nexrt_flash_subsys_axi.sv`` & ``rtl/nexrt_flash_subsys_axi_if.sv``:
+  unified 16 KiB AXI4-Lite multi-flash wrapper with ``ENABLE_*`` synthesis
+  parameters, subsystem capability/ID registers (``BASE + 0x3000``), and
+  aggregated ``flash_irq`` output.
+* ``include/rtos_storage_axi.hpp``: freestanding C++20 AXI4-Lite transport
+  drivers (``AxiSpiMaster``, ``AxiOnfiNand``, ``AxiCfiNor``) binding the RTL
+  register maps directly to ``SerialNorAdapter``, ``SerialNandAdapter``,
+  ``ParallelNandAdapter``, and ``ParallelNorAdapter``.
+
+
