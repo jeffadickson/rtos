@@ -129,6 +129,15 @@ else()
   rtos_memcheck(script_vm_test script_vm)
 endif()
 
+# Cameo.Embed static C++20 VM + NexRT AXI/pointer/monitor integration test.
+add_executable(cameo_embed_test tests/cameo_embed.cpp src/monitor.cpp)
+target_include_directories(cameo_embed_test PRIVATE include src tests)
+target_compile_definitions(cameo_embed_test PRIVATE RTOS_TRACE=1 RTOS_MONITOR=1 RTOS_CAMEO_EMBED=1)
+rtos_host_warnings(cameo_embed_test)
+add_test(NAME cameo_embed COMMAND cameo_embed_test)
+set_tests_properties(cameo_embed PROPERTIES TIMEOUT 120)
+rtos_memcheck(cameo_embed_test cameo_embed)
+
 find_program(NXR_DAFNY_EXECUTABLE NAMES dafny HINTS "$ENV{HOME}/.dotnet/tools")
 find_program(NXR_Z3_EXECUTABLE NAMES z3)
 if(NXR_DAFNY_EXECUTABLE AND NXR_Z3_EXECUTABLE AND NOT RTOS_HOST_SANITIZERS AND NOT RTOS_HOST_VALGRIND)

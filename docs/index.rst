@@ -38,6 +38,7 @@ worst-case execution time, or hardware validation.
    stack-observations
    memory
    diagnostic-overlays
+   cameo-embed
    drivers
    dma
    web
