@@ -1,0 +1,687 @@
+{
+  "SourceName": "tests/scripts/mps2_live_probe.cameo",
+  "Crc32C": 948084551,
+  "Protos": [
+    {
+      "ProtoId": 0,
+      "Name": "main chunk",
+      "PcToLine": [
+        4,
+        4,
+        5,
+        6,
+        7,
+        8,
+        10,
+        14,
+        14,
+        14,
+        14,
+        17,
+        20,
+        23,
+        23,
+        23,
+        23,
+        26,
+        30,
+        33,
+        37,
+        40,
+        44,
+        47,
+        51,
+        51,
+        51,
+        51,
+        54,
+        57,
+        60,
+        63,
+        66,
+        69,
+        72,
+        77,
+        78,
+        79,
+        80,
+        81,
+        83,
+        87,
+        90,
+        93,
+        96,
+        99,
+        103,
+        106,
+        109,
+        112,
+        115,
+        118,
+        121,
+        124,
+        127,
+        131,
+        134,
+        138,
+        141,
+        145,
+        4,
+        145,
+        4,
+        170
+      ]
+    },
+    {
+      "ProtoId": 1,
+      "Name": "function \u0027cmsdk_timer0_open\u0027",
+      "PcToLine": [
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        16
+      ]
+    },
+    {
+      "ProtoId": 2,
+      "Name": "function \u0027cmsdk_timer0_read_ctrl\u0027",
+      "PcToLine": [
+        18,
+        18,
+        18,
+        18,
+        18,
+        19
+      ]
+    },
+    {
+      "ProtoId": 3,
+      "Name": "function \u0027cmsdk_timer0_write_ctrl\u0027",
+      "PcToLine": [
+        21,
+        21,
+        21,
+        21,
+        21,
+        21,
+        22
+      ]
+    },
+    {
+      "ProtoId": 4,
+      "Name": "function \u0027cmsdk_timer0_get_ctrl_enable\u0027",
+      "PcToLine": [
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        25
+      ]
+    },
+    {
+      "ProtoId": 5,
+      "Name": "function \u0027cmsdk_timer0_set_ctrl_enable\u0027",
+      "PcToLine": [
+        27,
+        27,
+        27,
+        27,
+        27,
+        27,
+        27,
+        28,
+        29
+      ]
+    },
+    {
+      "ProtoId": 6,
+      "Name": "function \u0027cmsdk_timer0_get_ctrl_extin_en\u0027",
+      "PcToLine": [
+        31,
+        31,
+        31,
+        31,
+        31,
+        31,
+        31,
+        32
+      ]
+    },
+    {
+      "ProtoId": 7,
+      "Name": "function \u0027cmsdk_timer0_set_ctrl_extin_en\u0027",
+      "PcToLine": [
+        34,
+        34,
+        34,
+        34,
+        34,
+        34,
+        34,
+        35,
+        36
+      ]
+    },
+    {
+      "ProtoId": 8,
+      "Name": "function \u0027cmsdk_timer0_get_ctrl_extin_clk\u0027",
+      "PcToLine": [
+        38,
+        38,
+        38,
+        38,
+        38,
+        38,
+        38,
+        39
+      ]
+    },
+    {
+      "ProtoId": 9,
+      "Name": "function \u0027cmsdk_timer0_set_ctrl_extin_clk\u0027",
+      "PcToLine": [
+        41,
+        41,
+        41,
+        41,
+        41,
+        41,
+        41,
+        42,
+        43
+      ]
+    },
+    {
+      "ProtoId": 10,
+      "Name": "function \u0027cmsdk_timer0_get_ctrl_irq_en\u0027",
+      "PcToLine": [
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        46
+      ]
+    },
+    {
+      "ProtoId": 11,
+      "Name": "function \u0027cmsdk_timer0_set_ctrl_irq_en\u0027",
+      "PcToLine": [
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        49,
+        50
+      ]
+    },
+    {
+      "ProtoId": 12,
+      "Name": "function \u0027cmsdk_timer0_read_value\u0027",
+      "PcToLine": [
+        52,
+        52,
+        52,
+        52,
+        52,
+        53
+      ]
+    },
+    {
+      "ProtoId": 13,
+      "Name": "function \u0027cmsdk_timer0_write_value\u0027",
+      "PcToLine": [
+        55,
+        55,
+        55,
+        55,
+        55,
+        55,
+        56
+      ]
+    },
+    {
+      "ProtoId": 14,
+      "Name": "function \u0027cmsdk_timer0_read_reload\u0027",
+      "PcToLine": [
+        58,
+        58,
+        58,
+        58,
+        58,
+        59
+      ]
+    },
+    {
+      "ProtoId": 15,
+      "Name": "function \u0027cmsdk_timer0_write_reload\u0027",
+      "PcToLine": [
+        61,
+        61,
+        61,
+        61,
+        61,
+        61,
+        62
+      ]
+    },
+    {
+      "ProtoId": 16,
+      "Name": "function \u0027cmsdk_timer0_read_intstatus\u0027",
+      "PcToLine": [
+        64,
+        64,
+        64,
+        64,
+        64,
+        65
+      ]
+    },
+    {
+      "ProtoId": 17,
+      "Name": "function \u0027cmsdk_timer0_write_intstatus\u0027",
+      "PcToLine": [
+        67,
+        67,
+        67,
+        67,
+        67,
+        67,
+        68
+      ]
+    },
+    {
+      "ProtoId": 18,
+      "Name": "function \u0027cmsdk_timer0_get_intstatus_pending\u0027",
+      "PcToLine": [
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        71
+      ]
+    },
+    {
+      "ProtoId": 19,
+      "Name": "function \u0027cmsdk_timer0_set_intstatus_pending\u0027",
+      "PcToLine": [
+        73,
+        73,
+        73,
+        73,
+        73,
+        73,
+        73,
+        74,
+        75
+      ]
+    },
+    {
+      "ProtoId": 20,
+      "Name": "function \u0027cmsdk_uart0_open\u0027",
+      "PcToLine": [
+        88,
+        88,
+        88,
+        88,
+        88,
+        88,
+        89
+      ]
+    },
+    {
+      "ProtoId": 21,
+      "Name": "function \u0027cmsdk_uart0_read_data\u0027",
+      "PcToLine": [
+        91,
+        91,
+        91,
+        91,
+        91,
+        92
+      ]
+    },
+    {
+      "ProtoId": 22,
+      "Name": "function \u0027cmsdk_uart0_write_data\u0027",
+      "PcToLine": [
+        94,
+        94,
+        94,
+        94,
+        94,
+        94,
+        95
+      ]
+    },
+    {
+      "ProtoId": 23,
+      "Name": "function \u0027cmsdk_uart0_get_data_byte\u0027",
+      "PcToLine": [
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        98
+      ]
+    },
+    {
+      "ProtoId": 24,
+      "Name": "function \u0027cmsdk_uart0_set_data_byte\u0027",
+      "PcToLine": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        101,
+        102
+      ]
+    },
+    {
+      "ProtoId": 25,
+      "Name": "function \u0027cmsdk_uart0_read_state\u0027",
+      "PcToLine": [
+        104,
+        104,
+        104,
+        104,
+        104,
+        105
+      ]
+    },
+    {
+      "ProtoId": 26,
+      "Name": "function \u0027cmsdk_uart0_get_state_tx_full\u0027",
+      "PcToLine": [
+        107,
+        107,
+        107,
+        107,
+        107,
+        107,
+        107,
+        108
+      ]
+    },
+    {
+      "ProtoId": 27,
+      "Name": "function \u0027cmsdk_uart0_get_state_rx_full\u0027",
+      "PcToLine": [
+        110,
+        110,
+        110,
+        110,
+        110,
+        110,
+        110,
+        111
+      ]
+    },
+    {
+      "ProtoId": 28,
+      "Name": "function \u0027cmsdk_uart0_get_state_tx_overrun\u0027",
+      "PcToLine": [
+        113,
+        113,
+        113,
+        113,
+        113,
+        113,
+        113,
+        114
+      ]
+    },
+    {
+      "ProtoId": 29,
+      "Name": "function \u0027cmsdk_uart0_get_state_rx_overrun\u0027",
+      "PcToLine": [
+        116,
+        116,
+        116,
+        116,
+        116,
+        116,
+        116,
+        117
+      ]
+    },
+    {
+      "ProtoId": 30,
+      "Name": "function \u0027cmsdk_uart0_read_ctrl\u0027",
+      "PcToLine": [
+        119,
+        119,
+        119,
+        119,
+        119,
+        120
+      ]
+    },
+    {
+      "ProtoId": 31,
+      "Name": "function \u0027cmsdk_uart0_write_ctrl\u0027",
+      "PcToLine": [
+        122,
+        122,
+        122,
+        122,
+        122,
+        122,
+        123
+      ]
+    },
+    {
+      "ProtoId": 32,
+      "Name": "function \u0027cmsdk_uart0_get_ctrl_tx_en\u0027",
+      "PcToLine": [
+        125,
+        125,
+        125,
+        125,
+        125,
+        125,
+        125,
+        126
+      ]
+    },
+    {
+      "ProtoId": 33,
+      "Name": "function \u0027cmsdk_uart0_set_ctrl_tx_en\u0027",
+      "PcToLine": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        129,
+        130
+      ]
+    },
+    {
+      "ProtoId": 34,
+      "Name": "function \u0027cmsdk_uart0_get_ctrl_rx_en\u0027",
+      "PcToLine": [
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        133
+      ]
+    },
+    {
+      "ProtoId": 35,
+      "Name": "function \u0027cmsdk_uart0_set_ctrl_rx_en\u0027",
+      "PcToLine": [
+        135,
+        135,
+        135,
+        135,
+        135,
+        135,
+        135,
+        136,
+        137
+      ]
+    },
+    {
+      "ProtoId": 36,
+      "Name": "function \u0027cmsdk_uart0_read_bauddiv\u0027",
+      "PcToLine": [
+        139,
+        139,
+        139,
+        139,
+        139,
+        140
+      ]
+    },
+    {
+      "ProtoId": 37,
+      "Name": "function \u0027cmsdk_uart0_write_bauddiv\u0027",
+      "PcToLine": [
+        142,
+        142,
+        142,
+        142,
+        142,
+        142,
+        143
+      ]
+    },
+    {
+      "ProtoId": 38,
+      "Name": "function \u0027probe_hw\u0027",
+      "PcToLine": [
+        146,
+        146,
+        146,
+        147,
+        147,
+        147,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        149,
+        149,
+        149,
+        150,
+        150,
+        150,
+        151,
+        151,
+        151,
+        151,
+        151,
+        151,
+        151,
+        151,
+        153,
+        153,
+        153,
+        153,
+        154,
+        154,
+        154,
+        154,
+        154,
+        155,
+        155,
+        155,
+        156,
+        156,
+        156,
+        156,
+        156,
+        156,
+        157,
+        157,
+        157,
+        157,
+        157,
+        157,
+        157,
+        157,
+        159,
+        159,
+        159,
+        160,
+        160,
+        160,
+        160,
+        160,
+        161,
+        161,
+        161,
+        161,
+        161,
+        162,
+        162,
+        162,
+        162,
+        162,
+        162,
+        162,
+        163,
+        163,
+        163,
+        163,
+        163,
+        164,
+        164,
+        164,
+        164,
+        165,
+        165,
+        165,
+        165,
+        165,
+        165,
+        166,
+        166,
+        166,
+        166,
+        166,
+        166,
+        166,
+        166,
+        166,
+        167,
+        167,
+        167,
+        167,
+        168,
+        169
+      ]
+    }
+  ]
+}

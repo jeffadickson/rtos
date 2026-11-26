@@ -32,6 +32,18 @@
 #include "rtos_monitor.hpp"
 #endif
 
+#if RTOS_DMA
+#include "rtos_dma.hpp"
+#endif
+
+#if RTOS_STORAGE
+#include "rtos_storage.hpp"
+#endif
+
+#if RTOS_HW_SCHED
+#include "rtos_hw_sched.hpp"
+#endif
+
 namespace cameo::nexrt {
 
 /// Pre-built NexRT board MMIO/AXI window descriptors (explicit, opt-in per board).
@@ -52,6 +64,26 @@ namespace AxiWindowPresets {
     uint64_t base = static_cast<uint64_t>(RTOS_HWSCHED_BASE), bool allow_write = false) noexcept {
     return {
         base, 0x400u,
+        allow_write ? cameo::embed::MemoryPerms::kRwAxi : cameo::embed::MemoryPerms::kRoAxi,
+        4u, 4u, true
+    };
+}
+
+/// ARM MPS2 AN385 CMSDK APB Timer0 32-bit MMIO window (0x40000000, 4 KB, read-only default).
+[[nodiscard]] constexpr cameo::embed::MemoryWindow mps2_cmsdk_timer0(
+    uint64_t base = 0x40000000ULL, bool allow_write = false) noexcept {
+    return {
+        base, 0x1000u,
+        allow_write ? cameo::embed::MemoryPerms::kRwAxi : cameo::embed::MemoryPerms::kRoAxi,
+        4u, 4u, true
+    };
+}
+
+/// ARM MPS2 AN385 CMSDK APB UART0 32-bit MMIO window (0x40004000, 4 KB, read-only default).
+[[nodiscard]] constexpr cameo::embed::MemoryWindow mps2_cmsdk_uart0(
+    uint64_t base = 0x40004000ULL, bool allow_write = false) noexcept {
+    return {
+        base, 0x1000u,
         allow_write ? cameo::embed::MemoryPerms::kRwAxi : cameo::embed::MemoryPerms::kRoAxi,
         4u, 4u, true
     };
@@ -81,8 +113,12 @@ struct HostServices {
     using SnapshotFn = rtos::SystemInfo (*)(void* ctx, rtos::ThreadInfo* out, size_t cap) noexcept;
     using TraceRecordFn = bool (*)(void* ctx, uint64_t ts, uint16_t event_id, uint16_t source_id, uint32_t arg) noexcept;
     using BreakpointFn = void (*)(void* ctx, int64_t id) noexcept;
+    using DmaInspectFn = bool (*)(void* ctx, int64_t& state_out, int64_t& transferred_out,
+                                  int64_t& capacity_out, int64_t& generation_out) noexcept;
+    using HwSchedReadFn = uint32_t (*)(void* ctx, uint32_t reg_offset) noexcept;
 
     static constexpr size_t kMaxQueues = 8u;
+    static constexpr size_t kMaxDmaChannels = 4u;
     static constexpr size_t kMaxNotifyTargets = 8u;
     static constexpr size_t kMaxSnapshotThreads = 16u;
 
@@ -91,6 +127,11 @@ struct HostServices {
         QueueSendFn send{nullptr};
         QueueRecvFn recv{nullptr};
         QueueDepthFn depth{nullptr};
+    };
+
+    struct DmaBinding {
+        void* ctx{nullptr};
+        DmaInspectFn inspect{nullptr};
     };
 
     void* log_ctx{nullptr};
@@ -112,7 +153,11 @@ struct HostServices {
     void* breakpoint_ctx{nullptr};
     BreakpointFn on_breakpoint{nullptr};
 
+    void* hwsched_ctx{nullptr};
+    HwSchedReadFn hwsched_read{nullptr};
+
     QueueBinding queues[kMaxQueues]{};
+    DmaBinding dma_channels[kMaxDmaChannels]{};
     rtos::Thread* notify_targets[kMaxNotifyTargets]{};
 
     /// Bind a NexRT watchdog::Supervisor<MaxTasks> without virtual dispatch or heap.
@@ -136,6 +181,55 @@ struct HostServices {
         breakpoint_ctx = ctx;
     }
 
+    /// Bind a custom HWSched register-reader callback (e.g., for host tests or MMIO driver).
+    void bind_hwsched_reader(HwSchedReadFn fn, void* ctx = nullptr) noexcept {
+        hwsched_read = fn;
+        hwsched_ctx = ctx;
+    }
+
+    /// Bind a custom DMA snapshot provider to channel 0..kMaxDmaChannels-1.
+    [[nodiscard]] bool bind_dma_inspector(size_t ch, DmaInspectFn fn, void* ctx = nullptr) noexcept {
+        if (ch >= kMaxDmaChannels) return false;
+        dma_channels[ch] = {ctx, fn};
+        return true;
+    }
+
+#if RTOS_DMA
+    /// Bind a NexRT rtos::dma::Channel for read-only script inspection (rtos.dma_*).
+    [[nodiscard]] bool bind_dma_channel(size_t ch, rtos::dma::Channel& channel) noexcept {
+        if (ch >= kMaxDmaChannels) return false;
+        dma_channels[ch].ctx = &channel;
+        dma_channels[ch].inspect = [](void* c, int64_t& st, int64_t& xfer, int64_t& cap, int64_t& gen) noexcept -> bool {
+            rtos::dma::Snapshot snap{};
+            if (static_cast<rtos::dma::Channel*>(c)->snapshot(snap) != rtos::dma::Status::ok) return false;
+            st = static_cast<int64_t>(snap.state);
+            xfer = static_cast<int64_t>(snap.transferred);
+            cap = static_cast<int64_t>(snap.capacity);
+            gen = static_cast<int64_t>(snap.ticket.generation);
+            return true;
+        };
+        return true;
+    }
+#endif
+
+#if RTOS_HW_SCHED
+    /// Bind a NexRT-HWSched MmioDriver for read-only script inspection (rtos.hwsched_*).
+    void bind_hwsched(const rtos::hw_sched::MmioDriver& drv) noexcept {
+        hwsched_ctx = const_cast<rtos::hw_sched::MmioDriver*>(&drv);
+        hwsched_read = [](void* c, uint32_t off) noexcept -> uint32_t {
+            return static_cast<const rtos::hw_sched::MmioDriver*>(c)->read(off);
+        };
+    }
+
+    /// Bind a NexRT-HWSched Model oracle for host/simulation inspection (rtos.hwsched_*).
+    void bind_hwsched_model(const rtos::hw_sched::Model& model) noexcept {
+        hwsched_ctx = const_cast<rtos::hw_sched::Model*>(&model);
+        hwsched_read = [](void* c, uint32_t off) noexcept -> uint32_t {
+            return static_cast<const rtos::hw_sched::Model*>(c)->read(off);
+        };
+    }
+#endif
+
 #if RTOS_LOGGING
     /// Bind a NexRT Logger<Slots, MessageBytes> to rtos.log(), dbg.log_hex(), and dbg.hexdump().
     template<size_t Slots, size_t MessageBytes>
@@ -149,7 +243,7 @@ struct HostServices {
 #endif
 
 #if RTOS_TRACE
-    /// Bind a NexRT TraceRing<Capacity> to dbg.trace(event_id, arg).
+    /// Bind a NexRT TraceRing<Capacity> to dbg.trace(event_id, arg) and watchpoint events.
     template<size_t Capacity>
     void bind_trace(rtos::trace::TraceRing<Capacity>& ring) noexcept {
         trace_ctx = &ring;
@@ -188,7 +282,7 @@ struct HostServices {
     }
 #endif
 
-    /// Register all standard rtos.* and dbg.* syscalls and debug writer on a Cameo StaticVm instance.
+    /// Register all standard rtos.* and dbg.* syscalls, debug writer, and watchpoint trace hook on a StaticVm.
     template<typename Vm>
     void install_into(Vm& vm) noexcept {
         using namespace cameo::embed;
@@ -212,7 +306,17 @@ struct HostServices {
         (void)vm.register_host(StandardHostId::QueueDepth, &cb_queue_depth, this);
         (void)vm.register_host(StandardHostId::DbgTrace, &cb_dbg_trace, this);
         (void)vm.register_host(StandardHostId::DbgBreakpoint, &cb_dbg_breakpoint, this);
+        (void)vm.register_host(StandardHostId::DmaState, &cb_dma_state, this);
+        (void)vm.register_host(StandardHostId::DmaTransferred, &cb_dma_transferred, this);
+        (void)vm.register_host(StandardHostId::DmaCapacity, &cb_dma_capacity, this);
+        (void)vm.register_host(StandardHostId::DmaGeneration, &cb_dma_generation, this);
+        (void)vm.register_host(StandardHostId::HwSchedStatus, &cb_hwsched_status, this);
+        (void)vm.register_host(StandardHostId::HwSchedReadyMask, &cb_hwsched_ready_mask, this);
+        (void)vm.register_host(StandardHostId::HwSchedFaultMask, &cb_hwsched_fault_mask, this);
+        (void)vm.register_host(StandardHostId::HwSchedSeuCount, &cb_hwsched_seu_count, this);
+        (void)vm.register_host(StandardHostId::HwSchedDispatches, &cb_hwsched_dispatches, this);
         vm.set_debug_writer(&cb_debug_write, this);
+        vm.set_bus_trace_callback(&cb_bus_trace_event, this);
     }
 
 private:
@@ -220,6 +324,16 @@ private:
         auto* self = static_cast<HostServices*>(u);
         if (self->log_write == nullptr) return false;
         return self->log_write(self->log_ctx, data, len);
+    }
+
+    static void cb_bus_trace_event(void* u, const cameo::embed::BusTraceEvent& ev) noexcept {
+        auto* self = static_cast<HostServices*>(u);
+        if (self->trace_record == nullptr) return;
+        if ((ev.flags & cameo::embed::BusTraceFlags::kWatchpointHit) != 0u) {
+            // Event ID 0x0101u = Cameo watchpoint hit (source_id = watchpoint slot, arg = low32 addr)
+            (void)self->trace_record(self->trace_ctx, static_cast<uint64_t>(rtos::ticks()),
+                                     0x0101u, ev.watch_id, ev.addr_lo);
+        }
     }
 
     rtos::SystemInfo take_snapshot(rtos::ThreadInfo* rows, size_t cap) const noexcept {
@@ -469,7 +583,208 @@ private:
         if (self->on_breakpoint != nullptr) self->on_breakpoint(self->breakpoint_ctx, id);
         return cameo::embed::Status::Ok;
     }
+
+    static bool query_dma(HostServices* self, cameo::embed::HostCallContext& ctx,
+                          int64_t& st, int64_t& xfer, int64_t& cap, int64_t& gen) noexcept {
+        int64_t ch = 0;
+        if (!ctx.try_int(0, ch) || ch < 0 || static_cast<size_t>(ch) >= kMaxDmaChannels) return false;
+        const auto& b = self->dma_channels[static_cast<size_t>(ch)];
+        if (b.inspect == nullptr) return false;
+        return b.inspect(b.ctx, st, xfer, cap, gen);
+    }
+
+    static cameo::embed::Status cb_dma_state(void* u, cameo::embed::HostCallContext& ctx) noexcept {
+        int64_t st = -1, xfer = 0, cap = 0, gen = 0;
+        (void)query_dma(static_cast<HostServices*>(u), ctx, st, xfer, cap, gen);
+        (void)ctx.push_result(cameo::embed::Value::from_int(st));
+        return cameo::embed::Status::Ok;
+    }
+
+    static cameo::embed::Status cb_dma_transferred(void* u, cameo::embed::HostCallContext& ctx) noexcept {
+        int64_t st = 0, xfer = 0, cap = 0, gen = 0;
+        (void)query_dma(static_cast<HostServices*>(u), ctx, st, xfer, cap, gen);
+        (void)ctx.push_result(cameo::embed::Value::from_int(xfer));
+        return cameo::embed::Status::Ok;
+    }
+
+    static cameo::embed::Status cb_dma_capacity(void* u, cameo::embed::HostCallContext& ctx) noexcept {
+        int64_t st = 0, xfer = 0, cap = 0, gen = 0;
+        (void)query_dma(static_cast<HostServices*>(u), ctx, st, xfer, cap, gen);
+        (void)ctx.push_result(cameo::embed::Value::from_int(cap));
+        return cameo::embed::Status::Ok;
+    }
+
+    static cameo::embed::Status cb_dma_generation(void* u, cameo::embed::HostCallContext& ctx) noexcept {
+        int64_t st = 0, xfer = 0, cap = 0, gen = 0;
+        (void)query_dma(static_cast<HostServices*>(u), ctx, st, xfer, cap, gen);
+        (void)ctx.push_result(cameo::embed::Value::from_int(gen));
+        return cameo::embed::Status::Ok;
+    }
+
+    static cameo::embed::Status cb_hwsched_status(void* u, cameo::embed::HostCallContext& ctx) noexcept {
+        auto* self = static_cast<HostServices*>(u);
+        const uint32_t v = (self->hwsched_read != nullptr) ? self->hwsched_read(self->hwsched_ctx, 0x004u) : 0u;
+        (void)ctx.push_result(cameo::embed::Value::from_int(static_cast<int64_t>(v)));
+        return cameo::embed::Status::Ok;
+    }
+
+    static cameo::embed::Status cb_hwsched_ready_mask(void* u, cameo::embed::HostCallContext& ctx) noexcept {
+        auto* self = static_cast<HostServices*>(u);
+        const uint32_t v = (self->hwsched_read != nullptr) ? self->hwsched_read(self->hwsched_ctx, 0x014u) : 0u;
+        (void)ctx.push_result(cameo::embed::Value::from_int(static_cast<int64_t>(v)));
+        return cameo::embed::Status::Ok;
+    }
+
+    static cameo::embed::Status cb_hwsched_fault_mask(void* u, cameo::embed::HostCallContext& ctx) noexcept {
+        auto* self = static_cast<HostServices*>(u);
+        const uint32_t v = (self->hwsched_read != nullptr) ? self->hwsched_read(self->hwsched_ctx, 0x018u) : 0u;
+        (void)ctx.push_result(cameo::embed::Value::from_int(static_cast<int64_t>(v)));
+        return cameo::embed::Status::Ok;
+    }
+
+    static cameo::embed::Status cb_hwsched_seu_count(void* u, cameo::embed::HostCallContext& ctx) noexcept {
+        auto* self = static_cast<HostServices*>(u);
+        const uint32_t v = (self->hwsched_read != nullptr) ? self->hwsched_read(self->hwsched_ctx, 0x01Cu) : 0u;
+        (void)ctx.push_result(cameo::embed::Value::from_int(static_cast<int64_t>(v)));
+        return cameo::embed::Status::Ok;
+    }
+
+    static cameo::embed::Status cb_hwsched_dispatches(void* u, cameo::embed::HostCallContext& ctx) noexcept {
+        auto* self = static_cast<HostServices*>(u);
+        int64_t tid = 0;
+        if (!ctx.try_int(0, tid)) return cameo::embed::Status::TypeError;
+        uint32_t v = 0u;
+        if (self->hwsched_read != nullptr && tid >= 0 && tid < 16) {
+            const uint32_t off = 0x200u + static_cast<uint32_t>(tid) * 0x20u + 0x18u;
+            v = self->hwsched_read(self->hwsched_ctx, off);
+        }
+        (void)ctx.push_result(cameo::embed::Value::from_int(static_cast<int64_t>(v)));
+        return cameo::embed::Status::Ok;
+    }
 };
+
+/// Type-erased, zero-heap persistent script slot backend (for JournalFs or board NOR/FRAM).
+struct ScriptStorageAdapter {
+    void* ctx{nullptr};
+    bool (*save)(void* ctx, uint32_t slot, const uint8_t* data, size_t len) noexcept {nullptr};
+    bool (*load)(void* ctx, uint32_t slot, uint8_t* out, size_t cap, size_t& out_len) noexcept {nullptr};
+    bool (*erase)(void* ctx, uint32_t slot) noexcept {nullptr};
+};
+
+#if RTOS_STORAGE
+/**
+ * @brief Power-fail-atomic, zero-heap persistent Cameo.Embed script slot store over NexRT JournalFs.
+ *
+ * Each slot uses (ChunksPerSlot + 1) file IDs in JournalFs: chunks are written first,
+ * and a 12-byte CRC-32C manifest is written last so interrupted saves never corrupt a prior slot.
+ */
+template<typename FsType, size_t MaxSlots = 4, size_t ChunksPerSlot = 16>
+class JournalFsScriptStore {
+    static constexpr uint32_t kManifestMagic = 0x50524353u; // "SCRP" LE
+    struct Manifest {
+        uint32_t magic{};
+        uint32_t total_len{};
+        uint32_t crc32c{};
+    };
+    static_assert(sizeof(Manifest) == 12u);
+
+    FsType* fs_{nullptr};
+    uint32_t base_file_id_{0u};
+
+    [[nodiscard]] uint32_t slot_meta_id(uint32_t slot) const noexcept {
+        return base_file_id_ + slot * static_cast<uint32_t>(ChunksPerSlot + 1u);
+    }
+
+public:
+    constexpr JournalFsScriptStore() noexcept = default;
+
+    void bind(FsType& fs, uint32_t base_file_id = 0u) noexcept {
+        fs_ = &fs;
+        base_file_id_ = base_file_id;
+    }
+
+    [[nodiscard]] bool save(uint32_t slot, const uint8_t* data, size_t len) noexcept {
+        if (fs_ == nullptr || slot >= MaxSlots || data == nullptr || len == 0u) return false;
+        const size_t chunk_cap = FsType::max_file_bytes();
+        if (chunk_cap < sizeof(Manifest) || len > chunk_cap * ChunksPerSlot) return false;
+
+        const uint32_t meta = slot_meta_id(slot);
+        size_t off = 0u;
+        size_t chunk_idx = 0u;
+        while (off < len) {
+            const size_t take = (len - off < chunk_cap) ? (len - off) : chunk_cap;
+            if (fs_->write_file(meta + 1u + static_cast<uint32_t>(chunk_idx), data + off, take) !=
+                rtos::storage::FsResult::ok) {
+                return false;
+            }
+            off += take;
+            ++chunk_idx;
+        }
+        const Manifest m{
+            kManifestMagic,
+            static_cast<uint32_t>(len),
+            cameo::embed::crc32c(data, len),
+        };
+        return fs_->write_file(meta, &m, sizeof(m)) == rtos::storage::FsResult::ok;
+    }
+
+    [[nodiscard]] bool load(uint32_t slot, uint8_t* out, size_t cap, size_t& out_len) noexcept {
+        out_len = 0u;
+        if (fs_ == nullptr || slot >= MaxSlots || out == nullptr) return false;
+        const size_t chunk_cap = FsType::max_file_bytes();
+        const uint32_t meta = slot_meta_id(slot);
+
+        Manifest m{};
+        size_t m_len = 0u;
+        if (fs_->read_file(meta, &m, sizeof(m), m_len) != rtos::storage::FsResult::ok) return false;
+        if (m_len != sizeof(m) || m.magic != kManifestMagic || m.total_len == 0u || m.total_len > cap) return false;
+
+        size_t off = 0u;
+        size_t chunk_idx = 0u;
+        while (off < m.total_len) {
+            if (chunk_idx >= ChunksPerSlot) return false;
+            size_t got = 0u;
+            const size_t avail = m.total_len - off;
+            const size_t expected = (avail < chunk_cap) ? avail : chunk_cap;
+            if (fs_->read_file(meta + 1u + static_cast<uint32_t>(chunk_idx), out + off, expected, got) !=
+                rtos::storage::FsResult::ok) {
+                return false;
+            }
+            if (got != expected) return false;
+            off += got;
+            ++chunk_idx;
+        }
+        if (cameo::embed::crc32c(out, m.total_len) != m.crc32c) return false;
+        out_len = m.total_len;
+        return true;
+    }
+
+    [[nodiscard]] bool erase(uint32_t slot) noexcept {
+        if (fs_ == nullptr || slot >= MaxSlots) return false;
+        const uint32_t meta = slot_meta_id(slot);
+        const auto mr = fs_->delete_file(meta);
+        for (size_t i = 0; i < ChunksPerSlot; ++i) {
+            (void)fs_->delete_file(meta + 1u + static_cast<uint32_t>(i));
+        }
+        return mr == rtos::storage::FsResult::ok || mr == rtos::storage::FsResult::not_found;
+    }
+
+    [[nodiscard]] ScriptStorageAdapter adapter() noexcept {
+        return {
+            this,
+            [](void* c, uint32_t slot, const uint8_t* data, size_t len) noexcept -> bool {
+                return static_cast<JournalFsScriptStore*>(c)->save(slot, data, len);
+            },
+            [](void* c, uint32_t slot, uint8_t* out, size_t cap, size_t& out_len) noexcept -> bool {
+                return static_cast<JournalFsScriptStore*>(c)->load(slot, out, cap, out_len);
+            },
+            [](void* c, uint32_t slot) noexcept -> bool {
+                return static_cast<JournalFsScriptStore*>(c)->erase(slot);
+            },
+        };
+    }
+};
+#endif // RTOS_STORAGE
 
 #if RTOS_SYNC
 /**
@@ -559,20 +874,31 @@ public:
 #if RTOS_MONITOR
 /**
  * @brief Zero-heap bridge connecting NexRT's diagnostic monitor `script` command to
- *        Cameo.Embed's PackageReceiver and StaticVm for live UART hot-loading and execution.
+ *        Cameo.Embed's PackageReceiver, StaticVm, optional flash slots, and debugger.
  *
  * Supported monitor subcommands:
- *   script reset                - clear hot-load staging buffer
- *   script hex <HEX...>         - append uppercase/lowercase hex bytes to staging buffer
- *   script load                 - verify CRC-32C, load CEMB package, run chunk main()
- *   script run <export> [arg0]  - invoke exported debug function with optional integer arg
- *   script status               - print loaded state, CRC-32C, staged bytes, last status
+ *   script reset                   - clear hot-load staging buffer
+ *   script hex <HEX...>            - append hex bytes to staging buffer
+ *   script load                    - verify CRC-32C, load CEMB package, run chunk main()
+ *   script run <export> [args...]  - invoke exported debug function with optional integer args
+ *   script status                  - print loaded state, CRC-32C, staged bytes, paused state, last status
+ *   script save <slot>             - persist staged verified CEMB image into flash slot
+ *   script boot <slot>             - load verified CEMB image from flash slot and run main()
+ *   script erase <slot>            - erase flash script slot
+ *   script break <proto> <pc>      - set on-target PC breakpoint
+ *   script clearbp                 - clear all PC breakpoints
+ *   script start <export> [args..] - prepare export paused at PC 0 for single-stepping
+ *   script step                    - execute 1 VM instruction
+ *   script cont                    - resume until return, breakpoint, or watchpoint
+ *   script regs                    - dump active frame (proto, pc, depth) and register values
+ *   script bustrace [clear]        - dump captured AXI BusTraceEvent records (or clear ring)
  */
 template<typename Vm, size_t MaxPackageBytes = 4096>
 class MonitorBridge {
     Vm* vm_{nullptr};
     cameo::embed::PackageReceiver<MaxPackageBytes> rx_{};
     cameo::embed::PoolWatermark post_main_mark_{};
+    ScriptStorageAdapter storage_{};
     uint32_t step_budget_{0u};
     cameo::embed::Status last_status_{cameo::embed::Status::Ok};
 
@@ -623,12 +949,96 @@ class MonitorBridge {
         emit_sv(emit, ctx, cameo::embed::StringView(buf, pos));
     }
 
+    void emit_exec_outcome(const cameo::embed::ExecResult& res,
+                           const cameo::embed::Value* out,
+                           rtos::monitor::WriteFn emit, void* emit_ctx) noexcept {
+        last_status_ = res.status;
+        if (res.status == cameo::embed::Status::Breakpoint) {
+            emit_sv(emit, emit_ctx, "ok bp proto=");
+            emit_i64(emit, emit_ctx, res.fault_proto);
+            emit_sv(emit, emit_ctx, " pc=");
+            emit_i64(emit, emit_ctx, res.fault_pc);
+            emit_sv(emit, emit_ctx, "\n");
+            return;
+        }
+        if (res.status == cameo::embed::Status::Stepped) {
+            emit_sv(emit, emit_ctx, "ok stepped proto=");
+            emit_i64(emit, emit_ctx, res.fault_proto);
+            emit_sv(emit, emit_ctx, " pc=");
+            emit_i64(emit, emit_ctx, res.fault_pc);
+            emit_sv(emit, emit_ctx, "\n");
+            return;
+        }
+        if (res.status == cameo::embed::Status::WatchpointHit) {
+            emit_sv(emit, emit_ctx, "ok watch proto=");
+            emit_i64(emit, emit_ctx, res.fault_proto);
+            emit_sv(emit, emit_ctx, " pc=");
+            emit_i64(emit, emit_ctx, res.fault_pc);
+            emit_sv(emit, emit_ctx, " addr=");
+            emit_hex32(emit, emit_ctx, static_cast<uint32_t>(vm_->last_watch_addr()));
+            emit_sv(emit, emit_ctx, "\n");
+            return;
+        }
+        if (vm_->is_loaded() && !vm_->is_paused()) vm_->reset_pools_to(post_main_mark_);
+        if (res.status != cameo::embed::Status::Ok) {
+            emit_sv(emit, emit_ctx, "err run=");
+            emit_i64(emit, emit_ctx, static_cast<int64_t>(res.status));
+            emit_sv(emit, emit_ctx, "\n");
+            return;
+        }
+        emit_sv(emit, emit_ctx, "ok");
+        if (res.result_count > 0 && out[0].is_int()) {
+            emit_sv(emit, emit_ctx, " ret=");
+            emit_i64(emit, emit_ctx, out[0].as_int());
+        } else if (res.result_count > 0 && out[0].is_ptr()) {
+            emit_sv(emit, emit_ctx, " ptr=");
+            emit_hex32(emit, emit_ctx, static_cast<uint32_t>(out[0].as_ptr()));
+        } else if (res.result_count > 0 && out[0].is_bool()) {
+            emit_sv(emit, emit_ctx, out[0].as_bool() ? " ret=1" : " ret=0");
+        }
+        emit_sv(emit, emit_ctx, "\n");
+    }
+
+    cameo::embed::Status load_staged_into_vm() noexcept {
+        const auto vst = rx_.verify();
+        if (vst != cameo::embed::Status::Ok) { last_status_ = vst; return vst; }
+        const auto lst = vm_->load(rx_.span());
+        if (lst != cameo::embed::Status::Ok) { last_status_ = lst; return lst; }
+        const uint32_t budget = step_budget_ > 0u ? step_budget_ : 50000u;
+        const auto mres = vm_->run_main(budget);
+        last_status_ = mres.status;
+        if (mres.status != cameo::embed::Status::Ok) return mres.status;
+        post_main_mark_ = vm_->mark_pools();
+        return cameo::embed::Status::Ok;
+    }
+
 public:
     constexpr MonitorBridge() noexcept = default;
 
     void attach(Vm& vm, uint32_t default_step_budget = 50000u) noexcept {
         vm_ = &vm;
         step_budget_ = default_step_budget;
+    }
+
+    void attach_storage(ScriptStorageAdapter adapter) noexcept {
+        storage_ = adapter;
+    }
+
+    /// Boot a verified script directly from a persistent flash slot into the attached VM.
+    [[nodiscard]] cameo::embed::Status boot_from_slot(uint32_t slot) noexcept {
+        if (vm_ == nullptr || storage_.load == nullptr) return cameo::embed::Status::NotFound;
+        rx_.reset();
+        uint8_t tmp[MaxPackageBytes]{};
+        size_t len = 0u;
+        if (!storage_.load(storage_.ctx, slot, tmp, MaxPackageBytes, len)) {
+            last_status_ = cameo::embed::Status::NotFound;
+            return last_status_;
+        }
+        if (!rx_.feed_bytes(tmp, len)) {
+            last_status_ = cameo::embed::Status::CapacityExceeded;
+            return last_status_;
+        }
+        return load_staged_into_vm();
     }
 
     [[nodiscard]] cameo::embed::PackageReceiver<MaxPackageBytes>& receiver() noexcept { return rx_; }
@@ -646,10 +1056,13 @@ public:
                         rtos::monitor::WriteFn emit, void* emit_ctx) noexcept {
         if (vm_ == nullptr) return false;
         if (argc < 2 || argv[1] == nullptr) {
-            emit_sv(emit, emit_ctx, "usage: script reset|hex <H>|load|run <fn> [arg]|status\n");
+            emit_sv(emit, emit_ctx,
+                "usage: script reset|hex|load|run|status|save|boot|erase|break|clearbp|start|step|cont|regs|bustrace\n");
             return false;
         }
         const cameo::embed::StringView sub(argv[1]);
+        const uint32_t budget = step_budget_ > 0u ? step_budget_ : 50000u;
+
         if (cameo::embed::detail::eq_sv(sub, "reset")) {
             rx_.reset();
             emit_sv(emit, emit_ctx, "ok reset\n");
@@ -688,7 +1101,7 @@ public:
                 emit_sv(emit, emit_ctx, "\n");
                 return false;
             }
-            const auto mres = vm_->run_main(step_budget_);
+            const auto mres = vm_->run_main(budget);
             last_status_ = mres.status;
             if (mres.status != cameo::embed::Status::Ok) {
                 emit_sv(emit, emit_ctx, "err main=");
@@ -699,6 +1112,70 @@ public:
             post_main_mark_ = vm_->mark_pools();
             emit_sv(emit, emit_ctx, "ok loaded crc=");
             emit_hex32(emit, emit_ctx, vm_->image_crc32c());
+            emit_sv(emit, emit_ctx, "\n");
+            return true;
+        }
+        if (cameo::embed::detail::eq_sv(sub, "save")) {
+            if (storage_.save == nullptr) { emit_sv(emit, emit_ctx, "err no storage\n"); return false; }
+            int64_t slot = 0;
+            if (argc < 3 || !parse_int64(argv[2], slot) || slot < 0) {
+                emit_sv(emit, emit_ctx, "err bad slot\n");
+                return false;
+            }
+            const auto vst = rx_.verify();
+            if (vst != cameo::embed::Status::Ok) {
+                last_status_ = vst;
+                emit_sv(emit, emit_ctx, "err verify=");
+                emit_i64(emit, emit_ctx, static_cast<int64_t>(vst));
+                emit_sv(emit, emit_ctx, "\n");
+                return false;
+            }
+            const auto sp = rx_.span();
+            if (!storage_.save(storage_.ctx, static_cast<uint32_t>(slot), sp.data(), sp.size())) {
+                emit_sv(emit, emit_ctx, "err save failed\n");
+                return false;
+            }
+            emit_sv(emit, emit_ctx, "ok saved slot=");
+            emit_i64(emit, emit_ctx, slot);
+            emit_sv(emit, emit_ctx, " bytes=");
+            emit_i64(emit, emit_ctx, static_cast<int64_t>(sp.size()));
+            emit_sv(emit, emit_ctx, "\n");
+            return true;
+        }
+        if (cameo::embed::detail::eq_sv(sub, "boot")) {
+            if (storage_.load == nullptr) { emit_sv(emit, emit_ctx, "err no storage\n"); return false; }
+            int64_t slot = 0;
+            if (argc < 3 || !parse_int64(argv[2], slot) || slot < 0) {
+                emit_sv(emit, emit_ctx, "err bad slot\n");
+                return false;
+            }
+            const auto bst = boot_from_slot(static_cast<uint32_t>(slot));
+            if (bst != cameo::embed::Status::Ok) {
+                emit_sv(emit, emit_ctx, "err boot=");
+                emit_i64(emit, emit_ctx, static_cast<int64_t>(bst));
+                emit_sv(emit, emit_ctx, "\n");
+                return false;
+            }
+            emit_sv(emit, emit_ctx, "ok booted slot=");
+            emit_i64(emit, emit_ctx, slot);
+            emit_sv(emit, emit_ctx, " crc=");
+            emit_hex32(emit, emit_ctx, vm_->image_crc32c());
+            emit_sv(emit, emit_ctx, "\n");
+            return true;
+        }
+        if (cameo::embed::detail::eq_sv(sub, "erase")) {
+            if (storage_.erase == nullptr) { emit_sv(emit, emit_ctx, "err no storage\n"); return false; }
+            int64_t slot = 0;
+            if (argc < 3 || !parse_int64(argv[2], slot) || slot < 0) {
+                emit_sv(emit, emit_ctx, "err bad slot\n");
+                return false;
+            }
+            if (!storage_.erase(storage_.ctx, static_cast<uint32_t>(slot))) {
+                emit_sv(emit, emit_ctx, "err erase failed\n");
+                return false;
+            }
+            emit_sv(emit, emit_ctx, "ok erased slot=");
+            emit_i64(emit, emit_ctx, slot);
             emit_sv(emit, emit_ctx, "\n");
             return true;
         }
@@ -719,20 +1196,128 @@ public:
             }
             cameo::embed::Value out[2]{};
             const auto res = vm_->call_export(cameo::embed::StringView(argv[2]),
-                cameo::embed::Span<const cameo::embed::Value>(args, nargs), out, step_budget_);
-            last_status_ = res.status;
-            if (vm_->is_loaded()) vm_->reset_pools_to(post_main_mark_);
-            if (res.status != cameo::embed::Status::Ok) {
-                emit_sv(emit, emit_ctx, "err run=");
-                emit_i64(emit, emit_ctx, static_cast<int64_t>(res.status));
+                cameo::embed::Span<const cameo::embed::Value>(args, nargs), out, budget);
+            emit_exec_outcome(res, out, emit, emit_ctx);
+            return res.status == cameo::embed::Status::Ok ||
+                   res.status == cameo::embed::Status::Breakpoint ||
+                   res.status == cameo::embed::Status::WatchpointHit;
+        }
+        if (cameo::embed::detail::eq_sv(sub, "break")) {
+            int64_t pid = 0, pc = 0;
+            if (argc < 4 || !parse_int64(argv[2], pid) || !parse_int64(argv[3], pc) || pid < 0 || pc < 0) {
+                emit_sv(emit, emit_ctx, "err usage: script break <proto> <pc>\n");
+                return false;
+            }
+            if (!vm_->set_breakpoint(static_cast<uint16_t>(pid), static_cast<uint32_t>(pc))) {
+                emit_sv(emit, emit_ctx, "err bp table full\n");
+                return false;
+            }
+            emit_sv(emit, emit_ctx, "ok bp set proto=");
+            emit_i64(emit, emit_ctx, pid);
+            emit_sv(emit, emit_ctx, " pc=");
+            emit_i64(emit, emit_ctx, pc);
+            emit_sv(emit, emit_ctx, "\n");
+            return true;
+        }
+        if (cameo::embed::detail::eq_sv(sub, "clearbp")) {
+            vm_->clear_breakpoints();
+            emit_sv(emit, emit_ctx, "ok clearbp\n");
+            return true;
+        }
+        if (cameo::embed::detail::eq_sv(sub, "start")) {
+            if (argc < 3 || argv[2] == nullptr) {
+                emit_sv(emit, emit_ctx, "err missing export name\n");
+                return false;
+            }
+            cameo::embed::Value args[4]{};
+            size_t nargs = 0u;
+            for (int i = 3; i < argc && nargs < 4u; ++i) {
+                int64_t v = 0;
+                if (!parse_int64(argv[i], v)) {
+                    emit_sv(emit, emit_ctx, "err bad integer arg\n");
+                    return false;
+                }
+                args[nargs++] = cameo::embed::Value::from_int(v);
+            }
+            const auto st = vm_->start_export(cameo::embed::StringView(argv[2]),
+                cameo::embed::Span<const cameo::embed::Value>(args, nargs));
+            last_status_ = st;
+            if (st != cameo::embed::Status::Ok) {
+                emit_sv(emit, emit_ctx, "err start=");
+                emit_i64(emit, emit_ctx, static_cast<int64_t>(st));
                 emit_sv(emit, emit_ctx, "\n");
                 return false;
             }
-            emit_sv(emit, emit_ctx, "ok");
-            if (res.result_count > 0 && out[0].is_int()) {
-                emit_sv(emit, emit_ctx, " ret=");
-                emit_i64(emit, emit_ctx, out[0].as_int());
+            emit_sv(emit, emit_ctx, "ok paused proto=");
+            emit_i64(emit, emit_ctx, vm_->current_proto());
+            emit_sv(emit, emit_ctx, " pc=");
+            emit_i64(emit, emit_ctx, vm_->current_pc());
+            emit_sv(emit, emit_ctx, "\n");
+            return true;
+        }
+        if (cameo::embed::detail::eq_sv(sub, "step")) {
+            cameo::embed::Value out[2]{};
+            const auto res = vm_->step_one(out);
+            emit_exec_outcome(res, out, emit, emit_ctx);
+            return res.status == cameo::embed::Status::Stepped ||
+                   res.status == cameo::embed::Status::Ok ||
+                   res.status == cameo::embed::Status::WatchpointHit;
+        }
+        if (cameo::embed::detail::eq_sv(sub, "cont")) {
+            cameo::embed::Value out[2]{};
+            const auto res = vm_->continue_run(out, budget);
+            emit_exec_outcome(res, out, emit, emit_ctx);
+            return res.status == cameo::embed::Status::Ok ||
+                   res.status == cameo::embed::Status::Breakpoint ||
+                   res.status == cameo::embed::Status::WatchpointHit;
+        }
+        if (cameo::embed::detail::eq_sv(sub, "regs")) {
+            emit_sv(emit, emit_ctx, vm_->is_paused() ? "paused=1 proto=" : "paused=0 proto=");
+            emit_i64(emit, emit_ctx, vm_->current_proto());
+            emit_sv(emit, emit_ctx, " pc=");
+            emit_i64(emit, emit_ctx, vm_->current_pc());
+            emit_sv(emit, emit_ctx, " depth=");
+            emit_i64(emit, emit_ctx, static_cast<int64_t>(vm_->call_depth()));
+            if (vm_->is_paused()) {
+                const uint16_t max_r = vm_->current_frame_max_stack();
+                const uint16_t lim = max_r < 8u ? max_r : 8u;
+                for (uint16_t r = 0; r < lim; ++r) {
+                    cameo::embed::Value v{};
+                    if (!vm_->inspect_reg(r, v) || v.is_nil()) continue;
+                    emit_sv(emit, emit_ctx, " r");
+                    emit_i64(emit, emit_ctx, r);
+                    emit_sv(emit, emit_ctx, "=");
+                    if (v.is_int()) emit_i64(emit, emit_ctx, v.as_int());
+                    else if (v.is_ptr()) emit_hex32(emit, emit_ctx, static_cast<uint32_t>(v.as_ptr()));
+                    else if (v.is_bool()) emit_sv(emit, emit_ctx, v.as_bool() ? "true" : "false");
+                    else emit_sv(emit, emit_ctx, "<val>");
+                }
             }
+            emit_sv(emit, emit_ctx, "\n");
+            return true;
+        }
+        if (cameo::embed::detail::eq_sv(sub, "bustrace")) {
+            if (argc >= 3 && argv[2] != nullptr && cameo::embed::detail::eq_sv(cameo::embed::StringView(argv[2]), "clear")) {
+                vm_->clear_bus_trace();
+                emit_sv(emit, emit_ctx, "ok bustrace cleared\n");
+                return true;
+            }
+            const size_t n = vm_->bus_trace_count();
+            for (size_t i = 0; i < n; ++i) {
+                cameo::embed::BusTraceEvent ev{};
+                if (!vm_->read_bus_trace_oldest(i, ev)) continue;
+                emit_sv(emit, emit_ctx, "bt seq=");
+                emit_i64(emit, emit_ctx, ev.seq);
+                emit_sv(emit, emit_ctx, (ev.flags & cameo::embed::BusTraceFlags::kWrite) ? " wr=1 w=" : " wr=0 w=");
+                emit_i64(emit, emit_ctx, ev.width);
+                emit_sv(emit, emit_ctx, " addr=");
+                emit_hex32(emit, emit_ctx, ev.addr_lo);
+                emit_sv(emit, emit_ctx, " val=");
+                emit_hex32(emit, emit_ctx, ev.val_lo);
+                emit_sv(emit, emit_ctx, (ev.flags & cameo::embed::BusTraceFlags::kWatchpointHit) ? " wp=1\n" : " wp=0\n");
+            }
+            emit_sv(emit, emit_ctx, "ok bustrace count=");
+            emit_i64(emit, emit_ctx, static_cast<int64_t>(n));
             emit_sv(emit, emit_ctx, "\n");
             return true;
         }
@@ -741,7 +1326,7 @@ public:
             emit_hex32(emit, emit_ctx, vm_->image_crc32c());
             emit_sv(emit, emit_ctx, " staged=");
             emit_i64(emit, emit_ctx, static_cast<int64_t>(rx_.bytes_received()));
-            emit_sv(emit, emit_ctx, " status=");
+            emit_sv(emit, emit_ctx, vm_->is_paused() ? " paused=1 status=" : " paused=0 status=");
             emit_i64(emit, emit_ctx, static_cast<int64_t>(last_status_));
             emit_sv(emit, emit_ctx, "\n");
             return true;

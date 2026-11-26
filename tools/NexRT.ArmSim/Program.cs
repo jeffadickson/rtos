@@ -12,7 +12,8 @@ internal static class Program
         {
             if(args.Length==2&&args[0]=="--fixture")return await Fixture(args[1]);
             if(args.Length==1&&args[0]=="--self-test"){await SelfTest();return 0;}
-            if(args.Length!=3)throw new ArgumentException("Usage: NexRT.ArmSim QEMU FIRMWARE_ELF OUTPUT_DIRECTORY");
+            if(args.Length==4&&args[0]=="--cameo-embed")return await RunCameoEmbed(args[1],args[2],args[3]);
+            if(args.Length!=3)throw new ArgumentException("Usage: NexRT.ArmSim QEMU FIRMWARE_ELF OUTPUT_DIRECTORY | --cameo-embed QEMU ELF HEX");
             string qemu=Path.GetFullPath(args[0]),elf=Path.GetFullPath(args[1]);
             if(!File.Exists(qemu)||!File.Exists(elf))throw new FileNotFoundException("Missing QEMU or firmware ELF");
             string root=Path.Combine(Path.GetFullPath(args[2]),DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff"));
@@ -120,5 +121,97 @@ internal static class Program
         if(requireGuestPass&&(!lines.Contains("PASS: register canaries, negative probes, PSP alignment padding")||
             !lines.Contains("PASS: masked timer catch-up and counter continuity")))
             throw new IOException("Missing ARM register/timer coverage markers; see "+log);
+    }
+
+    /// <summary>Boots a Cortex-M3 Cameo.Embed firmware ELF in QEMU, streams a hex CEMB script over UART0, and verifies live execution, single-stepping, and bus-trace capture.</summary>
+    private static async Task<int> RunCameoEmbed(string qemuPath, string elfPath, string hexPath)
+    {
+        string qemu=Path.GetFullPath(qemuPath),elf=Path.GetFullPath(elfPath),hexFile=Path.GetFullPath(hexPath);
+        if(!File.Exists(qemu)||!File.Exists(elf)||!File.Exists(hexFile))
+            throw new FileNotFoundException("Missing QEMU, firmware ELF, or hex script file");
+        string hexData=string.Concat((await File.ReadAllTextAsync(hexFile)).Where(c=>!char.IsWhiteSpace(c)));
+        if(hexData.Length==0||(hexData.Length%2)!=0)
+            throw new InvalidDataException("Invalid Cameo.Embed hex payload");
+
+        var start=new ProcessStartInfo(qemu)
+        {
+            RedirectStandardInput=true,
+            RedirectStandardOutput=true,
+            RedirectStandardError=true,
+            UseShellExecute=false,
+            CreateNoWindow=true,
+        };
+        foreach(string a in new[]{"-M","mps2-an385","-display","none","-monitor","none",
+            "-serial","stdio","-semihosting-config","enable=on,target=native","-kernel",elf})
+            start.ArgumentList.Add(a);
+
+        using var proc=Process.Start(start)??throw new IOException("Cannot launch QEMU");
+        try
+        {
+            async Task<(string Match, List<string> All)> Send(string cmd, string expectPrefix)
+            {
+                await proc.StandardInput.WriteLineAsync(cmd);
+                await proc.StandardInput.FlushAsync();
+                var collected=new List<string>();
+                while(true)
+                {
+                    string? raw=await proc.StandardOutput.ReadLineAsync().WaitAsync(TimeSpan.FromSeconds(15));
+                    if(raw is null)throw new IOException($"QEMU EOF waiting for '{expectPrefix}' after '{cmd}'");
+                    string s=raw.Trim();
+                    if(s.Length==0)continue;
+                    collected.Add(s);
+                    if(s.StartsWith(expectPrefix,StringComparison.Ordinal)||s.StartsWith("err ",StringComparison.Ordinal))
+                        return (s,collected);
+                }
+            }
+
+            string? banner=await proc.StandardOutput.ReadLineAsync().WaitAsync(TimeSpan.FromSeconds(15));
+            if(banner is null||!banner.Trim().StartsWith("CAMEO_EMBED_ARM_READY",StringComparison.Ordinal))
+                throw new IOException($"Unexpected Cortex-M3 banner: '{banner ?? "<eof>"}'");
+            int idx=banner.IndexOf("scratch=0x",StringComparison.OrdinalIgnoreCase);
+            if(idx<0)throw new IOException("Missing scratch=0x... in ready banner");
+            string scratchAddr=banner[(idx+"scratch=".Length)..].Trim().Split(' ')[0];
+
+            var (rst,_)=await Send("script reset","ok ");
+            if(rst!="ok reset")throw new IOException("script reset failed: "+rst);
+            for(int off=0;off<hexData.Length;off+=64)
+            {
+                string chunk=hexData.Substring(off,Math.Min(64,hexData.Length-off));
+                var (hr,_)=await Send("script hex "+chunk,"ok ");
+                if(!hr.StartsWith("ok bytes=",StringComparison.Ordinal))
+                    throw new IOException($"script hex failed at offset {off}: {hr}");
+            }
+            var (ld,_)=await Send("script load","ok ");
+            if(!ld.StartsWith("ok loaded crc=0x",StringComparison.Ordinal))
+                throw new IOException("script load failed: "+ld);
+
+            var (run,_)=await Send($"script run probe_hw {scratchAddr}","ok");
+            if(!run.StartsWith("ok ret=",StringComparison.Ordinal))
+                throw new IOException("script run probe_hw failed: "+run);
+
+            var (bt,btLines)=await Send("script bustrace","ok bustrace");
+            if(!bt.StartsWith("ok bustrace count=",StringComparison.Ordinal)||btLines.Count<2)
+                throw new IOException("script bustrace failed: "+bt);
+
+            var (p0,_)=await Send($"script start probe_hw {scratchAddr}","ok paused");
+            if(!p0.StartsWith("ok paused",StringComparison.Ordinal))throw new IOException("script start failed: "+p0);
+            var (st1,_)=await Send("script step","ok stepped");
+            if(!st1.StartsWith("ok stepped",StringComparison.Ordinal))throw new IOException("script step failed: "+st1);
+            var (rg,_)=await Send("script regs","paused=1");
+            if(!rg.StartsWith("paused=1",StringComparison.Ordinal))throw new IOException("script regs failed: "+rg);
+            var (ct,_)=await Send("script cont","ok ret=");
+            if(ct!=run)throw new IOException($"Stepped continue mismatch: expected '{run}', got '{ct}'");
+
+            await proc.StandardInput.WriteLineAsync("quit");
+            await proc.StandardInput.FlushAsync();
+            await proc.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(10));
+            if(proc.ExitCode!=0)throw new IOException($"QEMU exited with code {proc.ExitCode}");
+            Console.WriteLine($"PASS: Cortex-M3 QEMU Cameo.Embed live UART hot-load, stepping & bustrace ({ld}, {run}, {bt})");
+            return 0;
+        }
+        finally
+        {
+            if(!proc.HasExited)try{proc.Kill(entireProcessTree:true);}catch{}
+        }
     }
 }
