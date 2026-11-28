@@ -157,31 +157,31 @@ module nexrt_cfi_nor_axi #(
             ry_sync0 <= nor_ry_by_n;
             ry_sync1 <= ry_sync0;
 
-            if (reg_wr) begin
-                unique case (reg_addr[7:0])
-                    8'h00: begin
+            if (reg_wr && !reg_err) begin
+                unique case (reg_addr)
+                    12'h000: begin
                         reset_n_reg <= reg_wdata[0];
                         wp_n_reg    <= reg_wdata[1];
                         irq_en      <= reg_wdata[2];
                     end
-                    8'h08: if (!busy) addr_reg <= reg_wdata[ADDR_BITS-1:0];
-                    8'h0C: if (!busy) begin
+                    12'h008: if (!busy) addr_reg <= reg_wdata[ADDR_BITS-1:0];
+                    12'h00C: if (!busy) begin
                         wdata_reg <= reg_wdata[15:0];
                         is_write  <= 1'b1;
                         state     <= ST_SETUP;
                         timer     <= (t_setup == 8'd0) ? 8'd0 : (t_setup - 8'd1);
                     end
-                    8'h10: if (!busy) begin
+                    12'h010: if (!busy) begin
                         is_write <= 1'b0;
                         state    <= ST_SETUP;
                         timer    <= (t_setup == 8'd0) ? 8'd0 : (t_setup - 8'd1);
                     end
-                    8'h18: begin
+                    12'h018: begin
                         t_setup <= (reg_wdata[7:0]   == 8'd0) ? 8'd1 : reg_wdata[7:0];
                         t_pulse <= (reg_wdata[15:8]  == 8'd0) ? 8'd1 : reg_wdata[15:8];
                         t_hold  <= (reg_wdata[23:16] == 8'd0) ? 8'd1 : reg_wdata[23:16];
                     end
-                    8'h1C: if (reg_wdata[0]) irq_stat <= 1'b0;
+                    12'h01C: if (reg_wdata[0]) irq_stat <= 1'b0;
                     default: ;
                 endcase
             end

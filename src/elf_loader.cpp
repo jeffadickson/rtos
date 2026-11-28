@@ -175,6 +175,7 @@ LoadStatus apply_riscv_reloc(uint8_t* target_base, size_t target_size,
             return LoadStatus::ok;
         }
         case r_riscv_hi20: {
+            if ((offset & 3u) != 0u) return LoadStatus::reloc_out_of_range;
             const int64_t val = S + A;
             const uint32_t hi = static_cast<uint32_t>((val + 0x800LL) & ~0xfffLL);
             const uint32_t insn = rd32(loc);
@@ -182,12 +183,14 @@ LoadStatus apply_riscv_reloc(uint8_t* target_base, size_t target_size,
             return LoadStatus::ok;
         }
         case r_riscv_lo12_i: {
+            if ((offset & 3u) != 0u) return LoadStatus::reloc_out_of_range;
             const uint32_t lo = static_cast<uint32_t>(S + A) & 0xfffu;
             const uint32_t insn = rd32(loc);
             wr32(loc, (insn & 0x000fffffu) | (lo << 20));
             return LoadStatus::ok;
         }
         case r_riscv_lo12_s: {
+            if ((offset & 3u) != 0u) return LoadStatus::reloc_out_of_range;
             const uint32_t lo = static_cast<uint32_t>(S + A) & 0xfffu;
             const uint32_t insn = rd32(loc);
             const uint32_t imm11_5 = (lo >> 5) & 0x7fu;
@@ -196,6 +199,7 @@ LoadStatus apply_riscv_reloc(uint8_t* target_base, size_t target_size,
             return LoadStatus::ok;
         }
         case r_riscv_jal: {
+            if ((offset & 3u) != 0u) return LoadStatus::reloc_out_of_range;
             const int64_t delta = (S + A) - static_cast<int64_t>(P);
             if ((delta & 1LL) != 0 || delta < -(1LL << 20) || delta >= (1LL << 20)) {
                 return LoadStatus::reloc_out_of_range;
@@ -211,7 +215,7 @@ LoadStatus apply_riscv_reloc(uint8_t* target_base, size_t target_size,
         }
         case r_riscv_call:
         case r_riscv_call_plt: {
-            if (offset + 8u > target_size) return LoadStatus::reloc_out_of_range;
+            if ((offset & 3u) != 0u || offset + 8u > target_size) return LoadStatus::reloc_out_of_range;
             const int64_t delta = (S + A) - static_cast<int64_t>(P);
             if (delta < -(1LL << 31) || delta >= (1LL << 31)) return LoadStatus::reloc_out_of_range;
             const int32_t hi = static_cast<int32_t>((delta + 0x800LL) & ~0xfffLL);
@@ -251,6 +255,7 @@ LoadStatus apply_arm_reloc(uint8_t* target_base, size_t target_size,
         }
         case r_arm_thm_call:
         case r_arm_thm_jump24: {
+            if ((offset & 1u) != 0u) return LoadStatus::reloc_out_of_range;
             const uint16_t hw1 = rd16(loc);
             const uint16_t hw2 = rd16(loc + 2);
             // Decode implicit addend for SHT_REL (Thumb-2 PC is P + 4, so initial addend is -4).
@@ -287,9 +292,21 @@ LoadStatus apply_arm_reloc(uint8_t* target_base, size_t target_size,
         }
         case r_arm_movw_abs_nc:
         case r_arm_movt_abs: {
+            if ((offset & 1u) != 0u) return LoadStatus::reloc_out_of_range;
             const uint16_t hw1 = rd16(loc);
             const uint16_t hw2 = rd16(loc + 2);
-            const uint32_t val = static_cast<uint32_t>(S + (is_rela ? addend : 0));
+            // Decode implicit 16-bit signed addend encoded in imm4:i:imm3:imm8 for SHT_REL (AAELF32).
+            int64_t A = static_cast<int64_t>(addend);
+            if (!is_rela) {
+                const uint32_t orig_imm4 = hw1 & 0xfu;
+                const uint32_t orig_i = (hw1 >> 10) & 1u;
+                const uint32_t orig_imm3 = (hw2 >> 12) & 0x7u;
+                const uint32_t orig_imm8 = hw2 & 0xffu;
+                const uint16_t orig_imm16 = static_cast<uint16_t>((orig_imm4 << 12) | (orig_i << 11) |
+                                                                  (orig_imm3 << 8) | orig_imm8);
+                A = static_cast<int64_t>(static_cast<int16_t>(orig_imm16));
+            }
+            const uint32_t val = static_cast<uint32_t>(S + A);
             const uint16_t imm16 = (type == r_arm_movt_abs)
                                        ? static_cast<uint16_t>((val >> 16) & 0xffffu)
                                        : static_cast<uint16_t>(val & 0xffffu);

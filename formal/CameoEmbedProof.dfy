@@ -114,12 +114,14 @@ module NexRTCameoEmbedProof {
   lemma PermittedAccessIsInBoundsAndAligned(windows: seq<MemoryWindow>, axiReadOnly: bool,
                                             addr: nat, width: nat, isWrite: bool)
     requires CheckMemoryAccess(windows, axiReadOnly, addr, width, isWrite)
-    ensures exists i :: 0 <= i < |windows| &&
+    ensures exists i :: (
+      0 <= i < |windows| &&
       windows[i].base <= addr &&
       addr + width <= windows[i].base + windows[i].size &&
       windows[i].minWidth <= width <= windows[i].maxWidth &&
       (!windows[i].strictAlign || addr % width == 0) &&
       (if isWrite then windows[i].canWrite && !axiReadOnly else windows[i].canRead)
+    )
   {
   }
 

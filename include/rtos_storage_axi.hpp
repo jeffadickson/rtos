@@ -58,6 +58,7 @@ class AxiSpiMaster {
     uint16_t clk_div_{1};
     uint8_t mode_{0}; // bit 0 = CPOL, bit 1 = CPHA
     uint32_t max_busy_polls_{100000u};
+    mutable bool timed_out_{false};
 
     static constexpr uint32_t kRegCtrl    = 0x00u;
     static constexpr uint32_t kRegStatus  = 0x04u;
@@ -79,11 +80,11 @@ class AxiSpiMaster {
         for (uint32_t i = 0; i < max_busy_polls_; ++i) {
             if ((bus_.rd(base_ + kRegStatus) & 1u) == 0u) return true;
         }
+        timed_out_ = true;
         return false;
     }
 
     bool xfer_byte(uint8_t tx, uint8_t& rx) const {
-        if (!wait_idle()) return false;
         bus_.wr(base_ + kRegTxData, tx);
         if (!wait_idle()) return false;
         rx = static_cast<uint8_t>(bus_.rd(base_ + kRegRxData) & 0xFFu);
@@ -95,6 +96,7 @@ class AxiSpiMaster {
         const auto* self = static_cast<const AxiSpiMaster*>(ctx);
         if (!self || !self->bus_.write32 || !self->bus_.read32) return false;
         if ((!tx && tx_len) || (!rx && rx_len)) return false;
+        if (!self->wait_idle()) return false;
 
         // Assert selected CS#
         self->bus_.wr(self->base_ + kRegCtrl, self->ctrl_word(true));
@@ -130,13 +132,18 @@ public:
         cs_index_ = cs_index;
         clk_div_ = clk_div == 0u ? 1u : clk_div;
         mode_ = spi_mode;
+        timed_out_ = false;
         const uint32_t st = bus_.rd(base_ + kRegStatus);
         if ((st >> 16) != 0x5350u) return false; // "SP" magic check
         bus_.wr(base_ + kRegCtrl, ctrl_word(false));
         bus_.wr(base_ + kRegIrqEn, 0u);
         bus_.wr(base_ + kRegIrqStat, 1u);
-        return true;
+        return wait_idle();
     }
+
+    void set_max_busy_polls(uint32_t polls) { max_busy_polls_ = polls; }
+    bool timed_out() const { return timed_out_; }
+    void clear_timeout() { timed_out_ = false; }
 
     SpiBus spi_bus(uint32_t max_poll = 100000u) {
         return SpiBus{this, &spi_transfer_cb, max_poll};
@@ -150,6 +157,7 @@ class AxiOnfiNand {
     AxiBus bus_{};
     uint32_t base_{kDefaultBase + kOnfiNandOff};
     uint32_t max_busy_polls_{100000u};
+    mutable bool timed_out_{false};
 
     static constexpr uint32_t kRegCtrl     = 0x00u;
     static constexpr uint32_t kRegStatus   = 0x04u;
@@ -162,41 +170,39 @@ class AxiOnfiNand {
     static constexpr uint32_t kRegEccCode  = 0x20u;
     static constexpr uint32_t kRegIrqStat  = 0x24u;
 
-    void wait_fsm() const {
+    bool wait_fsm() const {
         for (uint32_t i = 0; i < max_busy_polls_; ++i) {
-            if ((bus_.rd(base_ + kRegStatus) & 1u) == 0u) return;
+            if ((bus_.rd(base_ + kRegStatus) & 1u) == 0u) return true;
         }
+        timed_out_ = true;
+        return false;
     }
 
     static void cmd_cb(void* ctx, uint8_t cmd) {
         const auto* self = static_cast<const AxiOnfiNand*>(ctx);
-        self->wait_fsm();
         self->bus_.wr(self->base_ + kRegCmd, cmd);
-        self->wait_fsm();
+        (void)self->wait_fsm();
     }
 
     static void addr_cb(void* ctx, uint8_t addr) {
         const auto* self = static_cast<const AxiOnfiNand*>(ctx);
-        self->wait_fsm();
         self->bus_.wr(self->base_ + kRegAddr, addr);
-        self->wait_fsm();
+        (void)self->wait_fsm();
     }
 
     static void wr_data_cb(void* ctx, const uint8_t* bytes, size_t len) {
         const auto* self = static_cast<const AxiOnfiNand*>(ctx);
         for (size_t i = 0; i < len; ++i) {
-            self->wait_fsm();
             self->bus_.wr(self->base_ + kRegDataWr, bytes[i]);
+            if (!self->wait_fsm()) return;
         }
-        self->wait_fsm();
     }
 
     static void rd_data_cb(void* ctx, uint8_t* bytes, size_t len) {
         const auto* self = static_cast<const AxiOnfiNand*>(ctx);
         for (size_t i = 0; i < len; ++i) {
-            self->wait_fsm();
             self->bus_.wr(self->base_ + kRegDataRdTr, 1u);
-            self->wait_fsm();
+            if (!self->wait_fsm()) return;
             bytes[i] = static_cast<uint8_t>(self->bus_.rd(self->base_ + kRegDataRd) & 0xFFu);
         }
     }
@@ -204,6 +210,14 @@ class AxiOnfiNand {
     static bool ready_cb(void* ctx) {
         const auto* self = static_cast<const AxiOnfiNand*>(ctx);
         return (self->bus_.rd(self->base_ + kRegStatus) & 2u) != 0u;
+    }
+
+    static void hw_ecc_reset_cb(void* ctx) {
+        static_cast<const AxiOnfiNand*>(ctx)->hw_ecc_reset();
+    }
+
+    static void hw_ecc_read_cb(void* ctx, uint8_t ecc[3]) {
+        static_cast<const AxiOnfiNand*>(ctx)->hw_ecc_read(ecc);
     }
 
 public:
@@ -214,6 +228,7 @@ public:
         if (!bus.write32 || !bus.read32) return false;
         bus_ = bus;
         base_ = base_addr;
+        timed_out_ = false;
         const uint32_t st = bus_.rd(base_ + kRegStatus);
         if ((st >> 16) != 0x4E41u) return false; // "NA" magic check
         bus_.wr(base_ + kRegTiming,
@@ -222,7 +237,7 @@ public:
                 (static_cast<uint32_t>(t_hold) << 16));
         bus_.wr(base_ + kRegCtrl, 0x07u); // CE asserted, WP#=1, reset HW ECC
         bus_.wr(base_ + kRegIrqStat, 0x03u);
-        return true;
+        return wait_fsm();
     }
 
     /// Reset hardware 22-bit Hamming-256 ECC engine before streaming 256 data bytes.
@@ -242,8 +257,17 @@ public:
         return (bus_.rd(base_ + kRegStatus) & 4u) != 0u;
     }
 
+    void set_max_busy_polls(uint32_t polls) { max_busy_polls_ = polls; }
+    bool timed_out() const { return timed_out_; }
+    void clear_timeout() { timed_out_ = false; }
+
     ParallelNandBus nand_bus(uint32_t max_poll = 100000u) {
-        return ParallelNandBus{this, &cmd_cb, &addr_cb, &wr_data_cb, &rd_data_cb, &ready_cb, max_poll};
+        const bool hw = has_hw_ecc();
+        return ParallelNandBus{
+            this, &cmd_cb, &addr_cb, &wr_data_cb, &rd_data_cb, &ready_cb, max_poll,
+            hw ? &hw_ecc_reset_cb : nullptr,
+            hw ? &hw_ecc_read_cb : nullptr
+        };
     }
 };
 
@@ -254,6 +278,7 @@ class AxiCfiNor {
     AxiBus bus_{};
     uint32_t base_{kDefaultBase + kCfiNorOff};
     uint32_t max_busy_polls_{100000u};
+    mutable bool timed_out_{false};
 
     static constexpr uint32_t kRegCtrl    = 0x00u;
     static constexpr uint32_t kRegStatus  = 0x04u;
@@ -264,26 +289,26 @@ class AxiCfiNor {
     static constexpr uint32_t kRegTiming  = 0x18u;
     static constexpr uint32_t kRegIrqStat = 0x1Cu;
 
-    void wait_fsm() const {
+    bool wait_fsm() const {
         for (uint32_t i = 0; i < max_busy_polls_; ++i) {
-            if ((bus_.rd(base_ + kRegStatus) & 1u) == 0u) return;
+            if ((bus_.rd(base_ + kRegStatus) & 1u) == 0u) return true;
         }
+        timed_out_ = true;
+        return false;
     }
 
     static void write16_cb(void* ctx, uint32_t word_offset, uint16_t value) {
         const auto* self = static_cast<const AxiCfiNor*>(ctx);
-        self->wait_fsm();
         self->bus_.wr(self->base_ + kRegAddr, word_offset);
         self->bus_.wr(self->base_ + kRegWdata, value);
-        self->wait_fsm();
+        (void)self->wait_fsm();
     }
 
     static uint16_t read16_cb(void* ctx, uint32_t word_offset) {
         const auto* self = static_cast<const AxiCfiNor*>(ctx);
-        self->wait_fsm();
         self->bus_.wr(self->base_ + kRegAddr, word_offset);
         self->bus_.wr(self->base_ + kRegRdTrig, 1u);
-        self->wait_fsm();
+        if (!self->wait_fsm()) return 0xFFFFu;
         return static_cast<uint16_t>(self->bus_.rd(self->base_ + kRegRdata) & 0xFFFFu);
     }
 
@@ -295,6 +320,7 @@ public:
         if (!bus.write32 || !bus.read32) return false;
         bus_ = bus;
         base_ = base_addr;
+        timed_out_ = false;
         const uint32_t st = bus_.rd(base_ + kRegStatus);
         if ((st >> 16) != 0x4346u) return false; // "CF" magic check
         bus_.wr(base_ + kRegTiming,
@@ -303,8 +329,12 @@ public:
                 (static_cast<uint32_t>(t_hold) << 16));
         bus_.wr(base_ + kRegCtrl, 0x03u); // RESET#=1, WP#=1
         bus_.wr(base_ + kRegIrqStat, 0x01u);
-        return true;
+        return wait_fsm();
     }
+
+    void set_max_busy_polls(uint32_t polls) { max_busy_polls_ = polls; }
+    bool timed_out() const { return timed_out_; }
+    void clear_timeout() { timed_out_ = false; }
 
     ParallelNorBus nor_bus(uint32_t max_poll = 200000u) {
         return ParallelNorBus{this, &write16_cb, &read16_cb, max_poll};

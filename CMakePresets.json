@@ -13,6 +13,12 @@
       "cacheVariables": { "RTOS_HOST_SANITIZERS": "ON", "CMAKE_CXX_COMPILER": "clang++" }
     },
     {
+      "name": "host-gcc-asan",
+      "inherits": "host",
+      "binaryDir": "${sourceDir}/build/host-gcc-asan",
+      "cacheVariables": { "RTOS_HOST_SANITIZERS": "ON", "CMAKE_CXX_COMPILER": "g++" }
+    },
+    {
       "name": "host-valgrind",
       "inherits": "host",
       "binaryDir": "${sourceDir}/build/host-valgrind",
@@ -299,6 +305,7 @@
   ],
   "buildPresets": [
     { "name": "host-asan", "configurePreset": "host-asan" },
+    { "name": "host-gcc-asan", "configurePreset": "host-gcc-asan" },
     { "name": "host-valgrind", "configurePreset": "host-valgrind" },
     { "name": "arm-stress-wrap", "configurePreset": "arm-stress-wrap" },
     { "name": "arm-stress-fast", "configurePreset": "arm-stress-fast" },
@@ -354,6 +361,7 @@
   ],
   "testPresets": [
     { "name": "host-asan", "configurePreset": "host-asan", "output": { "outputOnFailure": true } },
+    { "name": "host-gcc-asan", "configurePreset": "host-gcc-asan", "output": { "outputOnFailure": true } },
     { "name": "host-valgrind", "configurePreset": "host-valgrind", "filter": { "include": { "label": "memcheck" } }, "output": { "outputOnFailure": true } },
     {
       "name": "host",

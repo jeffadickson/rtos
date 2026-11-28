@@ -292,9 +292,68 @@ void test_monitor_commands_and_contracts() {
     const uint32_t id2 = mon.spawn_job("telemetry", test_job_step, &j2);
     assert(id2 != 0u && (id2 & 0xffu) == (id1 & 0xffu) && id2 != id1);
     assert(!mon.cancel_job(id1)); // Stale generation rejected!
+    // Bug #7 regression: corrupt upper 8 bits in job_id must be rejected!
+    assert(!mon.cancel_job(id2 | 0xFF000000u));
+    assert(!mon.cancel_job(id2 | 0x01000000u));
     assert(mon.cancel_job(id2));
     assert(mon.poll_jobs() == 1u);
     assert(j2.saw_cancel);
+
+    // Bug #7 regression: commands with > max_tokens (8) must be rejected instead of silently truncated!
+    sink.text.clear();
+    assert(!mon.execute_line("vault a b c d e f g h"));
+    assert(sink.text == "ERR too many arguments\n");
+    // Exactly 8 tokens is still accepted.
+    sink.text.clear();
+    assert(mon.execute_line("vault a b c d e f g"));
+    assert(sink.text.find("VAULT keys=3") != std::string::npos);
+
+    // Abort argument validation & CRLF streaming + empty line handling.
+    sink.text.clear();
+    assert(mon.execute_line("abort"));
+    assert(sink.text == "ERR usage: abort <job_id>\n");
+    sink.text.clear();
+    assert(mon.execute_line("abort not_a_num"));
+    assert(sink.text == "ERR invalid job id\n");
+    sink.text.clear();
+    assert(mon.execute_line("abort 0xdeadbeef"));
+    assert(sink.text == "ERR job not active or stale generation\n");
+    sink.text.clear();
+    assert(mon.execute_line("   \t  "));
+    assert(sink.text.empty());
+    const char crlf_stream[] = "help\r\n";
+    mon.feed_bytes(crlf_stream, sizeof(crlf_stream) - 1);
+    assert(sink.text.find("NexRT Monitor commands:") != std::string::npos);
+
+    // Saturate all max_jobs slots and verify 5th spawn returns 0; verify natural completion!
+    JobStateCtx slots[5]{};
+    uint32_t ids[4]{};
+    for (size_t i = 0; i < 4; ++i) {
+        slots[i].remaining = 1;
+        ids[i] = mon.spawn_job("batch", test_job_step, &slots[i]);
+        assert(ids[i] != 0u);
+    }
+    assert(mon.spawn_job("overflow", test_job_step, &slots[4]) == 0u);
+    assert(mon.spawn_job("nullfn", nullptr, nullptr) == 0u);
+    assert(mon.poll_jobs() == 4u); // All 4 complete naturally
+    assert(mon.poll_jobs() == 0u); // None active anymore
+    sink.text.clear();
+    assert(mon.execute_line("runs"));
+    assert(sink.text.find("state=done") != std::string::npos);
+
+    // Null-hook fallback paths for every command.
+    monitor::Session bare;
+    OutSink bare_sink;
+    bare.initialize(write_sink, &bare_sink, monitor::Hooks{});
+    const char* cmds[] = {"sched", "cycles", "time", "io", "vault", "guard", "flightlog", "script"};
+    for (const char* c : cmds) {
+        bare_sink.text.clear();
+        assert(bare.execute_line(c));
+        assert(bare_sink.text.find("ERR ") == 0u && bare_sink.text.find("unavailable") != std::string::npos);
+    }
+    assert(!bare.execute_line(nullptr));
+    std::string direct_overflow(200, 'X');
+    assert(!bare.execute_line(direct_overflow.c_str()));
 }
 
 } // namespace

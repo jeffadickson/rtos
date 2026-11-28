@@ -141,6 +141,8 @@ struct ParallelNandBus {
     void (*read_data)(void* ctx, uint8_t* bytes, size_t len){};
     bool (*is_ready)(void* ctx){};
     uint32_t max_poll_iterations{100000u};
+    void (*hw_ecc_reset)(void* ctx){};
+    void (*hw_ecc_read)(void* ctx, uint8_t ecc[3]){};
 };
 
 /** @brief ONFI 1.0 x8 Parallel NAND adapter (Micron MT29F4G08ABA, Kioxia TC58NVG2S0H).

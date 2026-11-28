@@ -89,6 +89,16 @@ namespace AxiWindowPresets {
     };
 }
 
+/// NexRT AXI4-Lite multi-flash subsystem window (default base 0x10020000, 16 KiB).
+[[nodiscard]] constexpr cameo::embed::MemoryWindow nexrt_flash_subsys(
+    uint64_t base = 0x10020000ULL, bool allow_write = true) noexcept {
+    return {
+        base, 0x4000u,
+        allow_write ? cameo::embed::MemoryPerms::kRwAxi : cameo::embed::MemoryPerms::kRoAxi,
+        4u, 4u, true
+    };
+}
+
 /// Byte/halfword/word/doubleword accessible static RAM/scratch window.
 [[nodiscard]] constexpr cameo::embed::MemoryWindow ram_window(
     uint64_t base, uint64_t size, bool allow_write = true) noexcept {
@@ -901,6 +911,7 @@ class MonitorBridge {
     ScriptStorageAdapter storage_{};
     uint32_t step_budget_{0u};
     cameo::embed::Status last_status_{cameo::embed::Status::Ok};
+    bool has_mark_{false};
 
     static void emit_sv(rtos::monitor::WriteFn emit, void* ctx, cameo::embed::StringView sv) noexcept {
         if (emit != nullptr) (void)emit(sv.data(), sv.size(), ctx);
@@ -912,18 +923,24 @@ class MonitorBridge {
         if (*s == '-') { neg = true; ++s; }
         if (*s == '\0') return false;
         uint64_t v = 0;
-        if (s[0] == '0' && (s[1] == 'x' || s[1] == 'X')) {
+        const bool is_hex = (s[0] == '0' && (s[1] == 'x' || s[1] == 'X'));
+        if (is_hex) {
             s += 2;
             if (*s == '\0') return false;
             while (*s != '\0') {
                 const int n = cameo::embed::detail::hex_nibble(*s++);
                 if (n < 0) return false;
+                if (v > (UINT64_MAX >> 4u)) return false;
                 v = (v << 4u) | static_cast<uint64_t>(n);
             }
+            if (neg && v > 0x8000000000000000ULL) return false;
         } else {
+            const uint64_t limit = neg ? 0x8000000000000000ULL : 0x7FFFFFFFFFFFFFFFULL;
             while (*s != '\0') {
                 if (*s < '0' || *s > '9') return false;
-                v = v * 10u + static_cast<uint64_t>(*s++ - '0');
+                const uint64_t d = static_cast<uint64_t>(*s++ - '0');
+                if (v > (limit - d) / 10u) return false;
+                v = v * 10u + d;
             }
         }
         out = neg ? static_cast<int64_t>(0u - v) : static_cast<int64_t>(v);
@@ -979,7 +996,7 @@ class MonitorBridge {
             emit_sv(emit, emit_ctx, "\n");
             return;
         }
-        if (vm_->is_loaded() && !vm_->is_paused()) vm_->reset_pools_to(post_main_mark_);
+        if (vm_->is_loaded() && !vm_->is_paused() && has_mark_) vm_->reset_pools_to(post_main_mark_);
         if (res.status != cameo::embed::Status::Ok) {
             emit_sv(emit, emit_ctx, "err run=");
             emit_i64(emit, emit_ctx, static_cast<int64_t>(res.status));
@@ -1004,11 +1021,13 @@ class MonitorBridge {
         if (vst != cameo::embed::Status::Ok) { last_status_ = vst; return vst; }
         const auto lst = vm_->load(rx_.span());
         if (lst != cameo::embed::Status::Ok) { last_status_ = lst; return lst; }
+        has_mark_ = false;
         const uint32_t budget = step_budget_ > 0u ? step_budget_ : 50000u;
         const auto mres = vm_->run_main(budget);
         last_status_ = mres.status;
         if (mres.status != cameo::embed::Status::Ok) return mres.status;
         post_main_mark_ = vm_->mark_pools();
+        has_mark_ = true;
         return cameo::embed::Status::Ok;
     }
 
@@ -1018,6 +1037,8 @@ public:
     void attach(Vm& vm, uint32_t default_step_budget = 50000u) noexcept {
         vm_ = &vm;
         step_budget_ = default_step_budget;
+        has_mark_ = vm.is_loaded();
+        post_main_mark_ = has_mark_ ? vm.mark_pools() : cameo::embed::PoolWatermark{};
     }
 
     void attach_storage(ScriptStorageAdapter adapter) noexcept {
@@ -1101,6 +1122,7 @@ public:
                 emit_sv(emit, emit_ctx, "\n");
                 return false;
             }
+            has_mark_ = false;
             const auto mres = vm_->run_main(budget);
             last_status_ = mres.status;
             if (mres.status != cameo::embed::Status::Ok) {
@@ -1110,6 +1132,7 @@ public:
                 return false;
             }
             post_main_mark_ = vm_->mark_pools();
+            has_mark_ = true;
             emit_sv(emit, emit_ctx, "ok loaded crc=");
             emit_hex32(emit, emit_ctx, vm_->image_crc32c());
             emit_sv(emit, emit_ctx, "\n");

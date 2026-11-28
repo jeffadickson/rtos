@@ -255,6 +255,120 @@ void test_elf_loader_riscv_and_arm() {
     assert(read_u32(arena) == static_cast<uint32_t>(allowed_fn_addr));
     assert(icache.calls == 2u);
 
+    // 6. Bug #5 regression: ARM SHT_REL MOVW/MOVT with NON-ZERO in-place 16-bit addend (+0x1234 and -8)!
+    auto encode_mov_imm16 = [](uint16_t base_hw1, uint16_t base_hw2, uint16_t imm16, uint8_t* dst) {
+        const uint16_t imm4 = static_cast<uint16_t>((imm16 >> 12) & 0xfu);
+        const uint16_t i_bit = static_cast<uint16_t>((imm16 >> 11) & 1u);
+        const uint16_t imm3 = static_cast<uint16_t>((imm16 >> 8) & 0x7u);
+        const uint16_t imm8 = static_cast<uint16_t>(imm16 & 0xffu);
+        const uint16_t hw1 = static_cast<uint16_t>((base_hw1 & 0xfbf0u) | (i_bit << 10) | imm4);
+        const uint16_t hw2 = static_cast<uint16_t>((base_hw2 & 0x8f00u) | (imm3 << 12) | imm8);
+        dst[0] = static_cast<uint8_t>(hw1 & 0xffu); dst[1] = static_cast<uint8_t>(hw1 >> 8);
+        dst[2] = static_cast<uint8_t>(hw2 & 0xffu); dst[3] = static_cast<uint8_t>(hw2 >> 8);
+    };
+    auto decode_mov_imm16 = [](const uint8_t* p) -> uint16_t {
+        const uint16_t hw1 = static_cast<uint16_t>(p[0]) | (static_cast<uint16_t>(p[1]) << 8);
+        const uint16_t hw2 = static_cast<uint16_t>(p[2]) | (static_cast<uint16_t>(p[3]) << 8);
+        return static_cast<uint16_t>(((hw1 & 0xfu) << 12) | (((hw1 >> 10) & 1u) << 11) |
+                                     (((hw2 >> 12) & 0x7u) << 8) | (hw2 & 0xffu));
+    };
+
+    // Place a symbol at 0x1000FFF0 so +0x20 carries into the upper 16 bits (0x10010010)!
+    const elf::ExportSymbol addend_exports[] = {
+        {"near_sym", allowed_fn_addr, 1u},
+        {"carry_sym", 0x1000FFF0u, 1u},
+    };
+    elf::LoadConfig arm_add_cfg = cfg;
+    arm_add_cfg.exports = addend_exports;
+    arm_add_cfg.export_count = 2u;
+
+    std::vector<uint8_t> arm_add_text(20, 0u);
+    encode_mov_imm16(0xF240u, 0x0000u, 0x0020u, &arm_add_text[0]); // MOVW with in-place addend +0x20
+    encode_mov_imm16(0xF2C0u, 0x0000u, 0x0020u, &arm_add_text[4]); // MOVT with in-place addend +0x20
+    encode_mov_imm16(0xF240u, 0x0000u, 0xFFF8u, &arm_add_text[8]); // MOVW with signed addend -8
+    // Offset 12: R_ARM_REL32 (in-place addend = 0); Offset 16: R_ARM_THM_JUMP24 (in-place -4)
+    arm_add_text[16] = 0xffu; arm_add_text[17] = 0xf7u;
+    arm_add_text[18] = 0xfeu; arm_add_text[19] = 0xbffu & 0xffu;
+    const auto arm_add_elf = build_synthetic_elf32(40u, false, arm_add_text, "carry_sym", {
+        {0u, 2u, 43u, 0},  // R_ARM_MOVW_ABS_NC -> low16(0x1000FFF0 + 0x20) = 0x0010
+        {4u, 2u, 44u, 0},  // R_ARM_MOVT_ABS    -> hi16(0x1000FFF0 + 0x20)  = 0x1001
+        {8u, 2u, 43u, 0},  // R_ARM_MOVW_ABS_NC -> low16(0x1000FFF0 - 8)    = 0xFFE8
+        {12u, 1u, 3u, 0},  // R_ARM_REL32 -> module_entry - P = -12
+        {16u, 1u, 30u, 0}, // R_ARM_THM_JUMP24 -> module_entry
+    });
+    assert(loader.load(arm_add_elf.data(), arm_add_elf.size(), arena, sizeof(arena), arm_add_cfg, mod) ==
+           elf::LoadStatus::ok);
+    assert(decode_mov_imm16(arena + 0) == 0x0010u);
+    assert(decode_mov_imm16(arena + 4) == 0x1001u);
+    assert(decode_mov_imm16(arena + 8) == 0xFFE8u);
+    assert(static_cast<int32_t>(read_u32(arena + 12)) == -12);
+
+    // 7. Bug #5 regression: reject unaligned instruction relocation offsets on both ARM and RV32!
+    const auto arm_unaligned = build_synthetic_elf32(40u, false, arm_add_text, "carry_sym", {
+        {1u, 2u, 43u, 0}, // Odd offset for Thumb-2 MOVW -> reloc_out_of_range
+    });
+    assert(loader.load(arm_unaligned.data(), arm_unaligned.size(), arena, sizeof(arena), arm_add_cfg, mod) ==
+           elf::LoadStatus::reloc_out_of_range);
+
+    cfg.expected_arch = elf::TargetArch::riscv;
+    const auto rv_unaligned = build_synthetic_elf32(243u, true, rv_text, "nexrt_log", {
+        {2u, 2u, 26u, 0}, // Non-4-byte-aligned R_RISCV_HI20 -> reloc_out_of_range
+    });
+    assert(loader.load(rv_unaligned.data(), rv_unaligned.size(), arena, sizeof(arena), cfg, mod) ==
+           elf::LoadStatus::reloc_out_of_range);
+
+    // 8. RV32 HI20, LO12_I, LO12_S, JAL + out-of-range JAL + unsupported reloc + entry_not_found + bad headers.
+    std::vector<uint8_t> rv_full(20, 0u);
+    rv_full[0] = 0x37u; // lui x0, 0
+    rv_full[4] = 0x13u; // addi x0, x0, 0
+    rv_full[8] = 0x23u; // sw x0, 0(x0)
+    rv_full[12] = 0x6fu; // jal x0, 0
+    const auto rv_full_elf = build_synthetic_elf32(243u, true, rv_full, "nexrt_log", {
+        {0u, 2u, 26u, 0x10}, // R_RISCV_HI20
+        {4u, 2u, 27u, 0x10}, // R_RISCV_LO12_I
+        {8u, 2u, 28u, 0x10}, // R_RISCV_LO12_S
+        {12u, 1u, 17u, 0},   // R_RISCV_JAL -> module_entry (delta = -12)
+    });
+    assert(loader.load(rv_full_elf.data(), rv_full_elf.size(), arena, sizeof(arena), cfg, mod) ==
+           elf::LoadStatus::ok);
+    assert(mod.relocations_applied == 4u);
+
+    // Out-of-range R_RISCV_JAL (> +/- 1 MiB) fails closed.
+    const auto rv_bad_jal = build_synthetic_elf32(243u, true, rv_full, "nexrt_log", {
+        {12u, 1u, 17u, 0x00200000}, // +2 MiB -> out of range
+    });
+    assert(loader.load(rv_bad_jal.data(), rv_bad_jal.size(), arena, sizeof(arena), cfg, mod) ==
+           elf::LoadStatus::reloc_out_of_range);
+
+    // Unsupported relocation type fails closed on RV32 and ARM.
+    const auto rv_unsup = build_synthetic_elf32(243u, true, rv_full, "nexrt_log", {
+        {0u, 2u, 250u, 0},
+    });
+    assert(loader.load(rv_unsup.data(), rv_unsup.size(), arena, sizeof(arena), cfg, mod) ==
+           elf::LoadStatus::unsupported_reloc);
+    const auto arm_unsup = build_synthetic_elf32(40u, true, arm_add_text, "carry_sym", {
+        {0u, 2u, 250u, 0},
+    });
+    assert(loader.load(arm_unsup.data(), arm_unsup.size(), arena, sizeof(arena), arm_add_cfg, mod) ==
+           elf::LoadStatus::unsupported_reloc);
+
+    // Missing entry symbol fails closed.
+    elf::LoadConfig missing_entry = cfg;
+    missing_entry.entry_symbol = "does_not_exist";
+    assert(loader.load(rv_full_elf.data(), rv_full_elf.size(), arena, sizeof(arena), missing_entry, mod) ==
+           elf::LoadStatus::entry_not_found);
+
+    // Bad header / truncated section table / invalid args.
+    assert(loader.load(nullptr, 0, arena, sizeof(arena), cfg, mod) == elf::LoadStatus::invalid_argument);
+    auto bad_hdr = rv_full_elf;
+    bad_hdr[0] = 0u;
+    assert(loader.load(bad_hdr.data(), bad_hdr.size(), arena, sizeof(arena), cfg, mod) ==
+           elf::LoadStatus::bad_elf_header);
+    auto bad_sh = rv_full_elf;
+    bad_sh[48] = 0u; bad_sh[49] = 0u; // e_shnum = 0
+    assert(loader.load(bad_sh.data(), bad_sh.size(), arena, sizeof(arena), cfg, mod) ==
+           elf::LoadStatus::bad_section_table);
+
     elf::Loader::unload(mod, arena, sizeof(arena));
     assert(mod.state == elf::SlotState::empty && arena[0] == 0u);
 }

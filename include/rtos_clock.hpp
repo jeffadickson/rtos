@@ -69,7 +69,10 @@ public:
         const uint64_t mono_ticks = extend_tick(now_tick);
         const uint64_t mono_ns = mono_ticks * ns_per_tick_;
         const int64_t delta_ns = static_cast<int64_t>((mono_ticks - anchor_ticks_) * ns_per_tick_);
-        const int64_t slew_adj = (delta_ns / 1000000000ll) * static_cast<int64_t>(slew_ppb_);
+        const int64_t delta_s = delta_ns / 1000000000ll;
+        const int64_t rem_ns = delta_ns % 1000000000ll;
+        const int64_t slew_adj = delta_s * static_cast<int64_t>(slew_ppb_) +
+                                 (rem_ns * static_cast<int64_t>(slew_ppb_)) / 1000000000ll;
         const int64_t result = static_cast<int64_t>(mono_ns) + offset_ns_ + slew_adj;
         return result > 0 ? static_cast<uint64_t>(result) : 0u;
     }

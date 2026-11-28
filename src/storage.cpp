@@ -11,39 +11,15 @@ unsigned popcount32(uint32_t v) {
     }
     return c;
 }
-} // namespace
 
-uint32_t crc32c(const void* data, size_t bytes) {
-    return rtos::watchdog::crc32c(data, bytes);
+uint32_t parity8(uint8_t v) {
+    v ^= static_cast<uint8_t>(v >> 4);
+    v ^= static_cast<uint8_t>(v >> 2);
+    v ^= static_cast<uint8_t>(v >> 1);
+    return static_cast<uint32_t>(v & 1u);
 }
 
-// 22-bit complementary Hamming SECDED over 256 bytes (2048 bits):
-//   - p_even[10:0] = XOR of bits where ((bit_index >> k) & 1) == 0
-//   - p_odd[10:0]  = XOR of bits where ((bit_index >> k) & 1) == 1
-// Any 1-bit data error flips exactly 11 bits ((d_even ^ d_odd) == 0x7FF) at index d_odd.
-// Any 1-bit ECC error flips exactly 1 bit. Any 2-bit error fails both checks -> uncorrectable.
-void hamming256_encode(const uint8_t data[256], uint8_t ecc[3]) {
-    uint32_t p_even = 0;
-    uint32_t p_odd = 0;
-    for (uint32_t byte_idx = 0; byte_idx < 256u; ++byte_idx) {
-        const uint8_t b = data[byte_idx];
-        if (b == 0) continue;
-        for (uint32_t bit = 0; bit < 8u; ++bit) {
-            if (((b >> bit) & 1u) == 0u) continue;
-            const uint32_t idx = (byte_idx << 3) | bit;
-            p_odd ^= idx;
-            p_even ^= (~idx) & 0x7FFu;
-        }
-    }
-    const uint32_t packed = (p_even & 0x7FFu) | ((p_odd & 0x7FFu) << 11);
-    ecc[0] = static_cast<uint8_t>(packed & 0xFFu);
-    ecc[1] = static_cast<uint8_t>((packed >> 8) & 0xFFu);
-    ecc[2] = static_cast<uint8_t>((packed >> 16) & 0x3Fu);
-}
-
-EccStatus hamming256_correct(uint8_t data[256], const uint8_t stored_ecc[3]) {
-    uint8_t calc[3]{};
-    hamming256_encode(data, calc);
+EccStatus hamming256_correct_with_calc(uint8_t data[256], const uint8_t stored_ecc[3], const uint8_t calc[3]) {
     const uint32_t stored = static_cast<uint32_t>(stored_ecc[0]) |
                             (static_cast<uint32_t>(stored_ecc[1]) << 8) |
                             (static_cast<uint32_t>(stored_ecc[2] & 0x3Fu) << 16);
@@ -64,6 +40,47 @@ EccStatus hamming256_correct(uint8_t data[256], const uint8_t stored_ecc[3]) {
         return EccStatus::corrected_ecc_bit;
     }
     return EccStatus::uncorrectable_2bit;
+}
+} // namespace
+
+uint32_t crc32c(const void* data, size_t bytes) {
+    return rtos::watchdog::crc32c(data, bytes);
+}
+
+// 22-bit complementary Hamming SECDED over 256 bytes (2048 bits):
+//   - p_even[10:0] = XOR of bits where ((bit_index >> k) & 1) == 0
+//   - p_odd[10:0]  = XOR of bits where ((bit_index >> k) & 1) == 1
+// Any 1-bit data error flips exactly 11 bits ((d_even ^ d_odd) == 0x7FF) at index d_odd.
+// Any 1-bit ECC error flips exactly 1 bit. Any 2-bit error fails both checks -> uncorrectable.
+void hamming256_encode(const uint8_t data[256], uint8_t ecc[3]) {
+    uint32_t p_odd_hi = 0;
+    uint32_t p_even_hi = 0;
+    uint8_t total_xor = 0;
+    for (uint32_t byte_idx = 0; byte_idx < 256u; ++byte_idx) {
+        const uint8_t b = data[byte_idx];
+        total_xor ^= b;
+        const uint32_t mask = 0u - parity8(b);
+        p_odd_hi ^= byte_idx & mask;
+        p_even_hi ^= ((~byte_idx) & 0xFFu) & mask;
+    }
+    const uint32_t p_odd = (p_odd_hi << 3) |
+                           (parity8(static_cast<uint8_t>(total_xor & 0xF0u)) << 2) |
+                           (parity8(static_cast<uint8_t>(total_xor & 0xCCu)) << 1) |
+                           parity8(static_cast<uint8_t>(total_xor & 0xAAu));
+    const uint32_t p_even = (p_even_hi << 3) |
+                            (parity8(static_cast<uint8_t>(total_xor & 0x0Fu)) << 2) |
+                            (parity8(static_cast<uint8_t>(total_xor & 0x33u)) << 1) |
+                            parity8(static_cast<uint8_t>(total_xor & 0x55u));
+    const uint32_t packed = (p_even & 0x7FFu) | ((p_odd & 0x7FFu) << 11);
+    ecc[0] = static_cast<uint8_t>(packed & 0xFFu);
+    ecc[1] = static_cast<uint8_t>((packed >> 8) & 0xFFu);
+    ecc[2] = static_cast<uint8_t>((packed >> 16) & 0x3Fu);
+}
+
+EccStatus hamming256_correct(uint8_t data[256], const uint8_t stored_ecc[3]) {
+    uint8_t calc[3]{};
+    hamming256_encode(data, calc);
+    return hamming256_correct_with_calc(data, stored_ecc, calc);
 }
 
 // =============================================================================
@@ -386,7 +403,21 @@ IoStatus ParallelNandAdapter::read_cb(void* ctx, uint32_t block, uint32_t page,
     self.bus_.write_cmd(self.bus_.context, 0x30u);
     if (!self.wait_ready()) return IoStatus::timeout;
 
-    self.bus_.read_data(self.bus_.context, data, data_len);
+    const uint32_t chunks = self.geom_.page_bytes / 256u;
+    const bool use_hw_ecc = self.geom_.use_sw_ecc &&
+                            self.bus_.hw_ecc_reset != nullptr &&
+                            self.bus_.hw_ecc_read != nullptr &&
+                            chunks <= 20u;
+    uint8_t hw_calc[20u * 3u]{};
+    if (use_hw_ecc) {
+        for (uint32_t c = 0; c < chunks; ++c) {
+            self.bus_.hw_ecc_reset(self.bus_.context);
+            self.bus_.read_data(self.bus_.context, data + c * 256u, 256u);
+            self.bus_.hw_ecc_read(self.bus_.context, hw_calc + c * 3u);
+        }
+    } else {
+        self.bus_.read_data(self.bus_.context, data, data_len);
+    }
     uint8_t oob[64]{};
     self.bus_.read_data(self.bus_.context, oob, self.geom_.spare_bytes);
     if (spare && spare_len > 0) {
@@ -404,7 +435,6 @@ IoStatus ParallelNandAdapter::read_cb(void* ctx, uint32_t block, uint32_t page,
 
         // Power cut mid-page-program before OOB ECC bytes were written leaves all ECC bytes == 0xFF:
         // let JournalFs's CRC-32C cleanly ignore this torn tail page without falsely retiring the block!
-        const uint32_t chunks = self.geom_.page_bytes / 256u;
         bool ecc_all_ff = true;
         for (uint32_t i = 0; i < chunks * 3u && ecc_all_ff; ++i) {
             if (oob[2u + i] != 0xFFu) ecc_all_ff = false;
@@ -413,7 +443,9 @@ IoStatus ParallelNandAdapter::read_cb(void* ctx, uint32_t block, uint32_t page,
 
         bool corrected = false;
         for (uint32_t c = 0; c < chunks; ++c) {
-            const EccStatus es = hamming256_correct(data + c * 256u, oob + 2u + c * 3u);
+            const EccStatus es = use_hw_ecc
+                ? hamming256_correct_with_calc(data + c * 256u, oob + 2u + c * 3u, hw_calc + c * 3u)
+                : hamming256_correct(data + c * 256u, oob + 2u + c * 3u);
             if (es == EccStatus::uncorrectable_2bit) return IoStatus::ecc_uncorrectable;
             if (es == EccStatus::corrected_1bit || es == EccStatus::corrected_ecc_bit) corrected = true;
         }
@@ -439,17 +471,25 @@ IoStatus ParallelNandAdapter::program_cb(void* ctx, uint32_t block, uint32_t pag
     // Keep OOB byte 0..1 == 0xFF (good-block marker) and store Hamming SECDED ECC at OOB[2..].
     oob[0] = 0xFFu;
     oob[1] = 0xFFu;
-    if (self.geom_.use_sw_ecc) {
-        const uint32_t chunks = self.geom_.page_bytes / 256u;
-        for (uint32_t c = 0; c < chunks; ++c) {
-            hamming256_encode(data + c * 256u, oob + 2u + c * 3u);
-        }
-    }
 
     const uint32_t row = block * self.geom_.pages_per_block + page;
     self.bus_.write_cmd(self.bus_.context, 0x80u);
     self.send_row_col_addr(0u, row);
-    self.bus_.write_data(self.bus_.context, data, data_len);
+    const uint32_t chunks = self.geom_.page_bytes / 256u;
+    if (self.geom_.use_sw_ecc && self.bus_.hw_ecc_reset != nullptr && self.bus_.hw_ecc_read != nullptr) {
+        for (uint32_t c = 0; c < chunks; ++c) {
+            self.bus_.hw_ecc_reset(self.bus_.context);
+            self.bus_.write_data(self.bus_.context, data + c * 256u, 256u);
+            self.bus_.hw_ecc_read(self.bus_.context, oob + 2u + c * 3u);
+        }
+    } else {
+        if (self.geom_.use_sw_ecc) {
+            for (uint32_t c = 0; c < chunks; ++c) {
+                hamming256_encode(data + c * 256u, oob + 2u + c * 3u);
+            }
+        }
+        self.bus_.write_data(self.bus_.context, data, data_len);
+    }
     self.bus_.write_data(self.bus_.context, oob, self.geom_.spare_bytes);
     self.bus_.write_cmd(self.bus_.context, 0x10u);
     if (!self.wait_ready()) return IoStatus::timeout;

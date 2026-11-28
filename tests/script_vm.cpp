@@ -146,6 +146,85 @@ void test_arithmetic_and_safety() {
     auto r_poke = vm.execute(pkg, sz_poke, pol);
     assert(r_poke.status == Status::halted && r_poke.return_value == 123);
     assert(board.poke_count == 1u);
+
+    // 8. Full ALU, bitwise, shift, branch (BEQ/BNE/BLT/BGE), and INT32_MIN / -1 saturation coverage.
+    const uint32_t prog_alu[] = {
+        encode_imm(op_movi, 1, 0, 100),                  // 0: r1 = 100
+        encode_imm(op_movi, 2, 0, 35),                   // 1: r2 = 35
+        encode_reg(op_sub, 3, 1, 2),                     // 2: r3 = 65
+        encode_imm(op_movi, 4, 0, 3),                    // 3: r4 = 3
+        encode_reg(op_mul, 5, 3, 4),                     // 4: r5 = 195
+        encode_imm(op_movi, 6, 0, 0x0F),                 // 5: r6 = 0x0F
+        encode_reg(op_and, 7, 5, 6),                     // 6: r7 = 195 & 15 = 3
+        encode_imm(op_movi, 8, 0, 0x30),                 // 7: r8 = 0x30
+        encode_reg(op_or, 9, 7, 8),                      // 8: r9 = 0x33
+        encode_reg(op_xor, 10, 9, 6),                    // 9: r10 = 0x3C (60)
+        encode_imm(op_shl, 11, 10, 2),                   // 10: r11 = 240
+        encode_imm(op_shr, 12, 11, 3),                   // 11: r12 = 30
+        encode_imm(op_mov, 13, 12, 0),                   // 12: r13 = 30
+        encode_imm(op_beq, 12, 13, 15),                  // 13: taken -> 15
+        encode_imm(op_halt, 0, 0, 0),                    // 14: skipped
+        encode_imm(op_bne, 12, 1, 17),                   // 15: 30 != 100 -> 17
+        encode_imm(op_halt, 0, 0, 0),                    // 16: skipped
+        encode_imm(op_bge, 1, 12, 19),                   // 17: 100 >= 30 -> 19
+        encode_imm(op_halt, 0, 0, 0),                    // 18: skipped
+        encode_imm(op_lui, 14, 0, static_cast<int16_t>(0x8000u)), // 19: r14 = INT32_MIN
+        encode_imm(op_movi, 15, 0, -1),                  // 20: r15 = -1
+        encode_reg(op_div, 14, 14, 15),                  // 21: INT32_MIN / -1 -> INT32_MIN (no UB!)
+        encode_imm(op_addi, 12, 12, 12),                 // 22: r12 = 42
+        encode_imm(op_halt, 12, 0, 0),                   // 23: halt(42)
+    };
+    const size_t sz_alu = build_package(prog_alu, 24, 100, 0, pkg, sizeof(pkg));
+    auto r_alu = vm.execute(pkg, sz_alu, pol);
+    assert(r_alu.status == Status::halted && r_alu.return_value == 42);
+    assert(vm.reg(14) == 0x80000000u);
+
+    // 9. Vault write capability & flag_allow_vault_write / flag_allow_poke header checks + null syscall hook.
+    const uint32_t prog_vw[] = {
+        encode_imm(op_movi, 1, 0, 0),
+        encode_imm(op_movi, 2, 0, 999),
+        encode_imm(op_sys, 2, 1, sys_vault_write),
+        encode_imm(op_halt, 2, 0, 0),
+    };
+    const size_t sz_vw_flagged = build_package(prog_vw, 4, 50, flag_allow_vault_write, pkg, sizeof(pkg));
+    pol.allow_vault_write = false;
+    assert(vm.execute(pkg, sz_vw_flagged, pol).status == Status::syscall_denied);
+    const size_t sz_vw_unflagged = build_package(prog_vw, 4, 50, 0, pkg, sizeof(pkg));
+    assert(vm.execute(pkg, sz_vw_unflagged, pol).status == Status::syscall_denied);
+    pol.allow_vault_write = true;
+    auto r_vw = vm.execute(pkg, sz_vw_flagged, pol);
+    assert(r_vw.status == Status::halted && r_vw.return_value == 999 && board.vault_val == 999u);
+
+    // Header flag_allow_poke denied before running even 1 instruction.
+    const size_t sz_pf = build_package(prog1, 6, 50, flag_allow_poke, pkg, sizeof(pkg));
+    pol.allow_poke = false;
+    auto r_pf = vm.execute(pkg, sz_pf, pol);
+    assert(r_pf.status == Status::syscall_denied && r_pf.instructions_executed == 0u);
+
+    // Null syscall handler & out-of-bounds load fail closed.
+    HostPolicy no_sys = pol;
+    no_sys.on_syscall = nullptr;
+    const size_t sz_vw_nosys = build_package(prog_vw, 4, 50, 0, pkg, sizeof(pkg));
+    assert(vm.execute(pkg, sz_vw_nosys, no_sys).status == Status::syscall_denied);
+
+    const uint32_t prog_oob_ld[] = { encode_imm(op_load, 1, 0, 64) };
+    const size_t sz_oob_ld = build_package(prog_oob_ld, 1, 50, 0, pkg, sizeof(pkg));
+    assert(vm.execute(pkg, sz_oob_ld, pol).status == Status::mem_fault);
+
+    // 10. Malformed packages & build_package boundary checks.
+    assert(build_package(nullptr, 1, 10, 0, pkg, sizeof(pkg)) == 0u);
+    assert(build_package(prog1, 0, 10, 0, pkg, sizeof(pkg)) == 0u);
+    assert(build_package(prog1, 6, 10, 0, pkg, 10u) == 0u);
+    assert(vm.execute(nullptr, 0, pol).status == Status::invalid_package);
+    assert(vm.execute(pkg, 10u, pol).status == Status::invalid_package);
+    const size_t sz_ok = build_package(prog1, 6, 50, 0, pkg, sizeof(pkg));
+    assert(vm.execute(pkg, sz_ok - 4u, pol).status == Status::invalid_package); // wrong byte len
+    pkg[0] = 0u; // bad magic
+    assert(vm.execute(pkg, sz_ok, pol).status == Status::invalid_package);
+    (void)build_package(prog1, 6, 50, 0, pkg, sizeof(pkg));
+    pkg[8] = 0u; pkg[9] = 0u; pkg[10] = 0u; pkg[11] = 0u; // code_words == 0
+    assert(vm.execute(pkg, sz_ok, pol).status == Status::invalid_package);
+    assert(crc32c(nullptr, 10u) == 0u);
 }
 
 void test_compiled_nxs_file(const char* path) {

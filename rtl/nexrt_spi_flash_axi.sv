@@ -156,15 +156,15 @@ module nexrt_spi_flash_axi #(
             div_cnt        <= 16'd0;
             sclk_reg       <= 1'b0;
         end else begin
-            // Clear rx_valid when CPU reads RXDATA
-            if (reg_rd && reg_addr[7:0] == 8'h0C) begin
+            // Clear rx_valid only on valid 12-bit RXDATA read (no aliasing on 0x10C..0xF0C)
+            if (reg_rd && !reg_err && reg_addr == 12'h00C) begin
                 rx_valid <= 1'b0;
             end
 
-            // Register writes
-            if (reg_wr) begin
-                unique case (reg_addr[7:0])
-                    8'h00: begin
+            // Register writes (full 12-bit address decode, gated by !reg_err)
+            if (reg_wr && !reg_err) begin
+                unique case (reg_addr)
+                    12'h000: begin
                         ctrl_en        <= reg_wdata[0];
                         ctrl_cpol      <= reg_wdata[1];
                         ctrl_cpha      <= reg_wdata[2];
@@ -172,7 +172,7 @@ module nexrt_spi_flash_axi #(
                         ctrl_cs_assert <= reg_wdata[8];
                         ctrl_clk_div   <= (reg_wdata[31:16] == 16'd0) ? 16'd1 : reg_wdata[31:16];
                     end
-                    8'h08: begin
+                    12'h008: begin
                         if (ctrl_en && !busy) begin
                             tx_shift <= reg_wdata[7:0];
                             rx_shift <= 8'd0;
@@ -184,27 +184,29 @@ module nexrt_spi_flash_axi #(
                             rx_valid <= 1'b0;
                         end
                     end
-                    8'h10: irq_en <= reg_wdata[0];
-                    8'h14: if (reg_wdata[0]) irq_stat <= 1'b0;
+                    12'h010: irq_en <= reg_wdata[0];
+                    12'h014: if (reg_wdata[0]) irq_stat <= 1'b0;
                     default: ;
                 endcase
             end
 
-            // Full-duplex SPI shift state machine (MSB first)
+            // Full-duplex SPI shift state machine (MSB first, full half-cycle setup & hold in Modes 0-3)
             if (busy) begin
                 if (div_cnt != 16'd0) begin
                     div_cnt <= div_cnt - 16'd1;
                 end else begin
                     div_cnt <= eff_div - 16'd1;
                     if (!phase) begin
-                        // Leading edge: toggle SCLK; sample MISO on CPHA==0
+                        // Leading edge: toggle SCLK; CPHA=0 samples MISO; CPHA=1 shifts next MOSI bit (bits 1..7)
                         sclk_reg <= ~ctrl_cpol;
                         phase    <= 1'b1;
                         if (!ctrl_cpha) begin
                             rx_shift <= {rx_shift[6:0], spi_miso};
+                        end else if (bit_idx != 4'd0) begin
+                            tx_shift <= {tx_shift[6:0], 1'b1};
                         end
                     end else begin
-                        // Trailing edge: return SCLK to idle; sample on CPHA==1; shift MOSI
+                        // Trailing edge: return SCLK to idle; CPHA=1 samples MISO (holding MOSI); CPHA=0 shifts MOSI
                         sclk_reg <= ctrl_cpol;
                         phase    <= 1'b0;
                         if (ctrl_cpha) begin
@@ -216,7 +218,9 @@ module nexrt_spi_flash_axi #(
                             rx_data  <= ctrl_cpha ? {rx_shift[6:0], spi_miso} : rx_shift;
                             irq_stat <= 1'b1;
                         end else begin
-                            tx_shift <= {tx_shift[6:0], 1'b1};
+                            if (!ctrl_cpha) begin
+                                tx_shift <= {tx_shift[6:0], 1'b1};
+                            end
                             bit_idx  <= bit_idx + 4'd1;
                         end
                     end

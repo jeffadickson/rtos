@@ -147,10 +147,53 @@ void test_fixed_pool() {
     void* isr_blk = nullptr;
     assert(test_pool.try_allocate_from_isr(isr_blk) == Result::ok);
     assert(isr_blk == blocks[0]);
+    assert(test_pool.try_allocate_from_isr(extra) == Result::empty);
     assert(test_pool.release_from_isr(isr_blk) == Result::ok);
     model::isr = false;
 
-    for (size_t i = 1; i < 4; ++i) {
+    // Blocking allocate woken by ISR release + blocking timeout expiry.
+    void* b0 = nullptr;
+    assert(test_pool.allocate(b0, NoWait) == Result::ok);
+    assert(b0 == blocks[0]);
+    static void* isr_release_target = nullptr;
+    isr_release_target = blocks[1];
+    // All 4 blocks are now allocated; blocking allocate with timeout wakes via ISR release.
+    model::on_park = []() {
+        const unsigned saved = model::depth;
+        model::depth = 0;
+        model::isr = true;
+        assert(test_pool.release_from_isr(isr_release_target) == Result::ok);
+        model::isr = false;
+        model::depth = saved;
+    };
+    void* woken = nullptr;
+    assert(test_pool.allocate(woken, 10u) == Result::ok);
+    assert(woken == blocks[1]);
+    model::on_park = nullptr;
+
+    // Blocking allocate with no releaser expires cleanly with Result::timeout.
+    model::on_park = []() {
+        const unsigned saved = model::depth;
+        model::depth = 0;
+        model::scheduler.advance(10u);
+        model::depth = saved;
+    };
+    assert(test_pool.allocate(extra, 5u) == Result::timeout);
+    assert(extra == nullptr);
+    model::on_park = nullptr;
+
+    // Invalid timeout & wrong-context checks.
+    assert(test_pool.allocate(extra, MaxWait + 1u) == Result::invalid);
+    model::isr = true;
+    assert(test_pool.allocate(extra, NoWait) == Result::context);
+    assert(test_pool.release(b0) == Result::context);
+    model::isr = false;
+    assert(test_pool.try_allocate_from_isr(extra) == Result::context);
+    assert(test_pool.release_from_isr(b0) == Result::context);
+
+    assert(test_pool.release(b0) == Result::ok);
+    assert(test_pool.release(woken) == Result::ok);
+    for (size_t i = 2; i < 4; ++i) {
         assert(test_pool.release(blocks[i]) == Result::ok);
     }
     assert(test_pool.snapshot().free_blocks == 4u);
@@ -179,6 +222,7 @@ void test_workqueue_and_barrier() {
 
     uint32_t v1 = 10, v2 = 25, v3 = 100;
     assert(workq.submit(nullptr, nullptr) == Result::invalid);
+    assert(workq.submit_delayed(work_add, &v1, 0x80000000u, 100u) == Result::invalid);
     assert(workq.submit(work_add, &v1) == Result::ok);
     assert(workq.submit_delayed(work_add, &v2, 50u, 100u) == Result::ok);
 
@@ -187,17 +231,61 @@ void test_workqueue_and_barrier() {
     assert(workq.submit_from_isr(work_add, &v3) == Result::ok);
     model::isr = false;
 
+    // Fill 4th slot and verify 5th returns Result::full and increments drops.
+    uint32_t v4 = 5;
+    assert(workq.submit(work_add, &v4) == Result::ok);
+    assert(workq.submit(work_add, &v4) == Result::full);
+    assert(workq.snapshot().drops == 1u);
+
     // Immediate & ISR items run at tick 110; delayed item stays pending until tick 150.
     assert(workq.poll_one(110u, NoWait) == Result::ok);
     assert(workq.poll_one(110u, NoWait) == Result::ok);
+    assert(workq.poll_one(110u, NoWait) == Result::ok);
     assert(workq.poll_one(110u, NoWait) == Result::empty);
-    assert(work_sum == 110u);
+    assert(work_sum == 115u);
 
     // Delayed item executes at tick 150.
     assert(workq.poll_one(150u, NoWait) == Result::ok);
-    assert(work_sum == 135u);
-    assert(workq.snapshot().executed == 3u);
-    assert(workq.snapshot().high_water == 3u);
+    assert(work_sum == 140u);
+    assert(workq.snapshot().executed == 4u);
+    assert(workq.snapshot().high_water == 4u);
+
+    // Blocking poll_one woken by submit_from_isr().
+    static uint32_t v5 = 60;
+    model::on_park = []() {
+        const unsigned saved = model::depth;
+        model::depth = 0;
+        model::isr = true;
+        assert(workq.submit_from_isr(work_add, &v5) == Result::ok);
+        model::isr = false;
+        model::depth = saved;
+    };
+    assert(workq.poll_one(160u, 20u) == Result::ok);
+    assert(work_sum == 200u);
+    model::on_park = nullptr;
+
+    // Blocking poll_one timeout when idle + invalid timeout check.
+    model::on_park = []() {
+        const unsigned saved = model::depth;
+        model::depth = 0;
+        model::scheduler.advance(25u);
+        model::depth = saved;
+    };
+    assert(workq.poll_one(170u, 5u) == Result::timeout);
+    model::on_park = nullptr;
+    assert(workq.poll_one(170u, MaxWait + 1u) == Result::invalid);
+
+    // Test Barrier<3> timeout rollback: timed-out waiter cleanly decrements waiting_count().
+    model::on_park = []() {
+        const unsigned saved = model::depth;
+        model::depth = 0;
+        model::scheduler.advance(20u);
+        model::depth = saved;
+    };
+    assert(startup_barrier.wait(5u) == Result::timeout);
+    assert(startup_barrier.waiting_count() == 0u);
+    assert(startup_barrier.generation() == 0u);
+    model::on_park = nullptr;
 
     // Test Barrier<3>: first 2 participants park, 3rd releases all atomically.
     model::on_park = []() {
@@ -242,6 +330,27 @@ void test_epoch_clock() {
     assert(clk.slew_ppb() == 1000);
     const uint64_t after_10s = clk.epoch_ns(11100u);
     assert(after_10s == base_epoch + 11000000000ull + 10000ull);
+
+    // Bug #4 regression: sub-second slew precision when polled/re-trimmed at 10 Hz (100 ms steps)!
+    EpochClock sub_clk;
+    assert(sub_clk.initialize(1000u));
+    sub_clk.set_epoch_ns(base_epoch, 0u);
+    sub_clk.set_slew_ppb(100000, 0u); // +100 ppm (+100 us/s = +10,000 ns per 100 ms)
+    for (uint32_t step = 1u; step <= 10u; ++step) {
+        const Tick t = step * 100u;
+        const uint64_t now_ns = sub_clk.epoch_ns(t);
+        assert(now_ns == base_epoch + uint64_t(t) * 1000000ull + uint64_t(step) * 10000ull);
+        // Re-anchoring slew every 100 ms must NOT truncate accumulated sub-second slew!
+        sub_clk.set_slew_ppb(100000, t);
+    }
+    assert(sub_clk.epoch_ns(1000u) == base_epoch + 1000000000ull + 100000ull);
+
+    // Negative sub-second slew & +/-500,000 ppb clamp checks.
+    sub_clk.set_slew_ppb(-999999, 1000u);
+    assert(sub_clk.slew_ppb() == -500000);
+    assert(sub_clk.epoch_ns(1500u) == base_epoch + 1500000000ull + 100000ull - 250000ull);
+    sub_clk.set_slew_ppb(999999, 1500u);
+    assert(sub_clk.slew_ppb() == 500000);
 
     // Verify 32-bit tick rollover preserves monotonicity!
     const uint64_t pre_wrap = clk.monotonic_ns(0xFFFFFFF0u);

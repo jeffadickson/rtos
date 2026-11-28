@@ -280,6 +280,160 @@ void test_monitor_uart_hot_loading() {
     assert(mon.execute_line("script load"));
     assert(mon_out.text.find("err verify=3") != std::string::npos);
     assert(bridge.last_status() == cameo::embed::Status::ChecksumMismatch);
+
+    // Bug #6 regression: parse_int64 overflow & MonitorBridge error subcommands!
+    mon_out.text.clear();
+    assert(mon.execute_line("script"));
+    assert(mon_out.text.find("usage: script") != std::string::npos);
+    mon_out.text.clear();
+    assert(mon.execute_line("script hex"));
+    assert(mon_out.text.find("err missing hex") != std::string::npos);
+    mon_out.text.clear();
+    assert(mon.execute_line("script hex ZZZZ"));
+    assert(mon_out.text.find("err bad hex") != std::string::npos);
+    mon_out.text.clear();
+    assert(mon.execute_line("script run"));
+    assert(mon_out.text.find("err missing export") != std::string::npos);
+    mon_out.text.clear();
+    assert(mon.execute_line("script run diagnose_bus 99999999999999999999999"));
+    assert(mon_out.text.find("err bad integer arg") != std::string::npos);
+    mon_out.text.clear();
+    assert(mon.execute_line("script run diagnose_bus 0x10000000000000000"));
+    assert(mon_out.text.find("err bad integer arg") != std::string::npos);
+    mon_out.text.clear();
+    assert(mon.execute_line("script run diagnose_bus -9223372036854775809"));
+    assert(mon_out.text.find("err bad integer arg") != std::string::npos);
+    mon_out.text.clear();
+    assert(mon.execute_line("script run diagnose_bus -9223372036854775808"));
+    assert(mon_out.text.find("ok ret=") != std::string::npos); // INT64_MIN accepted!
+    mon_out.text.clear();
+    assert(mon.execute_line("script run nonexistent_fn"));
+    assert(mon_out.text.find("err run=") != std::string::npos);
+    mon_out.text.clear();
+    assert(mon.execute_line("script bogus"));
+    assert(mon_out.text.find("err unknown subcommand") != std::string::npos);
+}
+
+void test_monitor_attach_preloaded_flash_vm_and_presets() {
+    // Verify AxiWindowPresets::nexrt_flash_subsys() geometry & permissions.
+    constexpr auto fw = cameo::nexrt::AxiWindowPresets::nexrt_flash_subsys();
+    static_assert(fw.base == 0x10020000ULL && fw.size == 0x4000u && fw.min_width == 4u && fw.max_width == 4u);
+
+    // Bug #6 regression: attaching MonitorBridge to a VM that was ALREADY loaded from Flash .rodata
+    // MUST preserve post-main() pool allocations (closures/tables/records) across `script run`!
+    static DiagVm vm;
+    MockSoC soc{};
+    configure_soc(soc, vm);
+    assert(vm.add_memory_window(fw));
+
+    FakeKernelTasks tasks{};
+    tasks.rows[0] = {nullptr, "ctrl", rtos::State::ready, 3, 3, true, false, true, 2048, 12000, 10};
+    tasks.count = 1u;
+
+    TextCapture logs{};
+    int64_t last_bp = -1;
+    cameo::nexrt::HostServices host{};
+    host.log_ctx = &logs;
+    host.log_write = &TextCapture::write_log;
+    host.bind_snapshot(&FakeKernelTasks::snapshot_cb, &tasks);
+    host.bind_breakpoint([](void* c, int64_t id) noexcept { *static_cast<int64_t*>(c) = id; }, &last_bp);
+    host.install_into(vm);
+
+    assert(vm.load(nexrt::tests::cameo_diag::kAxiDiagImage) == cameo::embed::Status::Ok);
+    assert(vm.run_main(50000u).status == cameo::embed::Status::Ok);
+
+    // Attach AFTER load()+run_main() without calling `script load`!
+    static cameo::nexrt::MonitorBridge<DiagVm, 256> bridge;
+    bridge.attach(vm, 50000u);
+
+    TextCapture mon_out{};
+    rtos::monitor::Session mon{};
+    rtos::monitor::Hooks hooks{};
+    hooks.run_script = &cameo::nexrt::MonitorBridge<DiagVm, 256>::hook_run_script;
+    hooks.context = &bridge;
+    mon.initialize(&TextCapture::write_monitor, &mon_out, hooks);
+
+    const int64_t expected_xor = static_cast<int64_t>(0x11223344u ^ 0x55667788u ^ 0xAABBCCDDu ^ 0x13579BDFu);
+    // Run exported function TWICE: if post_main_mark_ had been zero-initialized, the 1st run's
+    // reset_pools_to(0) would wipe main()'s closures/tables and corrupt the 2nd run!
+    for (int iter = 0; iter < 3; ++iter) {
+        mon_out.text.clear();
+        assert(mon.execute_line("script run diagnose_bus 0x0A"));
+        assert(mon_out.text.find("ok ret=" + std::to_string(expected_xor)) != std::string::npos);
+    }
+    assert(last_bp == -1);
+}
+
+void test_package_receiver_and_vm_edge_cases() {
+    // 1. PackageReceiver edge cases: empty verify, odd hex count, overflow, bad magic/version/length.
+    cameo::embed::PackageReceiver<128> rx;
+    assert(rx.verify() == cameo::embed::Status::InvalidImage);
+    assert(!rx.is_ready() && rx.span().size() == 0u);
+    assert(!rx.feed_hex("ABC")); // Odd nibble count rejected
+    rx.reset();
+    assert(rx.feed_hex("01 02\t03\r\n04")); // Whitespace ignored
+    assert(rx.bytes_received() == 4u);
+    uint8_t pad[128]{};
+    assert(!rx.feed_bytes(pad, 125u)); // Overflow rejected
+    assert(!rx.feed_bytes(nullptr, 1u));
+    rx.reset();
+    assert(rx.feed_bytes(pad, 80u));
+    assert(rx.verify() == cameo::embed::Status::InvalidImage); // Bad magic
+    // Valid magic, bad version
+    pad[0] = 'C'; pad[1] = 'E'; pad[2] = 'M'; pad[3] = 'B';
+    pad[4] = 99u; pad[5] = 0u;
+    rx.reset();
+    assert(rx.feed_bytes(pad, 80u));
+    assert(rx.verify() == cameo::embed::Status::UnsupportedVersion);
+
+    // 2. StaticVm capacity exhaustion, step-budget exhaustion, and memory-window table saturation.
+    static DiagVm vm;
+    MockSoC soc{};
+    configure_soc(soc, vm);
+    // Saturate remaining memory windows (max 8; 3 already added).
+    for (uint64_t i = 0; i < 5u; ++i) {
+        assert(vm.add_memory_window(cameo::nexrt::AxiWindowPresets::ram_window(0x30000000ULL + i * 0x100u, 0x100u)));
+    }
+    assert(!vm.add_memory_window(cameo::nexrt::AxiWindowPresets::ram_window(0x40000000ULL, 0x100u)));
+
+    // Tiny step budget triggers StepLimit deterministically.
+    FakeKernelTasks tasks{};
+    tasks.rows[0] = {nullptr, "ctrl", rtos::State::ready, 3, 3, true, false, true, 2048, 12000, 10};
+    tasks.count = 1u;
+    cameo::nexrt::HostServices host{};
+    host.bind_snapshot(&FakeKernelTasks::snapshot_cb, &tasks);
+    host.install_into(vm);
+    assert(vm.load(nexrt::tests::cameo_diag::kAxiDiagImage) == cameo::embed::Status::Ok);
+    assert(vm.run_main(50000u).status == cameo::embed::Status::Ok);
+    const cameo::embed::Value args[1] = {cameo::embed::Value::from_int(1)};
+    cameo::embed::Value out[1]{};
+    const auto limited = vm.call_export("diagnose_bus", args, out, 3u);
+    assert(limited.status == cameo::embed::Status::StepLimitExceeded);
+
+    // Unmapped memory window causes MemoryFault when script attempts AXI read on missing window.
+    static DiagVm vm_nowin;
+    host.install_into(vm_nowin);
+    vm_nowin.set_bus_backend({&soc, &MockSoC::read_cb, &MockSoC::write_cb, &MockSoC::fence_cb});
+    assert(vm_nowin.load(nexrt::tests::cameo_diag::kAxiDiagImage) == cameo::embed::Status::Ok);
+    assert(vm_nowin.run_main(50000u).status == cameo::embed::Status::Ok);
+    const auto faulted = vm_nowin.call_export("diagnose_bus", args, out, 50000u);
+    assert(faulted.status == cameo::embed::Status::MemoryFault);
+
+    // Read-only UART AXI window causes axi.rmw32 to deny the write cleanly -> HealthCode::bus_fault (4)!
+    assert(vm_nowin.add_memory_window(cameo::nexrt::AxiWindowPresets::riscue_uartlite(0x10000000ULL, false)));
+    assert(vm_nowin.add_memory_window(cameo::nexrt::AxiWindowPresets::nexrt_hwsched(0x10010000ULL, false)));
+    assert(vm_nowin.add_memory_window(cameo::nexrt::AxiWindowPresets::ram_window(0x20000000ULL, 0x200u, true)));
+    const auto denied = vm_nowin.call_export("diagnose_bus", args, out, 50000u);
+    assert(denied.status == cameo::embed::Status::Ok && out[0].as_int() == 4);
+
+    // UART TX full bit (bit 3) causes script to report HealthCode::uart_tx_full (1).
+    soc.seed32(0x10000008ULL, 0x00000008u);
+    const auto txfull = vm_nowin.call_export("diagnose_bus", args, out, 50000u);
+    assert(txfull.status == cameo::embed::Status::Ok && out[0].as_int() == 1);
+
+    // Global read-only AXI policy rejects images with kHasMemWrite at load time with WriteDenied!
+    vm_nowin.set_axi_read_only(true);
+    assert(vm_nowin.load(nexrt::tests::cameo_diag::kAxiDiagImage) == cameo::embed::Status::WriteDenied);
 }
 
 void test_flash_slot_persistence_watchpoints_and_stepping() {
@@ -503,6 +657,8 @@ void test_dma_and_hwsched_host_services() {
 int main() {
     test_flash_rodata_axi_diagnostics();
     test_monitor_uart_hot_loading();
+    test_monitor_attach_preloaded_flash_vm_and_presets();
+    test_package_receiver_and_vm_edge_cases();
     test_flash_slot_persistence_watchpoints_and_stepping();
     test_dma_and_hwsched_host_services();
     std::printf("cameo_embed NexRT integration tests passed (image=%zu bytes, crc=0x%08X)\n",

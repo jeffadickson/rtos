@@ -5,7 +5,9 @@
 //   - BASE + 0x1000: Parallel ONFI 1.0 x8 NAND + HW 22-bit Hamming SECDED ECC
 //   - BASE + 0x2000: Parallel 16-bit CFI/JEDEC NOR
 //   - BASE + 0x3000: Subsystem ID / Capability & Aggregated IRQ Status register
-// Unused controllers synthesize away completely via ENABLE_* parameters.
+// Fully AMBA AXI4-Lite compliant: independently buffers AW and W channels so
+// AW-before-W, W-before-AW, and simultaneous AW+W all complete without deadlock
+// or combinational READY-depends-on-VALID paths.
 `timescale 1ns/1ps
 
 module nexrt_flash_subsys_axi #(
@@ -17,72 +19,78 @@ module nexrt_flash_subsys_axi #(
     parameter bit          ENABLE_CFI_NOR   = 1'b1,
     parameter int unsigned NOR_ADDR_BITS    = 24
 ) (
-    input  logic                    clk,
-    input  logic                    rst_n,
+    input  logic                     clk,
+    input  logic                     rst_n,
 
     // Single AXI4-Lite slave port (16 KiB window at BASE_ADDR)
-    input  logic [31:0]             s_axi_awaddr,
-    input  logic                    s_axi_awvalid,
-    output logic                    s_axi_awready,
-    input  logic [31:0]             s_axi_wdata,
-    input  logic [3:0]              s_axi_wstrb,
-    input  logic                    s_axi_wvalid,
-    output logic                    s_axi_wready,
-    output logic [1:0]              s_axi_bresp,
-    output logic                    s_axi_bvalid,
-    input  logic                    s_axi_bready,
+    input  logic [31:0]              s_axi_awaddr,
+    input  logic                     s_axi_awvalid,
+    output logic                     s_axi_awready,
+    input  logic [31:0]              s_axi_wdata,
+    input  logic [3:0]               s_axi_wstrb,
+    input  logic                     s_axi_wvalid,
+    output logic                     s_axi_wready,
+    output logic [1:0]               s_axi_bresp,
+    output logic                     s_axi_bvalid,
+    input  logic                     s_axi_bready,
 
-    input  logic [31:0]             s_axi_araddr,
-    input  logic                    s_axi_arvalid,
-    output logic                    s_axi_arready,
-    output logic [31:0]             s_axi_rdata,
-    output logic [1:0]              s_axi_rresp,
-    output logic                    s_axi_rvalid,
-    input  logic                    s_axi_rready,
+    input  logic [31:0]              s_axi_araddr,
+    input  logic                     s_axi_arvalid,
+    output logic                     s_axi_arready,
+    output logic [31:0]              s_axi_rdata,
+    output logic [1:0]               s_axi_rresp,
+    output logic                     s_axi_rvalid,
+    input  logic                     s_axi_rready,
 
     // SPI Flash pins (Serial NOR on CS0#, Serial NAND on CS1#)
-    output logic                    spi_sclk,
-    output logic                    spi_mosi,
-    input  logic                    spi_miso,
-    output logic [SPI_NUM_CS-1:0]   spi_cs_n,
-    output logic                    spi_wp_n,
-    output logic                    spi_hold_n,
+    output logic                     spi_sclk,
+    output logic                     spi_mosi,
+    input  logic                     spi_miso,
+    output logic [SPI_NUM_CS-1:0]    spi_cs_n,
+    output logic                     spi_wp_n,
+    output logic                     spi_hold_n,
 
     // Parallel ONFI x8 NAND pins
-    output logic                    nand_ce_n,
-    output logic                    nand_cle,
-    output logic                    nand_ale,
-    output logic                    nand_we_n,
-    output logic                    nand_re_n,
-    output logic                    nand_wp_n,
-    output logic [7:0]              nand_dq_out,
-    output logic                    nand_dq_oe,
-    input  logic [7:0]              nand_dq_in,
-    input  logic                    nand_rb_n,
+    output logic                     nand_ce_n,
+    output logic                     nand_cle,
+    output logic                     nand_ale,
+    output logic                     nand_we_n,
+    output logic                     nand_re_n,
+    output logic                     nand_wp_n,
+    output logic [7:0]               nand_dq_out,
+    output logic                     nand_dq_oe,
+    input  logic [7:0]               nand_dq_in,
+    input  logic                     nand_rb_n,
 
     // Parallel 16-bit CFI NOR pins
     output logic [NOR_ADDR_BITS-1:0] nor_addr,
-    output logic                    nor_ce_n,
-    output logic                    nor_oe_n,
-    output logic                    nor_we_n,
-    output logic                    nor_reset_n,
-    output logic                    nor_wp_n,
-    output logic [15:0]             nor_dq_out,
-    output logic                    nor_dq_oe,
-    input  logic [15:0]             nor_dq_in,
-    input  logic                    nor_ry_by_n,
+    output logic                     nor_ce_n,
+    output logic                     nor_oe_n,
+    output logic                     nor_we_n,
+    output logic                     nor_reset_n,
+    output logic                     nor_wp_n,
+    output logic [15:0]              nor_dq_out,
+    output logic                     nor_dq_oe,
+    input  logic [15:0]              nor_dq_in,
+    input  logic                     nor_ry_by_n,
 
     // Combined interrupt output
-    output logic                    flash_irq
+    output logic                     flash_irq
 );
     localparam logic [31:0] SUBSYS_MAGIC = 32'h4E58_4643; // "NXFC"
     localparam logic [31:0] SPI_BASE     = BASE_ADDR + 32'h0000;
     localparam logic [31:0] NAND_BASE    = BASE_ADDR + 32'h1000;
     localparam logic [31:0] NOR_BASE     = BASE_ADDR + 32'h2000;
 
-    // Single-outstanding AXI4-Lite demultiplexer across the 4 sub-windows (4 KiB each)
-    logic        wr_active;
-    logic [1:0]  wr_sel;
+    // Decoupled AXI4-Lite write buffer (handles AW-first, W-first, and simultaneous AW+W)
+    logic        have_aw, have_w;
+    logic [31:0] buf_awaddr;
+    logic [31:0] buf_wdata;
+    logic [3:0]  buf_wstrb;
+    logic        wr_sent_aw, wr_sent_w;
+    logic [1:0]  wr_slot;
+
+    // Decoupled AXI4-Lite read state
     logic        rd_active;
     logic [1:0]  rd_sel;
 
@@ -101,19 +109,30 @@ module nexrt_flash_subsys_axi #(
     logic [31:0] nor_rdata;
     logic        nor_irq;
 
-    // Subsystem info/capabilities register block (slot 3: BASE + 0x3000)
-    logic        sys_awready, sys_wready, sys_bvalid, sys_arready, sys_rvalid;
-    logic [1:0]  sys_bresp,   sys_rresp;
+    logic        sys_awready,  sys_wready,  sys_bvalid,  sys_arready,  sys_rvalid;
+    logic [1:0]  sys_bresp,    sys_rresp;
     logic [31:0] sys_rdata;
 
-    wire aw_in_win = (s_axi_awaddr[31:14] == BASE_ADDR[31:14]);
-    wire ar_in_win = (s_axi_araddr[31:14] == BASE_ADDR[31:14]);
-    wire [1:0] aw_slot = s_axi_awaddr[13:12];
-    wire [1:0] ar_slot = s_axi_araddr[13:12];
+    wire wr_dispatch = have_aw && have_w;
+    wire aw_in_win   = (buf_awaddr[31:14] == BASE_ADDR[31:14]);
+    wire [1:0] aw_raw_slot = buf_awaddr[13:12];
+    wire wr_to_sys   = (!aw_in_win) || (aw_raw_slot == 2'd3) ||
+                       (aw_raw_slot == 2'd0 && !ENABLE_SPI) ||
+                       (aw_raw_slot == 2'd1 && !ENABLE_ONFI_NAND) ||
+                       (aw_raw_slot == 2'd2 && !ENABLE_CFI_NOR);
+    assign wr_slot   = wr_to_sys ? 2'd3 : aw_raw_slot;
 
-    wire [1:0] cur_wslot = wr_active ? wr_sel : aw_slot;
+    wire ar_in_win   = (s_axi_araddr[31:14] == BASE_ADDR[31:14]);
+    wire [1:0] ar_raw_slot = s_axi_araddr[13:12];
+    wire rd_to_sys   = (!ar_in_win) || (ar_raw_slot == 2'd3) ||
+                       (ar_raw_slot == 2'd0 && !ENABLE_SPI) ||
+                       (ar_raw_slot == 2'd1 && !ENABLE_ONFI_NAND) ||
+                       (ar_raw_slot == 2'd2 && !ENABLE_CFI_NOR);
 
-    // Generate optional controllers
+    // Zero combinational READY-depends-on-VALID paths on AW and W!
+    assign s_axi_awready = rst_n && !have_aw;
+    assign s_axi_wready  = rst_n && !have_w;
+
     generate
         if (ENABLE_SPI) begin : g_spi
             nexrt_spi_flash_axi #(
@@ -122,18 +141,18 @@ module nexrt_flash_subsys_axi #(
             ) u_spi (
                 .clk           (clk),
                 .rst_n         (rst_n),
-                .s_axi_awaddr  (s_axi_awaddr),
-                .s_axi_awvalid (s_axi_awvalid && aw_in_win && (cur_wslot == 2'd0)),
+                .s_axi_awaddr  (buf_awaddr),
+                .s_axi_awvalid (wr_dispatch && !wr_sent_aw && (wr_slot == 2'd0)),
                 .s_axi_awready (spi_awready),
-                .s_axi_wdata   (s_axi_wdata),
-                .s_axi_wstrb   (s_axi_wstrb),
-                .s_axi_wvalid  (s_axi_wvalid && (cur_wslot == 2'd0) && (wr_active || (s_axi_awvalid && aw_in_win))),
+                .s_axi_wdata   (buf_wdata),
+                .s_axi_wstrb   (buf_wstrb),
+                .s_axi_wvalid  (wr_dispatch && !wr_sent_w  && (wr_slot == 2'd0)),
                 .s_axi_wready  (spi_wready),
                 .s_axi_bresp   (spi_bresp),
                 .s_axi_bvalid  (spi_bvalid),
-                .s_axi_bready  (s_axi_bready && (cur_wslot == 2'd0)),
+                .s_axi_bready  (wr_dispatch && s_axi_bready && (wr_slot == 2'd0)),
                 .s_axi_araddr  (s_axi_araddr),
-                .s_axi_arvalid (s_axi_arvalid && ar_in_win && !rd_active && (ar_slot == 2'd0)),
+                .s_axi_arvalid (s_axi_arvalid && ar_in_win && !rd_active && (ar_raw_slot == 2'd0)),
                 .s_axi_arready (spi_arready),
                 .s_axi_rdata   (spi_rdata),
                 .s_axi_rresp   (spi_rresp),
@@ -171,18 +190,18 @@ module nexrt_flash_subsys_axi #(
             ) u_nand (
                 .clk           (clk),
                 .rst_n         (rst_n),
-                .s_axi_awaddr  (s_axi_awaddr),
-                .s_axi_awvalid (s_axi_awvalid && aw_in_win && (cur_wslot == 2'd1)),
+                .s_axi_awaddr  (buf_awaddr),
+                .s_axi_awvalid (wr_dispatch && !wr_sent_aw && (wr_slot == 2'd1)),
                 .s_axi_awready (nand_awready),
-                .s_axi_wdata   (s_axi_wdata),
-                .s_axi_wstrb   (s_axi_wstrb),
-                .s_axi_wvalid  (s_axi_wvalid && (cur_wslot == 2'd1) && (wr_active || (s_axi_awvalid && aw_in_win))),
+                .s_axi_wdata   (buf_wdata),
+                .s_axi_wstrb   (buf_wstrb),
+                .s_axi_wvalid  (wr_dispatch && !wr_sent_w  && (wr_slot == 2'd1)),
                 .s_axi_wready  (nand_wready),
                 .s_axi_bresp   (nand_bresp),
                 .s_axi_bvalid  (nand_bvalid),
-                .s_axi_bready  (s_axi_bready && (cur_wslot == 2'd1)),
+                .s_axi_bready  (wr_dispatch && s_axi_bready && (wr_slot == 2'd1)),
                 .s_axi_araddr  (s_axi_araddr),
-                .s_axi_arvalid (s_axi_arvalid && ar_in_win && !rd_active && (ar_slot == 2'd1)),
+                .s_axi_arvalid (s_axi_arvalid && ar_in_win && !rd_active && (ar_raw_slot == 2'd1)),
                 .s_axi_arready (nand_arready),
                 .s_axi_rdata   (nand_rdata),
                 .s_axi_rresp   (nand_rresp),
@@ -227,18 +246,18 @@ module nexrt_flash_subsys_axi #(
             ) u_nor (
                 .clk           (clk),
                 .rst_n         (rst_n),
-                .s_axi_awaddr  (s_axi_awaddr),
-                .s_axi_awvalid (s_axi_awvalid && aw_in_win && (cur_wslot == 2'd2)),
+                .s_axi_awaddr  (buf_awaddr),
+                .s_axi_awvalid (wr_dispatch && !wr_sent_aw && (wr_slot == 2'd2)),
                 .s_axi_awready (nor_awready),
-                .s_axi_wdata   (s_axi_wdata),
-                .s_axi_wstrb   (s_axi_wstrb),
-                .s_axi_wvalid  (s_axi_wvalid && (cur_wslot == 2'd2) && (wr_active || (s_axi_awvalid && aw_in_win))),
+                .s_axi_wdata   (buf_wdata),
+                .s_axi_wstrb   (buf_wstrb),
+                .s_axi_wvalid  (wr_dispatch && !wr_sent_w  && (wr_slot == 2'd2)),
                 .s_axi_wready  (nor_wready),
                 .s_axi_bresp   (nor_bresp),
                 .s_axi_bvalid  (nor_bvalid),
-                .s_axi_bready  (s_axi_bready && (cur_wslot == 2'd2)),
+                .s_axi_bready  (wr_dispatch && s_axi_bready && (wr_slot == 2'd2)),
                 .s_axi_araddr  (s_axi_araddr),
-                .s_axi_arvalid (s_axi_arvalid && ar_in_win && !rd_active && (ar_slot == 2'd2)),
+                .s_axi_arvalid (s_axi_arvalid && ar_in_win && !rd_active && (ar_raw_slot == 2'd2)),
                 .s_axi_arready (nor_arready),
                 .s_axi_rdata   (nor_rdata),
                 .s_axi_rresp   (nor_rresp),
@@ -282,31 +301,22 @@ module nexrt_flash_subsys_axi #(
     logic [11:0] sys_reg_addr;
     logic [31:0] sys_reg_wdata, sys_reg_rdata;
 
-    wire wr_to_sys = (!aw_in_win) || (aw_slot == 2'd3) ||
-                     (aw_slot == 2'd0 && !ENABLE_SPI) ||
-                     (aw_slot == 2'd1 && !ENABLE_ONFI_NAND) ||
-                     (aw_slot == 2'd2 && !ENABLE_CFI_NOR);
-    wire rd_to_sys = (!ar_in_win) || (ar_slot == 2'd3) ||
-                     (ar_slot == 2'd0 && !ENABLE_SPI) ||
-                     (ar_slot == 2'd1 && !ENABLE_ONFI_NAND) ||
-                     (ar_slot == 2'd2 && !ENABLE_CFI_NOR);
-
     nexrt_axi_lite_slave #(
         .BASE_ADDR (BASE_ADDR + 32'h3000),
         .WIN_BITS  (12)
     ) u_sys_axi (
         .clk           (clk),
         .rst_n         (rst_n),
-        .s_axi_awaddr  (s_axi_awaddr),
-        .s_axi_awvalid (s_axi_awvalid && (wr_active ? (wr_sel == 2'd3) : wr_to_sys)),
+        .s_axi_awaddr  (buf_awaddr),
+        .s_axi_awvalid (wr_dispatch && !wr_sent_aw && (wr_slot == 2'd3)),
         .s_axi_awready (sys_awready),
-        .s_axi_wdata   (s_axi_wdata),
-        .s_axi_wstrb   (s_axi_wstrb),
-        .s_axi_wvalid  (s_axi_wvalid && (wr_active ? (wr_sel == 2'd3) : (s_axi_awvalid && wr_to_sys))),
+        .s_axi_wdata   (buf_wdata),
+        .s_axi_wstrb   (buf_wstrb),
+        .s_axi_wvalid  (wr_dispatch && !wr_sent_w  && (wr_slot == 2'd3)),
         .s_axi_wready  (sys_wready),
         .s_axi_bresp   (sys_bresp),
         .s_axi_bvalid  (sys_bvalid),
-        .s_axi_bready  (s_axi_bready && (cur_wslot == 2'd3)),
+        .s_axi_bready  (wr_dispatch && s_axi_bready && (wr_slot == 2'd3)),
         .s_axi_araddr  (s_axi_araddr),
         .s_axi_arvalid (s_axi_arvalid && !rd_active && rd_to_sys),
         .s_axi_arready (sys_arready),
@@ -335,53 +345,86 @@ module nexrt_flash_subsys_axi #(
         end
     end
 
-    // Suppress unused warning on sys_reg_wdata
     wire _unused_sys_w = &{1'b0, sys_reg_wdata};
 
-    // Output muxing
+    // Sub-controller write handshake selection & output muxing
+    logic sub_awready, sub_wready;
     always_comb begin
-        s_axi_awready = 1'b0;
-        s_axi_wready  = 1'b0;
-        s_axi_bvalid  = 1'b0;
-        s_axi_bresp   = 2'b10;
-        unique case (wr_active ? wr_sel : (wr_to_sys ? 2'd3 : aw_slot))
-            2'd0: begin s_axi_awready = spi_awready;  s_axi_wready = spi_wready;  s_axi_bvalid = spi_bvalid;  s_axi_bresp = spi_bresp;  end
-            2'd1: begin s_axi_awready = nand_awready; s_axi_wready = nand_wready; s_axi_bvalid = nand_bvalid; s_axi_bresp = nand_bresp; end
-            2'd2: begin s_axi_awready = nor_awready;  s_axi_wready = nor_wready;  s_axi_bvalid = nor_bvalid;  s_axi_bresp = nor_bresp;  end
-            2'd3: begin s_axi_awready = sys_awready;  s_axi_wready = sys_wready;  s_axi_bvalid = sys_bvalid;  s_axi_bresp = sys_bresp;  end
-        endcase
+        sub_awready  = 1'b0;
+        sub_wready   = 1'b0;
+        s_axi_bvalid = 1'b0;
+        s_axi_bresp  = 2'b10;
+        if (wr_dispatch) begin
+            unique case (wr_slot)
+                2'd0: begin sub_awready = spi_awready;  sub_wready = spi_wready;  s_axi_bvalid = spi_bvalid;  s_axi_bresp = spi_bresp;  end
+                2'd1: begin sub_awready = nand_awready; sub_wready = nand_wready; s_axi_bvalid = nand_bvalid; s_axi_bresp = nand_bresp; end
+                2'd2: begin sub_awready = nor_awready;  sub_wready = nor_wready;  s_axi_bvalid = nor_bvalid;  s_axi_bresp = nor_bresp;  end
+                2'd3: begin sub_awready = sys_awready;  sub_wready = sys_wready;  s_axi_bvalid = sys_bvalid;  s_axi_bresp = sys_bresp;  end
+            endcase
+        end
 
         s_axi_arready = 1'b0;
         s_axi_rvalid  = 1'b0;
         s_axi_rresp   = 2'b10;
         s_axi_rdata   = 32'd0;
-        unique case (rd_active ? rd_sel : (rd_to_sys ? 2'd3 : ar_slot))
-            2'd0: begin s_axi_arready = spi_arready;  s_axi_rvalid = spi_rvalid;  s_axi_rresp = spi_rresp;  s_axi_rdata = spi_rdata;  end
-            2'd1: begin s_axi_arready = nand_arready; s_axi_rvalid = nand_rvalid; s_axi_rresp = nand_rresp; s_axi_rdata = nand_rdata; end
-            2'd2: begin s_axi_arready = nor_arready;  s_axi_rvalid = nor_rvalid;  s_axi_rresp = nor_rresp;  s_axi_rdata = nor_rdata;  end
-            2'd3: begin s_axi_arready = sys_arready;  s_axi_rvalid = sys_rvalid;  s_axi_rresp = sys_rresp;  s_axi_rdata = sys_rdata;  end
-        endcase
+        if (!rd_active) begin
+            unique case (rd_to_sys ? 2'd3 : ar_raw_slot)
+                2'd0: s_axi_arready = spi_arready;
+                2'd1: s_axi_arready = nand_arready;
+                2'd2: s_axi_arready = nor_arready;
+                2'd3: s_axi_arready = sys_arready;
+            endcase
+        end else begin
+            unique case (rd_sel)
+                2'd0: begin s_axi_rvalid = spi_rvalid;  s_axi_rresp = spi_rresp;  s_axi_rdata = spi_rdata;  end
+                2'd1: begin s_axi_rvalid = nand_rvalid; s_axi_rresp = nand_rresp; s_axi_rdata = nand_rdata; end
+                2'd2: begin s_axi_rvalid = nor_rvalid;  s_axi_rresp = nor_rresp;  s_axi_rdata = nor_rdata;  end
+                2'd3: begin s_axi_rvalid = sys_rvalid;  s_axi_rresp = sys_rresp;  s_axi_rdata = sys_rdata;  end
+            endcase
+        end
     end
 
     assign flash_irq = spi_irq || nand_irq || nor_irq;
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            wr_active <= 1'b0;
-            wr_sel    <= 2'd0;
-            rd_active <= 1'b0;
-            rd_sel    <= 2'd0;
+            have_aw    <= 1'b0;
+            have_w     <= 1'b0;
+            buf_awaddr <= 32'd0;
+            buf_wdata  <= 32'd0;
+            buf_wstrb  <= 4'd0;
+            wr_sent_aw <= 1'b0;
+            wr_sent_w  <= 1'b0;
+            rd_active  <= 1'b0;
+            rd_sel     <= 2'd0;
         end else begin
-            if (!wr_active && s_axi_awvalid && s_axi_awready) begin
-                wr_active <= 1'b1;
-                wr_sel    <= wr_to_sys ? 2'd3 : aw_slot;
-            end else if (wr_active && s_axi_bvalid && s_axi_bready) begin
-                wr_active <= 1'b0;
+            // Independent AW & W acceptance
+            if (s_axi_awvalid && s_axi_awready) begin
+                have_aw    <= 1'b1;
+                buf_awaddr <= s_axi_awaddr;
+            end
+            if (s_axi_wvalid && s_axi_wready) begin
+                have_w     <= 1'b1;
+                buf_wdata  <= s_axi_wdata;
+                buf_wstrb  <= s_axi_wstrb;
             end
 
+            // Forward buffered write to target sub-slave and release on B handshake
+            if (wr_dispatch) begin
+                if (!wr_sent_aw && sub_awready) wr_sent_aw <= 1'b1;
+                if (!wr_sent_w  && sub_wready)  wr_sent_w  <= 1'b1;
+                if (s_axi_bvalid && s_axi_bready) begin
+                    have_aw    <= 1'b0;
+                    have_w     <= 1'b0;
+                    wr_sent_aw <= 1'b0;
+                    wr_sent_w  <= 1'b0;
+                end
+            end
+
+            // Read channel tracking
             if (!rd_active && s_axi_arvalid && s_axi_arready) begin
                 rd_active <= 1'b1;
-                rd_sel    <= rd_to_sys ? 2'd3 : ar_slot;
+                rd_sel    <= rd_to_sys ? 2'd3 : ar_raw_slot;
             end else if (rd_active && s_axi_rvalid && s_axi_rready) begin
                 rd_active <= 1'b0;
             end

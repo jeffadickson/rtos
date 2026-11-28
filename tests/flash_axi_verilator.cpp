@@ -30,11 +30,14 @@ namespace {
 // =============================================================================
 
 /// Pin-level SPI slave transceiver bridging physical (SCLK, MOSI, MISO, CS#)
-/// to our SerialNorMock / SerialNandMock SpiBus protocol models.
+/// to our SerialNorMock / SerialNandMock SpiBus protocol models (supports SPI Modes 0..3).
 class SpiPinTransceiver {
     SpiBus target_{};
+    bool cpol_{false};
+    bool cpha_{false};
     bool prev_cs_n_{true};
     bool prev_sclk_{false};
+    bool prev_mosi_{false};
     uint8_t rx_byte_{};
     uint8_t rx_bits_{};
     std::vector<uint8_t> tx_frame_;
@@ -64,11 +67,19 @@ class SpiPinTransceiver {
     bool is_nand_{false};
 
 public:
+    void set_mode(uint8_t mode) {
+        cpol_ = (mode & 1u) != 0u;
+        cpha_ = (mode & 2u) != 0u;
+    }
+
     void attach(const SpiBus& bus, bool is_nand) {
         target_ = bus;
         is_nand_ = is_nand;
+        cpol_ = false;
+        cpha_ = false;
         prev_cs_n_ = true;
         prev_sclk_ = false;
+        prev_mosi_ = false;
         tx_frame_.clear();
         resp_bytes_.clear();
         serving_response_ = false;
@@ -89,6 +100,7 @@ public:
             resp_armed_ = false;
             prev_cs_n_ = true;
             prev_sclk_ = sclk;
+            prev_mosi_ = mosi;
             return 1u;
         }
 
@@ -103,10 +115,19 @@ public:
             serving_response_ = false;
             resp_armed_ = false;
             prev_cs_n_ = false;
+            prev_sclk_ = sclk;
+            prev_mosi_ = mosi;
         }
 
-        // Mode 0: sample MOSI on SCLK rising edge; shift MISO on SCLK falling edge
-        if (sclk && !prev_sclk_) {
+        const bool leading_edge  = (sclk != cpol_) && (prev_sclk_ == cpol_);
+        const bool trailing_edge = (sclk == cpol_) && (prev_sclk_ != cpol_);
+        const bool sample_edge   = cpha_ ? trailing_edge : leading_edge;
+        const bool shift_edge    = cpha_ ? leading_edge  : trailing_edge;
+
+        if (sample_edge) {
+            // Regression check for Bug #3 (SPI CPHA=1 MOSI hold-time race):
+            // MOSI must remain stable across every sample edge (zero same-edge transition).
+            assert(mosi == prev_mosi_ && "SPI MOSI changed on sample edge (hold-time violation)!");
             rx_byte_ = static_cast<uint8_t>((rx_byte_ << 1) | (mosi ? 1u : 0u));
             ++rx_bits_;
             if (rx_bits_ == 8u) {
@@ -114,7 +135,6 @@ public:
                     tx_frame_.push_back(rx_byte_);
                     const size_t hdr = read_header_len(tx_frame_, is_nand_);
                     if (hdr > 0 && tx_frame_.size() == hdr) {
-                        // Prefetch response bytes from the chip emulator on read commands
                         size_t rx_n = 1;
                         if (tx_frame_[0] == 0x9Fu) rx_n = 3;
                         else if (tx_frame_[0] == 0x05u || tx_frame_[0] == 0x0Fu) rx_n = 1;
@@ -138,10 +158,9 @@ public:
                 rx_byte_ = 0;
                 rx_bits_ = 0;
             }
-        } else if (!sclk && prev_sclk_) {
+        } else if (shift_edge) {
             if (serving_response_) {
                 if (!resp_armed_) {
-                    // Trailing falling edge of last command/header bit: present bit 7 of resp[0]
                     resp_armed_ = true;
                 } else {
                     ++resp_bit_;
@@ -154,6 +173,7 @@ public:
         }
 
         prev_sclk_ = sclk;
+        prev_mosi_ = mosi;
         if (serving_response_ && resp_armed_ && resp_idx_ < resp_bytes_.size()) {
             return static_cast<uint8_t>((resp_bytes_[resp_idx_] >> (7u - resp_bit_)) & 1u);
         }
@@ -313,6 +333,7 @@ struct FlashSocHarness {
         ++cycles;
     }
 
+    /// Standard simultaneous AWVALID + WVALID AXI4-Lite write.
     uint8_t axi_write(uint32_t addr, uint32_t data, uint8_t strb = 0xFu) {
         dut.s_axi_awaddr = addr;
         dut.s_axi_awvalid = 1;
@@ -337,6 +358,81 @@ struct FlashSocHarness {
             }
         }
         assert(false && "AXI4-Lite write timed out");
+        return 2u;
+    }
+
+    /// Regression test helper for Bug #2: WVALID arrives BEFORE AWVALID (legal AMBA AXI4-Lite).
+    uint8_t axi_write_w_before_aw(uint32_t addr, uint32_t data, uint8_t strb = 0xFu) {
+        dut.s_axi_awvalid = 0;
+        dut.s_axi_wdata = data;
+        dut.s_axi_wstrb = strb;
+        dut.s_axi_wvalid = 1;
+        dut.s_axi_bready = 1;
+
+        // W channel MUST be accepted without waiting for AWVALID!
+        bool w_done = false;
+        for (int i = 0; i < 4; ++i) {
+            dut.eval();
+            const bool w_h = !w_done && dut.s_axi_wvalid && dut.s_axi_wready;
+            tick();
+            if (w_h) { w_done = true; dut.s_axi_wvalid = 0; break; }
+        }
+        assert(w_done && "AXI4-Lite deadlock: WREADY waited on AWVALID!");
+        tick(); // Extra idle cycle between W and AW
+
+        dut.s_axi_awaddr = addr;
+        dut.s_axi_awvalid = 1;
+        bool aw_done = false;
+        for (int guard = 0; guard < 32; ++guard) {
+            dut.eval();
+            const bool aw_h = !aw_done && dut.s_axi_awvalid && dut.s_axi_awready;
+            tick();
+            if (aw_h) { aw_done = true; dut.s_axi_awvalid = 0; }
+            if (aw_done && dut.s_axi_bvalid) {
+                const uint8_t resp = dut.s_axi_bresp;
+                tick();
+                dut.s_axi_bready = 0;
+                return resp;
+            }
+        }
+        assert(false && "AXI4-Lite W-before-AW write timed out");
+        return 2u;
+    }
+
+    /// Regression test helper for Bug #2: AWVALID arrives BEFORE WVALID.
+    uint8_t axi_write_aw_before_w(uint32_t addr, uint32_t data, uint8_t strb = 0xFu) {
+        dut.s_axi_wvalid = 0;
+        dut.s_axi_awaddr = addr;
+        dut.s_axi_awvalid = 1;
+        dut.s_axi_bready = 1;
+
+        bool aw_done = false;
+        for (int i = 0; i < 4; ++i) {
+            dut.eval();
+            const bool aw_h = !aw_done && dut.s_axi_awvalid && dut.s_axi_awready;
+            tick();
+            if (aw_h) { aw_done = true; dut.s_axi_awvalid = 0; break; }
+        }
+        assert(aw_done && "AXI4-Lite deadlock: AWREADY waited on WVALID!");
+        tick();
+
+        dut.s_axi_wdata = data;
+        dut.s_axi_wstrb = strb;
+        dut.s_axi_wvalid = 1;
+        bool w_done = false;
+        for (int guard = 0; guard < 32; ++guard) {
+            dut.eval();
+            const bool w_h = !w_done && dut.s_axi_wvalid && dut.s_axi_wready;
+            tick();
+            if (w_h) { w_done = true; dut.s_axi_wvalid = 0; }
+            if (w_done && dut.s_axi_bvalid) {
+                const uint8_t resp = dut.s_axi_bresp;
+                tick();
+                dut.s_axi_bready = 0;
+                return resp;
+            }
+        }
+        assert(false && "AXI4-Lite AW-before-W write timed out");
         return 2u;
     }
 
@@ -413,9 +509,113 @@ void verify_fs_roundtrip(const char* label, FlashBackend backend) {
     assert(std::memcmp(rd, msg2, sizeof(msg2)) == 0);
 }
 
+void test_axi_driver_timeouts() {
+    struct StuckBusyBus {
+        uint32_t status_val{};
+        static void wr(void*, uint32_t, uint32_t) {}
+        static uint32_t rd(void* ctx, uint32_t) {
+            return static_cast<StuckBusyBus*>(ctx)->status_val;
+        }
+    };
+
+    // Bug #8 regression: sticky timeout flag on AxiSpiMaster, AxiOnfiNand, AxiCfiNor.
+    StuckBusyBus sb{0x53500001u}; // "SP" magic + busy=1
+    AxiBus bus{&sb, &StuckBusyBus::wr, &StuckBusyBus::rd};
+    AxiSpiMaster spi;
+    spi.set_max_busy_polls(4u);
+    assert(!spi.initialize(bus, kDefaultBase + kSpiWindowOff, 0u));
+    assert(spi.timed_out());
+    spi.clear_timeout();
+    assert(!spi.timed_out());
+
+    sb.status_val = 0x4E410001u; // "NA" magic + busy=1
+    AxiOnfiNand onfi;
+    onfi.set_max_busy_polls(4u);
+    assert(!onfi.initialize(bus, kDefaultBase + kOnfiNandOff));
+    assert(onfi.timed_out());
+    onfi.clear_timeout();
+    assert(!onfi.timed_out());
+
+    sb.status_val = 0x43460001u; // "CF" magic + busy=1
+    AxiCfiNor cfi;
+    cfi.set_max_busy_polls(4u);
+    assert(!cfi.initialize(bus, kDefaultBase + kCfiNorOff));
+    assert(cfi.timed_out());
+    cfi.clear_timeout();
+    assert(!cfi.timed_out());
+}
+
+void test_rtl_protocol_and_irq_regressions(FlashSocHarness& soc) {
+    uint8_t resp = 0;
+
+    // 1. Bug #2 regression: WVALID-before-AWVALID AND AWVALID-before-WVALID across all 3 windows!
+    assert(soc.axi_write_w_before_aw(kDefaultBase + kSpiWindowOff + 0x00u, 0x00020001u) == 0u);
+    assert(soc.axi_read(kDefaultBase + kSpiWindowOff + 0x00u, &resp) == 0x00020001u && resp == 0u);
+    assert(soc.axi_write_aw_before_w(kDefaultBase + kOnfiNandOff + 0x1Cu, 0x00020302u) == 0u);
+    assert(soc.axi_read(kDefaultBase + kOnfiNandOff + 0x1Cu, &resp) == 0x00020302u && resp == 0u);
+    assert(soc.axi_write_w_before_aw(kDefaultBase + kCfiNorOff + 0x18u, 0x00020402u) == 0u);
+    assert(soc.axi_read(kDefaultBase + kCfiNorOff + 0x18u, &resp) == 0x00020402u && resp == 0u);
+
+    // 2. Bug #1 regression: SLVERR on aliased invalid offsets MUST NOT mutate registers or clear rx_valid!
+    assert(soc.axi_write(kDefaultBase + kSpiWindowOff + 0x100u, 0x000500FFu) == 2u); // aliases 0x000
+    assert(soc.axi_read(kDefaultBase + kSpiWindowOff + 0x00u, &resp) == 0x00020001u && resp == 0u);
+    assert(soc.axi_write(kDefaultBase + kOnfiNandOff + 0x11Cu, 0x00090909u) == 2u); // aliases 0x01C
+    assert(soc.axi_read(kDefaultBase + kOnfiNandOff + 0x1Cu, &resp) == 0x00020302u && resp == 0u);
+    assert(soc.axi_write(kDefaultBase + kCfiNorOff + 0x118u, 0x00080808u) == 2u); // aliases 0x018
+    assert(soc.axi_read(kDefaultBase + kCfiNorOff + 0x18u, &resp) == 0x00020402u && resp == 0u);
+
+    // Trigger 1 SPI byte so rx_valid=1, then read invalid aliased offset 0x10C: must SLVERR & keep rx_valid=1!
+    assert(soc.axi_write(kDefaultBase + kSpiWindowOff + 0x08u, 0xA5u) == 0u);
+    while ((soc.axi_read(kDefaultBase + kSpiWindowOff + 0x04u, &resp) & 1u) != 0u) {}
+    assert((soc.axi_read(kDefaultBase + kSpiWindowOff + 0x04u, &resp) & 2u) != 0u); // rx_valid == 1
+    (void)soc.axi_read(kDefaultBase + kSpiWindowOff + 0x10Cu, &resp);
+    assert(resp == 2u);
+    assert((soc.axi_read(kDefaultBase + kSpiWindowOff + 0x04u, &resp) & 2u) != 0u); // STILL 1!
+    (void)soc.axi_read(kDefaultBase + kSpiWindowOff + 0x0Cu, &resp);
+    assert(resp == 0u);
+    assert((soc.axi_read(kDefaultBase + kSpiWindowOff + 0x04u, &resp) & 2u) == 0u); // Now cleared!
+
+    // 3. IRQ assertion & W1C clearing across SPI, ONFI, and CFI controllers!
+    assert(soc.axi_write(kDefaultBase + kSpiWindowOff + 0x14u, 1u) == 0u); // Clear stale SPI IRQ
+    assert(soc.axi_write(kDefaultBase + kSpiWindowOff + 0x10u, 1u) == 0u); // Enable SPI IRQ
+    assert(soc.dut.flash_irq == 0u);
+    assert(soc.axi_write(kDefaultBase + kSpiWindowOff + 0x08u, 0xFFu) == 0u);
+    while ((soc.axi_read(kDefaultBase + kSpiWindowOff + 0x04u, &resp) & 1u) != 0u) {}
+    assert(soc.dut.flash_irq == 1u);
+    assert((soc.axi_read(kDefaultBase + kSubsysInfoOff + 0x08u, &resp) & 1u) != 0u);
+    assert(soc.axi_write(kDefaultBase + kSpiWindowOff + 0x14u, 1u) == 0u); // W1C
+    assert(soc.axi_write(kDefaultBase + kSpiWindowOff + 0x10u, 0u) == 0u);
+    assert(soc.dut.flash_irq == 0u);
+
+    // ONFI IRQ assertion & W1C clear
+    assert(soc.axi_write(kDefaultBase + kOnfiNandOff + 0x24u, 3u) == 0u);
+    assert(soc.axi_write(kDefaultBase + kOnfiNandOff + 0x00u, 0x0Bu) == 0u); // CE=1, WP#=1, IRQ_EN=1
+    assert(soc.axi_write(kDefaultBase + kOnfiNandOff + 0x08u, 0xFFu) == 0u); // Reset cmd
+    while ((soc.axi_read(kDefaultBase + kOnfiNandOff + 0x04u, &resp) & 1u) != 0u) {}
+    assert(soc.dut.flash_irq == 1u);
+    assert((soc.axi_read(kDefaultBase + kSubsysInfoOff + 0x08u, &resp) & 2u) != 0u);
+    assert(soc.axi_write(kDefaultBase + kOnfiNandOff + 0x24u, 3u) == 0u); // W1C
+    assert(soc.axi_write(kDefaultBase + kOnfiNandOff + 0x00u, 0x03u) == 0u);
+    assert(soc.dut.flash_irq == 0u);
+
+    // CFI IRQ assertion & W1C clear
+    assert(soc.axi_write(kDefaultBase + kCfiNorOff + 0x1Cu, 1u) == 0u);
+    assert(soc.axi_write(kDefaultBase + kCfiNorOff + 0x00u, 0x07u) == 0u); // RESET#=1, WP#=1, IRQ_EN=1
+    assert(soc.axi_write(kDefaultBase + kCfiNorOff + 0x08u, 0u) == 0u);
+    assert(soc.axi_write(kDefaultBase + kCfiNorOff + 0x10u, 1u) == 0u); // Trigger read16
+    while ((soc.axi_read(kDefaultBase + kCfiNorOff + 0x04u, &resp) & 1u) != 0u) {}
+    assert(soc.dut.flash_irq == 1u);
+    assert((soc.axi_read(kDefaultBase + kSubsysInfoOff + 0x08u, &resp) & 4u) != 0u);
+    assert(soc.axi_write(kDefaultBase + kCfiNorOff + 0x1Cu, 1u) == 0u); // W1C
+    assert(soc.axi_write(kDefaultBase + kCfiNorOff + 0x00u, 0x03u) == 0u);
+    assert(soc.dut.flash_irq == 0u);
+}
+
 } // namespace
 
 int main() {
+    test_axi_driver_timeouts();
+
     FlashSocHarness soc;
     soc.init();
 
@@ -432,9 +632,34 @@ int main() {
     assert(resp == 2u);
     assert(soc.axi_write(kDefaultBase + kSubsysInfoOff + 0x00u, 0x1234u) == 2u); // RO register
 
+    test_rtl_protocol_and_irq_regressions(soc);
+
     const AxiBus bus = soc.axi_bus();
 
-    // 2. Serial SPI NOR (CS0#) end-to-end through AXI4-Lite SPI Master RTL
+    // 2a. Bug #3 regression: SPI Mode 3 (CPOL=1, CPHA=1) & Mode 1 (CPOL=0, CPHA=1) transfers + hold-time check!
+    for (uint8_t spi_mode : {uint8_t(3u), uint8_t(1u)}) {
+        AxiSpiMaster spi_mode_drv;
+        assert(spi_mode_drv.initialize(bus, kDefaultBase + kSpiWindowOff, 0u, 2u, spi_mode));
+        soc.spi0_nor.set_mode(spi_mode);
+        SerialNorAdapter mode_nor;
+        assert(mode_nor.initialize(spi_mode_drv.spi_bus(), 8u, 4u, 256u));
+        uint8_t id[3]{};
+        assert(mode_nor.read_jedec_id(id));
+        assert(id[0] == 0xEFu && id[1] == 0x40u && id[2] == 0x18u);
+
+        // Also program & read back a 256-byte page in CPHA=1 mode!
+        uint8_t wr[256]{}, rd[256]{};
+        for (size_t i = 0; i < 256; ++i) wr[i] = static_cast<uint8_t>((i * 29u + spi_mode * 7u) ^ 0x5Au);
+        FlashBackend b = mode_nor.backend();
+        assert(b.erase_block(b.context, 0u) == IoStatus::ok);
+        assert(b.program_page(b.context, 0u, 0u, wr, 256u, nullptr, 0u) == IoStatus::ok);
+        assert(b.read_page(b.context, 0u, 0u, rd, 256u, nullptr, 0u) == IoStatus::ok);
+        assert(std::memcmp(wr, rd, 256u) == 0);
+    }
+    soc.nor_chip.reset_erased();
+    soc.spi0_nor.set_mode(0u);
+
+    // 2b. Serial SPI NOR (CS0#) end-to-end through AXI4-Lite SPI Master RTL (Mode 0)
     AxiSpiMaster spi_nor_drv;
     assert(spi_nor_drv.initialize(bus, kDefaultBase + kSpiWindowOff, 0u, 1u, 0u));
     SerialNorAdapter nor_adapter;
@@ -443,6 +668,7 @@ int main() {
     assert(nor_adapter.read_jedec_id(jedec));
     assert(jedec[0] == 0xEFu && jedec[1] == 0x40u && jedec[2] == 0x18u); // Winbond W25Q128JV
     verify_fs_roundtrip("SPI-NOR", nor_adapter.backend());
+    assert(!spi_nor_drv.timed_out());
     assert(soc.nor_chip.telemetry().program_ops > 0u && soc.nor_chip.telemetry().erase_ops > 0u);
 
     // 3. Serial SPI SLC NAND (CS1#) with factory bad block through AXI4-Lite SPI Master RTL
@@ -452,13 +678,16 @@ int main() {
     SerialNandAdapter snand_adapter;
     assert(snand_adapter.initialize(spi_nand_drv.spi_bus(), 8u, 4u, 256u, 32u));
     verify_fs_roundtrip("SPI-NAND", snand_adapter.backend());
+    assert(!spi_nand_drv.timed_out());
     assert(soc.snand_chip.telemetry().program_ops > 0u);
 
-    // 4. Parallel ONFI x8 NAND through AXI4-Lite ONFI Controller RTL + HW Hamming-256 ECC verification!
+    // 4. Parallel ONFI x8 NAND through AXI4-Lite ONFI Controller RTL + HW Hamming-256 ECC offload!
     soc.pnand_chip.mark_factory_bad(3u);
     AxiOnfiNand onfi_drv;
     assert(onfi_drv.initialize(bus, kDefaultBase + kOnfiNandOff, 1u, 2u, 1u));
     assert(onfi_drv.has_hw_ecc());
+    ParallelNandBus nb_hw = onfi_drv.nand_bus();
+    assert(nb_hw.hw_ecc_reset != nullptr && nb_hw.hw_ecc_read != nullptr);
 
     // Prove Verilog HW 22-bit Hamming-256 ECC engine is bit-exact with software hamming256_encode()!
     uint8_t test_block[256]{};
@@ -467,14 +696,13 @@ int main() {
             test_block[i] = static_cast<uint8_t>((i * 37u + seed * 113u) ^ (i >> 1));
         }
         onfi_drv.hw_ecc_reset();
-        ParallelNandBus nb = onfi_drv.nand_bus();
-        nb.write_cmd(nb.context, 0x80u);
-        nb.write_addr(nb.context, 0u);
-        nb.write_addr(nb.context, 0u);
-        nb.write_addr(nb.context, 0u);
-        nb.write_addr(nb.context, 0u);
-        nb.write_addr(nb.context, 0u);
-        nb.write_data(nb.context, test_block, 256u);
+        nb_hw.write_cmd(nb_hw.context, 0x80u);
+        nb_hw.write_addr(nb_hw.context, 0u);
+        nb_hw.write_addr(nb_hw.context, 0u);
+        nb_hw.write_addr(nb_hw.context, 0u);
+        nb_hw.write_addr(nb_hw.context, 0u);
+        nb_hw.write_addr(nb_hw.context, 0u);
+        nb_hw.write_data(nb_hw.context, test_block, 256u);
 
         uint8_t hw_ecc[3]{}, sw_ecc[3]{};
         onfi_drv.hw_ecc_read(hw_ecc);
@@ -484,9 +712,25 @@ int main() {
     soc.pnand_chip.reset_erased();
     soc.pnand_chip.mark_factory_bad(3u);
 
+    // Prove HW-ECC-offloaded ParallelNandAdapter corrects a 1-bit flip & flags 2-bit uncorrectable!
     ParallelNandAdapter pnand_adapter;
-    assert(pnand_adapter.initialize(onfi_drv.nand_bus(), 8u, 4u, 256u, 32u, true));
+    assert(pnand_adapter.initialize(nb_hw, 8u, 4u, 256u, 32u, true));
+    {
+        FlashBackend b = pnand_adapter.backend();
+        uint8_t wr[256]{}, rd[256]{};
+        for (size_t i = 0; i < 256; ++i) wr[i] = static_cast<uint8_t>((i * 19u + 7u) ^ 0xA5u);
+        assert(b.program_page(b.context, 0u, 0u, wr, 256u, nullptr, 0u) == IoStatus::ok);
+        soc.pnand_chip.flip_data_bit(0u, 0u, 137u, 0x10u); // Inject 1-bit upset
+        assert(b.read_page(b.context, 0u, 0u, rd, 256u, nullptr, 0u) == IoStatus::ecc_corrected);
+        assert(std::memcmp(wr, rd, 256u) == 0);
+        soc.pnand_chip.flip_data_bit(0u, 0u, 12u, 0x01u);  // Now 2 bits flipped -> uncorrectable
+        assert(b.read_page(b.context, 0u, 0u, rd, 256u, nullptr, 0u) == IoStatus::ecc_uncorrectable);
+    }
+    soc.pnand_chip.reset_erased();
+    soc.pnand_chip.mark_factory_bad(3u);
+
     verify_fs_roundtrip("ONFI-NAND", pnand_adapter.backend());
+    assert(!onfi_drv.timed_out());
     assert(soc.pnand_chip.telemetry().program_ops > 0u);
 
     // 5. Parallel 16-bit CFI NOR through AXI4-Lite CFI Controller RTL
@@ -495,9 +739,10 @@ int main() {
     ParallelNorAdapter pnor_adapter;
     assert(pnor_adapter.initialize(cfi_drv.nor_bus(), 8u, 4u, 256u));
     verify_fs_roundtrip("CFI-NOR", pnor_adapter.backend());
+    assert(!cfi_drv.timed_out());
     assert(soc.pnor_chip.telemetry().program_ops > 0u && soc.pnor_chip.telemetry().erase_ops > 0u);
 
-    std::printf("PASS: Verilator AXI4-Lite Multi-Flash RTL Co-Sim verified all 4 flash families + HW Hamming-256 ECC (%llu RTL cycles).\n",
+    std::printf("PASS: Verilator AXI4-Lite Multi-Flash RTL Co-Sim verified all 4 flash families, AXI W/AW ordering, SLVERR non-mutation, SPI Mode 1/3, IRQs, and HW Hamming-256 ECC offload (%llu RTL cycles).\n",
                 static_cast<unsigned long long>(soc.cycles));
     return 0;
 }

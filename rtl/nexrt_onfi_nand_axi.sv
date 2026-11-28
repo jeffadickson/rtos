@@ -212,10 +212,10 @@ module nexrt_onfi_nand_axi #(
                 irq_rb_stat <= 1'b1;
             end
 
-            // Register writes
-            if (reg_wr) begin
-                unique case (reg_addr[7:0])
-                    8'h00: begin
+            // Register writes (full 12-bit address decode, gated by !reg_err)
+            if (reg_wr && !reg_err) begin
+                unique case (reg_addr)
+                    12'h000: begin
                         ce_assert   <= reg_wdata[0];
                         wp_n_reg    <= reg_wdata[1];
                         if (reg_wdata[2]) begin
@@ -226,19 +226,19 @@ module nexrt_onfi_nand_axi #(
                         irq_done_en <= reg_wdata[3];
                         irq_rb_en   <= reg_wdata[4];
                     end
-                    8'h08: if (!busy) begin
+                    12'h008: if (!busy) begin
                         cur_op  <= OP_CMD;
                         tx_byte <= reg_wdata[7:0];
                         state   <= ST_SETUP;
                         timer   <= (t_setup == 8'd0) ? 8'd0 : (t_setup - 8'd1);
                     end
-                    8'h0C: if (!busy) begin
+                    12'h00C: if (!busy) begin
                         cur_op  <= OP_ADDR;
                         tx_byte <= reg_wdata[7:0];
                         state   <= ST_SETUP;
                         timer   <= (t_setup == 8'd0) ? 8'd0 : (t_setup - 8'd1);
                     end
-                    8'h10: if (!busy) begin
+                    12'h010: if (!busy) begin
                         cur_op  <= OP_WR;
                         tx_byte <= reg_wdata[7:0];
                         state   <= ST_SETUP;
@@ -251,17 +251,17 @@ module nexrt_onfi_nand_axi #(
                             ecc_cnt  <= ecc_cnt + 9'd1;
                         end
                     end
-                    8'h14: if (!busy) begin
+                    12'h014: if (!busy) begin
                         cur_op <= OP_RD;
                         state  <= ST_SETUP;
                         timer  <= (t_setup == 8'd0) ? 8'd0 : (t_setup - 8'd1);
                     end
-                    8'h1C: begin
+                    12'h01C: begin
                         t_setup <= (reg_wdata[7:0]   == 8'd0) ? 8'd1 : reg_wdata[7:0];
                         t_pulse <= (reg_wdata[15:8]  == 8'd0) ? 8'd1 : reg_wdata[15:8];
                         t_hold  <= (reg_wdata[23:16] == 8'd0) ? 8'd1 : reg_wdata[23:16];
                     end
-                    8'h24: begin
+                    12'h024: begin
                         if (reg_wdata[0]) irq_done_stat <= 1'b0;
                         if (reg_wdata[1]) irq_rb_stat   <= 1'b0;
                     end

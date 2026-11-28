@@ -191,6 +191,11 @@ bool Session::execute_line(const char* line) {
         while (pos < len && scratch[pos] != ' ' && scratch[pos] != '\t') ++pos;
         if (pos < len) scratch[pos++] = '\0';
     }
+    while (pos < len && (scratch[pos] == ' ' || scratch[pos] == '\t')) ++pos;
+    if (pos < len) {
+        emit_line("ERR too many arguments");
+        return false;
+    }
     if (argc == 0) return true;
 
     ++command_count_;
@@ -277,6 +282,7 @@ uint32_t Session::spawn_job(const char* name, JobStepFn step_fn, void* job_ctx) 
 }
 
 bool Session::cancel_job(uint32_t job_id) {
+    if ((job_id >> 24) != 0u) return false;
     const size_t slot = static_cast<size_t>(job_id & 0xffu);
     const uint16_t gen = static_cast<uint16_t>((job_id >> 8) & 0xffffu);
     if (slot >= max_jobs || gen == 0) return false;
